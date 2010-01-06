@@ -150,6 +150,7 @@ package org.purepdf.pdf
 		public static const DEVICECMYK: PdfName = new PdfName( "DeviceCMYK" );
 		public static const DEVICEGRAY: PdfName = new PdfName( "DeviceGray" );
 		public static const DEVICERGB: PdfName = new PdfName( "DeviceRGB" );
+		public static const DEVICEN: PdfName = new PdfName( "DeviceN" );
 		public static const DI: PdfName = new PdfName( "Di" );
 		public static const DIFFERENCES: PdfName = new PdfName( "Differences" );
 		public static const DIRECTION: PdfName = new PdfName( "Direction" );

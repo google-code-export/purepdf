@@ -193,6 +193,7 @@ package org.purepdf.pdf
 		
 		public function append_number( value: Number ): ByteBuffer
 		{
+			// TODO: check if it's better to formatDouble the passed number or use Number.toFixed
 			append_string( formatDouble( value, this ) );
 			return this;
 		}

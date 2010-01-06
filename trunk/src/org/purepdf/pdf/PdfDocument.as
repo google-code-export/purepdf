@@ -49,7 +49,7 @@ package org.purepdf.pdf
 		protected var pageEmpty: Boolean = true;
 		protected var pageN: int = 0;
 		protected var pageResources: PageResources;
-		protected var pageSize: RectangleElement;
+		protected var _pageSize: RectangleElement;
 		protected var rootOutline: PdfOutline;
 		protected var strictImageSequence: Boolean = false;
 		protected var text: PdfContentByte;
@@ -62,7 +62,7 @@ package org.purepdf.pdf
 		
 		public function PdfDocument( size: RectangleElement )
 		{
-			pageSize = size;
+			_pageSize = size;
 			super();
 			addProducer();
 			addCreationDate();
@@ -124,7 +124,7 @@ package org.purepdf.pdf
 
 		public function bottom( margin: Number=0 ): Number
 		{
-			return pageSize.getBottom( marginBottom + margin );
+			return _pageSize.getBottom( marginBottom + margin );
 		}
 
 		/**
@@ -189,9 +189,13 @@ package org.purepdf.pdf
 			return pageResources;
 		}
 
-		public function getPageSize(): RectangleElement
+		/**
+		 * Return the current pagesize
+		 * 
+		 */
+		public function get pageSize(): RectangleElement
 		{
-			return pageSize;
+			return _pageSize;
 		}
 
 		public function isOpen(): Boolean
@@ -206,7 +210,7 @@ package org.purepdf.pdf
 
 		public function left( margin: Number=0 ): Number
 		{
-			return pageSize.getLeft( marginLeft + margin );
+			return _pageSize.getLeft( marginLeft + margin );
 		}
 
 		/**
@@ -229,14 +233,14 @@ package org.purepdf.pdf
 			dispatchEvent( new PageEvent( PageEvent.END_PAGE ) );
 			
 			flushLines();
-			var rotation: int = pageSize.getRotation();
+			var rotation: int = _pageSize.getRotation();
 			var resources: PdfDictionary = pageResources.getResources();
-			var page: PdfPage = new PdfPage( PdfRectangle.create( pageSize, rotation ), thisBoxSize, resources, rotation );
+			var page: PdfPage = new PdfPage( PdfRectangle.create( _pageSize, rotation ), thisBoxSize, resources, rotation );
 			page.put( PdfName.TABS, writer.getTabs() );
 
 			if ( annotationsImp.hasUnusedAnnotations() )
 			{
-				var array: PdfArray = annotationsImp.rotateAnnotations( writer, pageSize );
+				var array: PdfArray = annotationsImp.rotateAnnotations( writer, _pageSize );
 
 				if ( array.size() != 0 )
 					page.put( PdfName.ANNOTS, array );
@@ -250,7 +254,7 @@ package org.purepdf.pdf
 			{
 				text = null;
 			}
-			writer.add( page, new PdfContents( writer.getDirectContentUnder(), graphics, text, writer.getDirectContent(), pageSize ) );
+			writer.add( page, new PdfContents( writer.getDirectContentUnder(), graphics, text, writer.getDirectContent(), _pageSize ) );
 			// initialize the new page
 			initPage();
 			return true;
@@ -265,7 +269,7 @@ package org.purepdf.pdf
 			if ( !opened )
 			{
 				opened = true;
-				setPageSize( pageSize );
+				pageSize = _pageSize;
 				setMargins( marginLeft, marginRight, marginTop, marginBottom );
 				writer.open();
 				rootOutline = new PdfOutline( writer );
@@ -280,7 +284,7 @@ package org.purepdf.pdf
 
 		public function right( margin: Number=0 ): Number
 		{
-			return pageSize.getRight( marginRight + margin );
+			return _pageSize.getRight( marginRight + margin );
 		}
 
 		public function setMargins( marginLeft: Number, marginRight: Number, marginTop: Number, marginBottom: Number ): Boolean
@@ -296,14 +300,16 @@ package org.purepdf.pdf
 			return true;
 		}
 
-		public function setPageSize( value: RectangleElement ): Boolean
+		/**
+		 * Set the pagesize
+		 * 
+		 */
+		public function set pageSize( value: RectangleElement ): void
 		{
 			if ( writer != null && writer.isPaused() )
-			{
-				return false;
-			}
+				return;
+
 			nextPageSize = RectangleElement.clone( value );
-			return true;
 		}
 
 		public function setViewerPreferences( preferences: int ): void
@@ -313,7 +319,7 @@ package org.purepdf.pdf
 
 		public function top( margin: Number=0 ): Number
 		{
-			return pageSize.getTop( marginTop + margin );
+			return _pageSize.getTop( marginTop + margin );
 		}
 
 		protected function carriageReturn(): void
@@ -376,9 +382,9 @@ package org.purepdf.pdf
 			currentHeight = 0;
 			thisBoxSize = new HashMap();
 
-			if ( pageSize.getBackgroundColor() != null || pageSize.hasBorders() || pageSize.getBorderColor() != null )
+			if ( _pageSize.getBackgroundColor() != null || _pageSize.hasBorders() || _pageSize.getBorderColor() != null )
 			{
-				add( pageSize );
+				add( _pageSize );
 			}
 			var oldleading: Number = leading;
 			var oldAlignment: int = alignment;
@@ -425,7 +431,7 @@ package org.purepdf.pdf
 
 		protected function setNewPageSizeAndMargins(): void
 		{
-			pageSize = nextPageSize;
+			_pageSize = nextPageSize;
 
 			if ( marginMirroring && ( getPageNumber() & 1 ) == 0 )
 			{
