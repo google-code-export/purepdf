@@ -84,20 +84,22 @@ package org.purepdf.pdf
 
 		/**
 		 * Adds an <CODE>ImageElement</CODE> to the page. The positioning of the <CODE>ImageElement</CODE>
-		 * is done with the transformation matrix. To position an <CODE>ImageElement</CODE> at (x,y)
-		 * use addImage(image, image_width, 0, 0, image_height, x, y). The image can be placed inline.
+		 * is done with the transformation matrix. 
+		 * To position an <CODE>ImageElement</CODE> at (x,y)
+		 * use addImage(image, image_width, 0, 0, image_height, x, y)
+		 * 
 		 * @param image the <CODE>ImageElement</CODE> object
-		 * @param a an element of the transformation matrix
-		 * @param b an element of the transformation matrix
-		 * @param c an element of the transformation matrix
-		 * @param d an element of the transformation matrix
-		 * @param e an element of the transformation matrix
-		 * @param f an element of the transformation matrix
-		 * @param inlineImage <CODE>true</CODE> to place this image inline, <CODE>false</CODE> otherwise
+		 * @param width
+		 * @param b element of the transformation matrix
+		 * @param c element of the transformation matrix
+		 * @param height
+		 * @param x
+		 * @param y
+		 * @param inlineImage
 		 * 
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
-		public function addImage2( image: ImageElement, a: Number, b: Number, c: Number, d: Number, e: Number, f: Number, inlineImage: Boolean ): void
+		public function addImage2( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number, inlineImage: Boolean ): void
 		{
 			if ( image.layer != null )
 				beginLayer( image.layer );
@@ -116,12 +118,12 @@ package org.purepdf.pdf
 			else
 			{
 				content.append( "q " );
-				content.append_number( a ).append_char( ' ' );
+				content.append_number( width ).append_char( ' ' );
 				content.append_number( b ).append_char( ' ' );
 				content.append_number( c ).append_char( ' ' );
-				content.append_number( d ).append_char( ' ' );
-				content.append_number( e ).append_char( ' ' );
-				content.append_number( f ).append( " cm" );
+				content.append_number( height ).append_char( ' ' );
+				content.append_number( x ).append_char( ' ' );
+				content.append_number( y ).append( " cm" );
 
 				if ( inlineImage )
 				{
@@ -149,7 +151,7 @@ package org.purepdf.pdf
 				saveState();
 				w = image.getWidth();
 				h = image.getHeight();
-				concatCTM( a / w, b / w, c / h, d / h, e, f );
+				concatCTM( width / w, b / w, c / h, height / h, x, y );
 				rectangle( image );
 				restoreState();
 			}
@@ -165,8 +167,8 @@ package org.purepdf.pdf
 
 			for ( k = 0; k < unitRect.length; k += 2 )
 			{
-				r[ k ] = a * unitRect[ k ] + c * unitRect[ k + 1 ] + e;
-				r[ k + 1 ] = b * unitRect[ k ] + d * unitRect[ k + 1 ] + f;
+				r[ k ] = width * unitRect[ k ] + c * unitRect[ k + 1 ] + x;
+				r[ k + 1 ] = b * unitRect[ k ] + height * unitRect[ k + 1 ] + y;
 			}
 			var llx: Number = r[ 0 ];
 			var lly: Number = r[ 1 ];
@@ -193,19 +195,20 @@ package org.purepdf.pdf
 		 * Adds an <CODE>ImageElement</CODE> to the page. The positioning of the <CODE>ImageElement</CODE>
 		 * is done with the transformation matrix. To position an <CODE>ImageElement</CODE> at (x,y)
 		 * use addImage(image, image_width, 0, 0, image_height, x, y).
+		 * 
 		 * @param image the <CODE>ImageElement</CODE> object
-		 * @param a an element of the transformation matrix
-		 * @param b an element of the transformation matrix
-		 * @param c an element of the transformation matrix
-		 * @param d an element of the transformation matrix
-		 * @param e an element of the transformation matrix
-		 * @param f an element of the transformation matrix
+		 * @param width
+		 * @param b element of the transformation matrix
+		 * @param c element of the transformation matrix
+		 * @param height
+		 * @param x
+		 * @param y
 		 * 
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
-		public function addImage3( image: ImageElement, a: Number, b: Number, c: Number, d: Number, e: Number, f: Number ): void
+		public function addImage3( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number ): void
 		{
-			addImage2( image, a, b, c, d, e, f, false );
+			addImage2( image, width, b, c, height, x, y, false );
 		}
 
 		/**
@@ -312,7 +315,8 @@ package org.purepdf.pdf
 		 */
 		public function curveTo( x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number ): void
 		{
-			content.append_number( x1 ).append( ' ' ).append_number( y1 ).append( ' ' ).append_number( x2 ).append( ' ' ).append_number( y2 ).append( ' ' ).append_number( x3 ).append( ' ' ).append_number( y3 ).append( " c" ).append_separator();
+			content.append_number( x1 ).append_string( ' ' ).append_number( y1 ).append_string( ' ' ).append_number( x2 ).append_string( ' ' ).append_number( y2 ).append_string( ' ' ).
+				append_number( x3 ).append_string( ' ' ).append_number( y3 ).append_string( " c" ).append_separator();
 		}
 
 		public function endLayer(): void
@@ -393,7 +397,7 @@ package org.purepdf.pdf
 
 		public function moveTo( x: Number, y: Number ): void
 		{
-			content.append_number( x ).append( ' ' ).append_number( y ).append( " m" ).append_separator();
+			content.append_number( x ).append_string( ' ' ).append_number( y ).append_string( " m" ).append_separator();
 		}
 
 		/**

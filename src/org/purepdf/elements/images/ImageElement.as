@@ -1,18 +1,20 @@
 package org.purepdf.elements.images
 {
+	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
 	
+	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfIndirectReference;
-	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.pdf.PdfStream;
 	import org.purepdf.pdf.PdfTemplate;
 	import org.purepdf.pdf.codec.GifImage;
 	import org.purepdf.pdf.codec.PngImage;
+	import org.purepdf.pdf.interfaces.IPdfOCG;
 
 	public class ImageElement extends RectangleElement
 	{
@@ -247,6 +249,12 @@ package org.purepdf.elements.images
 		{
 			return _invert;
 		}
+		
+		public function set isinverted( value: Boolean ): void
+		{
+			_invert = value;
+		}
+				
 
 		public function get ismask(): Boolean
 		{
@@ -438,6 +446,11 @@ package org.purepdf.elements.images
 			return _colorspace == 1;
 		}
 
+		/**
+		 * Create a new ImageElement instance from the passed image data
+		 * Currently allowed image types are: jpeg, png, gif (and animated gif), tiff
+		 * 
+		 */
 		public static function getInstance( buffer: ByteArray ): ImageElement
 		{
 			buffer.position = 0;
@@ -446,21 +459,30 @@ package org.purepdf.elements.images
 			var c3: uint = buffer.readUnsignedByte();
 			var c4: uint = buffer.readUnsignedByte();
 
+			// GIF
 			if ( c1 == "G".charCodeAt( 0 ) && c2 == "I".charCodeAt( 0 ) && c3 == "F".charCodeAt( 0 ) )
 			{
 				var gif: GifImage = new GifImage( buffer );
 				return gif.getImage();
 			}
 
-			if ( ( c1 == 0xFF ) && ( c2 == 0xD8 ) )
+			// JPEG
+			if ( c1 == 0xFF && c2 == 0xD8 )
 			{
 				return new Jpeg( buffer );
 			}
 
+			// PNG
 			if ( c1 == PngImage.PNGID[ 0 ] && c2 == PngImage.PNGID[ 1 ] && c3 == PngImage.PNGID[ 2 ] && c4 == PngImage.PNGID[ 3 ] )
 			{
 				return PngImage.getImage( buffer );
 			}
+			
+			// TIFF
+			if( ( c1 == 'M'.charCodeAt(0) && c2 == 'M'.charCodeAt(0) && c3 == 0 && c4 == 42 ) || (c1 == 'I'.charCodeAt(0) && c2 == 'I'.charCodeAt(0) && c3 == 42 && c4 == 0)) 
+			{
+			}
+			
 			throw new Error( "byte array is not a recognized image format" );
 			return null;
 		}
@@ -477,6 +499,16 @@ package org.purepdf.elements.images
 			var img: ImageElement = new ImageRaw( width, height, components, bpc, data );
 			img.transparency = transparency;
 			return img;
+		}
+		
+		/**
+		 * Create an ImageElement instance from a BitmapData
+		 * 
+		 */
+		public static function getBitmapDataInstance( data: BitmapData ): ImageElement
+		{
+			var bytes: ByteArray = TIFFEncoder.encode( data );
+			return ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
 		}
 
 		/** Creates a new serial id. */
