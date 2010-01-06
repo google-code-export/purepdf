@@ -37,7 +37,7 @@ package
 			document.addSubject( "Subject test" );
 			
 			var cb: PdfContentByte = document.getDirectContent();
-			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.getPageSize().getHeight() ) );
+			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.pageSize.getHeight() ) );
 			
 			cb.saveState();
 			cb.setFillColor( new RGBColor( 255, 0, 0 ) );

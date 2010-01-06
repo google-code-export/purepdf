@@ -23,6 +23,7 @@ package
 		protected var buffer: ByteArray;
 		protected var document: PdfDocument;
 		protected var filename: String;
+		protected var result_time: TextLine;
 		
 		protected var create_button: Sprite;
 		
@@ -59,15 +60,53 @@ package
 			addChild( create_button );
 		}
 		
+		protected var start_time: Number;
+		protected var end_time: Number;
+		
 		protected function execute( event: Event = null ): void
 		{
 			buffer = new ByteArray();
+			start_time = new Date().getTime();
 		}
 		
 		protected function save( e: * = null ): void
 		{
+			end_time = new Date().getTime();
+			
+			if( result_time )
+				removeChild( result_time );
+			
+			addResultTime( end_time - start_time );
+			
 			var f: FileReference = new FileReference();
 			f.save( buffer, filename );
+		}
+		
+		protected function addResultTime( time: Number ): void
+		{
+			var text: String = "";
+			var seconds: int = time/1000;
+			var ms: int = ( time - (seconds*1000) ) / 10;
+			
+			text = "Total execution time: " + seconds + ":" + ms;
+			
+			var font: FontDescription = new FontDescription();
+			font.fontName = "Arial";
+			
+			var elementFormat: ElementFormat = new ElementFormat();
+			elementFormat.fontDescription = font;
+			elementFormat.fontSize = 14;
+			elementFormat.color = 0x006600;
+			
+			var textline: TextLine;
+			var tb: TextBlock = new TextBlock();
+			tb.content = new TextElement( text, elementFormat );
+			result_time = tb.createTextLine();
+			
+			result_time.x = ( stage.stageWidth - result_time.width ) / 2;
+			result_time.y = create_button.y + create_button.height + result_time.height + 5;
+
+			addChild( result_time );
 		}
 		
 		protected function description( ...texts: Array ): void
@@ -80,7 +119,6 @@ package
 			elementFormat.fontSize = 14;
 			elementFormat.color = 0;
 			elementFormat.ligatureLevel = LigatureLevel.COMMON;
-			
 			
 			var textline: TextLine;
 			

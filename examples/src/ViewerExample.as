@@ -2,7 +2,6 @@ package
 {
 	import com.adobe.images.JPGEncoder;
 	
-	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -13,6 +12,7 @@ package
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfDocument;
+	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfWriter;
 
 	public class ViewerExample extends DefaultBasicExample
@@ -43,19 +43,19 @@ package
 		protected function execute1( event: Event ): void
 		{
 			super.execute();
-			_execute( PdfWriter.DisplayDocTitle | PdfWriter.PageLayoutTwoPageLeft, getQualifiedClassName( this ) + "_mode1" );
+			_execute( PdfViewPreferences.DisplayDocTitle | PdfViewPreferences.PageLayoutTwoPageLeft, getQualifiedClassName( this ) + "_mode1" );
 		}
 		
 		protected function execute2( event: Event ): void
 		{
 			super.execute();
-			_execute( PdfWriter.HideToolbar | PdfWriter.PageModeUseThumbs, getQualifiedClassName( this ) + "_mode3" );
+			_execute( PdfViewPreferences.HideToolbar | PdfViewPreferences.PageModeUseThumbs, getQualifiedClassName( this ) + "_mode3" );
 		}
 
 		override protected function execute( event: Event=null ): void
 		{
 			super.execute();
-			_execute( PdfWriter.HideWindowUI | PdfWriter.FitWindow, getQualifiedClassName( this ) + "_mode2" );
+			_execute( PdfViewPreferences.HideWindowUI | PdfViewPreferences.FitWindow, getQualifiedClassName( this ) + "_mode2" );
 		}
 		
 		protected function _execute( mode: int, title: String ): void
