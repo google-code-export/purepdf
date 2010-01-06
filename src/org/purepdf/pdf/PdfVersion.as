@@ -1,12 +1,13 @@
 package org.purepdf.pdf
 {
-	import flash.utils.ByteArray;
-	
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfVersion
 	{
 		protected const header_version: String = PdfWriter.VERSION_1_4;
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfVersion );
 		
 		public static const HEADER: Vector.<Bytes> = Vector.<Bytes>([
 			PdfWriter.getISOBytes( "\n" ),
@@ -23,7 +24,7 @@ package org.purepdf.pdf
 		
 		public function addToCatalog( catalog: PdfDictionary ): void
 		{
-			trace('addToCatalog. to be implemented');
+			logger.warn('addToCatalog. to be implemented');
 		}
 		
 		public function getVersionAsByteArray( version: String ): Bytes

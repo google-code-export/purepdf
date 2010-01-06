@@ -1,5 +1,7 @@
 package org.purepdf.pdf
 {
+	import flash.errors.IOError;
+	
 	import org.purepdf.utils.Bytes;
 
 	public class PdfEncodings
@@ -114,7 +116,7 @@ package org.purepdf.pdf
 				return c;
 			}
 			
-			throw new Error("Invalid encoding");
+			throw new IOError("Invalid encoding");
 			return null;
 		}
 		

@@ -7,11 +7,12 @@ package org.purepdf.io.zip
 	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
 	
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.IndexOutOfBoundsError;
 	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.io.FilterInputStream;
 	import org.purepdf.io.InputStream;
-	import org.purepdf.utils.ByteArrayUtils;
 	import org.purepdf.utils.Bytes;
 
 	public class InflaterInputStream extends FilterInputStream
@@ -23,6 +24,8 @@ package org.purepdf.io.zip
 		private var reachEOF: Boolean = false;
 		private var singleByteBuf: Bytes = new Bytes();
 		private var usesDefaultInflater: Boolean = false;
+		
+		private static var logger: ILogger = LoggerFactory.getClassLogger( InflaterInputStream );
 
 		public function InflaterInputStream( stream: InputStream )
 		{
@@ -97,8 +100,8 @@ package org.purepdf.io.zip
 			if ( err != FZlib.Z_OK )
 			{
 				if ( z.msg != null )
-					trace( z.msg + " " );
-				trace( msg + " error: " + err );
+					logger.error( z.msg + " " );
+				logger.error( "message: {0}, error: {1}", msg, err );
 			}
 		}
 	}

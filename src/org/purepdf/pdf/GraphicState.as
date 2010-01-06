@@ -1,19 +1,20 @@
 package org.purepdf.pdf
 {
+
 	public class GraphicState
 	{
 		public var size: Number;
-		internal var xTLM: Number = 0;
-		internal var yTLM: Number = 0;
+		internal var charSpace: Number = 0;
 		internal var leading: Number = 0;
 		internal var scale: Number = 100;
-		internal var charSpace: Number = 0;
 		internal var wordSpace: Number = 0;
-		
+		internal var xTLM: Number = 0;
+		internal var yTLM: Number = 0;
+
 		public function GraphicState()
 		{
 		}
-		
+
 		public static function create( state: GraphicState ): GraphicState
 		{
 			var g: GraphicState = new GraphicState();

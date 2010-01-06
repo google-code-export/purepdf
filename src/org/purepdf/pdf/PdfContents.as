@@ -73,8 +73,6 @@ package org.purepdf.pdf
 					secondContent.getInternalBuffer().writeTo( out );
 				}
 				
-				//out.close();
-				
 			} catch( e: Error )
 			{
 				throw new Error(e.message);

@@ -18,7 +18,6 @@ package org.purepdf.elements.images
 
 			if ( $bpc != 1 && $bpc != 2 && $bpc != 4 && $bpc != 8 )
 				throw new Error( "bits per component must be 1, 2, 4 or 8" );
-
 			_colorspace = $components;
 			_bpc = $bpc;
 			_rawData = $data;

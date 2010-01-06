@@ -106,12 +106,6 @@ package org.purepdf.pdf
 			return append_int( SEPARATOR );
 		}
 		
-		/**
-		 * Appends a <CODE>String</CODE> to the buffer. The <CODE>String</CODE> is
-		 * converted according to the encoding ISO-8859-1.
-		 * @param str the <CODE>String</CODE> to be appended
-		 * @return a reference to this <CODE>ByteBuffer</CODE> object
-		 */
 		public function append_string( str: String): ByteBuffer
 		{
 			if (str != null)
@@ -120,7 +114,8 @@ package org.purepdf.pdf
 		}
 		
 		/**
-		 * @param value	Possible values are: String or int
+		 * Append a generic object to the current content
+		 * @param value	only String or int are allowed here
 		 * 
 		 */
 		public function append( value: * ): ByteBuffer
@@ -165,7 +160,6 @@ package org.purepdf.pdf
 		/**
 		 * Appends another <CODE>ByteBuffer</CODE> to this buffer.
 		 * @param buf the <CODE>ByteBuffer</CODE> to be appended
-		 * @return a reference to this <CODE>ByteBuffer</CODE> object
 		 */
 		public function append_bytebuffer( buf: ByteBuffer ): ByteBuffer
 		{
@@ -499,7 +493,6 @@ package org.purepdf.pdf
 		 * stream's write method using <code>out.write(buf, 0, count)</code>.
 		 *
 		 * @param      out   the output stream to which to write the data.
-		 * @exception  IOException  if an I/O error occurs.
 		 */
 		public function writeTo( out: ByteArray ): void
 		{

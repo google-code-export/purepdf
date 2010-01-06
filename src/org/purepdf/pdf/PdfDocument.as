@@ -1,6 +1,9 @@
 package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
+	
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;
@@ -55,6 +58,8 @@ package org.purepdf.pdf
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
 		protected var writer: PdfWriter;
 
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfDocument );
+		
 		public function PdfDocument( size: RectangleElement )
 		{
 			pageSize = size;
@@ -90,8 +95,6 @@ package org.purepdf.pdf
 			if ( !opened && element.iscontent )
 				throw new Error( "document is not opened" );
 			var success: Boolean = false;
-			//if( element is ChapterAutoNumber )
-			//	chapternumber = ( element as ChapterAutoNumber ).setAutomaticNumber( chapternumber );
 			success = add( element );
 
 			if ( element is ILargeElement )
@@ -149,20 +152,20 @@ package org.purepdf.pdf
 				opened = false;
 				closed = true;
 			}
-			//writer.addLocalDestinations( localDestinations );
-			//calculateOutlineCount();
-			//writeOutlines();
 			writer.close();
 		}
 
 		public function getCatalog( pages: PdfIndirectReference ): PdfCatalog
 		{
-			trace( 'getCatalog. to be implemented' );
+			logger.warn( 'getCatalog. to be implemented' );
 			var catalog: PdfCatalog = new PdfCatalog( pages, writer );
+			
 			// version
 			writer.getPdfVersion().addToCatalog( catalog );
+			
 			// preferences
 			viewerPreferences.addToCatalog( catalog );
+			
 			return catalog;
 		}
 
@@ -189,13 +192,6 @@ package org.purepdf.pdf
 		public function getPageSize(): RectangleElement
 		{
 			return pageSize;
-		}
-
-		// REMOVE!
-		[Deprecated]
-		public function getWriter(): PdfWriter
-		{
-			return writer;
 		}
 
 		public function isOpen(): Boolean
@@ -231,7 +227,8 @@ package org.purepdf.pdf
 				throw new Error( "Document is not opened" );
 			}
 			dispatchEvent( new PageEvent( PageEvent.END_PAGE ) );
-			//flushLines();
+			
+			flushLines();
 			var rotation: int = pageSize.getRotation();
 			var resources: PdfDictionary = pageResources.getResources();
 			var page: PdfPage = new PdfPage( PdfRectangle.create( pageSize, rotation ), thisBoxSize, resources, rotation );
@@ -321,7 +318,7 @@ package org.purepdf.pdf
 
 		protected function carriageReturn(): void
 		{
-			trace( 'carriageReturn. to be implemented' );
+			logger.warn( 'carriageReturn. to be implemented' );
 		}
 
 		protected function flushLines(): Number
@@ -412,7 +409,6 @@ package org.purepdf.pdf
 
 		/**
 		 * Adds the current line to the list of lines and also adds an empty line.
-		 * @throws DocumentException on error
 		 */
 		protected function newLine(): void
 		{

@@ -2,6 +2,8 @@ package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.IOutputStream;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.utils.Bytes;
@@ -25,6 +27,8 @@ package org.purepdf.pdf
 		protected var inputStreamLength: int = -1;
 		protected var writer: PdfWriter;
 		protected var rawLength: int;
+		
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfStream );
 		
 		public function PdfStream( $byte: Bytes = null )
 		{
@@ -61,7 +65,7 @@ package org.purepdf.pdf
 			
 			if( crypto != null )
 			{
-				trace('implement this');
+				logger.warn('implement this');
 			}
 			
 			var nn: PdfObject = getValue( PdfName.LENGTH );
@@ -99,7 +103,7 @@ package org.purepdf.pdf
 				inputStreamLength = counter;
 			} else
 			{
-				trace('implement this');
+				logger.warn('implement this');
 				
 				if( streamBytes != null )
 					os.writeByteArray( streamBytes );

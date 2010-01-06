@@ -30,7 +30,6 @@ package org.purepdf.pdf
 			{
 				hashMap.remove( key );
 			} else {
-				//trace( key.originalName + ": " + ( object != null ? object.toString() : "null" ) );
 				hashMap.put( key, object );
 			}
 		}
@@ -105,8 +104,6 @@ package org.purepdf.pdf
 		 * This method will never return a <CODE>PdfIndirectReference</CODE>
 		 * object.  
 		 * 
-		 * @param key A key for the <CODE>PdfObject</CODE> to be returned
-		 * @return A direct <CODE>PdfObject</CODE> or <CODE>null</CODE> 
 		 */
 		public function getDirectObject( key: PdfName ): PdfObject
 		{

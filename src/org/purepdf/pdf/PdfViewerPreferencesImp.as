@@ -67,7 +67,6 @@ package org.purepdf.pdf
 				catalog.put( PdfName.PAGEMODE, PdfName.USEOC );
 			else if ( ( pageLayoutAndMode & PdfWriter.PageModeUseAttachments ) != 0 )
 				catalog.put( PdfName.PAGEMODE, PdfName.USEATTACHMENTS );
-			// viewer preferences (Table 8.1 of the PDF Reference)
 			catalog.remove( PdfName.VIEWERPREFERENCES );
 
 			if ( viewerPreferences.size() > 0 )

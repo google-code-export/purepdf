@@ -7,8 +7,6 @@ package org.purepdf.pdf
 		private var reference: PdfIndirectReference;
 		private var count: int = 0;
 		private var parent: PdfOutline;
-		//private var destination: PdfDestination;
-		//private var action: PdfAction;
 		private var kids: Array = new Array();
 		private var tag: String;
 		private var open: Boolean;
