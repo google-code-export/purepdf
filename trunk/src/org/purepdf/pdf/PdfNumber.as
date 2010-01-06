@@ -6,6 +6,11 @@ package org.purepdf.pdf
 	{
 		private var value: Number;
 		
+		/**
+		 * Creates a new PdfNumber
+		 * 
+		 * @param $value	Only String, Number and int allowed
+		 */
 		public function PdfNumber( $value: * )
 		{
 			super( NUMBER );

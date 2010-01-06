@@ -55,46 +55,6 @@ package org.purepdf.pdf
 		internal static function convertAnnotation( writer: PdfWriter, annot: AnnotationElement, defaultRect: RectangleElement ): PdfAnnotation
 		{
 			throw new NonImplementatioError();
-			/*
-			switch( annot.annotationType() )
-			{
-				case AnnotationElement.URL_NET:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction( annot.attributes.getValue(AnnotationElement.URL)));
-					
-				case AnnotationElement.URL_AS_STRING:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction( annot.attributes.getValue(AnnotationElement.FILE)));
-					
-				case AnnotationElement.FILE_DEST:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction( annot.attributes.getValue(Annotation.FILE), annot.attributes.getValue(AnnotationElement.DESTINATION)));
-					
-				case AnnotationElement.SCREEN:
-					var sparams: Vector.<Boolean> = annot.attributes.getValue( AnnotationElement.PARAMETERS );
-					var fname: String = annot.attributes.getValue( AnnotationElement.FILE );
-					var mimetype: String = annot.attributes.getValue( AnnotationElement.MIMETYPE );
-					
-					PdfFileSpecification fs;
-					if (sparams[0])
-						fs = PdfFileSpecification.fileEmbedded( writer, fname, fname, null );
-					else
-						fs = PdfFileSpecification.fileExtern( writer, fname );
-					
-					PdfAnnotation ann = PdfAnnotation.createScreen( writer, new Rectangle( annot.llx, annot.lly, annot.urx, annot.ury ),
-						fname, fs, mimetype, sparams[1]);
-					return ann;
-					
-				case AnnotationElement.FILE_PAGE:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction((String) annot.attributes.getValue( AnnotationElement.FILE), ((Integer) annot.attributes.getValue( AnnotationElement.PAGE)).intValue()));
-					
-				case AnnotationElement.NAMED_DEST:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction(((Integer) annot.attributes.getValue( AnnotationElement.NAMED)).intValue()));
-					
-				case AnnotationElement.LAUNCH:
-					return new PdfAnnotation( writer, annot.llx, annot.lly, annot.urx, annot.ury, new PdfAction((String) annot.attributes.getValue( AnnotationElement.APPLICATION),(String) annot.attributes.getValue( AnnotationElement.PARAMETERS),(String) annot.attributes.getValue( AnnotationElement.OPERATION),(String) annot.attributes.getValue( AnnotationElement.DEFAULTDIR)));
-					
-				default:
-					return new PdfAnnotation( writer, defaultRect.getLeft(), defaultRect.getBottom(), defaultRect.getRight(), defaultRect.getTop(), new PdfString(annot.title(), PdfObject.TEXT_UNICODE), new PdfString(annot.content(), PdfObject.TEXT_UNICODE));
-			}
-			*/
 		}
 		
 		

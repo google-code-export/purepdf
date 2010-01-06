@@ -123,7 +123,7 @@ package org.purepdf.pdf
 				
 				if( xmpMetadata != null )
 				{
-					trace('implement this');
+					logger.warn('implement this');
 				}
 				
 				/*
@@ -148,10 +148,7 @@ package org.purepdf.pdf
 				
 				if( crypto != null )
 				{
-					trace('implement this');
-					//var encryptionObject: PdfIndirectObject = addToBody2( crypto.getEncryptionDictionary(), false );
-					//encryption = encryptionObject.getIndirectReference();
-					//fileID = crypto.getFileID();
+					logger.warn('implement this');
 				} else {
 					fileID = PdfEncryption.createInfoId( PdfEncryption.createDocumentId() );
 				}
@@ -159,8 +156,7 @@ package org.purepdf.pdf
 				// write the cross-reference table of the body
 				body.writeCrossReferenceTable( os, indirectCatalog.getIndirectReference(), infoObj.getIndirectReference(), encryption,  fileID, prevxref );
 				
-				// make the trailer
-				// [F2] full compression
+				// full compression
 				if( fullCompression )
 				{
 					os.writeBytes( getISOBytes("startxref\n") );
@@ -170,8 +166,6 @@ package org.purepdf.pdf
 					var trailer: PdfTrailer = new PdfTrailer( body.size(), body.offset(), indirectCatalog.getIndirectReference(), infoObj.getIndirectReference(), encryption, fileID, prevxref);
 					trailer.toPdf( this, os );
 				}
-				
-				//super.close();
 			}
 		}
 		
@@ -186,7 +180,7 @@ package org.purepdf.pdf
 		{
 			var catalog: PdfDictionary = pdf.getCatalog( rootObj );
 			
-			trace('getCatalog. to be implemented');
+			logger.warn('getCatalog. to be implemented');
 			
 			return catalog;
 		}
@@ -316,17 +310,12 @@ package org.purepdf.pdf
 		/**
 		 * Returns the compression level used for streams written by this writer.
 		 * @return the compression level (0 = best speed, 9 = best compression, -1 is default)
-		 * @since 2.1.3
 		 */
 		public function getCompressionLevel(): int 
 		{
 			return compressionLevel;
 		}
 		
-		/**
-		 * Use this method to find out if 1.5 compression is on.
-		 * @return the 1.5 compression status
-		 */
 		public function isFullCompression(): Boolean
 		{
 			return fullCompression;
@@ -341,7 +330,6 @@ package org.purepdf.pdf
 		 * Gets the transparency blending colorspace.
 		 * @return <code>true</code> if the transparency blending colorspace is RGB, <code>false</code>
 		 * if it is the default blending colorspace
-		 * @since 2.1.0
 		 */
 		public function isRgbTransparencyBlending(): Boolean
 		{
@@ -356,7 +344,6 @@ package org.purepdf.pdf
 		 * Note that this is a generic solution that may not work in all cases.
 		 * @param rgbTransparencyBlending <code>true</code> to set the transparency blending colorspace to RGB, <code>false</code>
 		 * to use the default blending colorspace
-		 * @since 2.1.0
 		 */
 		public function setRgbTransparencyBlending( value: Boolean ): void
 		{
@@ -474,41 +461,18 @@ package org.purepdf.pdf
 			return byte;
 		}
 		
-		/**
-		 * Use this method to add a PDF object to the PDF body.
-		 * Use this method only if you know what you're doing!
-		 * @param object
-		 * @return a PdfIndirectObject
-		 * @throws IOException
-		 */
 		public function addToBody( object: PdfObject ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add1( object );
 			return iobj;
 		}
 		
-		/**
-		 * Use this method to add a PDF object to the PDF body.
-		 * Use this method only if you know what you're doing!
-		 * @param object
-		 * @param ref
-		 * @return a PdfIndirectObject
-		 * @throws IOException
-		 */
 		public function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add3( object, ref );
 			return iobj;
 		}
 		
-		/**
-		 * Use this method to add a PDF object to the PDF body.
-		 * Use this method only if you know what you're doing!
-		 * @param object
-		 * @param inObjStm
-		 * @return a PdfIndirectObject
-		 * @throws IOException
-		 */
 		public function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add2( object, inObjStm );
@@ -520,33 +484,12 @@ package org.purepdf.pdf
 			return imageDictionary.getValue( name ) as PdfIndirectReference;
 		}
 		
-		/**
-		 * Use this method to adds an image to the document
-		 * but not to the page resources. It is used with
-		 * templates and <CODE>Document.add(Image)</CODE>.
-		 * Use this method only if you know what you're doing!
-		 * @param image the <CODE>Image</CODE> to add
-		 * @return the name of the image added
-		 * @throws PdfException on error
-		 * @throws DocumentException on error
-		 */
-		public function addDirectImageSimple( image: ImageElement ): PdfName
+		internal function addDirectImageSimple( image: ImageElement ): PdfName
 		{
 			return addDirectImageSimple2( image, null );
 		}
 		
-		/**
-		 * Adds an image to the document but not to the page resources.
-		 * It is used with templates and <CODE>Document.add(Image)</CODE>.
-		 * Use this method only if you know what you're doing!
-		 * @param image the <CODE>Image</CODE> to add
-		 * @param fixedRef the reference to used. It may be <CODE>null</CODE>,
-		 * a <CODE>PdfIndirectReference</CODE> or a <CODE>PRIndirectReference</CODE>.
-		 * @return the name of the image added
-		 * @throws PdfException on error
-		 * @throws DocumentException on error
-		 */
-		public function addDirectImageSimple2( image: ImageElement, fixedRef: PdfIndirectReference ): PdfName
+		internal function addDirectImageSimple2( image: ImageElement, fixedRef: PdfIndirectReference ): PdfName
 		{
 			var name: PdfName;
 			
@@ -558,14 +501,6 @@ package org.purepdf.pdf
 				if( image.isimgtemplate )
 				{
 					throw new NonImplementatioError();
-					/*
-					name = new PdfName( "img" + images.length );
-					if( image instanceof ImgWMF )
-					{
-						ImgWMF wmf = (ImgWMF)image;
-						wmf.readWMF(PdfTemplate.createTemplate(this, 0, 0));
-					}
-					*/
 				} else
 				{
 					var dref: PdfIndirectReference = image.getDirectReference();
@@ -588,19 +523,6 @@ package org.purepdf.pdf
 					
 					var i: PdfImage = new PdfImage( image, "img" + images.size(), maskRef );
 					
-					/*
-					if( image instanceof ImgJBIG2 )
-					{
-						throw new NonImplementatioError();
-						byte[] globals = ((ImgJBIG2) image).getGlobalBytes();
-						if (globals != null) {
-							PdfDictionary decodeparms = new PdfDictionary();
-							decodeparms.put(PdfName.JBIG2GLOBALS, getReferenceJBIG2Globals(globals));
-							i.put(PdfName.DECODEPARMS, decodeparms);
-						}
-					}
-					*/
-					
 					add2( i, fixedRef );
 					name = i.name;
 				}
@@ -611,15 +533,6 @@ package org.purepdf.pdf
 			return name;
 		}
 
-		
-		/**
-		 * Writes a <CODE>PdfImage</CODE> to the outputstream.
-		 *
-		 * @param pdfImage the image to be added
-		 * @return a <CODE>PdfIndirectReference</CODE> to the encapsulated image
-		 * @throws PdfException when a document isn't open yet, or has been closed
-		 */
-		
 		private function add2( pdfImage: PdfImage, fixedRef: PdfIndirectReference): PdfIndirectReference
 		{
 			if( !imageDictionary.contains( pdfImage.name ) )
@@ -627,8 +540,6 @@ package org.purepdf.pdf
 				if( fixedRef is PRIndirectReference )
 				{
 					throw new NonImplementatioError();
-					//var r2: PRIndirectReference = fixedRef;
-					//fixedRef = new PdfIndirectReference( 0, getNewObjectNumber( r2.getReader(), r2.getNumber(), r2.getGeneration() ) );
 				}
 				
 				if (fixedRef == null)

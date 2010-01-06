@@ -100,7 +100,6 @@ package org.purepdf.pdf
 		 * object stream.
 		 * 
 		 * @return <CODE>true</CODE> if this object can be in an object stream.
-		 *   Otherwise <CODE>false</CODE>
 		 */
 		public function canBeInObjStm(): Boolean
 		{

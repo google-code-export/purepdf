@@ -9,6 +9,10 @@ package org.purepdf.pdf
 		protected var originalValue: String = null;
 		protected var value: String = NOTHING;
 
+		/**
+		 * Create a new PdfString
+		 * @param $value	String or Bytes
+		 */
 		public function PdfString( $value: *, $encoding: String = TEXT_PDFDOCENCODING )
 		{
 			super( STRING );

@@ -80,14 +80,12 @@ package org.purepdf.pdf.codec
 		 */
 		public function getImage( frame: int = 1 ): ImageElement
 		{
-			//logger.debug("getImage");
 			var gf: GifFrame = frames[ frame - 1 ];
 			return gf.image;
 		}
 
 		protected function decodeImageData(): Boolean
 		{
-			//logger.debug("decodeImageData");
 			var NullCode: int = -1;
 			var npix: int = iw * ih;
 			var available: int;
@@ -300,7 +298,6 @@ package org.purepdf.pdf.codec
 
 		protected function readColorTable( bpc: int ): Bytes
 		{
-			//logger.debug("readColorTable");
 			var ncolors: int = 1 << bpc;
 			var nbytes: int = 3 * ncolors;
 			bpc = newBpc( bpc );
@@ -312,8 +309,6 @@ package org.purepdf.pdf.codec
 
 		protected function readContents(): void
 		{
-			//logger.debug("readContents");
-			// read GIF file content blocks
 			var done: Boolean = false;
 			var code: int;
 
@@ -348,12 +343,8 @@ package org.purepdf.pdf.codec
 			}
 		}
 
-		/**
-		 * Reads Graphics Control Extension values
-		 */
 		protected function readGraphicControlExt(): void
 		{
-			//logger.debug("readGraphicControlExt");
 			input.readUnsignedByte(); // block size
 			var packed: int = input.readUnsignedByte(); // packed fields
 			dispose = ( packed & 0x1c ) >> 2; // disposal method
@@ -368,7 +359,6 @@ package org.purepdf.pdf.codec
 
 		protected function readHeader(): void
 		{
-			//logger.debug("readHeader");
 			var id: String = "";
 
 			for ( var i: int = 0; i < 6; i++ )
@@ -386,12 +376,8 @@ package org.purepdf.pdf.codec
 			}
 		}
 
-		/**
-		 * Reads next frame image
-		 */
 		protected function readImage(): void
 		{
-			//logger.debug("readImage");
 			ix = readShort(); // (sub)image position & size
 			iy = readShort();
 			iw = readShort();
@@ -463,12 +449,10 @@ package org.purepdf.pdf.codec
 			gf.ix = ix;
 			gf.iy = iy;
 			frames.push( gf ); // add image to frame list
-			//resetFrame();
 		}
 
 		protected function readLSD(): void
 		{
-			//logger.debug("readLSD");
 			width = readShort();
 			height = readShort();
 			var packed: int = input.readUnsignedByte();
@@ -480,14 +464,11 @@ package org.purepdf.pdf.codec
 
 		protected function readShort(): int
 		{
-			//logger.debug("readShort");
-			// read 16-bit value, LSB first
 			return input.readUnsignedByte() | ( input.readUnsignedByte() << 8 );
 		}
 
 		protected function setPixel( x: int, y: int, v: int ): void
 		{
-			//logger.debug("setPixel({0},{1}) = {2}", x, y, v );
 			var pos: int;
 			
 			if ( m_bpc == 8 )
@@ -503,13 +484,8 @@ package org.purepdf.pdf.codec
 			}
 		}
 
-		/**
-		 * Skips variable length blocks up to and including
-		 * next zero length block.
-		 */
 		protected function skip(): void
 		{
-			//logger.debug("skip");
 			do
 			{
 				readBlock();
@@ -518,7 +494,6 @@ package org.purepdf.pdf.codec
 
 		private function process( i: InputStream ): void
 		{
-			//logger.debug("process");
 			input = new DataInputStream( i );
 			readHeader();
 			readContents();
@@ -529,7 +504,6 @@ package org.purepdf.pdf.codec
 
 		protected static function newBpc( bpc: int ): int
 		{
-			//logger.debug("newBpc");
 			switch ( bpc )
 			{
 				case 1:

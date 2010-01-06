@@ -35,10 +35,7 @@ package org.purepdf.elements.images
 		
 		/**
 		 * Reads a short from the <CODE>InputStream</CODE>.
-		 *
 		 * @param	is		the <CODE>InputStream</CODE>
-		 * @return	an int
-		 * @throws IOException
 		 */
 		private static function getShort( ins: ByteArray ): int
 		{
@@ -246,6 +243,7 @@ package org.purepdf.elements.images
 				for( k = 0; k < icc.length; ++k )
 				{
 					//System.arrayCopy( icc[k], 14, ficc, total, icc[k].length - 14 );
+					ficc.writeBytes( icc[k], 14, icc[k].length - 14 );
 					total += icc[k].length - 14;
 				}
 				

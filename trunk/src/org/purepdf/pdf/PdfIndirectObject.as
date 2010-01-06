@@ -1,5 +1,7 @@
 package org.purepdf.pdf
 {
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.IOutputStream;
 	import org.purepdf.utils.Bytes;
 
@@ -15,6 +17,8 @@ package org.purepdf.pdf
 		
 		private var object: PdfObject;
 		private var writer: PdfWriter;
+		
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfIndirectObject );
 		
 		/**
 		 * Constructs a <CODE>PdfIndirectObject</CODE>.
@@ -37,22 +41,17 @@ package org.purepdf.pdf
 			
 			if (crypto != null)
 			{
-				trace('implement this');
-				//crypto.setHashKey(number, generation);
+				logger.warn( 'implement this' );
 			}
 		}
 		
 		public function getIndirectReference(): PdfIndirectReference
 		{
-			//return new PdfIndirectReference( object.getType(), number, generation );
 			return new PdfIndirectReference( 0, number, generation );
 		}
 		
 		/**
 		 * Writes efficiently to a stream
-		 *
-		 * @param os the stream to write to
-		 * @throws IOException on write error
 		 */
 		public function writeTo( os: IOutputStream ): void
 		{

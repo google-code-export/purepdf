@@ -111,7 +111,7 @@ package org.purepdf.pdf
 				w = template.width;
 				h = template.height;
 				throw new NonImplementatioError();
-					//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
+				//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
 			}
 			else
 			{
@@ -126,63 +126,6 @@ package org.purepdf.pdf
 				if ( inlineImage )
 				{
 					throw new NonImplementatioError();
-					/*
-					   content.append("\nBI\n");
-					   var pimage: PdfImage = new PdfImage( image, "", null );
-
-					   if( image instanceof ImgJBIG2 )
-					   {
-					   byte[] globals = ((ImgJBIG2)image).getGlobalBytes();
-					   if (globals != null) {
-					   PdfDictionary decodeparms = new PdfDictionary();
-					   decodeparms.put(PdfName.JBIG2GLOBALS, writer.getReferenceJBIG2Globals(globals));
-					   pimage.put(PdfName.DECODEPARMS, decodeparms);
-					   }
-					   }
-
-					   var it: Iterator = new VectorIterator( pimage.getKeys() );
-					   while( it.hasNext() )
-					   {
-					   var key: PdfName = it.next();
-					   var value: PdfObject = pimage.getValue( key );
-					   var s: String = abrev.getValue( key );
-
-					   if (s == null)
-					   continue;
-
-					   content.append(s);
-					   var check: Boolean = true;
-
-					   if( key.equals( PdfName.COLORSPACE ) && value.isArray() )
-					   {
-					   var ar: PdfArray = value as PdfArray;
-					   if (ar.size() == 4
-					   && PdfName.INDEXED.equals(ar.getAsName(0))
-					   && ar.getPdfObject(1).isName()
-					   && ar.getPdfObject(2).isNumber()
-					   && ar.getPdfObject(3).isString()
-					   ) {
-					   check = false;
-					   }
-
-					   }
-
-					   if( check && key.equals( PdfName.COLORSPACE ) && !value.isName() )
-					   {
-					   var cs: PdfName = writer.getColorspaceName();
-					   var prs: PageResources = getPageResources();
-					   prs.addColor( cs, writer.addToBody( value ).getIndirectReference() );
-					   value = cs;
-					   }
-
-					   value.toPdf( null, content );
-					   content.append('\n');
-					   }
-
-					   content.append("ID\n");
-					   pimage.writeContent( content );
-					   content.append("\nEI\nQ").append_separator();
-					 */
 				}
 				else
 				{
@@ -244,7 +187,6 @@ package org.purepdf.pdf
 			if ( an == null )
 				return;
 			throw new NonImplementatioError();
-			//addAnnotation( an );
 		}
 
 		/**
@@ -277,27 +219,6 @@ package org.purepdf.pdf
 		public function beginLayer( layer: IPdfOCG ): void
 		{
 			throw new NonImplementatioError();
-		/*
-		   if ((layer instanceof PdfLayer) && ((PdfLayer)layer).getTitle() != null)
-		   throw new IllegalArgumentException(MessageLocalization.getComposedMessage("a.title.is.not.a.layer"));
-		   if (layerDepth == null)
-		   layerDepth = new ArrayList();
-		   if (layer instanceof PdfLayerMembership) {
-		   layerDepth.add(new Integer(1));
-		   beginLayer2(layer);
-		   return;
-		   }
-		   int n = 0;
-		   PdfLayer la = (PdfLayer)layer;
-		   while (la != null) {
-		   if (la.getTitle() == null) {
-		   beginLayer2(la);
-		   ++n;
-		   }
-		   la = la.getParent();
-		   }
-		   layerDepth.add(new Integer(n));
-		 */
 		}
 
 		/**
@@ -588,14 +509,6 @@ package org.purepdf.pdf
 			}
 		}
 
-		/**
-		 * Changes the currentgray tint for filling paths (device dependent colors!).
-		 * <P>
-		 * Sets the color space to <B>DeviceGray</B> (or the <B>DefaultGray</B> color space),
-		 * and sets the gray tint to use for filling paths.</P>
-		 *
-		 * @param   gray    a value between 0 (black) and 1 (white)
-		 */
 		public function setGrayFill( gray: Number ): void
 		{
 			content.append_number( gray ).append( " g" ).append_separator();
@@ -611,9 +524,9 @@ package org.purepdf.pdf
 		 * <P>
 		 * The <VAR>line cap style</VAR> specifies the shape to be used at the end of open subpaths
 		 * when they are stroked.<BR>
-		 * Allowed values are LINE_CAP_BUTT, LINE_CAP_ROUND and LINE_CAP_PROJECTING_SQUARE.<BR>
 		 *
-		 * @param       style       a value
+		 * @param	style
+		 * @see	flash.display.CapsStyle
 		 */
 		public function setLineCap( value: String ): void
 		{
@@ -643,7 +556,8 @@ package org.purepdf.pdf
 		 * that are stroked.<BR>
 		 * Allowed values are JointStyle.MITER (Miter joins), JointStyle.ROUND (Round joins) and JointStyle.BEVEL (Bevel joins).<BR>
 		 *
-		 * @param       style       a value
+		 * @param joint
+		 * @see	flash.diplay.JointStyle
 		 */
 		public function setLineJoin( joint: String ): void
 		{
@@ -670,7 +584,7 @@ package org.purepdf.pdf
 		 * The line width specifies the thickness of the line used to stroke a path and is measured
 		 * in user space units.<BR>
 		 *
-		 * @param       w           a width
+		 * @param	w
 		 */
 		public function setLineWidth( w: Number ): void
 		{
@@ -679,13 +593,8 @@ package org.purepdf.pdf
 
 		/**
 		 * Changes the <VAR>Miter limit</VAR>.
-		 * <P>
-		 * When two line segments meet at a sharp angle and mitered joins have been specified as the
-		 * line join style, it is possible for the miter to extend far beyond the thickness of the line
-		 * stroking path. The miter limit imposes a maximum on the ratio of the miter length to the line
-		 * witdh. When the limit is exceeded, the join is converted from a miter to a bevel.<BR>
 		 *
-		 * @param       miterLimit      a miter limit
+		 * @param miterLimit
 		 */
 		public function setMiterLimit( miterLimit: Number ): void
 		{
@@ -698,12 +607,6 @@ package org.purepdf.pdf
 		 * <P>
 		 * Sets the color space to <B>DeviceRGB</B> (or the <B>DefaultRGB</B> color space),
 		 * and sets the color to use for filling paths.</P>
-		 * <P>
-		 * This method is described in the 'Portable Document Format Reference Manual version 1.3'
-		 * section 8.5.2.1 (page 331).</P>
-		 * <P>
-		 * Following the PDF manual, each operand must be a number between 0 (minimum intensity) and
-		 * 1 (maximum intensity). This method however accepts only integers between 0x00 and 0xFF.</P>
 		 *
 		 * @param red the intensity of red
 		 * @param green the intensity of green
@@ -789,9 +692,8 @@ package org.purepdf.pdf
 
 		/**
 		 * Adds a variable width border to the current path.
-		 * Only use if {@link com.lowagie.text.Rectangle#isUseVariableBorders() Rectangle.isUseVariableBorders}
-		 * = true.
-		 * @param rect a <CODE>Rectangle</CODE>
+		 * Only use if isUseVariableBorders = true
+		 * @param rect a <CODE>RectangleElement</CODE>
 		 */
 		public function variableRectangle( rect: RectangleElement ): void
 		{
@@ -959,10 +861,6 @@ package org.purepdf.pdf
 		 * If found, this function will throw.  This function is called automatically
 		 * during a reset() (from Document.newPage() for example), and before writing
 		 * itself out in toPdf().
-		 * One possible cause: not calling myPdfGraphics2D.dispose() will leave dangling
-		 *                     saveState() calls.
-		 * @since 2.1.6
-		 * @throws IllegalPdfSyntaxException (a runtime exception)
 		 */
 		protected function sanityCheck(): void
 		{
