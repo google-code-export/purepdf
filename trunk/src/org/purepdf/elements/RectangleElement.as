@@ -153,7 +153,7 @@ package org.purepdf.elements
 		public function getGrayFill(): Number
 		{
 			if ( backgroundColor is GrayColor )
-				return GrayColor( backgroundColor ).getGray();
+				return GrayColor( backgroundColor ).gray;
 			return 0;
 		}
 

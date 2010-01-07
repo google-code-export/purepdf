@@ -7,18 +7,51 @@ package org.purepdf.pdf
 	{
 		protected var arrayList: Vector.<PdfObject>;
 
-		public function PdfArray( object: PdfObject=null )
+		public function PdfArray( object: Object = null )
 		{
 			super( ARRAY );
 			arrayList = new Vector.<PdfObject>();
 
-			if ( object )
-				arrayList.push( object );
+			if( object )
+			{
+				if ( object is PdfObject )
+					arrayList.push( object );
+				else if( object is Vector.<Number> )
+					add2( Vector.<Number>( object ) );
+				else if( object is Vector.<int> )
+					add3( Vector.<int>( object ) );
+			}
 		}
 
+		/**
+		 * Add a PdfObject to the end of the PdfArray
+		 * 
+		 */
 		public function add( object: PdfObject ): uint
 		{
 			return arrayList.push( object );
+		}
+		
+		/**
+		 * Add an array of numbers to the end of the PdfArray
+		 * 
+		 */
+		public function add2( values: Vector.<Number> ): Boolean
+		{
+			for( var k: int = 0; k < values.length; ++k )
+				arrayList.push( new PdfNumber( values[k] ) );
+			return true;
+		}
+		
+		/**
+		 * Add and array of integer to the end of the PdfArray
+		 * 
+		 */
+		public function add3( values: Vector.<int> ): Boolean
+		{
+			for( var k: int = 0; k < values.length; ++k )
+				arrayList.push( new PdfNumber( values[k] ) );
+			return true;
 		}
 
 		[Deprecated]

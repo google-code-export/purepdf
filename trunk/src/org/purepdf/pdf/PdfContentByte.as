@@ -3,10 +3,11 @@ package org.purepdf.pdf
 	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
-	
+	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.RectangleElement;
@@ -55,7 +56,7 @@ package org.purepdf.pdf
 		/**
 		 * Adds an <CODE>ImageElement</CODE> to the page. The <CODE>ImageElement</CODE> must have
 		 * absolute positioning.
-		 * 
+		 *
 		 * @param image the <CODE>ImageElement</CODE> object
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
@@ -69,7 +70,7 @@ package org.purepdf.pdf
 		 * absolute positioning. The image can be placed inline.
 		 * @param image the <CODE>ImageElement</CODE> object
 		 * @param inlineImage <CODE>true</CODE> to place this image inline, <CODE>false</CODE> otherwise
-		 * 
+		 *
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
 		public function addImage1( image: ImageElement, inlineImage: Boolean ): void
@@ -84,10 +85,10 @@ package org.purepdf.pdf
 
 		/**
 		 * Adds an <CODE>ImageElement</CODE> to the page. The positioning of the <CODE>ImageElement</CODE>
-		 * is done with the transformation matrix. 
+		 * is done with the transformation matrix.
 		 * To position an <CODE>ImageElement</CODE> at (x,y)
 		 * use addImage(image, image_width, 0, 0, image_height, x, y)
-		 * 
+		 *
 		 * @param image the <CODE>ImageElement</CODE> object
 		 * @param width
 		 * @param b element of the transformation matrix
@@ -96,7 +97,7 @@ package org.purepdf.pdf
 		 * @param x
 		 * @param y
 		 * @param inlineImage
-		 * 
+		 *
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
 		public function addImage2( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number, inlineImage: Boolean ): void
@@ -113,7 +114,7 @@ package org.purepdf.pdf
 				w = template.width;
 				h = template.height;
 				throw new NonImplementatioError();
-				//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
+					//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
 			}
 			else
 			{
@@ -195,7 +196,7 @@ package org.purepdf.pdf
 		 * Adds an <CODE>ImageElement</CODE> to the page. The positioning of the <CODE>ImageElement</CODE>
 		 * is done with the transformation matrix. To position an <CODE>ImageElement</CODE> at (x,y)
 		 * use addImage(image, image_width, 0, 0, image_height, x, y).
-		 * 
+		 *
 		 * @param image the <CODE>ImageElement</CODE> object
 		 * @param width
 		 * @param b element of the transformation matrix
@@ -203,7 +204,7 @@ package org.purepdf.pdf
 		 * @param height
 		 * @param x
 		 * @param y
-		 * 
+		 *
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
 		public function addImage3( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number ): void
@@ -315,8 +316,9 @@ package org.purepdf.pdf
 		 */
 		public function curveTo( x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number ): void
 		{
-			content.append_number( x1 ).append_string( ' ' ).append_number( y1 ).append_string( ' ' ).append_number( x2 ).append_string( ' ' ).append_number( y2 ).append_string( ' ' ).
-				append_number( x3 ).append_string( ' ' ).append_number( y3 ).append_string( " c" ).append_separator();
+			content.append_number( x1 ).append_string( ' ' ).append_number( y1 ).append_string( ' ' ).append_number( x2 ).append_string( ' ' )
+				.append_number( y2 ).append_string( ' ' ).append_number( x3 ).append_string( ' ' ).append_number( y3 ).append_string( " c" )
+				.append_separator();
 		}
 
 		public function endLayer(): void
@@ -409,7 +411,8 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Adds a rectangle to the current path.
+		 * Adds a rectangle to the current path
+		 * Either a RectangleElement or 4 Numbers are accepted as parameters
 		 *
 		 * @param       x       x-coordinate of the starting point
 		 * @param       y       y-coordinate of the starting point
@@ -430,7 +433,8 @@ package org.purepdf.pdf
 				var y: Number = params[ 1 ];
 				var w: Number = params[ 2 ];
 				var h: Number = params[ 3 ];
-				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).append_char( ' ' ).append_number( h ).append( " re" ).append_separator();
+				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).append_char( ' ' )
+					.append_number( h ).append( " re" ).append_separator();
 			}
 		}
 
@@ -483,6 +487,27 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Changes the current color for filling paths (device dependent colors!).
+		 * <P>
+		 * Sets the color space to <B>DeviceCMYK</B> (or the <B>DefaultCMYK</B> color space),
+		 * and sets the color to use for filling paths.</P>
+		 * <P>
+		 * Following the PDF manual, each operand must be a number between 0 (no ink) and
+		 * 1 (maximum ink).</P>
+		 *
+		 * @param   cyan    the intensity of cyan. A value between 0 and 1
+		 * @param   magenta the intensity of magenta. A value between 0 and 1
+		 * @param   yellow  the intensity of yellow. A value between 0 and 1
+		 * @param   black   the intensity of black. A value between 0 and 1
+		 */
+
+		public function setCMYKFillColor( cyan: Number, magenta: Number, yellow: Number, black: Number ): void
+		{
+			helperCMYK( cyan, magenta, yellow, black );
+			content.append_string( " k" ).append_separator();
+		}
+
+		/**
 		 * Sets the fill color
 		 * @param color the color
 		 */
@@ -493,24 +518,43 @@ package org.purepdf.pdf
 			switch ( type )
 			{
 				case ExtendedColor.TYPE_GRAY:
-					setGrayFill( GrayColor( color ).getGray() );
+					setGrayFill( GrayColor( color ).gray );
 					break;
+
 				case ExtendedColor.TYPE_CMYK:
-					throw new NonImplementatioError();
+					var cmyk: CMYKColor = CMYKColor( color );
+					setCMYKFillColor( cmyk.cyan, cmyk.magenta, cmyk.yellow, cmyk.black );
 					break;
+
 				case ExtendedColor.TYPE_SEPARATION:
-					throw new NonImplementatioError();
+					var spot: SpotColor = SpotColor( color );
+					setSpotFillColor( spot.pdfSpotColor, spot.tint );
 					break;
+
 				case ExtendedColor.TYPE_PATTERN:
 					throw new NonImplementatioError();
 					break;
+
 				case ExtendedColor.TYPE_SHADING:
 					throw new NonImplementatioError();
 					break;
+
 				default:
 					setRGBColorFill( color.red, color.green, color.blue );
 					break;
 			}
+		}
+
+		/**
+		 * Apply the graphic state
+		 * @param gstate	The graphic state
+		 */
+		public function setGState( gstate: PdfGState ): void
+		{
+			var obj: Vector.<PdfObject> = writer.addSimpleExtGState( gstate );
+			var prs: PageResources = getPageResources();
+			var name: PdfName = prs.addExtGState( PdfName( obj[ 0 ] ), PdfIndirectReference( obj[ 1 ] ) );
+			content.append_bytes( name.getBytes() ).append( " gs" ).append_separator();
 		}
 
 		public function setGrayFill( gray: Number ): void
@@ -596,6 +640,16 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Output a String directly to the content
+		 *
+		 * @param value	The content to append
+		 */
+		public function setLiteral( value: String ): void
+		{
+			content.append_string( value );
+		}
+
+		/**
 		 * Changes the <VAR>Miter limit</VAR>.
 		 *
 		 * @param miterLimit
@@ -628,6 +682,30 @@ package org.purepdf.pdf
 			content.append( " RG" ).append_separator();
 		}
 
+		public function setRGBFillColor( red: int, green: int, blue: int ): void
+		{
+			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
+			content.append_string( " rg" ).append_separator();
+		}
+
+		/**
+		 * Sets the fill color to a spot color.
+		 *
+		 * @param sp the spot color
+		 * @param tint the tint for the spot color. ( 0 = no color, 1 = 100% color )
+		 *
+		 */
+		public function setSpotFillColor( sp: PdfSpotColor, tint: Number ): void
+		{
+			checkWriter();
+			state.colorDetails = writer.addSimple( sp );
+			var prs: PageResources = getPageResources();
+			var name: PdfName = state.colorDetails.colorName;
+			name = prs.addColor( name, state.colorDetails.indirectReference );
+
+			content.append_bytes( name.getBytes() ).append_string( " cs " ).append_number( tint ).append_string( " scn" ).append_separator();
+		}
+
 		public function setStrokeColor( color: RGBColor ): void
 		{
 			var type: int = ExtendedColor.getType( color );
@@ -635,7 +713,7 @@ package org.purepdf.pdf
 			switch ( type )
 			{
 				case ExtendedColor.TYPE_GRAY:
-					setGrayStroke( GrayColor( color ).getGray() );
+					setGrayStroke( GrayColor( color ).gray );
 					break;
 				case ExtendedColor.TYPE_CMYK:
 					throw new NonImplementatioError();
@@ -661,7 +739,8 @@ package org.purepdf.pdf
 		public function setTransform( m: Matrix ): void
 		{
 			content.append_number( m.a ).append_char( ' ' ).append_number( m.b ).append_char( ' ' ).append_number( m.c ).append_char( ' ' );
-			content.append_number( m.d ).append_char( ' ' ).append_number( m.tx ).append_char( ' ' ).append_number( m.ty ).append( " cm" ).append_separator();
+			content.append_number( m.d ).append_char( ' ' ).append_number( m.tx ).append_char( ' ' ).append_number( m.ty ).append( " cm" )
+				.append_separator();
 		}
 
 		public function size(): uint
@@ -680,18 +759,6 @@ package org.purepdf.pdf
 		public function toString(): String
 		{
 			return content.toString();
-		}
-		
-		/**
-		 * Apply the graphic state
-		 * @param gstate	The graphic state
-		 */
-		public function setGState( gstate: PdfGState ): void
-		{
-			var obj: Vector.<PdfObject> = writer.addSimpleExtGState( gstate );
-			var prs: PageResources = getPageResources();
-			var name: PdfName = prs.addExtGState( PdfName(obj[0]), PdfIndirectReference(obj[1]) );
-			content.append_bytes( name.getBytes() ).append(" gs").append_separator();
 		}
 
 		/**
@@ -859,6 +926,11 @@ package org.purepdf.pdf
 			restoreState();
 		}
 
+		protected function checkWriter(): void
+		{
+			assertTrue( writer != null, "The writer is null" );
+		}
+
 		/**
 		 * Checks for any dangling state: Mismatched save/restore state, begin/end text,
 		 * begin/end layer, or begin/end marked content sequence.
@@ -970,6 +1042,34 @@ package org.purepdf.pdf
 			if ( c1 is ExtendedColor )
 				return c1.equals( c2 );
 			return c2.equals( c1 );
+		}
+
+		/**
+		 * Helper to validate and write the CMYK color components.
+		 */
+		private function helperCMYK( cyan: Number, magenta: Number, yellow: Number, black: Number ): void
+		{
+			if ( cyan < 0 )
+				cyan = 0.0;
+			else if ( cyan > 1.0 )
+				cyan = 1.0;
+
+			if ( magenta < 0 )
+				magenta = 0.0;
+			else if ( magenta > 1.0 )
+				magenta = 1.0;
+
+			if ( yellow < 0 )
+				yellow = 0.0;
+			else if ( yellow > 1.0 )
+				yellow = 1.0;
+
+			if ( black < 0 )
+				black = 0.0;
+			else if ( black > 1.0 )
+				black = 1.0;
+			content.append_number( cyan ).append_char( ' ' ).append_number( magenta ).append_char( ' ' ).append_number( yellow ).append_char( ' ' )
+				.append_number( black );
 		}
 
 		private function helperRGB( red: Number, green: Number, blue: Number ): void

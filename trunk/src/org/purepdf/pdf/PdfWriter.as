@@ -48,6 +48,8 @@ package org.purepdf.pdf
 		protected var images: HashMap = new HashMap();
 		protected var imageDictionary: PdfDictionary = new PdfDictionary();
 		protected var documentExtGState: HashMap = new HashMap();
+		protected var documentColors: HashMap = new HashMap();
+		protected var colorNumber: int = 1;
 		
 		private var logger: ILogger = LoggerFactory.getClassLogger( PdfWriter );
 		
@@ -79,6 +81,31 @@ package org.purepdf.pdf
 				documentExtGState.put( gstate, obj );
 			}
 			return documentExtGState.getValue( gstate );
+		}
+		
+		/**
+		 * Adds a SpotColor to the document but not to the page resources.
+		 * 
+		 * @param spc the SpotColor
+		 * @return a Vector of Objects where position 0 is a PdfName
+		 * and position 1 is an PdfIndirectReference
+		 * 
+		 */
+		internal function addSimple( spc: PdfSpotColor ): ColorDetails
+		{
+			var ret: ColorDetails = documentColors.getValue( spc );
+			if (ret == null) 
+			{
+				ret = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), spc );
+				documentColors.put( spc, ret );
+			}
+			return ret;
+		}
+		
+		
+		internal function getColorspaceName(): PdfName
+		{
+			return new PdfName( "CS" + ( colorNumber++ ) );
 		}
 		
 		public function close(): void
@@ -186,23 +213,31 @@ package org.purepdf.pdf
 			
 			var it: Iterator;
 			
-			// [F3] add the fonts
-			// [F4] add the form XObjects
-			// [F5] add all the dependencies in the imported pages
-			// [F6] add the spotcolors
-			// [F7] add the pattern
-			// [F8] add the shading patterns
-			// [F9] add the shadings
-			// [F10] add the extgstate
+			// 3 add the fonts
+			// 4 add the form XObjects
+			// 5 add all the dependencies in the imported pages
+			// 6 add the spotcolors
+			it = new VectorIterator( documentColors.getKeys() );
+			for (it; it.hasNext();) 
+			{
+				var color: ColorDetails = ColorDetails( documentColors.getValue( it.next() ) );
+				addToBody1( color.getSpotColor(this), color.indirectReference );
+			}
 			
+			// 7 add the pattern
+			// 8 add the shading patterns
+			// 9 add the shadings
+			// 10 add the extgstate
 			it = new VectorIterator( documentExtGState.getKeys() );
-			for (it; it.hasNext();) {
+			for (it; it.hasNext();) 
+			{
 				var gstate: PdfDictionary = it.next();
 				var obj: Vector.<PdfObject> = documentExtGState.getValue( gstate );
 				addToBody1( gstate, PdfIndirectReference( obj[1] ) );
 			}
-			// [F11] add the properties
-			// [F13] add the OCG layers
+			
+			// 11 add the properties
+			// 13 add the OCG layers
 		}
 		
 		protected function writeOutlines( catalog: PdfDictionary, namedAsNames: Boolean ): void 
