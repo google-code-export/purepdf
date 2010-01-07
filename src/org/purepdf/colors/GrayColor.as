@@ -1,11 +1,11 @@
 package org.purepdf.colors
 {
-	import org.purepdf.utils.NumberUtils;
+	import org.purepdf.utils.FloatUtils;
 
 	public class GrayColor extends ExtendedColor
 	{
 		private static const serialVersionUID: Number = -6571835680819282746;
-		private var gray: Number;
+		private var _gray: Number;
 
 		/**
 		 * Example:
@@ -18,12 +18,17 @@ package org.purepdf.colors
 		{
 			super( TYPE_GRAY );
 			setValue( value * 255, value * 255, value * 255 );
-			gray = normalize( value );
+			_gray = normalize( value );
 		}
 
-		public function getGray(): Number
+		public function get gray(): Number
 		{
-			return gray;
+			return _gray;
+		}
+		
+		override public function hashCode() : int
+		{
+			return FloatUtils.floatToIntBits( _gray );
 		}
 	}
 }
