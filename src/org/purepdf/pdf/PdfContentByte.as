@@ -598,9 +598,74 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the <VAR>Line join style</VAR>.
+		 * Changes the value of the line dash pattern.
+		 */
+		public function setLineDash( phase: Number ): void
+		{
+			content.append_string( "[] " ).append_number( phase ).append_string( " d" ).append_separator();
+		}
+
+		/**
+		 * Changes the value of the line dash pattern.
 		 * <P>
-		 * The <VAR>line join style</VAR> specifies the shape to be used at the corners of paths
+		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
+		 *
+		 * @param       phase       the value of the phase
+		 * @param       unitsOn     the number of units that must be 'on' (equals the number of units that must be 'off').
+		 */
+
+		public function setLineDash2( unitsOn: Number, phase: Number ): void
+		{
+			content.append_string( "[" ).append_number( unitsOn ).append_string( "] " ).append_number( phase ).append_string( " d" )
+				.append_separator();
+		}
+
+		/**
+		 * Changes the value of the <VAR>line dash pattern</VAR>.
+		 * <P>
+		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
+		 *
+		 * @param       phase       the value of the phase
+		 * @param       unitsOn     the number of units that must be 'on'
+		 * @param       unitsOff    the number of units that must be 'off'
+		 */
+
+		public function setLineDash3( unitsOn: Number, unitsOff: Number, phase: Number ): void
+		{
+			content.append_string( "[" ).append_number( unitsOn ).append_char( ' ' ).append_number( unitsOff ).append_string( "] " )
+				.append_number( phase ).append_string( " d" ).append_separator();
+		}
+
+		/**
+		 * Changes the value of the <VAR>line dash pattern</VAR>.
+		 * <P>
+		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
+		 * It is specified by an array and a phase. The array specifies the length
+		 * of the alternating dashes and gaps. The phase specifies the distance into the dash
+		 * pattern to start the dash.<BR>
+		 *
+		 * @param       array       length of the alternating dashes and gaps
+		 * @param       phase       the value of the phase
+		 */
+
+		public function setLineDash4( array: Vector.<Number>, phase: Number ): void
+		{
+			content.append_string( "[" );
+
+			for ( var i: int = 0; i < array.length; i++ )
+			{
+				content.append_number( array[ i ] );
+
+				if ( i < array.length - 1 )
+					content.append_char( ' ' );
+			}
+			content.append_string( "] " ).append_number( phase ).append_string( " d" ).append_separator();
+		}
+
+		/**
+		 * Changes the Line join style.
+		 * <P>
+		 * The line join style specifies the shape to be used at the corners of paths
 		 * that are stroked.<BR>
 		 * Allowed values are JointStyle.MITER (Miter joins), JointStyle.ROUND (Round joins) and JointStyle.BEVEL (Bevel joins).<BR>
 		 *
@@ -627,7 +692,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the <VAR>line width</VAR>.
+		 * Changes the line width.
 		 * <P>
 		 * The line width specifies the thickness of the line used to stroke a path and is measured
 		 * in user space units.<BR>
@@ -650,7 +715,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the <VAR>Miter limit</VAR>.
+		 * Changes the Miter limit.
 		 *
 		 * @param miterLimit
 		 */
@@ -661,14 +726,13 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the current color for filling paths (device dependent colors!).
+		 * Changes the current color for filling paths
 		 * <P>
-		 * Sets the color space to <B>DeviceRGB</B> (or the <B>DefaultRGB</B> color space),
-		 * and sets the color to use for filling paths.</P>
+		 * Sets the color space to DeviceRGB
 		 *
-		 * @param red the intensity of red
-		 * @param green the intensity of green
-		 * @param blue the intensity of blue
+		 * @param red
+		 * @param green
+		 * @param blue
 		 */
 		public function setRGBColorFill( red: int, green: int, blue: int ): void
 		{
@@ -932,11 +996,8 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Checks for any dangling state: Mismatched save/restore state, begin/end text,
+		 * Checks for any error in mismatched save/restore state, begin/end text,
 		 * begin/end layer, or begin/end marked content sequence.
-		 * If found, this function will throw.  This function is called automatically
-		 * during a reset() (from Document.newPage() for example), and before writing
-		 * itself out in toPdf().
 		 */
 		protected function sanityCheck(): void
 		{
