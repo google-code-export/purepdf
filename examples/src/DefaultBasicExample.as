@@ -19,6 +19,7 @@ package
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfDocument;
+	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfWriter;
 	
 	public class DefaultBasicExample extends Sprite
@@ -84,6 +85,7 @@ package
 			document.addCreator( "http://purepdf.org" );
 			document.addSubject( subject );
 			document.addKeywords("itext,purepdf");
+			document.setViewerPreferences( PdfViewPreferences.FitWindow );
 		}
 		
 		protected function save( e: * = null ): void
