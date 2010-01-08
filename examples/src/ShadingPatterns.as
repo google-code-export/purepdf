@@ -21,41 +21,41 @@ package
 		{
 			super.execute();
 			
-			createDocument("Shading Patterns example", PageSize.A5 );
+			createDocument("Shading Patterns example", PageSize.A6 );
 			document.setViewerPreferences( PdfViewPreferences.PageLayoutTwoColumnLeft );
 			document.open();
 			
 			var cb: PdfContentByte = document.getDirectContent();
-			var axial: PdfShading = PdfShading.simpleAxial( document.getWriter(), 36, 716, 396, 788, RGBColor.ORANGE, RGBColor.BLUE );
+			var axial: PdfShading = PdfShading.simpleAxial( document.getWriter(), 0, 0, 297, 420, RGBColor.MAGENTA, RGBColor.YELLOW );
 			cb.paintShading(axial);
 			
-			var radial: PdfShading = PdfShading.simpleRadial( document.getWriter(), 200, 500, 50, 300, 500, 100, new RGBColor(255, 247, 148), new RGBColor(247, 138, 107), false, false);
+			var radial: PdfShading = PdfShading.simpleRadial( document.getWriter(), 100, 300, 30, 140, 200, 100, new RGBColor(0, 247, 201), new RGBColor(245, 55, 144), false, false);
 			cb.paintShading(radial);
 			document.newPage();
 			
 			var axialPattern: PdfShadingPattern = new PdfShadingPattern( axial );
 			cb.setShadingFill( axialPattern );
-			cb.rectangle( 36, 716, 72, 72 );
-			cb.rectangle( 144, 716, 72, 72 );
-			cb.rectangle( 252, 716, 72, 72 );
-			cb.rectangle( 360, 716, 72, 72 );
+			cb.rectangle( 10, 316, 50, 50 );
+			cb.rectangle( 70, 316, 50, 50 );
+			cb.rectangle( 130, 316, 50, 50 );
+			cb.rectangle( 190, 316, 50, 50 );
 			cb.fillStroke();
 			
 			var axialColor: ShadingColor = new ShadingColor( axialPattern );
 			cb.setFillColor( axialColor );
-			cb.rectangle( 36, 608, 72, 72 );
-			cb.rectangle( 144, 608, 72, 72 );
-			cb.rectangle( 252, 608, 72, 72 );
-			cb.rectangle( 360, 608, 72, 72 );
+			cb.rectangle( 10, 200, 50, 50 );
+			cb.rectangle( 70, 200, 50, 50 );
+			cb.rectangle( 130, 200, 50, 50 );
+			cb.rectangle( 190, 200, 50, 50 );
 			cb.fillStroke();
 			
 			var radialPattern: PdfShadingPattern = new PdfShadingPattern( radial );
 			var radialColor: ShadingColor = new ShadingColor( radialPattern );
 			cb.setFillColor( radialColor );
-			cb.rectangle( 36, 500, 72, 72 );
-			cb.rectangle( 144, 500, 72, 72 );
-			cb.rectangle( 252, 500, 72, 72 );
-			cb.rectangle( 360, 500, 72, 72 );
+			cb.rectangle( 10, 100, 50, 50 );
+			cb.rectangle( 70, 100, 50, 50 );
+			cb.rectangle( 130, 100, 50, 50 );
+			cb.rectangle( 190, 100, 50, 50 );
 			cb.fillStroke();
 			
 			document.close();
