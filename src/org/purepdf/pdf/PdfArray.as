@@ -7,6 +7,14 @@ package org.purepdf.pdf
 	{
 		protected var arrayList: Vector.<PdfObject>;
 
+		/**
+		 * Supported constructor types:<br>
+		 * <ul>
+		 * <li>PdfObject</li>
+		 * <li>Vector.&lt;Number&gt;</li>
+		 * <li>Vector.&lt;int&gt;</li>
+		 * </ul>
+		 */
 		public function PdfArray( object: Object = null )
 		{
 			super( ARRAY );

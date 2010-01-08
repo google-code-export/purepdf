@@ -3,13 +3,13 @@ package org.purepdf.pdf
 	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
-	
 	import org.purepdf.ObjectHash;
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.PatternColor;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.colors.ShadingColor;
 	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.Element;
@@ -340,6 +340,68 @@ package org.purepdf.pdf
 			content.append_number( d ).append( ' ' ).append_number( e ).append( ' ' ).append_number( f ).append( " cm" ).append_separator();
 		}
 
+
+		/**
+		 * Create a new colored tiling pattern.
+		 *
+		 * @param width the width of the pattern
+		 * @param height the height of the pattern
+		 * @param xstep the desired horizontal spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param ystep the desired vertical spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
+		 */
+		public function createPattern( width: Number, height: Number, xstep: Number=NaN, ystep: Number=NaN ): PdfPatternPainter
+		{
+			checkWriter();
+
+			if ( isNaN( xstep ) || isNaN( ystep ) )
+			{
+				xstep = width;
+				ystep = height;
+			}
+
+			if ( xstep == 0.0 || ystep == 0.0 )
+				throw new RuntimeError( "xstep or ystep can not be zero" );
+
+			var painter: PdfPatternPainter = new PdfPatternPainter( writer );
+			painter.width = width;
+			painter.height = height;
+			painter.xstep = xstep;
+			painter.ystep = ystep;
+			writer.pdf_core::addSimplePattern( painter );
+			return painter;
+		}
+
+		/**
+		 * Create a new uncolored tiling pattern.
+		 *
+		 * @param width the width of the pattern
+		 * @param height the height of the pattern
+		 * @param xstep the desired horizontal spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param ystep the desired vertical spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param color the default color. Can be <CODE>null</CODE>
+		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
+		 */
+		public function createPatternColor( width: Number, height: Number, xstep: Number, ystep: Number, color: RGBColor ): PdfPatternPainter
+		{
+			checkWriter();
+
+			if ( xstep == 0.0 || ystep == 0.0 )
+				throw new RuntimeError( "xstep or ystep can not be zero" );
+
+			var painter: PdfPatternPainter = new PdfPatternPainter( writer, color );
+			painter.width = width;
+			painter.height = height;
+			painter.xstep = xstep;
+			painter.ystep = ystep;
+			writer.pdf_core::addSimplePattern( painter );
+			return painter;
+		}
+
 		/**
 		 * Appends a Bezier curve to the path, starting from the current point.
 		 *
@@ -423,11 +485,6 @@ package org.purepdf.pdf
 			return content;
 		}
 
-		public function get pageResources(): PageResources
-		{
-			return pdf.pageResources;
-		}
-
 		public function lineTo( x: Number, y: Number ): void
 		{
 			content.append_number( x ).append( ' ' ).append_number( y ).append( " l" ).append_separator();
@@ -457,6 +514,36 @@ package org.purepdf.pdf
 		public function newPath(): void
 		{
 			content.append( "n" ).append_separator();
+		}
+
+		public function get pageResources(): PageResources
+		{
+			return pdf.pageResources;
+		}
+
+		/**
+		 * Paint using a shading object
+		 *
+		 * @param value
+		 */
+		public function paintShading( value: PdfShading ): void
+		{
+			writer.pdf_core::addSimpleShading( value );
+			var prs: PageResources = pageResources;
+			var name: PdfName = prs.addShading( value.shadingName, value.shadingReference );
+			content.append_bytes( name.getBytes() ).append_string( " sh" ).append_separator();
+			var details: ColorDetails = value.colorDetails;
+
+			if ( details != null )
+				prs.addColor( details.colorName, details.indirectReference );
+		}
+
+		/**
+		 * Paints using a shading pattern.
+		 */
+		public function paintShadingPattern( shading: PdfShadingPattern ): void
+		{
+			paintShading( shading.shading );
 		}
 
 		/**
@@ -603,7 +690,8 @@ package org.purepdf.pdf
 					break;
 
 				case ExtendedColor.TYPE_SHADING:
-					throw new NonImplementatioError();
+					var shading: ShadingColor = ShadingColor( color );
+					setShadingFill( shading.shadingPattern );
 					break;
 
 				default:
@@ -888,6 +976,23 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Sets the shading fill pattern.
+		 */
+		public function setShadingFill( shading: PdfShadingPattern ): void
+		{
+			setShadingFillOrStroke( shading, true );
+		}
+
+		/**
+		 * Sets the shading stroke pattern
+		 * @param shading the shading pattern
+		 */
+		public function setShadingStroke( shading: PdfShadingPattern ): void
+		{
+			setShadingFillOrStroke( shading, false );
+		}
+
+		/**
 		 * Sets the fill color to a spot color.
 		 *
 		 * @param sp the spot color
@@ -929,7 +1034,8 @@ package org.purepdf.pdf
 					setPatternStroke( pat.painter );
 					break;
 				case ExtendedColor.TYPE_SHADING:
-					throw new NonImplementatioError();
+					var shading: ShadingColor = ShadingColor( color );
+					setShadingStroke( shading.shadingPattern );
 					break;
 				default:
 					setRGBStrokeColor( color.red, color.green, color.blue );
@@ -1358,10 +1464,23 @@ package org.purepdf.pdf
 			content.append_char( ' ' ).append_bytes( name.getBytes() ).append_string( fill ? " scn" : " SCN" ).append_separator();
 		}
 
+		private function setShadingFillOrStroke( shading: PdfShadingPattern, fill: Boolean ): void
+		{
+			writer.pdf_core::addSimpleShadingPattern( shading );
+			var prs: PageResources = pageResources;
+			var name: PdfName = prs.addPattern( shading.patternName, shading.patternReference );
+			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
+				.append_string( fill ? " scn" : " SCN" ).append_separator();
+			var details: ColorDetails = shading.colorDetails;
+
+			if ( details != null )
+				prs.addColor( details.colorName, details.indirectReference );
+		}
+
 		private function setSpotColor( sp: PdfSpotColor, tint: Number, fill: Boolean ): void
 		{
 			checkWriter();
-			state.colorDetails = writer.addSimple( sp );
+			state.colorDetails = writer.pdf_core::addSimple( sp );
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.colorDetails.colorName;
 			name = prs.addColor( name, state.colorDetails.indirectReference );
@@ -1506,68 +1625,5 @@ package org.purepdf.pdf
 			content.append( ')' );
 			return content;
 		}
-		
-		
-		/**
-		 * Create a new colored tiling pattern.
-		 *
-		 * @param width the width of the pattern
-		 * @param height the height of the pattern
-		 * @param xstep the desired horizontal spacing between pattern cells.
-		 * May be either positive or negative, but not zero.
-		 * @param ystep the desired vertical spacing between pattern cells.
-		 * May be either positive or negative, but not zero.
-		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
-		 */
-		public function createPattern( width:Number,  height:Number,  xstep:Number = NaN,  ystep:Number = NaN):PdfPatternPainter
-		{
-			checkWriter();
-			
-			if( isNaN( xstep ) || isNaN( ystep ) )
-			{
-				xstep = width;
-				ystep = height;
-			}
-			
-			if ( xstep == 0.0 || ystep == 0.0 )
-				throw new RuntimeError("xstep or ystep can not be zero");
-			
-			var painter:PdfPatternPainter = new PdfPatternPainter(writer);
-			painter.width = width;
-			painter.height = height;
-			painter.xstep = xstep;
-			painter.ystep = ystep;
-			writer.pdf_core::addSimplePattern( painter );
-			return painter;
-		}
-		
-		/**
-		 * Create a new uncolored tiling pattern.
-		 *
-		 * @param width the width of the pattern
-		 * @param height the height of the pattern
-		 * @param xstep the desired horizontal spacing between pattern cells.
-		 * May be either positive or negative, but not zero.
-		 * @param ystep the desired vertical spacing between pattern cells.
-		 * May be either positive or negative, but not zero.
-		 * @param color the default color. Can be <CODE>null</CODE>
-		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
-		 */
-		public function createPatternColor( width:Number,  height:Number, xstep:Number, ystep:Number, color:RGBColor):PdfPatternPainter
-		{
-			checkWriter();
-			if ( xstep == 0.0 || ystep == 0.0 )
-				throw new RuntimeError("xstep or ystep can not be zero");
-			
-			var painter:PdfPatternPainter = new PdfPatternPainter(writer, color);
-			painter.width = width;
-			painter.height = height;
-			painter.xstep = xstep;
-			painter.ystep = ystep;
-			writer.pdf_core::addSimplePattern( painter );
-			return painter;
-		}
-		
-		
 	}
 }
