@@ -7,13 +7,12 @@ package org.purepdf.pdf
 	import org.purepdf.utils.ObjectUtils;
 	
 
-	public class PdfPatternPainter extends PdfTemplate implements IObject
+	public class PdfPatternPainter extends PdfTemplate
 	{
 		private var _xstep: Number;
 		private var _ystep: Number;
 		private var _stencil: Boolean = false;
 		private var _defaultColor: RGBColor;
-		private var _hashCode: int = ObjectUtils.hashCode( PdfPatternPainter );
 		
 		public function PdfPatternPainter( $writer: PdfWriter = null, color: RGBColor = null )
 		{
@@ -27,12 +26,6 @@ package org.purepdf.pdf
 			}
 		}
 		
-		public function hashCode(): int
-		{
-			return _hashCode;
-		}
-
-
 		public function get defaultColor():RGBColor
 		{
 			return _defaultColor;

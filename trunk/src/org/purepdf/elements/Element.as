@@ -1,8 +1,9 @@
 package org.purepdf.elements
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.errors.NonImplementatioError;
 
-	public class Element implements IElement
+	public class Element extends ObjectHash implements IElement
 	{
 		public static const ALIGN_BASELINE: int = 7;
 		public static const ALIGN_BOTTOM: int = 6;

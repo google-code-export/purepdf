@@ -1,9 +1,9 @@
 package org.purepdf.colors
 {
-	import org.purepdf.IObject;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.assertTrue;
 
-	public class RGBColor implements IObject
+	public class RGBColor extends ObjectHash
 	{
 		public static const BLACK: RGBColor =       new RGBColor( 0, 0, 0 );
 		public static const BLUE: RGBColor =        new RGBColor( 0, 0, 255 );
@@ -25,7 +25,7 @@ package org.purepdf.colors
 			setValue( red, green, blue, alpha );
 		}
 		
-		public function hashCode(): int
+		override public function hashCode(): int
 		{
 			return value;
 		}

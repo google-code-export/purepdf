@@ -1,9 +1,10 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.IOutputStream;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 
-	public class PdfObject extends Object
+	public class PdfObject extends ObjectHash
 	{
 		public static const BOOLEAN: int = 1;
 		public static const NUMBER: int = 2;

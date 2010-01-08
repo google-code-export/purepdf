@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.errors.NonImplementatioError;
 
-	public class PdfReader
+	public class PdfReader extends ObjectHash
 	{
 		public static function getPdfObject( obj: PdfObject ): PdfObject
 		{

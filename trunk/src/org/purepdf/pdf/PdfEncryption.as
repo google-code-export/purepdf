@@ -4,9 +4,10 @@ package org.purepdf.pdf
 	
 	import flash.system.System;
 	
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 
-	public class PdfEncryption
+	public class PdfEncryption extends ObjectHash
 	{
 		private static var seq: Number = new Date().getTime();
 		

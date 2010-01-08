@@ -1,7 +1,8 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 
-	public class PdfPages
+	public class PdfPages extends ObjectHash
 	{
 		private var writer: PdfWriter;
 		private var pages: Vector.<PdfIndirectReference> = new Vector.<PdfIndirectReference>();

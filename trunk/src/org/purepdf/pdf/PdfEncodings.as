@@ -2,9 +2,10 @@ package org.purepdf.pdf
 {
 	import flash.errors.IOError;
 	
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 
-	public class PdfEncodings
+	public class PdfEncodings extends ObjectHash
 	{
 		private static var _pdfEncoding: Object;
 		

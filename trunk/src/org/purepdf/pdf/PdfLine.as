@@ -1,6 +1,8 @@
 package org.purepdf.pdf
 {
-	public class PdfLine
+	import org.purepdf.ObjectHash;
+
+	public class PdfLine extends ObjectHash
 	{
 		protected var line: Array;
 		protected var _width: Number;

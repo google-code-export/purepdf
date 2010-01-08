@@ -1,12 +1,14 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
+
 	/**
 	 * Contains the constants used for modify the pdf display
 	 * preferences
 	 * 
 	 * @see org.purepdf.pdf.PdfDocument.setViewerPreferences()
 	 */
-	public class PdfViewPreferences
+	public class PdfViewPreferences extends ObjectHash
 	{
 		public static const PageLayoutSinglePage: int = 1;
 		public static const PageLayoutOneColumn: int = 2;

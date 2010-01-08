@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.pdf.interfaces.IPdfViewerPreferences;
 
-	public class PdfViewerPreferencesImp implements IPdfViewerPreferences
+	public class PdfViewerPreferencesImp extends ObjectHash implements IPdfViewerPreferences
 	{
 		public static const DIRECTION_PREFERENCES: Vector.<PdfName> = Vector.<PdfName>( [ PdfName.L2R, PdfName.R2L ] );
 		public static const DUPLEX_PREFERENCES: Vector.<PdfName> = Vector.<PdfName>( [ PdfName.SIMPLEX, PdfName.DUPLEXFLIPSHORTEDGE, PdfName.DUPLEXFLIPLONGEDGE ] );

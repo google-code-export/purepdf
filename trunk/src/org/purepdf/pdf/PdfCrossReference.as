@@ -2,9 +2,10 @@ package org.purepdf.pdf
 {
 	import org.purepdf.IComparable;
 	import org.purepdf.IOutputStream;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.assertTrue;
 
-	public final class PdfCrossReference implements IComparable
+	public final class PdfCrossReference extends ObjectHash implements IComparable
 	{
 		private var generation: int;
 		private var offset: int;
@@ -49,7 +50,7 @@ package org.purepdf.pdf
 			return refnum;
 		}
 
-		public function hashCode(): int
+		override public function hashCode(): int
 		{
 			return refnum;
 		}
