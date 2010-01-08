@@ -61,11 +61,10 @@ package
 		protected function _execute( mode: int, title: String ): void
 		{
 			var bmp: BitmapData = ( new cls1() as Bitmap ).bitmapData;
-			var document: PdfDocument = PdfWriter.create( buffer, PageSize.A4 );
 			
+			createDocument("View preferences example");
+
 			document.open();
-			document.addTitle( title );
-			document.addSubject( "View preferences example" );
 			document.setViewerPreferences( mode );
 			
 			// JPEG image

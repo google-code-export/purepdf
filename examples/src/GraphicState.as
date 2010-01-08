@@ -29,13 +29,8 @@ package
 		{
 			super.execute();
 			
-			var document: PdfDocument = PdfWriter.create( buffer, PageSize.A4 );
-			
+			createDocument( "Graphic state example" );
 			document.open();
-			document.addAuthor( "Alessandro Crugnola" );
-			document.addTitle( getQualifiedClassName( this ) );
-			document.addCreator( "http://purepdf.org" );
-			document.addSubject( "Graphic state example" );
 			
 			var cb: PdfContentByte = document.getDirectContent();
 			var gs: PdfGState;

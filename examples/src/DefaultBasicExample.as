@@ -16,7 +16,10 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
+	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfDocument;
+	import org.purepdf.pdf.PdfWriter;
 	
 	public class DefaultBasicExample extends Sprite
 	{
@@ -65,8 +68,22 @@ package
 		
 		protected function execute( event: Event = null ): void
 		{
-			buffer = new ByteArray();
 			start_time = new Date().getTime();
+		}
+		
+		protected function createDocument( subject: String, rect: RectangleElement = null ): void
+		{
+			buffer = new ByteArray();
+			
+			if( rect == null )
+				rect = PageSize.A4;
+			
+			document = PdfWriter.create( buffer, rect );
+			document.addAuthor( "Alessandro Crugnola" );
+			document.addTitle( getQualifiedClassName( this ) );
+			document.addCreator( "http://purepdf.org" );
+			document.addSubject( subject );
+			document.addKeywords("itext,purepdf");
 		}
 		
 		protected function save( e: * = null ): void

@@ -25,12 +25,9 @@ package
 		{
 			super.execute();
 			
-			var rect: RectangleElement = PageSize.A4;
-			var document: PdfDocument = PdfWriter.create( buffer, rect );
+			createDocument("Simple annotation example");
 			
 			document.open();
-			document.addAuthor( "Alessandro Crugnola" );
-			document.addTitle( getQualifiedClassName(this) );
 			
 			document.addAnnotation( 
 				PdfAnnotation.createText( new RectangleElement( 300, 700, 300, 700 ), 

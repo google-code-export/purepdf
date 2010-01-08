@@ -28,12 +28,9 @@ package
 		override protected function execute( event: Event=null ): void
 		{
 			super.execute();
-			var document: PdfDocument = PdfWriter.create( buffer, PageSize.A4 );
-
+			
+			createDocument("Separation color example");
 			document.open();
-			document.addAuthor( "Alessandro Crugnola" );
-			document.addTitle( getQualifiedClassName( this ) );
-			document.addSubject( "Separation Color example" );
 
 			var cb: PdfContentByte = document.getDirectContent();
 			

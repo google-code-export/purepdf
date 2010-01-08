@@ -34,12 +34,8 @@ package
 			super.execute();
 			
 			var bmp: BitmapData = Bitmap( new cls1() ).bitmapData;
-			var document: PdfDocument = PdfWriter.create( buffer, PageSize.A4 );
-			
+			createDocument("Clipping Paths example");
 			document.open();
-			document.addAuthor("Alessandro Crugnola");
-			document.addTitle( getQualifiedClassName( this ) );
-			document.setViewerPreferences( PdfViewPreferences.FitWindow );
 			
 			var cb: PdfContentByte = document.getDirectContent();
 			var image: ImageElement;
@@ -47,8 +43,8 @@ package
 			
 			
 			image = ImageElement.getBitmapDataInstance( bmp );
-			var w: Number = image.getScaledWidth();
-			var h: Number = image.getScaledHeight();
+			var w: Number = image.scaledWidth;
+			var h: Number = image.scaledHeight;
 			
 			
 			cb.saveState();

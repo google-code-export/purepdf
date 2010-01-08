@@ -37,11 +37,8 @@ package
 		{
 			super.execute(event);
 			
-			var document: PdfDocument = PdfWriter.create( buffer, PageSize.A4 );
-			
+			createDocument("Animated GIF Image Example");
 			document.open();
-			document.addTitle( getQualifiedClassName( this ) );
-			document.addSubject("Animated GIF Image Example");
 			
 			var byte: ByteArray = new cls1();
 			var image: GifImage  = new GifImage( byte );

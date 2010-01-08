@@ -46,12 +46,9 @@ package
 			super.execute();
 			
 			var bmp: BitmapData = ( new cls1() as Bitmap ).bitmapData;
-			var rect: RectangleElement = PageSize.A4;
-			var document: PdfDocument = PdfWriter.create( buffer, rect );
+			createDocument("Image Types Example");
 			
 			document.open();
-			document.addTitle( getQualifiedClassName( this ) );
-			document.addSubject("Image Types Example");
 			
 			// ---------------
 			// JPEG image
