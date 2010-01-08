@@ -1,10 +1,11 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.collections.HashMap;
 	import org.purepdf.utils.iterators.Iterator;
 	import org.purepdf.utils.iterators.VectorIterator;
 
-	public class PageResources
+	public class PageResources extends ObjectHash
 	{
 		protected var colorDictionary: PdfDictionary = new PdfDictionary();
 		protected var extGStateDictionary: PdfDictionary = new PdfDictionary();

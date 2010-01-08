@@ -1,10 +1,11 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 
 	/**
 	 * Describe each SpotColor defined in the document
 	 */
-	public class ColorDetails
+	public class ColorDetails extends ObjectHash
 	{
 		private var _colorName: PdfName;
 		private var _indirectReference: PdfIndirectReference;

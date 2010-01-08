@@ -693,7 +693,7 @@ package org.purepdf.pdf
 			return false;
 		}
 
-		public function hashCode(): int
+		override public function hashCode(): int
 		{
 			var h: int = hash;
 

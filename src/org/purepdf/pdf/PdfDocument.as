@@ -3,6 +3,7 @@ package org.purepdf.pdf
 	import flash.events.EventDispatcher;
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
+	import org.purepdf.IObject;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;
@@ -11,13 +12,16 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
+	import org.purepdf.utils.ObjectUtils;
 	import org.purepdf.utils.collections.HashMap;
 
-	public class PdfDocument extends EventDispatcher
+	public class PdfDocument extends EventDispatcher implements IObject
 	{
 		internal static var compress: Boolean = false;
 
 		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfDocument );
+		protected var _hashCode: int;
+		protected var _pageResources: PageResources;
 		protected var _pageSize: RectangleElement;
 		protected var alignment: int = Element.ALIGN_LEFT;
 		protected var annotationsImp: PdfAnnotationsImp;
@@ -50,7 +54,6 @@ package org.purepdf.pdf
 		protected var opened: Boolean;
 		protected var pageEmpty: Boolean = true;
 		protected var pageN: int = 0;
-		protected var _pageResources: PageResources;
 		protected var rootOutline: PdfOutline;
 		protected var strictImageSequence: Boolean = false;
 		protected var text: PdfContentByte;
@@ -188,14 +191,16 @@ package org.purepdf.pdf
 			return pageN;
 		}
 
-		public function get pageResources(): PageResources
-		{
-			return _pageResources;
-		}
-
 		public function getWriter(): PdfWriter
 		{
 			return writer;
+		}
+
+		public function hashCode(): int
+		{
+			if ( isNaN( _hashCode ) )
+				_hashCode = ObjectUtils.hashCode( this );
+			return _hashCode;
 		}
 
 		public function isOpen(): Boolean
@@ -281,6 +286,11 @@ package org.purepdf.pdf
 			{
 				throw new Error( "Document is already opened" );
 			}
+		}
+
+		public function get pageResources(): PageResources
+		{
+			return _pageResources;
 		}
 
 		/**

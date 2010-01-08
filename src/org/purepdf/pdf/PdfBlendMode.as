@@ -1,11 +1,13 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
+
 	/**
 	 * Possible transparency blend modes to be used in a <code>PdfGstate</code>
 	 * 
 	 * @see org.purepdf.pdf.PdfGState
 	 */
-	public class PdfBlendMode
+	public class PdfBlendMode extends ObjectHash
 	{
 		public static const NORMAL: PdfName = new PdfName("Normal");
 		public static const COMPATIBLE: PdfName = new PdfName("Compatible");

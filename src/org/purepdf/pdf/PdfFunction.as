@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	
 
-	public class PdfFunction
+	public class PdfFunction extends ObjectHash
 	{
 		protected var writer: PdfWriter;
 		private var _reference: PdfIndirectReference;

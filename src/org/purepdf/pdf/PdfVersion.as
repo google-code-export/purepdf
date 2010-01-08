@@ -2,9 +2,10 @@ package org.purepdf.pdf
 {
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 
-	public class PdfVersion
+	public class PdfVersion extends ObjectHash
 	{
 		protected const header_version: String = PdfWriter.VERSION_1_4;
 		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfVersion );

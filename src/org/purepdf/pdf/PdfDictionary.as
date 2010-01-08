@@ -13,7 +13,6 @@ package org.purepdf.pdf
 		public static const CATALOG: PdfName = PdfName.CATALOG;
 		public static const OUTLINES: PdfName = PdfName.OUTLINES;
 		
-		protected var _hashCode: int = ObjectUtils.hashCode( PdfDictionary );
 		protected var hashMap: HashMap;
 		protected var dictionaryType: PdfName;
 		
@@ -143,11 +142,6 @@ package org.purepdf.pdf
 			
 			os.writeInt( '>'.charCodeAt(0) );
 			os.writeInt( '>'.charCodeAt(0) );
-		}
-		
-		public function hashCode(): int
-		{
-			return _hashCode;
 		}
 	}
 }

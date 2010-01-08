@@ -1,23 +1,20 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.IObject;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
-	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.utils.ObjectUtils;
 
 	/**
 	 * A PdfSpotColor defines a ColorSpace
 	 */
-	public class PdfSpotColor implements IObject
+	public class PdfSpotColor extends ObjectHash
 	{
 		public var altcs: RGBColor;
 		public var name: PdfName;
-
-		private var _hashCode: int = ObjectUtils.hashCode( PdfSpotColor );
 
 		public function PdfSpotColor( color_name: String, alternate_cs: RGBColor )
 		{
@@ -31,11 +28,6 @@ package org.purepdf.pdf
 		public function get alternativeCS(): RGBColor
 		{
 			return altcs;
-		}
-
-		public function hashCode(): int
-		{
-			return _hashCode;
 		}
 
 		internal function getSpotObject( writer: PdfWriter ): PdfObject

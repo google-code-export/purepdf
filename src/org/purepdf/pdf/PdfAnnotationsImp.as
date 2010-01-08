@@ -1,11 +1,12 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.utils.collections.HashMap;
 
-	public class PdfAnnotationsImp
+	public class PdfAnnotationsImp extends ObjectHash
 	{
 		protected var annotations: Vector.<PdfAnnotation>;
 		protected var delayedAnnotations: Vector.<PdfAnnotation> = new Vector.<PdfAnnotation>();

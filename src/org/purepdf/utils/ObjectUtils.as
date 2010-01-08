@@ -4,7 +4,7 @@ package org.purepdf.utils
 
 	public class ObjectUtils
 	{
-		public static function hashCode( clazz: Class ): int
+		public static function hashCode( clazz: Object ): int
 		{
 			var i: Number = new Date().getTime() + ( Math.random() * 1000 );
 			var cls: String = getQualifiedClassName( clazz );

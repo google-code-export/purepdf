@@ -1,5 +1,6 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.collections.TreeSet;
 	import org.purepdf.utils.iterators.Iterator;
 
@@ -10,7 +11,7 @@ package org.purepdf.pdf
 	 * @see		PdfObject
 	 * @see		PdfIndirectObject
 	 */
-	public class PdfBody
+	public class PdfBody extends ObjectHash
 	{
 		private static const OBJSINSTREAM: int = 200;
 		private var currentObjNum: int;

@@ -1,10 +1,9 @@
 package org.purepdf.pdf
 {
-	import flash.geom.Rectangle;
-	
+	import org.purepdf.ObjectHash;
 	import org.purepdf.elements.RectangleElement;
 	
-	public class PageSize extends Rectangle
+	public class PageSize extends ObjectHash
 	{
 		public static const A0: RectangleElement = new RectangleElement( 0, 0, 2384, 3370 );
 		public static const A1: RectangleElement = new RectangleElement( 0, 0, 1684, 2384 );

@@ -4,6 +4,7 @@ package org.purepdf.pdf
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
 	
+	import org.purepdf.ObjectHash;
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -21,7 +22,7 @@ package org.purepdf.pdf
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
 
-	public class PdfContentByte
+	public class PdfContentByte extends ObjectHash
 	{
 		public static const ALIGN_CENTER: int = Element.ALIGN_CENTER;
 		public static const ALIGN_LEFT: int = Element.ALIGN_LEFT;

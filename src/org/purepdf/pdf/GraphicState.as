@@ -1,7 +1,8 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.ObjectHash;
 
-	public class GraphicState
+	public class GraphicState extends ObjectHash
 	{
 		public var size: Number;
 		internal var charSpace: Number = 0;

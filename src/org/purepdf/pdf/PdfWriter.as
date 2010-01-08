@@ -4,6 +4,7 @@ package org.purepdf.pdf
 	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.colors.SpotColor;
@@ -18,7 +19,7 @@ package org.purepdf.pdf
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
 
-	public class PdfWriter
+	public class PdfWriter extends ObjectHash
 	{
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
