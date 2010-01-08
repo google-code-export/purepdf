@@ -6,7 +6,7 @@ package org.purepdf.utils
 	{
 		public static function hashCode( clazz: Class ): int
 		{
-			var i: Number = new Date().getTime() + Math.random();
+			var i: Number = new Date().getTime() + ( Math.random() * 1000 );
 			var cls: String = getQualifiedClassName( clazz );
 			for( var k: int = 0; k < cls.length; k++ )
 			{

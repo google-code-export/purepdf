@@ -138,7 +138,7 @@ package org.purepdf.pdf
 						put( PdfName.FILTER, PdfName.FLATEDECODE );
 					else
 					{
-						flateCompress( image.getCompressionLevel() );
+						flateCompress( image.compressionLevel );
 					}
 				}
 				return;

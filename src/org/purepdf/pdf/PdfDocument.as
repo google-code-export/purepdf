@@ -1,7 +1,6 @@
 package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.elements.Element;
@@ -17,6 +16,9 @@ package org.purepdf.pdf
 	public class PdfDocument extends EventDispatcher
 	{
 		internal static var compress: Boolean = false;
+
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfDocument );
+		protected var _pageSize: RectangleElement;
 		protected var alignment: int = Element.ALIGN_LEFT;
 		protected var annotationsImp: PdfAnnotationsImp;
 		protected var boxSize: HashMap = new HashMap();
@@ -48,8 +50,7 @@ package org.purepdf.pdf
 		protected var opened: Boolean;
 		protected var pageEmpty: Boolean = true;
 		protected var pageN: int = 0;
-		protected var pageResources: PageResources;
-		protected var _pageSize: RectangleElement;
+		protected var _pageResources: PageResources;
 		protected var rootOutline: PdfOutline;
 		protected var strictImageSequence: Boolean = false;
 		protected var text: PdfContentByte;
@@ -58,8 +59,6 @@ package org.purepdf.pdf
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
 		protected var writer: PdfWriter;
 
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfDocument );
-		
 		public function PdfDocument( size: RectangleElement )
 		{
 			_pageSize = size;
@@ -159,14 +158,19 @@ package org.purepdf.pdf
 		{
 			logger.warn( 'getCatalog. to be implemented' );
 			var catalog: PdfCatalog = new PdfCatalog( pages, writer );
-			
+
 			// version
 			writer.getPdfVersion().addToCatalog( catalog );
-			
+
 			// preferences
 			viewerPreferences.addToCatalog( catalog );
-			
+
 			return catalog;
+		}
+
+		public function getDefaultColorSpace(): PdfDictionary
+		{
+			return writer.getDefaultColorSpace();
 		}
 
 		public function getDirectContent(): PdfContentByte
@@ -184,18 +188,14 @@ package org.purepdf.pdf
 			return pageN;
 		}
 
-		public function getPageResources(): PageResources
+		public function get pageResources(): PageResources
 		{
-			return pageResources;
+			return _pageResources;
 		}
 
-		/**
-		 * Return the current pagesize
-		 * 
-		 */
-		public function get pageSize(): RectangleElement
+		public function getWriter(): PdfWriter
 		{
-			return _pageSize;
+			return writer;
 		}
 
 		public function isOpen(): Boolean
@@ -205,7 +205,8 @@ package org.purepdf.pdf
 
 		public function isPageEmpty(): Boolean
 		{
-			return writer == null || ( writer.getDirectContent().size() == 0 && writer.getDirectContentUnder().size() == 0 && ( pageEmpty || writer.isPaused() ) );
+			return writer == null || ( writer.getDirectContent().size() == 0 && writer.getDirectContentUnder().size() == 0 && ( pageEmpty
+				|| writer.isPaused() ) );
 		}
 
 		public function left( margin: Number=0 ): Number
@@ -231,10 +232,10 @@ package org.purepdf.pdf
 				throw new Error( "Document is not opened" );
 			}
 			dispatchEvent( new PageEvent( PageEvent.END_PAGE ) );
-			
+
 			flushLines();
 			var rotation: int = _pageSize.getRotation();
-			var resources: PdfDictionary = pageResources.getResources();
+			var resources: PdfDictionary = _pageResources.getResources();
 			var page: PdfPage = new PdfPage( PdfRectangle.create( _pageSize, rotation ), thisBoxSize, resources, rotation );
 			page.put( PdfName.TABS, writer.getTabs() );
 
@@ -282,9 +283,35 @@ package org.purepdf.pdf
 			}
 		}
 
+		/**
+		 * Return the current pagesize
+		 *
+		 */
+		public function get pageSize(): RectangleElement
+		{
+			return _pageSize;
+		}
+
+		/**
+		 * Set the pagesize
+		 *
+		 */
+		public function set pageSize( value: RectangleElement ): void
+		{
+			if ( writer != null && writer.isPaused() )
+				return;
+
+			nextPageSize = RectangleElement.clone( value );
+		}
+
 		public function right( margin: Number=0 ): Number
 		{
 			return _pageSize.getRight( marginRight + margin );
+		}
+
+		public function setDefaultColorSpace( key: PdfName, value: PdfObject ): void
+		{
+			writer.setDefaultColorSpace( key, value );
 		}
 
 		public function setMargins( marginLeft: Number, marginRight: Number, marginTop: Number, marginBottom: Number ): Boolean
@@ -298,18 +325,6 @@ package org.purepdf.pdf
 			nextMarginTop = marginTop;
 			nextMarginBottom = marginBottom;
 			return true;
-		}
-
-		/**
-		 * Set the pagesize
-		 * 
-		 */
-		public function set pageSize( value: RectangleElement ): void
-		{
-			if ( writer != null && writer.isPaused() )
-				return;
-
-			nextPageSize = RectangleElement.clone( value );
 		}
 
 		public function setViewerPreferences( preferences: int ): void
@@ -369,7 +384,7 @@ package org.purepdf.pdf
 		{
 			pageN++;
 			annotationsImp.resetAnnotations();
-			pageResources = new PageResources();
+			_pageResources = new PageResources();
 			writer.resetContent();
 			graphics = new PdfContentByte( writer );
 			text = new PdfContentByte( writer );
@@ -543,7 +558,7 @@ package org.purepdf.pdf
 				return;
 			}
 
-			if ( currentHeight != 0 && indentTop - currentHeight - image.getScaledHeight() < indentBottom )
+			if ( currentHeight != 0 && indentTop - currentHeight - image.scaledHeight < indentBottom )
 			{
 				if ( !strictImageSequence && imageWait == null )
 				{
@@ -552,7 +567,7 @@ package org.purepdf.pdf
 				}
 				newPage();
 
-				if ( currentHeight != 0 && indentTop - currentHeight - image.getScaledHeight() < indentBottom )
+				if ( currentHeight != 0 && indentTop - currentHeight - image.scaledHeight < indentBottom )
 				{
 					imageWait = image;
 					return;
@@ -562,34 +577,35 @@ package org.purepdf.pdf
 
 			if ( image == imageWait )
 				imageWait = null;
-			var textwrap: Boolean = ( image.alignment & ImageElement.TEXTWRAP ) == ImageElement.TEXTWRAP && !( ( image.alignment & ImageElement.MIDDLE ) == ImageElement.MIDDLE );
+			var textwrap: Boolean = ( image.alignment & ImageElement.TEXTWRAP ) == ImageElement.TEXTWRAP && !( ( image.alignment & ImageElement
+				.MIDDLE ) == ImageElement.MIDDLE );
 			var underlying: Boolean = ( image.alignment & ImageElement.UNDERLYING ) == ImageElement.UNDERLYING;
 			var diff: Number = leading / 2;
 
 			if ( textwrap )
 				diff += leading;
-			var lowerleft: Number = indentTop - currentHeight - image.getScaledHeight() - diff;
+			var lowerleft: Number = indentTop - currentHeight - image.scaledHeight - diff;
 			var mt: Vector.<Number> = image.matrix;
 			var startPosition: Number = indentLeft - mt[ 4 ];
 
 			if ( ( image.alignment & ImageElement.RIGHT ) == ImageElement.RIGHT )
-				startPosition = indentRight - image.getScaledWidth() - mt[ 4 ];
+				startPosition = indentRight - image.scaledWidth - mt[ 4 ];
 
 			if ( ( image.alignment & ImageElement.MIDDLE ) == ImageElement.MIDDLE )
-				startPosition = indentLeft + ( ( indentRight - indentLeft - image.getScaledWidth() ) / 2 ) - mt[ 4 ];
+				startPosition = indentLeft + ( ( indentRight - indentLeft - image.scaledWidth ) / 2 ) - mt[ 4 ];
 
 			if ( image.hasAbsoluteX )
 				startPosition = image.absoluteX;
 
 			if ( textwrap )
 			{
-				if ( imageEnd < 0 || imageEnd < currentHeight + image.getScaledHeight() + diff )
-					imageEnd = currentHeight + image.getScaledHeight() + diff;
+				if ( imageEnd < 0 || imageEnd < currentHeight + image.scaledHeight + diff )
+					imageEnd = currentHeight + image.scaledHeight + diff;
 
 				if ( ( image.alignment & ImageElement.RIGHT ) == ImageElement.RIGHT )
-					indentation.imageIndentRight += image.getScaledWidth() + image.indentationLeft;
+					indentation.imageIndentRight += image.scaledWidth + image.indentationLeft;
 				else
-					indentation.imageIndentLeft += image.getScaledWidth() + image.indentationRight;
+					indentation.imageIndentLeft += image.scaledWidth + image.indentationRight;
 			}
 			else
 			{
@@ -604,9 +620,9 @@ package org.purepdf.pdf
 
 			if ( !( textwrap || underlying ) )
 			{
-				currentHeight += image.getScaledHeight() + diff;
+				currentHeight += image.scaledHeight + diff;
 				flushLines();
-				text.moveText( 0, -( image.getScaledHeight() + diff ) );
+				text.moveText( 0, -( image.scaledHeight + diff ) );
 				newLine();
 			}
 		}

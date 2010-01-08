@@ -3,9 +3,11 @@ package org.purepdf.pdf
 	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
+	import org.purepdf.colors.PatternColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.AnnotationElement;
@@ -13,6 +15,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
@@ -43,6 +46,8 @@ package org.purepdf.pdf
 		protected var layerDepth: Array;
 		protected var mcDepth: int = 0;
 		protected var pdf: PdfDocument;
+
+		protected var separator: int = '\n'.charCodeAt( 0 );
 		protected var state: GraphicState = new GraphicState();
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
 		protected var writer: PdfWriter;
@@ -133,7 +138,7 @@ package org.purepdf.pdf
 				else
 				{
 					var name: PdfName;
-					var prs: PageResources = getPageResources();
+					var prs: PageResources = pageResources;
 					var maskImage: ImageElement = image.imageMask;
 
 					if ( maskImage != null )
@@ -210,6 +215,36 @@ package org.purepdf.pdf
 		public function addImage3( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number ): void
 		{
 			addImage2( image, width, b, c, height, x, y, false );
+		}
+
+		/**
+		 * Draws a partial ellipse inscribed within the rectangle x1,y1,x2,y2,
+		 * starting at startAng degrees and covering extent degrees. Angles
+		 * start with 0 to the right (+x) and increase counter-clockwise.
+		 *
+		 * @param x1 a corner of the enclosing rectangle
+		 * @param y1 a corner of the enclosing rectangle
+		 * @param x2 a corner of the enclosing rectangle
+		 * @param y2 a corner of the enclosing rectangle
+		 * @param startAng starting angle in degrees
+		 * @param extent angle extent in degrees
+		 */
+		public function arc( x1: Number, y1: Number, x2: Number, y2: Number, startAng: Number, extent: Number ): void
+		{
+			var ar: Vector.<Vector.<Number>> = bezierArc( x1, y1, x2, y2, startAng, extent );
+
+			if ( ar.length == 0 )
+				return;
+
+			var pt: Vector.<Number> = ar[ 0 ];
+
+			moveTo( pt[ 0 ], pt[ 1 ] );
+
+			for ( var k: int = 0; k < ar.length; ++k )
+			{
+				pt = ar[ k ];
+				curveTo( pt[ 2 ], pt[ 3 ], pt[ 4 ], pt[ 5 ], pt[ 6 ], pt[ 7 ] );
+			}
 		}
 
 		/**
@@ -321,6 +356,19 @@ package org.purepdf.pdf
 				.append_separator();
 		}
 
+		/**
+		 * Draws an ellipse inscribed within the rectangle x1,y1,x2,y2.
+		 *
+		 * @param x1 a corner of the enclosing rectangle
+		 * @param y1 a corner of the enclosing rectangle
+		 * @param x2 a corner of the enclosing rectangle
+		 * @param y2 a corner of the enclosing rectangle
+		 */
+		public function ellipse( x1: Number, y1: Number, x2: Number, y2: Number ): void
+		{
+			arc( x1, y1, x2, y2, 0, 360 );
+		}
+
 		public function endLayer(): void
 		{
 			var n: int = 1;
@@ -374,9 +422,9 @@ package org.purepdf.pdf
 			return content;
 		}
 
-		public function getPageResources(): PageResources
+		public function get pageResources(): PageResources
 		{
-			return pdf.getPageResources();
+			return pdf.pageResources;
 		}
 
 		public function lineTo( x: Number, y: Number ): void
@@ -411,7 +459,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Adds a rectangle to the current path
+		 * Adds a rectangle to the current path<br>
 		 * Either a RectangleElement or 4 Numbers are accepted as parameters
 		 *
 		 * @param       x       x-coordinate of the starting point
@@ -508,6 +556,23 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Sets the color space to <B>DeviceCMYK</B> (or the <B>DefaultCMYK</B> color space),
+		 * and sets the color to use for stroking paths.</P>
+		 * Each value must be between 0 and 1.
+		 *
+		 * @param   cyan
+		 * @param   magenta
+		 * @param   yellow
+		 * @param   black
+		 */
+
+		public function setCMYKStrokeColor( cyan: Number, magenta: Number, yellow: Number, black: Number ): void
+		{
+			helperCMYK( cyan, magenta, yellow, black );
+			content.append_string( " K" ).append_separator();
+		}
+
+		/**
 		 * Sets the fill color
 		 * @param color the color
 		 */
@@ -532,7 +597,8 @@ package org.purepdf.pdf
 					break;
 
 				case ExtendedColor.TYPE_PATTERN:
-					throw new NonImplementatioError();
+					var pat: PatternColor = PatternColor( color );
+					setPatternFill( pat.painter );
 					break;
 
 				case ExtendedColor.TYPE_SHADING:
@@ -540,7 +606,7 @@ package org.purepdf.pdf
 					break;
 
 				default:
-					setRGBColorFill( color.red, color.green, color.blue );
+					setRGBFillColor( color.red, color.green, color.blue );
 					break;
 			}
 		}
@@ -552,7 +618,7 @@ package org.purepdf.pdf
 		public function setGState( gstate: PdfGState ): void
 		{
 			var obj: Vector.<PdfObject> = writer.addSimpleExtGState( gstate );
-			var prs: PageResources = getPageResources();
+			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addExtGState( PdfName( obj[ 0 ] ), PdfIndirectReference( obj[ 1 ] ) );
 			content.append_bytes( name.getBytes() ).append( " gs" ).append_separator();
 		}
@@ -726,6 +792,79 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Set the fill color to a pattern
+		 */
+		public function setPatternFill( p: PdfPatternPainter ): void
+		{
+			if ( p.is_stencil )
+			{
+				setPatternFill2( p, p.defaultColor );
+				return;
+			}
+			setPattern( p, true );
+		}
+
+		/**
+		 * Set the fill color of an uncolored pattern
+		 */
+		public function setPatternFill2( p: PdfPatternPainter, color: RGBColor ): void
+		{
+			if ( ExtendedColor.getType( color ) == ExtendedColor.TYPE_SEPARATION )
+				setPatternFill3( p, color, SpotColor( color ).tint );
+			else
+				setPatternFill3( p, color, 0 );
+		}
+
+		/**
+		 * Set the fill color to an uncolored pattern
+		 */
+		public function setPatternFill3( p: PdfPatternPainter, color: RGBColor, tint: Number ): void
+		{
+			checkWriter();
+
+			if ( !p.is_stencil )
+				throw new RuntimeError( "an uncolored pattern was expected" );
+
+			setPattern3( p, color, tint, true );
+		}
+
+		/**
+		 * Sets the stroke color to a pattern
+		 */
+		public function setPatternStroke( p: PdfPatternPainter ): void
+		{
+			if ( p.is_stencil )
+			{
+				setPatternStroke2( p, p.defaultColor );
+				return;
+			}
+			setPattern( p, false );
+		}
+
+		/**
+		 * Sets the stroke color to an uncolored pattern
+		 */
+		public function setPatternStroke2( p: PdfPatternPainter, color: RGBColor ): void
+		{
+			if ( ExtendedColor.getType( color ) == ExtendedColor.TYPE_SEPARATION )
+				setPatternStroke3( p, color, SpotColor( color ).tint );
+			else
+				setPatternStroke3( p, color, 0 );
+		}
+
+		/**
+		 * Sets the stroke color to an uncolored pattern
+		 */
+		public function setPatternStroke3( p: PdfPatternPainter, color: RGBColor, tint: Number ): void
+		{
+			checkWriter();
+
+			if ( !p.is_stencil )
+				throw new RuntimeError( "an uncolored pattern was expected" );
+			setPattern3( p, color, tint, false );
+		}
+
+		/**
 		 * Changes the current color for filling paths
 		 * <P>
 		 * Sets the color space to DeviceRGB
@@ -734,22 +873,17 @@ package org.purepdf.pdf
 		 * @param green
 		 * @param blue
 		 */
-		public function setRGBColorFill( red: int, green: int, blue: int ): void
-		{
-			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
-			content.append( " rg" ).append_separator();
-		}
-
-		public function setRGBColorStroke( red: int, green: int, blue: int ): void
-		{
-			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
-			content.append( " RG" ).append_separator();
-		}
-
 		public function setRGBFillColor( red: int, green: int, blue: int ): void
 		{
 			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
 			content.append_string( " rg" ).append_separator();
+		}
+
+
+		public function setRGBStrokeColor( red: int, green: int, blue: int ): void
+		{
+			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
+			content.append( " RG" ).append_separator();
 		}
 
 		/**
@@ -761,13 +895,15 @@ package org.purepdf.pdf
 		 */
 		public function setSpotFillColor( sp: PdfSpotColor, tint: Number ): void
 		{
-			checkWriter();
-			state.colorDetails = writer.addSimple( sp );
-			var prs: PageResources = getPageResources();
-			var name: PdfName = state.colorDetails.colorName;
-			name = prs.addColor( name, state.colorDetails.indirectReference );
+			setSpotColor( sp, tint, true );
+		}
 
-			content.append_bytes( name.getBytes() ).append_string( " cs " ).append_number( tint ).append_string( " scn" ).append_separator();
+		/**
+		 * Sets the stroke color to a spot color
+		 */
+		public function setSpotStrokeColor( sp: PdfSpotColor, tint: Number ): void
+		{
+			setSpotColor( sp, tint, false );
 		}
 
 		public function setStrokeColor( color: RGBColor ): void
@@ -780,19 +916,22 @@ package org.purepdf.pdf
 					setGrayStroke( GrayColor( color ).gray );
 					break;
 				case ExtendedColor.TYPE_CMYK:
-					throw new NonImplementatioError();
+					var cmyk: CMYKColor = CMYKColor( color );
+					setCMYKStrokeColor( cmyk.cyan, cmyk.magenta, cmyk.yellow, cmyk.black );
 					break;
 				case ExtendedColor.TYPE_SEPARATION:
-					throw new NonImplementatioError();
+					var spot: SpotColor = SpotColor( color );
+					setSpotStrokeColor( spot.pdfSpotColor, spot.tint );
 					break;
 				case ExtendedColor.TYPE_PATTERN:
-					throw new NonImplementatioError();
+					var pat: PatternColor = PatternColor( color );
+					setPatternStroke( pat.painter );
 					break;
 				case ExtendedColor.TYPE_SHADING:
 					throw new NonImplementatioError();
 					break;
 				default:
-					setRGBColorStroke( color.red, color.green, color.blue );
+					setRGBStrokeColor( color.red, color.green, color.blue );
 					break;
 			}
 		}
@@ -818,6 +957,12 @@ package org.purepdf.pdf
 		public function stroke(): void
 		{
 			content.append( "S" ).append_separator();
+		}
+
+		public function toPdf( $writer: PdfWriter ): Bytes
+		{
+			sanityCheck();
+			return content.toByteArray();
 		}
 
 		public function toString(): String
@@ -1152,6 +1297,169 @@ package org.purepdf.pdf
 			content.append_number( red ).append( ' ' ).append_number( green ).append( ' ' ).append_number( blue );
 		}
 
+		/**
+		 * Outputs the color values to the content.
+		 */
+		private function outputColorNumbers( color: RGBColor, tint: Number ): void
+		{
+
+			var type: int = ExtendedColor.getType( color );
+
+			switch ( type )
+			{
+				case ExtendedColor.TYPE_RGB:
+					content.append_number( Number( color.red ) / 0xFF );
+					content.append_char( ' ' );
+					content.append_number( Number( color.green ) / 0xFF );
+					content.append_char( ' ' );
+					content.append_number( Number( color.blue ) / 0xFF );
+					break;
+
+				case ExtendedColor.TYPE_GRAY:
+					content.append_number( GrayColor( color ).gray );
+					break;
+
+				case ExtendedColor.TYPE_CMYK:
+					var cmyk: CMYKColor = CMYKColor( color );
+					content.append_number( cmyk.cyan ).append_char( ' ' ).append_number( cmyk.magenta );
+					content.append_char( ' ' ).append_number( cmyk.yellow ).append_char( ' ' ).append_number( cmyk.black );
+					break;
+
+				case ExtendedColor.TYPE_SEPARATION:
+					content.append_number( tint );
+					break;
+
+				default:
+					throw new RuntimeError( "invalid color type" );
+			}
+		}
+
+
+		private function setPattern( p: PdfPatternPainter, fill: Boolean ): void
+		{
+			checkWriter();
+			var psr: PageResources = pageResources;
+			var name: PdfName = writer.pdf_core::addSimplePattern( p );
+			name = psr.addPattern( name, p.indirectReference );
+			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
+				.append_string( fill ? " scn" : " SCN" ).append_separator();
+		}
+
+		private function setPattern3( p: PdfPatternPainter, color: RGBColor, tint: Number, fill: Boolean ): void
+		{
+			var psr: PageResources = pageResources;
+			var name: PdfName = writer.pdf_core::addSimplePattern( p );
+			name = psr.addPattern( name, p.indirectReference );
+			var cDetail: ColorDetails = writer.pdf_core::addSimplePatternColorSpace( color );
+			var cName: PdfName = psr.addColor( cDetail.colorName, cDetail.indirectReference );
+			content.append_bytes( cName.getBytes() ).append_string( fill ? " cs" : " CS" ).append_separator();
+			outputColorNumbers( color, tint );
+			content.append_char( ' ' ).append_bytes( name.getBytes() ).append_string( fill ? " scn" : " SCN" ).append_separator();
+		}
+
+		private function setSpotColor( sp: PdfSpotColor, tint: Number, fill: Boolean ): void
+		{
+			checkWriter();
+			state.colorDetails = writer.addSimple( sp );
+			var prs: PageResources = pageResources;
+			var name: PdfName = state.colorDetails.colorName;
+			name = prs.addColor( name, state.colorDetails.indirectReference );
+
+			content.append_bytes( name.getBytes() ).append_string( fill ? " cs " : " CS " ).append_number( tint ).append_string( fill
+				? " scn" : " SCN" ).append_separator();
+		}
+
+
+		/**
+		 * Generates an array of bezier curves to draw an arc.
+		 * <P>
+		 * (x1, y1) and (x2, y2) are the corners of the enclosing rectangle.
+		 * Angles, measured in degrees, start with 0 to the right (the positive X
+		 * axis) and increase counter-clockwise.  The arc extends from startAng
+		 * to startAng+extent.  I.e. startAng=0 and extent=180 yields an openside-down
+		 * semi-circle.
+		 * <P>
+		 * The resulting coordinates are of the form float[]{x1,y1,x2,y2,x3,y3, x4,y4}
+		 * such that the curve goes from (x1, y1) to (x4, y4) with (x2, y2) and
+		 * (x3, y3) as their respective Bezier control points.
+		 * <P>
+		 * Note: this code was taken from ReportLab (www.reportlab.org), an excellent
+		 * PDF generator for Python (BSD license: http://www.reportlab.org/devfaq.html#1.3 ).
+		 *
+		 * @param x1 a corner of the enclosing rectangle
+		 * @param y1 a corner of the enclosing rectangle
+		 * @param x2 a corner of the enclosing rectangle
+		 * @param y2 a corner of the enclosing rectangle
+		 * @param startAng starting angle in degrees
+		 * @param extent angle extent in degrees
+		 * @return a list of float[] with the bezier curves
+		 */
+		public static function bezierArc( x1: Number, y1: Number, x2: Number, y2: Number, startAng: Number, extent: Number ): Vector
+			.<Vector.<Number>>
+		{
+			var tmp: Number;
+
+			if ( x1 > x2 )
+			{
+				tmp = x1;
+				x1 = x2;
+				x2 = tmp;
+			}
+
+			if ( y2 > y1 )
+			{
+				tmp = y1;
+				y1 = y2;
+				y2 = tmp;
+			}
+
+			var fragAngle: Number;
+			var Nfrag: int;
+
+			if ( Math.abs( extent ) <= 90 )
+			{
+				fragAngle = extent;
+				Nfrag = 1;
+			}
+			else
+			{
+				Nfrag = ( Math.ceil( Math.abs( extent ) / 90 ) );
+				fragAngle = extent / Nfrag;
+			}
+
+			var x_cen: Number = ( x1 + x2 ) / 2;
+			var y_cen: Number = ( y1 + y2 ) / 2;
+			var rx: Number = ( x2 - x1 ) / 2;
+			var ry: Number = ( y2 - y1 ) / 2;
+			var halfAng: Number = ( fragAngle * Math.PI / 360. );
+			var kappa: Number = ( Math.abs( 4. / 3. * ( 1. - Math.cos( halfAng ) ) / Math.sin( halfAng ) ) );
+			var pointList: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>();
+
+			for ( var i: int = 0; i < Nfrag; ++i )
+			{
+				var theta0: Number = ( ( startAng + i * fragAngle ) * Math.PI / 180. );
+				var theta1: Number = ( ( startAng + ( i + 1 ) * fragAngle ) * Math.PI / 180. );
+				var cos0: Number = Math.cos( theta0 );
+				var cos1: Number = Math.cos( theta1 );
+				var sin0: Number = Math.sin( theta0 );
+				var sin1: Number = Math.sin( theta1 );
+
+				if ( fragAngle > 0 )
+				{
+					pointList.push( Vector.<Number>( [ x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 - kappa * sin0 ), y_cen
+						- ry * ( sin0 + kappa * cos0 ), x_cen + rx * ( cos1 + kappa * sin1 ), y_cen - ry * ( sin1 - kappa * cos1 ), x_cen
+						+ rx * cos1, y_cen - ry * sin1 ] ) );
+				}
+				else
+				{
+					pointList.push( Vector.<Number>( [ x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 + kappa * sin0 ), y_cen
+						- ry * ( sin0 - kappa * cos0 ), x_cen + rx * ( cos1 - kappa * sin1 ), y_cen - ry * ( sin1 + kappa * cos1 ), x_cen
+						+ rx * cos1, y_cen - ry * sin1 ] ) );
+				}
+			}
+			return pointList;
+		}
+
 		internal static function escapeByteArray( byte: Bytes ): Bytes
 		{
 			var content: ByteBuffer = new ByteBuffer();
@@ -1197,5 +1505,68 @@ package org.purepdf.pdf
 			content.append( ')' );
 			return content;
 		}
+		
+		
+		/**
+		 * Create a new colored tiling pattern.
+		 *
+		 * @param width the width of the pattern
+		 * @param height the height of the pattern
+		 * @param xstep the desired horizontal spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param ystep the desired vertical spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
+		 */
+		public function createPattern( width:Number,  height:Number,  xstep:Number = NaN,  ystep:Number = NaN):PdfPatternPainter
+		{
+			checkWriter();
+			
+			if( isNaN( xstep ) || isNaN( ystep ) )
+			{
+				xstep = width;
+				ystep = height;
+			}
+			
+			if ( xstep == 0.0 || ystep == 0.0 )
+				throw new RuntimeError("xstep or ystep can not be zero");
+			
+			var painter:PdfPatternPainter = new PdfPatternPainter(writer);
+			painter.width = width;
+			painter.height = height;
+			painter.xstep = xstep;
+			painter.ystep = ystep;
+			writer.pdf_core::addSimplePattern( painter );
+			return painter;
+		}
+		
+		/**
+		 * Create a new uncolored tiling pattern.
+		 *
+		 * @param width the width of the pattern
+		 * @param height the height of the pattern
+		 * @param xstep the desired horizontal spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param ystep the desired vertical spacing between pattern cells.
+		 * May be either positive or negative, but not zero.
+		 * @param color the default color. Can be <CODE>null</CODE>
+		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
+		 */
+		public function createPatternColor( width:Number,  height:Number, xstep:Number, ystep:Number, color:RGBColor):PdfPatternPainter
+		{
+			checkWriter();
+			if ( xstep == 0.0 || ystep == 0.0 )
+				throw new RuntimeError("xstep or ystep can not be zero");
+			
+			var painter:PdfPatternPainter = new PdfPatternPainter(writer, color);
+			painter.width = width;
+			painter.height = height;
+			painter.xstep = xstep;
+			painter.ystep = ystep;
+			writer.pdf_core::addSimplePattern( painter );
+			return painter;
+		}
+		
+		
 	}
 }

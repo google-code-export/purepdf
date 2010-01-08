@@ -11,7 +11,6 @@ package org.purepdf.pdf
 	
 	public class PdfStream extends PdfDictionary
 	{
-		public static const DEFAULT_COMPRESSION: int = -1;
 		public static const NO_COMPRESSION: int = 0;
 		public static const BEST_COMPRESSION: int = 9;
 		
@@ -65,7 +64,7 @@ package org.purepdf.pdf
 			
 			if( crypto != null )
 			{
-				logger.warn('implement this');
+				logger.warn('toPdf. crypto != null, implement this');
 			}
 			
 			var nn: PdfObject = getValue( PdfName.LENGTH );
@@ -103,7 +102,7 @@ package org.purepdf.pdf
 				inputStreamLength = counter;
 			} else
 			{
-				logger.warn('implement this');
+				logger.warn('toPdf. inputStream implement this');
 				
 				if( streamBytes != null )
 					os.writeByteArray( streamBytes );
