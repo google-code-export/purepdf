@@ -28,10 +28,6 @@ package org.purepdf.utils.collections
 	 *     map.put("y", "value Y");
 	 *     map.put("z", "value Z");
 	 *
-	 *     trace( map.getKeys() );
-	 *     trace( map.getValues() );
-	 *     trace( map.size() );
-	 *
 	 *     // outputs the following:
 	 *     // b,x,z,a,c,y
 	 *     // value B,value X,value Z,value A,value C,value Y
@@ -143,7 +139,6 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.putAll( table );
 		 * 
-		 * trace( map.getValues() );
 		 * // foo, bar
 		 * 
 		 * </listing>
@@ -198,7 +193,6 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 *
-		 * trace( map.containsKey( "admin" ) ); //true
 		 *
 		 * </listing>
 		 *
@@ -231,7 +225,6 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 *
-		 * trace( map.containsValue( adminVO ) ); //true
 		 *
 		 * </listing>
 		 *
@@ -274,7 +267,6 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 *
-		 * trace( map.getKey( adminVO ) ); //admin
 		 *
 		 * </listing>
 		 *
@@ -312,7 +304,6 @@ package org.purepdf.utils.collections
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
 		 *
-		 * trace( map.getKeys() ); //admin, editor
 		 *
 		 * </listing>
 		 *
@@ -344,7 +335,6 @@ package org.purepdf.utils.collections
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
 		 *
-		 * trace( map.getValue( "editor" ) ); //[object, editorVO]
 		 *
 		 * </listing>
 		 *
@@ -371,16 +361,14 @@ package org.purepdf.utils.collections
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
 		 *
-		 * trace( map.getValues() ); //[object, adminVO],[object, editorVO]
-		 *
 		 * </listing>
 		 *
 		 * @return Array of values assigned for all keys in the map
 		 *
 		 */
-		public function getValues() : Array
+		public function getValues() : Vector.<Object>
 		{
-			var values:Array = [];
+			var values: Vector.<Object> = new Vector.<Object>();
 			
 			for (var key:* in map)
 			{
@@ -402,8 +390,6 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
-		 *
-		 * trace( map.size() ); //2
 		 *
 		 * </listing>
 		 *
@@ -432,10 +418,8 @@ package org.purepdf.utils.collections
 		 * import com.ericfeminella.collections.IMap;
 		 *
 		 * var map:IMap = new HashMap();
-		 * trace( map.isEmpty() ); //true
 		 *
 		 * map.put( "admin", adminVO );
-		 * trace( map.isEmpty() ); //false
 		 *
 		 * </listing>
 		 *
@@ -462,7 +446,6 @@ package org.purepdf.utils.collections
 		 * map.put( "editor", editorVO );
 		 * map.reset();
 		 *
-		 * trace( map.getValues() ); //null, null
 		 *
 		 * </listing>
 		 *
@@ -490,10 +473,8 @@ package org.purepdf.utils.collections
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
 		 *
-		 * trace( map.getValues() ); //[object, adminVO],[object, editorVO]
 		 *
 		 * map.resetAllExcept( "editor", editorVO );
-		 * trace( map.getValues() ); //null,[object, editorVO]
 		 *
 		 * </listing>
 		 *
@@ -524,10 +505,8 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
-		 * trace( map.size() ); //2
 		 *
 		 * map.clear();
-		 * trace( map.size() ); //0
 		 *
 		 * </listing>
 		 *
@@ -554,11 +533,8 @@ package org.purepdf.utils.collections
 		 * var map:IMap = new HashMap();
 		 * map.put( "admin", adminVO );
 		 * map.put( "editor", editorVO );
-		 * trace( map.size() ); //2
 		 *
 		 * map.clearAllExcept( "editor", editorVO );
-		 * trace( map.getValues() ); //[object, editorVO]
-		 * trace( map.size() ); //1
 		 *
 		 * </listing>
 		 *

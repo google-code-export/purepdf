@@ -96,7 +96,7 @@ package org.purepdf.utils.collections
 		 * @return Array of values assigned for all keys in the map
 		 * 
 		 */
-		function getValues() : Array;
+		function getValues() : Vector.<Object>;
 		
 		/**
 		 * 

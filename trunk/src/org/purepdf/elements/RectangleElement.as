@@ -202,7 +202,8 @@ package org.purepdf.elements
 				case NO_BORDER:
 					return false;
 				default:
-					return borderWidth > 0 || borderWidthLeft > 0 || borderWidthRight > 0 || borderWidthTop > 0 || borderWidthBottom > 0;
+					return borderWidth > 0 || borderWidthLeft > 0 || borderWidthRight > 0 || borderWidthTop > 0 || borderWidthBottom
+						> 0;
 			}
 		}
 

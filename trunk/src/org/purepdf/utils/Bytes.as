@@ -100,6 +100,7 @@ package org.purepdf.utils
 			buf.writeBytes( buffer.buf, offset, len );
 		}
 		
+		[Deprecated]
 		public function getValue( key: uint ): int
 		{
 			var current_position: uint = position;
@@ -109,6 +110,7 @@ package org.purepdf.utils
 			return value;
 		}
 		
+		[Deprecated]
 		public function setValue( key: uint, value: int ): void
 		{
 			buf[ key ] = value;

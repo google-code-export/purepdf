@@ -1,14 +1,19 @@
 package org.purepdf.pdf
 {
+	import org.purepdf.IObject;
 	import org.purepdf.IOutputStream;
+	import org.purepdf.utils.ObjectUtils;
 	import org.purepdf.utils.collections.HashMap;
+	import org.purepdf.utils.iterators.Iterator;
+	import org.purepdf.utils.iterators.VectorIterator;
 
-	public class PdfDictionary extends PdfObject
+	public class PdfDictionary extends PdfObject implements IObject
 	{
 		public static const PAGE: PdfName = PdfName.PAGE;
 		public static const CATALOG: PdfName = PdfName.CATALOG;
 		public static const OUTLINES: PdfName = PdfName.OUTLINES;
 		
+		protected var _hashCode: int = ObjectUtils.hashCode( PdfDictionary );
 		protected var hashMap: HashMap;
 		protected var dictionaryType: PdfName;
 		
@@ -111,7 +116,7 @@ package org.purepdf.pdf
 		}
 		
 		override public function toPdf( writer: PdfWriter, os: IOutputStream ) : void
-		{
+		{			
 			os.writeInt( '<'.charCodeAt(0) );
 			os.writeInt( '<'.charCodeAt(0) );
 			
@@ -138,6 +143,11 @@ package org.purepdf.pdf
 			
 			os.writeInt( '>'.charCodeAt(0) );
 			os.writeInt( '>'.charCodeAt(0) );
+		}
+		
+		public function hashCode(): int
+		{
+			return _hashCode;
 		}
 	}
 }

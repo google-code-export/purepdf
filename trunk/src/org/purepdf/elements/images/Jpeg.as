@@ -204,10 +204,10 @@ package org.purepdf.elements.images
 							throw new Error("Must have 8 bits per component");
 						}
 						
-						scaledHeight = getShort( ins );
-						setTop( scaledHeight );
-						scaledWidth = getShort( ins );
-						setRight( scaledWidth );
+						_scaledHeight = getShort( ins );
+						setTop( _scaledHeight );
+						_scaledWidth = getShort( ins );
+						setRight( _scaledWidth );
 						_colorspace = ins.readUnsignedByte();
 						_bpc = 8;
 						break;

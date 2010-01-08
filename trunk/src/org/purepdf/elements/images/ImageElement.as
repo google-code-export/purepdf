@@ -68,17 +68,17 @@ package org.purepdf.elements.images
 		protected var _transparency: Vector.<int>;
 		protected var _type: int;
 		protected var alt: String;
-		protected var compressionLevel: int = PdfStream.NO_COMPRESSION;
+		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
 		protected var dpiX: int = 0;
 		protected var dpiY: int = 0;
 		protected var initialRotation: Number = 0;
 		protected var plainHeight: Number;
 		protected var plainWidth: Number;
 		protected var rotationRadians: Number;
-		protected var scaledHeight: Number;
-		protected var scaledWidth: Number;
+		protected var _scaledHeight: Number;
+		protected var _scaledWidth: Number;
 		protected var template: Vector.<PdfTemplate> = new Vector.<PdfTemplate>( 1 );
-		private var directReference: PdfIndirectReference;
+		private var _directReference: PdfIndirectReference;
 		private var _widthPercentage: Number = 100;
 
 		public function ImageElement( $url: String )
@@ -159,14 +159,14 @@ package org.purepdf.elements.images
 			_deflated = value;
 		}
 
-		public function getCompressionLevel(): int
+		public function get compressionLevel(): int
 		{
-			return compressionLevel;
+			return _compressionLevel;
 		}
 
-		public function getDirectReference(): PdfIndirectReference
+		public function get directReference(): PdfIndirectReference
 		{
-			return directReference;
+			return _directReference;
 		}
 
 		/**
@@ -174,7 +174,7 @@ package org.purepdf.elements.images
 		 *
 		 * @return rotation in radians
 		 */
-		public function getImageRotation(): Number
+		public function get imageRotation(): Number
 		{
 			var d: Number = Math.PI * 2;
 			var rot: Number = ( rotationRadians - initialRotation ) % d;
@@ -184,14 +184,14 @@ package org.purepdf.elements.images
 			return rot;
 		}
 
-		public function getScaledHeight(): Number
+		public function get scaledHeight(): Number
 		{
-			return scaledHeight;
+			return _scaledHeight;
 		}
 
-		public function getScaledWidth(): Number
+		public function get scaledWidth(): Number
 		{
-			return scaledWidth;
+			return _scaledWidth;
 		}
 
 		public function get hasAbsoluteX(): Boolean
@@ -361,12 +361,12 @@ package org.purepdf.elements.images
 			_absoluteY = absY;
 		}
 
-		public function setCompressionLevel( value: int ): void
+		public function set compressionLevel( value: int ): void
 		{
 			if ( value < PdfStream.NO_COMPRESSION || value > PdfStream.BEST_COMPRESSION )
-				compressionLevel = PdfStream.DEFAULT_COMPRESSION;
+				_compressionLevel = PdfStream.NO_COMPRESSION;
 			else
-				compressionLevel = value;
+				_compressionLevel = value;
 		}
 
 		public function setDpi( x: int, y: int ): void
@@ -389,8 +389,8 @@ package org.purepdf.elements.images
 			if ( rotationRadians < 0 )
 				rotationRadians += d;
 			var m: Vector.<Number> = matrix;
-			scaledWidth = m[ DX ] - m[ CX ];
-			scaledHeight = m[ DY ] - m[ CY ];
+			_scaledWidth = m[ DX ] - m[ CX ];
+			_scaledHeight = m[ DY ] - m[ CY ];
 		}
 
 		/**
@@ -531,8 +531,8 @@ package org.purepdf.elements.images
 			plainWidth = newWidth;
 			plainHeight = newHeight;
 			var m: Vector.<Number> = matrix;
-			scaledWidth = m[DX] - m[CX];
-			scaledHeight = m[DY] - m[CY];
+			_scaledWidth = m[DX] - m[CX];
+			_scaledHeight = m[DY] - m[CY];
 			setWidthPercentage( 0 );
 		}
 		
@@ -545,8 +545,8 @@ package org.purepdf.elements.images
 		{
 			plainHeight = newHeight;
 			var m: Vector.<Number> = matrix;
-			scaledWidth = m[DX] - m[CX];
-			scaledHeight = m[DY] - m[CY];
+			_scaledWidth = m[DX] - m[CX];
+			_scaledHeight = m[DY] - m[CY];
 			setWidthPercentage( 0 );
 		}
 		
@@ -559,8 +559,8 @@ package org.purepdf.elements.images
 		{
 			plainWidth = newWidth;
 			var m: Vector.<Number> = matrix;
-			scaledWidth = m[DX] - m[CX];
-			scaledHeight = m[DY] - m[CY];
+			_scaledWidth = m[DX] - m[CX];
+			_scaledHeight = m[DY] - m[CY];
 			setWidthPercentage( 0 );
 		}
 		
@@ -575,8 +575,8 @@ package org.purepdf.elements.images
 			plainWidth = ( getWidth() * percentX) / 100;
 			plainHeight = (getHeight() * percentY) / 100;
 			var m: Vector.<Number> = matrix;
-			scaledWidth = m[DX] - m[CX];
-			scaledHeight = m[DY] - m[CY];
+			_scaledWidth = m[DX] - m[CX];
+			_scaledHeight = m[DY] - m[CY];
 			setWidthPercentage( 0 );
 		}
 		
@@ -589,8 +589,8 @@ package org.purepdf.elements.images
 		public function scaleToFit( fitWidth: Number, fitHeight: Number ): void
 		{
 			scalePercent( 100, 100 );
-			var percentX: Number = (fitWidth * 100) / getScaledWidth();
-			var percentY: Number = (fitHeight * 100) / getScaledHeight();
+			var percentX: Number = (fitWidth * 100) / scaledWidth;
+			var percentY: Number = (fitHeight * 100) / scaledHeight;
 			scalePercent( percentX < percentY ? percentX : percentY, percentX < percentY ? percentX : percentY );
 			setWidthPercentage( 0 );
 		}

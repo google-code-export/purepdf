@@ -8,10 +8,10 @@ package org.purepdf.elements.images
 		{
 			super( null );
 			_type = IMGRAW;
-			scaledHeight = $height;
-			setTop( scaledHeight );
-			scaledWidth = $width;
-			setRight( scaledWidth );
+			_scaledHeight = $height;
+			setTop( _scaledHeight );
+			_scaledWidth = $width;
+			setRight( _scaledWidth );
 
 			if ( $components != 1 && $components != 3 && $components != 4 )
 				throw new Error( "components must be 1, 3 or 4" );
