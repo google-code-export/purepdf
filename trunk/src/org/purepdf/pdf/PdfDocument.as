@@ -337,6 +337,11 @@ package org.purepdf.pdf
 			return true;
 		}
 
+		/**
+		 * Set the view preferences for this document
+		 * 
+		 * @see org.purepdf.pdf.PdfViewPreferences
+		 */
 		public function setViewerPreferences( preferences: int ): void
 		{
 			viewerPreferences.setViewerPreferences( preferences );

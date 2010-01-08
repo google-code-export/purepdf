@@ -40,6 +40,8 @@ package org.purepdf.pdf
 		protected var documentColors: HashMap = new HashMap();
 		protected var documentExtGState: HashMap = new HashMap();
 		protected var documentPatterns: HashMap = new HashMap();
+		protected var documentShadings: HashMap = new HashMap();
+		protected var documentShadingPatterns: HashMap = new HashMap();
 
 		protected var documentSpotPatterns: HashMap = new HashMap();
 		protected var extraCatalog: PdfDictionary;
@@ -65,6 +67,8 @@ package org.purepdf.pdf
 		protected var root: PdfPages;
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
+		
+		use namespace pdf_core;
 
 		private var logger: ILogger = LoggerFactory.getClassLogger( PdfWriter );
 
@@ -444,14 +448,15 @@ package org.purepdf.pdf
 			logger.warn( 'addSharedObjectsToBody. partially implemented' );
 
 			var it: Iterator;
+			var objs: Vector.<Object>;
 
 			// 3 add the fonts
 			// 4 add the form XObjects
 			it = new VectorIterator( formXObjects.getValues() );
 			for( it; it.hasNext(); )
 			{
-				var obj: Vector.<Object> = Vector.<Object>( it.next() );
-				var template: PdfTemplate = obj[1] as PdfTemplate;
+				objs = Vector.<Object>( it.next() );
+				var template: PdfTemplate = objs[1] as PdfTemplate;
 				if( template != null && template.indirectReference is PRIndirectReference )
 					continue;
 				if( template != null && template.type == PdfTemplate.TYPE_TEMPLATE )
@@ -478,10 +483,23 @@ package org.purepdf.pdf
 			}
 			
 			// 8 add the shading patterns
+			it = new VectorIterator( documentShadingPatterns.getKeys() );
+			for( it; it.hasNext(); )
+			{
+				var shadingPattern: PdfShadingPattern = PdfShadingPattern( it.next() );
+				shadingPattern.addToBody();
+			}
+			
 			// 9 add the shadings
+			it = new VectorIterator( documentShadings.getKeys() );
+			for( it; it.hasNext();)
+			{
+				var shading: PdfShading = PdfShading( it.next() );
+				shading.addToBody();
+			}
+			
 			// 10 add the extgstate
 			it = new VectorIterator( documentExtGState.getKeys() );
-
 			for ( it; it.hasNext();  )
 			{
 				var gstate: PdfDictionary = it.next();
@@ -611,7 +629,7 @@ package org.purepdf.pdf
 		 * and position 1 is an PdfIndirectReference
 		 *
 		 */
-		internal function addSimple( spc: PdfSpotColor ): ColorDetails
+		pdf_core function addSimple( spc: PdfSpotColor ): ColorDetails
 		{
 			var ret: ColorDetails = documentColors.getValue( spc );
 
@@ -621,6 +639,15 @@ package org.purepdf.pdf
 				documentColors.put( spc, ret );
 			}
 			return ret;
+		}
+		
+		pdf_core function addSimpleShading( value: PdfShading ): void
+		{
+			if( !documentShadings.containsKey( value ) )
+			{
+				documentShadings.put( value, null );
+				value.setName( documentShadings.size() );
+			}
 		}
 
 		pdf_core function addSimplePattern( painter: PdfPatternPainter ): PdfName
@@ -636,7 +663,17 @@ package org.purepdf.pdf
 
 			return name;
 		}
-
+		
+		pdf_core function addSimpleShadingPattern( shading: PdfShadingPattern ): void
+		{
+			if( !documentShadingPatterns.containsKey( shading ) )
+			{
+				shading.setName( patternCounter );
+				++patternCounter;
+				documentShadingPatterns.put( shading, null );
+				addSimpleShading( shading.shading );
+			}
+		}
 
 		pdf_core function addSimplePatternColorSpace( color: RGBColor ): ColorDetails
 		{
@@ -678,7 +715,7 @@ package org.purepdf.pdf
 					return patternColorspaceGRAY;
 				case ExtendedColor.TYPE_SEPARATION:
 				{
-					var details: ColorDetails = addSimple( SpotColor( color ).pdfSpotColor );
+					var details: ColorDetails = pdf_core::addSimple( SpotColor( color ).pdfSpotColor );
 					var patternDetails: ColorDetails = documentSpotPatterns.getValue( details ) as ColorDetails;
 
 					if ( patternDetails == null )
