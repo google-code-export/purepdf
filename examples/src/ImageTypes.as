@@ -1,22 +1,17 @@
 package 
 {
-	import com.adobe.images.JPGEncoder;
-	import com.adobe.images.PNGEncoder;
+	import cmodule.as3_jpeg_wrapper.CLibInit;
 	
+	import com.adobe.images.PNGEncoder;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.events.Event;
 	import flash.utils.ByteArray;
-	import flash.utils.getQualifiedClassName;
 	
 	import org.purepdf.colors.RGBColor;
-	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
-	import org.purepdf.pdf.PageSize;
-	import org.purepdf.pdf.PdfDocument;
-	import org.purepdf.pdf.PdfWriter;
 
 	/**
 	 * This example create a PDF document with
@@ -36,9 +31,14 @@ package
 		[Embed(source="assets/hitchcock.gif", mimeType="application/octet-stream")]
 		private var cls3: Class;
 		
+		private var jpegLoader: CLibInit;
+		private var jpegLib: Object;
+		
 		public function ImageTypes()
 		{
 			super();
+			jpegLoader = new CLibInit();
+			jpegLib = jpegLoader.init();
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -53,7 +53,9 @@ package
 			// ---------------
 			// JPEG image
 			// ---------------
-			var bytes: ByteArray = new JPGEncoder( 90 ).encode( bmp );
+			var baSource: ByteArray = bmp.getPixels( bmp.rect );
+			var bytes: ByteArray = jpegLib.write_jpeg_file( baSource, bmp.width, bmp.height, 3, 2, 90 );
+						
 			var image1: ImageElement = ImageElement.getInstance( bytes );
 			image1.alignment = ImageElement.RIGHT;	// set the image alignment
 			image1.setBorderWidth( 5 );
