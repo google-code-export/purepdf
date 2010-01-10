@@ -1,5 +1,6 @@
 package org.purepdf.colors
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.FloatUtils;
 
 	public class CMYKColor extends ExtendedColor
@@ -49,7 +50,7 @@ package org.purepdf.colors
 			return _cyan;
 		}
 
-		override public function equals( obj: Object ): Boolean
+		override public function equals( obj: ObjectHash ): Boolean
 		{
 			if (!(obj is CMYKColor))
 				return false;
