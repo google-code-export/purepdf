@@ -1,11 +1,9 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.IObject;
+	import it.sephiroth.utils.IObject;
+	
 	import org.purepdf.IOutputStream;
-	import org.purepdf.utils.ObjectUtils;
 	import org.purepdf.utils.collections.HashMap;
-	import org.purepdf.utils.iterators.Iterator;
-	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class PdfDictionary extends PdfObject implements IObject
 	{

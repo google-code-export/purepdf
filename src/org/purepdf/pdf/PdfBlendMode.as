@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 
 	/**
 	 * Possible transparency blend modes to be used in a <code>PdfGstate</code>

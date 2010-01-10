@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.pdf.interfaces.IPdfViewerPreferences;
 
 	public class PdfViewerPreferencesImp extends ObjectHash implements IPdfViewerPreferences

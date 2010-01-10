@@ -1,10 +1,8 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.IObject;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.RuntimeError;
-	import org.purepdf.utils.ObjectUtils;
 	
 
 	public class PdfPatternPainter extends PdfTemplate

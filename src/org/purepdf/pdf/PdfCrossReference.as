@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.IComparable;
 	import org.purepdf.IOutputStream;
-	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.assertTrue;
 
 	public final class PdfCrossReference extends ObjectHash implements IComparable

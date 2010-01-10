@@ -1,6 +1,6 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
 
 	/**
 	 * Describe each SpotColor defined in the document

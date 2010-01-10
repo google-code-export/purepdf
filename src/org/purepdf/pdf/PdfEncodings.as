@@ -2,7 +2,8 @@ package org.purepdf.pdf
 {
 	import flash.errors.IOError;
 	
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.utils.Bytes;
 
 	public class PdfEncodings extends ObjectHash

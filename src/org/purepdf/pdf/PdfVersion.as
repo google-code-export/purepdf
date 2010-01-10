@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
-	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfVersion extends ObjectHash

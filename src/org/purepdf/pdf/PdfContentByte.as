@@ -3,7 +3,9 @@ package org.purepdf.pdf
 	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
-	import org.purepdf.ObjectHash;
+	
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -548,17 +550,29 @@ package org.purepdf.pdf
 
 		/**
 		 * Adds a rectangle to the current path<br>
-		 * Either a RectangleElement or 4 Numbers are accepted as parameters
+		 * Either a RectangleElement or 4 Numbers are accepted as parameters.<br>
+		 * Example:<br>
+		 * <code>
+		 * 		cb.setFillColor( RGBColor.BLACK );<br>
+		 * 		cb.rectangle( 0, 0, 100, 100 );<br>
+		 * 		cb.fill();<br>
+		 * 		<br>
+		 * 		var rect: RectangleElement = new RectangleElement( 0, 0, 100, 100 );<br>
+		 * 		rect.setBorderSides( RectangleElement.ALL );<br>
+		 * 		rect.setBorderWidth(5);<br>
+		 * 		rect.setBackgroundColor( RGBColor.RED );<br>
+		 * 		cb.rectangle( rect );<br>
+		 * </code>
 		 *
 		 * @param       x       x-coordinate of the starting point
 		 * @param       y       y-coordinate of the starting point
 		 * @param       w       width
 		 * @param       h       height
+		 * 
+		 * @see org.purepdf.elements.RectangleElement
 		 */
 		public function rectangle( ... params: Array ): void
 		{
-			assertTrue( params != null && params.length > 0, 'ArgumentException' );
-
 			if ( params[ 0 ] is RectangleElement )
 			{
 				pdf_core::setRectangle( params[ 0 ] );
@@ -1307,7 +1321,7 @@ package org.purepdf.pdf
 				if ( color != null )
 					setStrokeColor( color );
 
-				if ( rectangle.hasBorder( RectangleElement.BOX ) )
+				if ( rectangle.hasBorder( RectangleElement.ALL ) )
 				{
 					this.rectangle( x1, y1, x2 - x1, y2 - y1 );
 				}

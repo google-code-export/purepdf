@@ -1,6 +1,7 @@
 package org.purepdf.elements
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.errors.NonImplementatioError;
 
 	public class Element extends ObjectHash implements IElement
