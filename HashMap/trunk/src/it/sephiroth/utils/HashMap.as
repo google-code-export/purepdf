@@ -1,5 +1,7 @@
 package it.sephiroth.utils
 {
+	import flash.utils.getQualifiedClassName;
+	
 	import it.sephiroth.utils.collections.iterators.Iterator;
 
 	public class HashMap
@@ -26,6 +28,10 @@ package it.sephiroth.utils
 			init();
 		}
 		
+		/**
+		 * Return a view of the mappings of this map
+		 * @see EntrySet
+		 */
 		public function entrySet(): EntrySet
 		{
 			if( _entrySet == null )
@@ -33,6 +39,10 @@ package it.sephiroth.utils
 			return _entrySet;
 		}
 		
+		/**
+		 * Return a view of the keys of this map
+		 * @see KeySet
+		 */
 		public function keySet(): KeySet
 		{
 			if( _keySet == null )
@@ -40,6 +50,10 @@ package it.sephiroth.utils
 			return _keySet;
 		}
 		
+		/**
+		 * Return a view of the values of this map
+		 * @see ValueSet
+		 */
 		public function values(): ValueSet
 		{
 			if( _values == null )
@@ -79,7 +93,12 @@ package it.sephiroth.utils
 			return result;
 		}
 
-		public function containsKey( key: ObjectHash ): Boolean
+		/**
+		 * Return <code>true</code> if this map contains a mapping for the
+		 * specified key
+		 * 
+		 */
+		public function containsKey( key: Object ): Boolean
 		{
 			return getEntry( key ) != null;
 		}
@@ -92,7 +111,7 @@ package it.sephiroth.utils
 		 * @return <tt>true</tt> if this map maps one or more keys to the
 		 *         specified value
 		 */
-		public function containsValue( value: ObjectHash ): Boolean
+		public function containsValue( value: Object ): Boolean
 		{
 			if ( value == null )
 				return containsNullValue();
@@ -101,22 +120,66 @@ package it.sephiroth.utils
 
 			for ( var i: int = 0; i < tab.length; i++ )
 				for ( var e: Entry = tab[ i ]; e != null; e = e.next )
-					if ( value.equals( e.value ) )
+					if( getGenericObjectEquals( value, e.value ) )
 						return true;
 			return false;
 		}
+		
+		/**
+		 * Check if 2 objects are equals
+		 * if the first object is ObjectHash then uses its equals method
+		 */
+		public static function getGenericObjectEquals( element1: Object, element2: Object ): Boolean
+		{
+			if( element1 is ObjectHash )
+				return ObjectHash( element1 ).equals( element2 );
+			return element1 == element2;
+		}
+		
+		/**
+		 * Get hash code for a generic object
+		 */
+		public static function getGenericObjectHashCode( obj: Object ): int
+		{
+			if( obj is ObjectHash )
+				return hash( ObjectHash( obj ).hashCode() );
+			
+			if( obj is String )
+				return hash(getHashCodeForString(String(obj)));
+			else if( obj is Number )
+				return hash( hashLib.hashCode(obj.toString()));
+			else
+				return hash( hashLib.hashCode(getQualifiedClassName(obj)));
+		}
+		
+		public static function getHashCodeForString( obj: String ): int
+		{
+			var h: int = 0;
+			var off: int = 0;
+			var len: int = obj.length;
+			
+			for( var i: int = 0; i < len; i++ )
+			{
+				h = 31*h + obj.charCodeAt(off++);
+			}
+			return h;
+		}		
 
-		public function getValue( key: ObjectHash ): ObjectHash
+		/**
+		 * Return the value of which the specified key is mapped
+		 * or {@code null} if this map contains no mapping for the key
+		 */
+		public function getValue( key: Object ): Object
 		{
 			if ( key == null )
 				return getForNullKey();
-			var tmp_hash: int = hash( key.hashCode() );
+			var tmp_hash: int = getGenericObjectHashCode(key);/* hash( key.hashCode() );*/
 
 			for ( var e: Entry = table[ indexFor( tmp_hash, table.length ) ]; e != null; e = e.next )
 			{
-				var k: ObjectHash;
+				var k: Object;
 
-				if ( e.hash == tmp_hash && ( ( k = e.key ) == key || key.equals( k ) ) )
+				if ( e.hash == tmp_hash && ( ( k = e.key ) == key || getGenericObjectEquals( key, k ) ) )
 					return e.value;
 			}
 			return null;
@@ -127,20 +190,28 @@ package it.sephiroth.utils
 			return _size == 0;
 		}
 
-		public function put( key: ObjectHash, value: ObjectHash ): ObjectHash
+		/**
+		 * Associate the specified value with the specified key in this map.
+		 * If the map already contains a mapping for the key, the old value
+		 * is replaced
+		 * 
+		 * @return	the previous value associated with the key of <code>null</code>
+		 * 			if there was no mapping for the key.
+		 */
+		public function put( key: Object, value: Object ): Object
 		{
 			if ( key == null )
 				return putForNullKey( value );
-			var h: int = hash( key.hashCode() );
+			var h: int = getGenericObjectHashCode(key);/* hash( key.hashCode() );*/
 			var i: int = indexFor( h, table.length );
 
 			for ( var e: Entry = table[ i ]; e != null; e = e.next )
 			{
-				var k: ObjectHash;
+				var k: Object;
 
-				if ( e.hash == h && ( ( k = e.key ) == key || key.equals( k ) ) )
+				if ( e.hash == h && ( ( k = e.key ) == key || getGenericObjectEquals( key, k ) ) )
 				{
-					var oldValue: ObjectHash = e.value;
+					var oldValue: Object = e.value;
 					e.value = value;
 					e.recordAccess( this );
 					return oldValue;
@@ -196,18 +267,21 @@ package it.sephiroth.utils
 		 *         (A <tt>null</tt> return can also indicate that the map
 		 *         previously associated <tt>null</tt> with <tt>key</tt>.)
 		 */
-		public function remove( key: ObjectHash ): ObjectHash
+		public function remove( key: Object ): Object
 		{
 			var e: Entry = removeEntryForKey( key );
 			return ( e == null ? null : e.value );
 		}
 
+		/**
+		 * Returns the current map size
+		 */
 		public function size(): int
 		{
 			return _size;
 		}
 
-		protected function addEntry( hash: int, key: ObjectHash, value: ObjectHash, bucketIndex: int ): void
+		protected function addEntry( hash: int, key: Object, value: Object, bucketIndex: int ): void
 		{
 			var e: Entry = table[ bucketIndex ];
 			table[ bucketIndex ] = new Entry( hash, key, value, e );
@@ -221,15 +295,15 @@ package it.sephiroth.utils
 		{
 		}
 
-		internal function getEntry( key: ObjectHash ): Entry
+		internal function getEntry( key: Object ): Entry
 		{
-			var h: int = ( key == null ) ? 0 : hash( key.hashCode() );
+			var h: int = ( key == null ) ? 0 : getGenericObjectHashCode(key);/* hash( key.hashCode() );*/
 
 			for ( var e: Entry = table[ indexFor( h, table.length ) ]; e != null; e = e.next )
 			{
-				var k: ObjectHash;
+				var k: Object;
 
-				if ( e.hash == h && ( ( ( k = e.key ) == key ) || ( key != null && key.equals( k ) ) ) )
+				if ( e.hash == h && ( ( ( k = e.key ) == key ) || ( key != null && getGenericObjectEquals( key, k ) ) ) )
 					return e;
 			}
 			return null;
@@ -240,9 +314,9 @@ package it.sephiroth.utils
 		 * in the HashMap.  Returns null if the HashMap contains no mapping
 		 * for this key.
 		 */
-		internal function removeEntryForKey( key: ObjectHash ): Entry
+		internal function removeEntryForKey( key: Object ): Entry
 		{
-			var h: int = ( key == null ) ? 0 : hash( key.hashCode() );
+			var h: int = ( key == null ) ? 0 : getGenericObjectHashCode( key ); /*hash( key.hashCode() );*/
 			var i: int = indexFor( h, table.length );
 			var prev: Entry = table[ i ];
 			var e: Entry = prev;
@@ -250,9 +324,9 @@ package it.sephiroth.utils
 			while ( e != null )
 			{
 				var next: Entry = e.next;
-				var k: ObjectHash;
+				var k: Object;
 
-				if ( e.hash == h && ( ( k = e.key ) == key || ( key != null && key.equals( k ) ) ) )
+				if ( e.hash == h && ( ( k = e.key ) == key || ( key != null && getGenericObjectEquals( key, k ) ) ) )
 				{
 					modCount++;
 					_size--;
@@ -270,14 +344,14 @@ package it.sephiroth.utils
 			return e;
 		}
 
-		internal function removeMapping( o: ObjectHash ): Entry
+		internal function removeMapping( o: Object ): Entry
 		{
 			if ( !( o is IMapEntry ) )
 				return null;
 
 			var entry: Entry = Entry( o );
-			var key: ObjectHash = entry.getKey();
-			var h: int = ( key == null ) ? 0 : hash( key.hashCode() );
+			var key: Object = entry.getKey();
+			var h: int = ( key == null ) ? 0 : getGenericObjectHashCode( key ); /*hash( key.hashCode() ); */
 			var i: int = indexFor( h, table.length );
 			var prev: Entry = table[ i ];
 			var e: Entry = prev;
@@ -328,7 +402,7 @@ package it.sephiroth.utils
 		 * Subclass overrides this to alter the behavior of HashMap(Map),
 		 * clone, and readObject.
 		 */
-		private function createEntry( hash: int, key: ObjectHash, value: ObjectHash, bucketIndex: int ): void
+		private function createEntry( hash: int, key: Object, value: Object, bucketIndex: int ): void
 		{
 			var e: Entry = table[ bucketIndex ];
 			table[ bucketIndex ] = new Entry( hash, key, value, e );
@@ -336,7 +410,7 @@ package it.sephiroth.utils
 		}
 
 
-		private function getForNullKey(): ObjectHash
+		private function getForNullKey(): Object
 		{
 			for ( var e: Entry = table[ 0 ]; e != null; e = e.next )
 			{
@@ -348,19 +422,24 @@ package it.sephiroth.utils
 
 		private function putAllForCreate( m: HashMap ): void
 		{
-			throw new Error();
+			var i: Iterator = m.entrySet().iterator();
+			for( i; i.hasNext(); )
+			{
+				var e: Entry = i.next();
+				putForCreate( e.getKey(), e.getValue() );
+			}
 		}
 
-		private function putForCreate( key: ObjectHash, value: ObjectHash ): void
+		private function putForCreate( key: Object, value: Object ): void
 		{
 			var h: int = ( key == null ) ? 0 : hash( key.hashCode() );
 			var i: int = indexFor( h, table.length );
 
 			for ( var e: Entry = table[ i ]; e != null; e = e.next )
 			{
-				var k: ObjectHash;
+				var k: Object;
 
-				if ( e.hash == h && ( ( k = e.key ) == key || ( key != null && key.equals( k ) ) ) )
+				if ( e.hash == h && ( ( k = e.key ) == key || ( key != null && getGenericObjectEquals( key, k ) ) ) )
 				{
 					e.value = value;
 					return;
@@ -368,13 +447,13 @@ package it.sephiroth.utils
 			}
 		}
 
-		private function putForNullKey( value: ObjectHash ): ObjectHash
+		private function putForNullKey( value: Object ): Object
 		{
 			for ( var e: Entry = table[ 0 ]; e != null; e = e.next )
 			{
 				if ( e.key == null )
 				{
-					var oldValue: ObjectHash = e.value;
+					var oldValue: Object = e.value;
 					e.value = value;
 					e.recordAccess( this );
 					return oldValue;

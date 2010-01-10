@@ -14,7 +14,7 @@ package it.sephiroth.utils
 			return _hashCode;
 		}
 		
-		public function equals( obj: ObjectHash ): Boolean
+		public function equals( obj: Object ): Boolean
 		{
 			return this == obj;
 		}
