@@ -303,7 +303,6 @@ package org.purepdf.pdf.codec
 			bpc = newBpc( bpc );
 			var table: Bytes = new Bytes( ( 1 << bpc ) * 3 );
 			input.readFully( table.buffer, 0, nbytes );
-			logger.debug("colorTable: {0}", table.toString() );
 			return table;
 		}
 
