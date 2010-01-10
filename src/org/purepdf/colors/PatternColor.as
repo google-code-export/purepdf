@@ -1,5 +1,6 @@
 package org.purepdf.colors
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.pdf.PdfPatternPainter;
 
 	public class PatternColor extends ExtendedColor
@@ -13,7 +14,7 @@ package org.purepdf.colors
 			_painter = p;
 		}
 
-		override public function equals( obj: Object ): Boolean
+		override public function equals( obj: ObjectHash ): Boolean
 		{
 			return this == obj;
 		}

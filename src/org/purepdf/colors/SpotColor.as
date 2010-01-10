@@ -1,5 +1,6 @@
 package org.purepdf.colors
 {
+	import org.purepdf.ObjectHash;
 	import org.purepdf.pdf.PdfSpotColor;
 	import org.purepdf.utils.FloatUtils;
 
@@ -32,7 +33,7 @@ package org.purepdf.colors
 			return _tint;
 		}
 		
-		override public function equals( obj: Object ):Boolean
+		override public function equals( obj: ObjectHash ):Boolean
 		{
 			return this == obj;
 		}

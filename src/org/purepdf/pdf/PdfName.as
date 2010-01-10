@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.IComparable;
+	import org.purepdf.ObjectHash;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 
@@ -683,7 +684,7 @@ package org.purepdf.pdf
 		 * @return  <code>true</code> if this object is the same as the obj
 		 * argument; <code>false</code> otherwise.
 		 */
-		public function equals( obj: Object ): Boolean
+		override public function equals( obj: ObjectHash ): Boolean
 		{
 			if ( this == obj )
 				return true;

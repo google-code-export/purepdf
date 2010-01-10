@@ -12,5 +12,10 @@ package org.purepdf
 				_hashCode = ObjectUtils.hashCode( this );
 			return _hashCode;
 		}
+		
+		public function equals( obj: ObjectHash ): Boolean
+		{
+			return this == obj;
+		}
 	}
 }
