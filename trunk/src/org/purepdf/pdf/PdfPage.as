@@ -1,6 +1,6 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.utils.collections.HashMap;
+	import it.sephiroth.utils.HashMap;
 
 	public class PdfPage extends PdfDictionary
 	{

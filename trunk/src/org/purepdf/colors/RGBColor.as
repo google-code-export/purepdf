@@ -41,7 +41,7 @@ package org.purepdf.colors
 			return ( value >> 0 ) & 0xFF;
 		}
 
-		override public function equals( obj: ObjectHash ): Boolean
+		override public function equals( obj: Object ): Boolean
 		{
 			return obj is RGBColor && ( obj as RGBColor ).rgb == rgb;
 		}

@@ -2,6 +2,8 @@ package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	
+	import it.sephiroth.utils.Entry;
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
@@ -16,8 +18,6 @@ package org.purepdf.pdf
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
-	import org.purepdf.utils.collections.HashMap;
-	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
 
 	public class PdfWriter extends ObjectHash
@@ -123,7 +123,7 @@ package org.purepdf.pdf
 				var obj: Vector.<PdfObject> = Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentExtGState.size() + 1 ) ), getPdfIndirectReference() ] );
 				documentExtGState.put( gstate, obj );
 			}
-			return documentExtGState.getValue( gstate );
+			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
 		}
 
 		public function addToBody( object: PdfObject ): PdfIndirectObject
@@ -453,7 +453,7 @@ package org.purepdf.pdf
 
 			// 3 add the fonts
 			// 4 add the form XObjects
-			it = new VectorIterator( formXObjects.getValues() );
+			it = formXObjects.values().iterator();
 			for( it; it.hasNext(); )
 			{
 				objs = Vector.<Object>( it.next() );
@@ -466,8 +466,7 @@ package org.purepdf.pdf
 			
 			// 5 add all the dependencies in the imported pages
 			// 6 add the spotcolors
-			it = new VectorIterator( documentColors.getValues() );
-
+			it = documentColors.values().iterator();
 			for ( it; it.hasNext(); )
 			{
 				var color: ColorDetails = ColorDetails( it.next() );
@@ -475,7 +474,7 @@ package org.purepdf.pdf
 			}
 
 			// 7 add the pattern
-			it = new VectorIterator( documentPatterns.getKeys() );
+			it = documentPatterns.keySet().iterator();
 			var pat: PdfPatternPainter;
 			for( it; it.hasNext(); )
 			{
@@ -484,7 +483,7 @@ package org.purepdf.pdf
 			}
 			
 			// 8 add the shading patterns
-			it = new VectorIterator( documentShadingPatterns.getKeys() );
+			it = documentShadingPatterns.keySet().iterator();
 			for( it; it.hasNext(); )
 			{
 				var shadingPattern: PdfShadingPattern = PdfShadingPattern( it.next() );
@@ -492,7 +491,7 @@ package org.purepdf.pdf
 			}
 			
 			// 9 add the shadings
-			it = new VectorIterator( documentShadings.getKeys() );
+			it = documentShadings.keySet().iterator();
 			for( it; it.hasNext();)
 			{
 				var shading: PdfShading = PdfShading( it.next() );
@@ -500,11 +499,12 @@ package org.purepdf.pdf
 			}
 			
 			// 10 add the extgstate
-			it = new VectorIterator( documentExtGState.getKeys() );
+			it = documentExtGState.entrySet().iterator();
 			for ( it; it.hasNext();  )
 			{
-				var gstate: PdfDictionary = it.next();
-				var obj: Vector.<PdfObject> = documentExtGState.getValue( gstate );
+				var entry: Entry = it.next();
+				var gstate: PdfDictionary = entry.getKey() as PdfDictionary;
+				var obj: Vector.<PdfObject> = Vector.<PdfObject>( entry.getValue() );
 				addToBody1( gstate, PdfIndirectReference( obj[ 1 ] ) );
 			}
 
@@ -544,7 +544,7 @@ package org.purepdf.pdf
 
 			if ( images.containsKey( image.mySerialId ) )
 			{
-				name = images.getValue( image.mySerialId );
+				name = PdfName( images.getValue( image.mySerialId ) );
 			}
 			else
 			{
@@ -569,7 +569,7 @@ package org.purepdf.pdf
 
 					if ( maskImage != null )
 					{
-						var mname: PdfName = images.getValue( maskImage.mySerialId );
+						var mname: PdfName = PdfName( images.getValue( maskImage.mySerialId ) );
 						maskRef = getImageReference( mname );
 					}
 
@@ -632,7 +632,7 @@ package org.purepdf.pdf
 		 */
 		pdf_core function addSimple( spc: PdfSpotColor ): ColorDetails
 		{
-			var ret: ColorDetails = documentColors.getValue( spc );
+			var ret: ColorDetails = documentColors.getValue( spc ) as ColorDetails;
 
 			if ( ret == null )
 			{

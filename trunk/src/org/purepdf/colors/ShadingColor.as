@@ -21,7 +21,7 @@ package org.purepdf.colors
 			return _shadingPattern;
 		}
 		
-		override public function equals( obj: ObjectHash ): Boolean
+		override public function equals( obj: Object ): Boolean
 		{
 			return this == obj;
 		}

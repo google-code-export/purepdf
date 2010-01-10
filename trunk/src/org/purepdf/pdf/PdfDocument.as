@@ -1,8 +1,11 @@
 package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
 	
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.IObject;
+	import it.sephiroth.utils.hashLib;
 	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
@@ -14,8 +17,6 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
-	import org.purepdf.utils.ObjectUtils;
-	import org.purepdf.utils.collections.HashMap;
 
 	public class PdfDocument extends EventDispatcher implements IObject
 	{
@@ -201,7 +202,7 @@ package org.purepdf.pdf
 		public function hashCode(): int
 		{
 			if ( isNaN( _hashCode ) )
-				_hashCode = ObjectUtils.hashCode( this );
+				_hashCode = hashLib.hashCode( getQualifiedClassName( this ), 36 );
 			return _hashCode;
 		}
 
@@ -555,15 +556,6 @@ package org.purepdf.pdf
 				writer = w;
 				annotationsImp = new PdfAnnotationsImp( writer );
 			}
-		}
-
-		internal function getBoxSize( boxName: String ): RectangleElement
-		{
-			var r: PdfRectangle = thisBoxSize.getValue( boxName ) as PdfRectangle;
-
-			if ( r != null )
-				return r.getRectangle();
-			return null;
 		}
 
 		private function addImage( image: ImageElement ): void

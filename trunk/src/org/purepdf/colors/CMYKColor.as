@@ -51,7 +51,7 @@ package org.purepdf.colors
 			return _cyan;
 		}
 
-		override public function equals( obj: ObjectHash ): Boolean
+		override public function equals( obj: Object ): Boolean
 		{
 			if (!(obj is CMYKColor))
 				return false;

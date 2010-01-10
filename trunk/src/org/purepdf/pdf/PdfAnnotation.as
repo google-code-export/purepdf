@@ -1,7 +1,7 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.HashMap;
 	import org.purepdf.elements.RectangleElement;
-	import org.purepdf.utils.collections.HashMap;
 
 	public class PdfAnnotation extends PdfDictionary
 	{

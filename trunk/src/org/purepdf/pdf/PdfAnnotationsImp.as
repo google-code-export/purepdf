@@ -1,11 +1,11 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
-	import org.purepdf.utils.collections.HashMap;
 
 	public class PdfAnnotationsImp extends ObjectHash
 	{
