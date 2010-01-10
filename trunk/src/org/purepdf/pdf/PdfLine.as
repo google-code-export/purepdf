@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 
 	public class PdfLine extends ObjectHash
 	{

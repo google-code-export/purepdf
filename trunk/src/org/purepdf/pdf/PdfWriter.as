@@ -2,9 +2,11 @@ package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	
+	import it.sephiroth.utils.ObjectHash;
+	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
-	import org.purepdf.ObjectHash;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.colors.SpotColor;
@@ -15,7 +17,6 @@ package org.purepdf.pdf
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.collections.HashMap;
-	import org.purepdf.utils.iterators.Iterator;
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
 

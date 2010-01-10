@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.purepdf.utils.collections.TreeSet;
-	import org.purepdf.utils.iterators.Iterator;
 
 	/**
 	 * This class generates the structure of a PDF document.

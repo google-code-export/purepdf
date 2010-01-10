@@ -1,17 +1,17 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
 
 	public class GraphicState extends ObjectHash
 	{
 		public var size: Number;
 		internal var charSpace: Number = 0;
+		internal var colorDetails: ColorDetails;
 		internal var leading: Number = 0;
 		internal var scale: Number = 100;
 		internal var wordSpace: Number = 0;
 		internal var xTLM: Number = 0;
 		internal var yTLM: Number = 0;
-		internal var colorDetails: ColorDetails;
 
 		public function GraphicState()
 		{

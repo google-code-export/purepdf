@@ -1,6 +1,7 @@
 package org.purepdf.colors
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.pdf.PdfShadingPattern;
 
 	public class ShadingColor extends ExtendedColor

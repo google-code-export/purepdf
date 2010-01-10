@@ -1,9 +1,11 @@
 package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
+	
+	import it.sephiroth.utils.IObject;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
-	import org.purepdf.IObject;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;

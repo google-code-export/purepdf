@@ -1,7 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
-
+	import it.sephiroth.utils.ObjectHash;
+	
 	public class Indentation extends ObjectHash
 	{
 		public var imageIndentLeft: Number = 0;

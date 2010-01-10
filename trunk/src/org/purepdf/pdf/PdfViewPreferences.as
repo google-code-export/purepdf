@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 
 	/**
 	 * Contains the constants used for modify the pdf display

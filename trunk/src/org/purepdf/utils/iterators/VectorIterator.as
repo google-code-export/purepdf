@@ -1,5 +1,7 @@
 package org.purepdf.utils.iterators
 {
+	import it.sephiroth.utils.collections.iterators.Iterator;
+
 	public class VectorIterator implements Iterator
 	{
 		protected var _data: Vector.<Object>;

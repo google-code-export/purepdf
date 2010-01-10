@@ -2,7 +2,8 @@ package org.purepdf.pdf
 {
 	import flash.errors.IllegalOperationError;
 	
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;

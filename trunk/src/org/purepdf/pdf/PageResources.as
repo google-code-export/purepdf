@@ -1,8 +1,9 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.purepdf.utils.collections.HashMap;
-	import org.purepdf.utils.iterators.Iterator;
 	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class PageResources extends ObjectHash

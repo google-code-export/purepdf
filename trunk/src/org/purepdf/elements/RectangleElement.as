@@ -6,7 +6,6 @@ package org.purepdf.elements
 	public class RectangleElement extends Element
 	{
 		public static const BOTTOM: int = 2;
-		public static const BOX: int = TOP + BOTTOM + LEFT + RIGHT;
 		public static const LEFT: int = 4;
 		public static const NO_BORDER: int = 0;
 		public static const RIGHT: int = 8;
@@ -294,6 +293,11 @@ package org.purepdf.elements
 		public function setBorderColorTop( value: RGBColor ): void
 		{
 			borderColorTop = value;
+		}
+		
+		public function setBorderColorBottom( value: RGBColor ): void
+		{
+			borderColorBottom = value;
 		}
 
 		/**

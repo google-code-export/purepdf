@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.ObjectHash;
+	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;

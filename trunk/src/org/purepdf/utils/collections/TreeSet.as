@@ -1,7 +1,8 @@
 package org.purepdf.utils.collections
 {
+	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.purepdf.IComparable;
-	import org.purepdf.utils.iterators.Iterator;
 	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class TreeSet
