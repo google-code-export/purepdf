@@ -13,12 +13,7 @@ package
 	{
 		public function SimpleAnnotation()
 		{
-			super();
-		}
-		
-		override protected function createDescription() : void
-		{
-			description("This Example will show how to create simple","annotations to a pdf page");
+			super(["This Example will show how to create simple","annotations to a pdf page"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

@@ -18,12 +18,7 @@ package
 		
 		public function Patterns()
 		{
-			super();
-		}
-		
-		override protected function createDescription() : void
-		{
-			description("This Example will show how to draw simple patterns");
+			super(["This Example will show how to draw simple patterns"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

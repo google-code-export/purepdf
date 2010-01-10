@@ -1,6 +1,5 @@
 package
 {
-	import com.adobe.images.JPGEncoder;
 	import cmodule.as3_jpeg_wrapper.CLibInit;
 	
 	import flash.display.Bitmap;
@@ -10,11 +9,9 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
+	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
-	import org.purepdf.pdf.PageSize;
-	import org.purepdf.pdf.PdfDocument;
 	import org.purepdf.pdf.PdfViewPreferences;
-	import org.purepdf.pdf.PdfWriter;
 
 	public class ViewerExample extends DefaultBasicExample
 	{
@@ -26,7 +23,7 @@ package
 
 		public function ViewerExample()
 		{
-			super();
+			super(["This example show how you can customize PDF layout preferences"]);
 			
 			jpegLoader = new CLibInit();
 			jpegLib = jpegLoader.init();
@@ -44,7 +41,10 @@ package
 			center( btn2, btn1 );
 			addChild( btn2 );
 			
-			description("This example show how you can customize PDF layout preferences");
+			var btn3: Sprite = createButton( 0xDDDDDD, "FullScreen", execute3 );
+			center( btn3, btn2 );
+			addChild( btn3 );
+			
 		}
 		
 		protected function execute1( event: Event ): void
@@ -57,6 +57,12 @@ package
 		{
 			super.execute();
 			_execute( PdfViewPreferences.HideToolbar | PdfViewPreferences.PageModeUseThumbs, getQualifiedClassName( this ) + "_mode3" );
+		}
+		
+		protected function execute3( event: Event ): void
+		{
+			super.execute();
+			_execute( PdfViewPreferences.PageModeFullScreen, getQualifiedClassName( this ) + "_mode4" );
 		}
 
 		override protected function execute( event: Event=null ): void

@@ -25,12 +25,7 @@ package
 		
 		public function AnimatedGif()
 		{
-			super();
-		}
-		
-		override protected function createDescription() : void
-		{
-			description("This example loads an animated gif file as ByteArray","and place into the PdfDocument each frame of the","gif image as single image");
+			super(["This example loads an animated gif file as ByteArray","and place into the PdfDocument each frame of the","gif image as single image"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

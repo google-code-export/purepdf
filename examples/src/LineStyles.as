@@ -14,12 +14,7 @@ package
 	{
 		public function LineStyles()
 		{
-			super();
-		}
-
-		override protected function createDescription(): void
-		{
-			description("This Example shows the various type of supported","line styles (joints, caps, dashes)");
+			super(["This Example shows the various type of supported","line styles (joints, caps, dashes)"]);
 		}
 
 		override protected function execute( event: Event=null ): void

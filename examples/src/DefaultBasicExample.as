@@ -25,7 +25,7 @@ package
 
 	public class DefaultBasicExample extends Sprite
 	{
-
+		protected var description_container: Sprite;
 		protected var create_button: Sprite;
 		protected var document: PdfDocument;
 		protected var end_time: Number;
@@ -34,10 +34,12 @@ package
 		protected var start_time: Number;
 		internal var buffer: ByteArray;
 		internal var filename: String;
+		internal var description_list: Array;
 
-		public function DefaultBasicExample()
+		public function DefaultBasicExample( d_list: Array = null )
 		{
 			super();
+			description_list = d_list;
 			filename = getQualifiedClassName( this ).split( "::" ).pop() + ".pdf";;
 			addEventListener( Event.ADDED_TO_STAGE, added );
 		}
@@ -125,9 +127,9 @@ package
 			return s;
 		}
 
-		protected function createDescription(): void
+		internal function createDescription(): void
 		{
-			//description();
+			description( description_list );
 		}
 
 		protected function createDocument( subject: String, rect: RectangleElement=null ): void
@@ -156,12 +158,18 @@ package
 		protected function createchildren(): void
 		{
 			// To be implemented
+			description_container = new Sprite();
+			addChild( description_container );
+			
 			create_default_button();
 			createDescription();
 		}
 
-		protected function description( ... texts: Array ): void
+		protected function description( texts: Array ): void
 		{
+			while( description_container.numChildren > 0 )
+				description_container.removeChildAt(0);
+			
 			var font: FontDescription = new FontDescription();
 			font.fontName = "Arial";
 
@@ -186,7 +194,7 @@ package
 				else
 					tl.y = tl.height + 5;
 
-				addChild( tl );
+				description_container.addChild( addChild( tl ) );
 
 				textline = tl;
 			}

@@ -21,12 +21,7 @@ package
 		
 		public function ClippingPath()
 		{
-			super();
-		}
-		
-		override protected function createDescription() : void
-		{
-			description("This Example shows how to create clipping path","for masking other elements (such as images or other paths)");
+			super(["This Example shows how to create clipping path","for masking other elements (such as images or other paths)"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

@@ -1,5 +1,6 @@
 package
 {
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.net.FileReference;
 	import flash.utils.getQualifiedClassName;
@@ -8,6 +9,8 @@ package
 	{
 		protected var class_list: Vector.<Class> = new Vector.<Class>();
 		protected var filelist: Vector.<Array> = new Vector.<Array>();
+		
+		protected var current: DefaultBasicExample;
 
 		public function TestAll()
 		{
@@ -24,22 +27,42 @@ package
 			class_list.push( ShadingPatterns );
 			class_list.push( SimpleAnnotation );
 			class_list.push( ViewerExample );
+			class_list.push( SlideShow );
 		}
 
 		override protected function createchildren(): void
 		{
-			create_default_button( getQualifiedClassName( class_list[ 0 ] ) );
+			description_container = new Sprite();
+			addChild( description_container );
+			
+			
+			create_class();
+		}
+		
+		protected function create_class(): void
+		{
+			if ( class_list.length == 0 )
+				return;
+
+			var cls: Class = class_list.shift();
+			current = new cls();
+			create_default_button( getQualifiedClassName( current ) );
 			createDescription();
+		}
+		
+		override internal function createDescription() : void
+		{
+			if( current )
+			{
+				description( current.description_list );
+			}
 		}
 
 		override protected function execute( event: Event=null ): void
 		{
 			super.execute();
 
-			var cls: Class = class_list.shift();
-			var instance: DefaultBasicExample = new cls();
-
-			var result: Array = instance.executeAll();
+			var result: Array = current.executeAll();
 
 			end_time = new Date().getTime();
 
@@ -75,7 +98,8 @@ package
 
 			if ( class_list.length == 0 )
 				return;
-			create_default_button( getQualifiedClassName( class_list[ 0 ] ) );
+			
+			create_class();
 		}
 
 		private function onSaveComplete( e: Event ): void

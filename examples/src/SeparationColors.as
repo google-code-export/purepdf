@@ -17,12 +17,7 @@ package
 	{
 		public function SeparationColors()
 		{
-			super();
-		}
-
-		override protected function createDescription(): void
-		{
-			description( "This Example shows how to use the separation colorspace" );
+			super(["This Example shows how to use the separation colorspace"]);
 		}
 
 		override protected function execute( event: Event=null ): void

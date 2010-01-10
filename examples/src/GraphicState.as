@@ -17,12 +17,7 @@ package
 	{
 		public function GraphicState()
 		{
-			super();
-		}
-		
-		override protected function createDescription() : void
-		{
-			description("This example will show some usage of the","graphic state (PdfGState) applied to the","pdf content in order to","modify the opacity and blend modes");
+			super(["This example will show some usage of the","graphic state (PdfGState) applied to the","pdf content in order to","modify the opacity and blend modes"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

@@ -12,9 +12,9 @@ package
 
 	public class ShadingPatterns extends DefaultBasicExample
 	{
-		override protected function createDescription() : void
+		public function ShadingPatterns()
 		{
-			description("This Example shows how to draw using","shading patterns (aka gradients)");
+			super(["This Example shows how to draw using","shading patterns (aka gradients)"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

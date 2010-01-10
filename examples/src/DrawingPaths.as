@@ -1,13 +1,13 @@
 package 
 {
 	import flash.events.Event;
-	import flash.geom.Matrix;
 	
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfContentByte;
+	import org.purepdf.pdf.PdfVersion;
 	
 	public class DrawingPaths extends DefaultBasicExample
 	{	
@@ -22,6 +22,7 @@ package
 			rect.setBackgroundColor( new GrayColor( 0.7 ) );
 
 			createDocument( "Page borders example", rect );
+			document.getWriter().setPdfVersion( PdfVersion.VERSION_1_5 );
 			document.open();
 			
 			var cb: PdfContentByte = document.getDirectContent();
