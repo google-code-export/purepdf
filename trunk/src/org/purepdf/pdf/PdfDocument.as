@@ -18,6 +18,11 @@ package org.purepdf.pdf
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
 
+	[Event(name="closeDocument",type="org.purepdf.events.PageEvent")]
+	[Event(name="endPage",		type="org.purepdf.events.PageEvent")]
+	[Event(name="startPage", 	type="org.purepdf.events.PageEvent")]
+	[Event(name="openDocument", type="org.purepdf.events.PageEvent")]
+	
 	public class PdfDocument extends EventDispatcher implements IObject
 	{
 		internal static var compress: Boolean = false;
@@ -64,6 +69,8 @@ package org.purepdf.pdf
 		protected var thisBoxSize: HashMap = new HashMap();
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
 		protected var writer: PdfWriter;
+		protected var _duration: int = -1;
+		protected var _transition: PdfTransition = null;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -71,6 +78,26 @@ package org.purepdf.pdf
 			super();
 			addProducer();
 			addCreationDate();
+		}
+		
+		/**
+		 * Sets the display duration for the page (for presentations)
+		 * @param seconds   the number of seconds to display the page
+		 */
+		public function set duration( seconds: int ): void
+		{
+			if( seconds > 0 )
+				_duration = seconds;
+			else
+				_duration = -1;
+		}
+		
+		/**
+		 * Set the transition for the page
+		 */
+		public function set transition( value: PdfTransition ): void
+		{
+			_transition = value;
 		}
 
 		public function addAnnotation( annot: PdfAnnotation ): void
@@ -242,11 +269,30 @@ package org.purepdf.pdf
 			dispatchEvent( new PageEvent( PageEvent.END_PAGE ) );
 
 			flushLines();
+			
+			// 1
 			var rotation: int = _pageSize.getRotation();
+			
+			// 2
 			var resources: PdfDictionary = _pageResources.getResources();
+			
+			// 3
 			var page: PdfPage = new PdfPage( PdfRectangle.create( _pageSize, rotation ), thisBoxSize, resources, rotation );
 			page.put( PdfName.TABS, writer.getTabs() );
 
+			// 4
+			if( _transition != null )
+			{
+				page.put( PdfName.TRANS, _transition.getTransitionDictionary() );
+				_transition = null;
+			}
+			
+			if( _duration > 0 )
+			{
+				page.put( PdfName.DUR, new PdfNumber( _duration ) );
+				_duration = 0;
+			}
+			
 			if ( annotationsImp.hasUnusedAnnotations() )
 			{
 				var array: PdfArray = annotationsImp.rotateAnnotations( writer, _pageSize );

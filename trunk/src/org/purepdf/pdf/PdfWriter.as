@@ -24,11 +24,10 @@ package org.purepdf.pdf
 	{
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
-		public static const PDF_VERSION_1_4: PdfName = new PdfName( "1.4" );
+
 		public static const RELEASE: String = '0.0.1_ALPHA';
 		public static const VERSION: String = NAME + ' ' + RELEASE;
 
-		public static const VERSION_1_4: String = '4';
 		protected var body: PdfBody;
 		protected var colorNumber: int = 1;
 		protected var compressionLevel: int = PdfStream.NO_COMPRESSION;
@@ -355,6 +354,11 @@ package org.purepdf.pdf
 		public function getPdfVersion(): PdfVersion
 		{
 			return pdf_version;
+		}
+		
+		public function setPdfVersion( value: String ): void
+		{
+			pdf_version.setPdfVersion( value );
 		}
 
 		public function getTabs(): PdfName
