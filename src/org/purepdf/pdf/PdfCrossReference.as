@@ -33,7 +33,7 @@ package org.purepdf.pdf
 			return ( refnum < other.refnum ? -1 : ( refnum == other.refnum ? 0 : 1 ) );
 		}
 
-		override public function equals( obj: ObjectHash ): Boolean
+		override public function equals( obj: Object ): Boolean
 		{
 			if ( obj is PdfCrossReference )
 			{

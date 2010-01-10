@@ -1,7 +1,7 @@
 package org.purepdf.elements
 {
+	import it.sephiroth.utils.HashMap;
 	import org.purepdf.pdf.PdfName;
-	import org.purepdf.utils.collections.HashMap;
 
 	public class AnnotationElement extends Element
 	{

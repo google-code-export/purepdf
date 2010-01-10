@@ -34,7 +34,7 @@ package org.purepdf.colors
 			return _tint;
 		}
 		
-		override public function equals( obj: ObjectHash ):Boolean
+		override public function equals( obj: Object ):Boolean
 		{
 			return this == obj;
 		}

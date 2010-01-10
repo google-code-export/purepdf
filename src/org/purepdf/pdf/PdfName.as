@@ -685,7 +685,7 @@ package org.purepdf.pdf
 		 * @return  <code>true</code> if this object is the same as the obj
 		 * argument; <code>false</code> otherwise.
 		 */
-		override public function equals( obj: ObjectHash ): Boolean
+		override public function equals( obj: Object ): Boolean
 		{
 			if ( this == obj )
 				return true;

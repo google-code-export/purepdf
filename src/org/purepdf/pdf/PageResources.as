@@ -1,10 +1,8 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
-	
-	import org.purepdf.utils.collections.HashMap;
-	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class PageResources extends ObjectHash
 	{
@@ -119,7 +117,7 @@ package org.purepdf.pdf
 				return;
 			originalResources = new PdfDictionary();
 			originalResources.merge( resources );
-			var i: Iterator = new VectorIterator( resources.getKeys() );
+			var i: Iterator = resources.getKeys().iterator();
 
 			for ( i; i.hasNext();  )
 			{
@@ -129,7 +127,7 @@ package org.purepdf.pdf
 				if ( sub != null && sub.isDictionary() )
 				{
 					var dic: PdfDictionary = PdfDictionary( sub );
-					var j: Iterator = new VectorIterator( dic.getKeys() );
+					var j: Iterator = dic.getKeys().iterator();
 
 					for ( j; j.hasNext();  )
 					{
@@ -148,7 +146,7 @@ package org.purepdf.pdf
 
 			if ( forbiddenNames != null )
 			{
-				translated = usedNames.getValue( name );
+				translated = usedNames.getValue( name ) as PdfName;
 
 				if ( translated == null )
 				{

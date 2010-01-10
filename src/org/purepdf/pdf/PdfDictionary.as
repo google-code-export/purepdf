@@ -1,9 +1,12 @@
 package org.purepdf.pdf
 {
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.IObject;
+	import it.sephiroth.utils.KeySet;
+	import it.sephiroth.utils.ObjectHash;
+	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.IOutputStream;
-	import org.purepdf.utils.collections.HashMap;
 
 	public class PdfDictionary extends PdfObject implements IObject
 	{
@@ -41,14 +44,14 @@ package org.purepdf.pdf
 			hashMap.remove( key );
 		}
 		
-		public function getKeys(): Vector.<Object>
+		public function getKeys(): KeySet
 		{
-			return hashMap.getKeys();
+			return hashMap.keySet();
 		}
 		
 		public function getValue( key: PdfName ): PdfObject
 		{
-			return hashMap.getValue( key );
+			return hashMap.getValue( key ) as PdfObject;
 		}
 		
 		public function size(): int
@@ -58,12 +61,12 @@ package org.purepdf.pdf
 		
 		public function mergeDifferent( other: PdfDictionary ): void
 		{
-			for( var key:* in other.hashMap )
+			var i: Iterator = other.hashMap.keySet().iterator();
+			for( i; i.hasNext(); )
 			{
-				if( !hashMap.containsKey(key) )
-				{
+				var key: ObjectHash = i.next();
+				if( !hashMap.containsKey( key ) )
 					hashMap.put( key, other.hashMap.getValue( key ) );
-				}
 			}
 		}
 		
@@ -121,13 +124,13 @@ package org.purepdf.pdf
 			var value: PdfObject;
 			var type: int = 0;
 			
-			var keys: Vector.<Object> = hashMap.getKeys();
 			var key: PdfName;
+			var i: Iterator = hashMap.keySet().iterator();
 			
-			for( var k: int = 0; k < keys.length; k++ )
+			for( i; i.hasNext(); )
 			{
-				key = keys[k] as PdfName;
-				value = hashMap.getValue( key );
+				key = PdfName( i.next() );
+				value = PdfObject( hashMap.getValue( key ) );
 				
 				key.toPdf( writer, os );
 				type = value.getType();
