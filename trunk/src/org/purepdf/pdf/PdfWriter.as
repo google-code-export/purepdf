@@ -4,6 +4,7 @@ package org.purepdf.pdf
 	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
+	import it.sephiroth.utils.HashSet;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
@@ -16,6 +17,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
@@ -42,7 +44,13 @@ package org.purepdf.pdf
 		protected var documentPatterns: HashMap = new HashMap();
 		protected var documentShadings: HashMap = new HashMap();
 		protected var documentShadingPatterns: HashMap = new HashMap();
+		protected var documentOCG: HashSet = new HashSet();
+		protected var documentOCGOrder: Vector.<IPdfOCG> = new Vector.<IPdfOCG>();
+		protected var documentProperties: HashMap = new HashMap();
+		protected var OCProperties: PdfOCProperties;
+		protected var OCGRadioGroup: PdfArray = new PdfArray();
 
+		protected var OCGLocked: PdfArray = new PdfArray();
 		protected var documentSpotPatterns: HashMap = new HashMap();
 		protected var extraCatalog: PdfDictionary;
 		protected var formXObjects: HashMap = new HashMap();
@@ -84,6 +92,183 @@ package org.purepdf.pdf
 
 			directContent = new PdfContentByte( this );
 			directContentUnder = new PdfContentByte( this );
+		}
+		
+		internal function getOCProperties(): PdfOCProperties 
+		{
+			fillOCProperties( true );
+			return OCProperties;
+		}
+		
+		protected function fillOCProperties( erase: Boolean ): void
+		{
+			var layer: PdfLayer;
+			var k: int;
+			var gr: PdfArray;
+			var i: Iterator;
+			
+			if( OCProperties == null )
+				OCProperties = new PdfOCProperties();
+			
+			if (erase) 
+			{
+				OCProperties.remove(PdfName.OCGS);
+				OCProperties.remove(PdfName.D);
+			}
+			
+			if (OCProperties.getValue(PdfName.OCGS) == null) 
+			{
+				gr = new PdfArray();
+				for( i = documentOCG.iterator(); i.hasNext();)
+				{
+					layer = PdfLayer( i.next() );
+					gr.add( layer.ref );
+				}
+				OCProperties.put(PdfName.OCGS, gr);
+			}
+			
+			if (OCProperties.getValue(PdfName.D) != null)
+				return;
+			
+			var docOrder: Vector.<IPdfOCG> = documentOCGOrder.concat();
+			for ( k = 0; k < docOrder.length; ++k )
+			{
+				layer = PdfLayer( docOrder[k] );
+				
+				if (layer.parent != null)
+				{
+					docOrder.splice( k, 1 );
+					--k;
+				}
+			}
+			
+			var order: PdfArray = new PdfArray();
+			
+			for( k = 0; k < docOrder.length; ++k ) 
+			{
+				layer = PdfLayer( docOrder[k] );
+				getOCGOrder( order, layer );
+			}
+			
+			var d: PdfDictionary = new PdfDictionary();
+			OCProperties.put(PdfName.D, d);
+			d.put(PdfName.ORDER, order);
+			gr = new PdfArray();
+			
+			for( i = documentOCG.iterator(); i.hasNext();) 
+			{
+				layer = PdfLayer( i.next() );
+				if( !layer.visible )
+					gr.add( layer.ref );
+			}
+			
+			if( gr.size() > 0 )
+				d.put( PdfName.OFF, gr );
+			
+			if( OCGRadioGroup.size() > 0 )
+				d.put( PdfName.RBGROUPS, OCGRadioGroup );
+			
+			if( OCGLocked.size() > 0 )
+				d.put( PdfName.LOCKED, OCGLocked );
+			
+			addASEvent( PdfName.VIEW, PdfName.ZOOM );
+			addASEvent( PdfName.VIEW, PdfName.VIEW );
+			addASEvent( PdfName.PRINT, PdfName.PRINT );
+			addASEvent( PdfName.EXPORT, PdfName.EXPORT );
+			d.put( PdfName.LISTMODE, PdfName.VISIBLEPAGES );
+		}
+		
+		private function addASEvent( event: PdfName, category: PdfName ): void
+		{
+			var arr: PdfArray = new PdfArray();
+			
+			for ( var i: Iterator = documentOCG.iterator(); i.hasNext();)
+			{
+				var layer: PdfLayer = PdfLayer(i.next());
+				var usage: PdfDictionary = PdfDictionary( layer.getValue( PdfName.USAGE ) );
+				if( usage != null && usage.getValue( category ) != null )
+					arr.add( layer.ref );
+			}
+			
+			if (arr.size() == 0)
+				return;
+			
+			var d: PdfDictionary = PdfDictionary( OCProperties.getValue( PdfName.D ) );
+			var arras: PdfArray = d.getValue( PdfName.AS ) as PdfArray;
+			if( arras == null )
+			{
+				arras = new PdfArray();
+				d.put(PdfName.AS, arras);
+			}
+			
+			var asd: PdfDictionary = new PdfDictionary();
+			asd.put( PdfName.EVENT, event );
+			asd.put( PdfName.CATEGORY, new PdfArray( category ) );
+			asd.put( PdfName.OCGS, arr );
+			arras.add( asd );
+		}
+		
+		private static function getOCGOrder( order: PdfArray, layer: PdfLayer ): void
+		{
+			if (!layer.onPanel )
+				return;
+			
+			if (layer.title == null)
+				order.add(layer.ref);
+			
+			var children: Vector.<IPdfOCG> = layer.children;
+			if (children == null)
+				return;
+			
+			var kids: PdfArray = new PdfArray();
+			if ( layer.title != null)
+				kids.add(new PdfString(layer.title, PdfObject.TEXT_UNICODE));
+			
+			for ( var k: int = 0; k < children.length; ++k )
+			{
+				getOCGOrder( kids, PdfLayer(children[k]) );
+			}
+			
+			if (kids.size() > 0 )
+				order.add(kids);
+		}
+		
+		internal function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
+		{
+			if( !documentProperties.containsKey(prop) )
+				documentProperties.put( prop, Vector.<PdfObject>([ new PdfName("Pr" + (documentProperties.size() + 1 )), refi ]) );
+			
+			return documentProperties.getValue( prop ) as Vector.<PdfObject>;
+		}
+		
+		internal function lockLayer( layer: PdfLayer ): void
+		{
+			OCGLocked.add( layer.ref );
+		}
+		
+		protected function propertyExists( prop: Object ): Boolean
+		{
+			return documentProperties.containsKey( prop );
+		}
+		
+		internal function registerLayer( layer: IPdfOCG ): void
+		{
+			if( layer is PdfLayer )
+			{
+				var la: PdfLayer = PdfLayer( layer );
+				if( la.title == null )
+				{
+					if( !documentOCG.contains(layer) )
+					{
+						documentOCG.add(layer);
+						documentOCGOrder.push(layer);
+					} else {
+						documentOCG.add(layer);
+					}
+				}
+			} else {
+				throw new ArgumentError("only PdfLayer is accepted");
+			}
 		}
 
 		public function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference
@@ -351,12 +536,12 @@ package org.purepdf.pdf
 			return body.getPdfIndirectReference();
 		}
 
-		public function getPdfVersion(): PdfVersion
+		internal function getPdfVersion(): PdfVersion
 		{
 			return pdf_version;
 		}
 		
-		public function setPdfVersion( value: String ): void
+		internal function setPdfVersion( value: String ): void
 		{
 			pdf_version.setPdfVersion( value );
 		}
@@ -514,6 +699,12 @@ package org.purepdf.pdf
 
 			// 11 add the properties
 			// 13 add the OCG layers
+			it = documentOCG.iterator();
+			for( it; it.hasNext(); )
+			{
+				var layer: IPdfOCG = IPdfOCG( it.next() );
+				addToBody1( layer.pdfObject, layer.ref );
+			}
 		}
 
 		/*
@@ -527,6 +718,12 @@ package org.purepdf.pdf
 		{
 			var catalog: PdfDictionary = pdf.getCatalog( rootObj );
 
+			if( !documentOCG.isEmpty() )
+			{
+				fillOCProperties(false);
+				catalog.put( PdfName.OCPROPERTIES, OCProperties );
+			}
+			
 			logger.warn( 'getCatalog. to be implemented' );
 
 			return catalog;

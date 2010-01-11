@@ -46,7 +46,7 @@ package org.purepdf.pdf
 		private static const unitRect: Vector.<Number> = Vector.<Number>( [ 0, 0, 0, 1, 1, 0, 1, 1 ] );
 		protected var content: ByteBuffer = new ByteBuffer();
 		protected var inText: Boolean = false;
-		protected var layerDepth: Array;
+		protected var layerDepth: Vector.<int>;
 		protected var mcDepth: int = 0;
 		protected var pdf: PdfDocument;
 
@@ -257,10 +257,47 @@ package org.purepdf.pdf
 		 * call to this method and a single call to {@link #endLayer()}; all the nesting control
 		 * is built in.
 		 * @param layer the layer
+		 * 
+		 * @throws ArgumentError
 		 */
 		public function beginLayer( layer: IPdfOCG ): void
 		{
-			throw new NonImplementatioError();
+			if(( layer is PdfLayer ) && PdfLayer( layer ).title != null )
+				throw new ArgumentError("Title layer not allowed here");
+			
+			if( layerDepth == null )
+				layerDepth = new Vector.<int>();
+			
+			if( layer is PdfLayerMembership )
+			{
+				layerDepth.push(1);
+				beginLayer2(layer);
+				return;
+			}
+			
+			var n: int = 0;
+			var la: PdfLayer = layer as PdfLayer;
+			
+			while( la != null )
+			{
+				if( la.title == null )
+				{
+					beginLayer2(la);
+					++n;
+				}
+				
+				la = la.parent;
+			}
+			
+			layerDepth.push(n);
+		}
+		
+		private function beginLayer2( layer: IPdfOCG ): void
+		{
+			var name: PdfName = writer.addSimpleProperty( layer, layer.ref )[0] as PdfName;
+			var prs: PageResources = pageResources;
+			name = prs.addProperty( name, layer.ref );
+			content.append_string("/OC ").append_bytes(name.getBytes()).append_string(" BDC").append_separator();
 		}
 
 		/**
@@ -449,7 +486,7 @@ package org.purepdf.pdf
 			}
 
 			while ( n-- > 0 )
-				content.append( "EMC" ).append_separator();
+				content.append_string( "EMC" ).append_separator();
 		}
 
 		public function endText(): void

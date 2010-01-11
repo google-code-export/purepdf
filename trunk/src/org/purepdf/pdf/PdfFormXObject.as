@@ -17,7 +17,7 @@ package org.purepdf.pdf
 			put( PdfName.FORMTYPE, ONE );
 
 			if ( template.layer != null )
-				put( PdfName.OC, template.layer.getRef() );
+				put( PdfName.OC, template.layer.ref );
 
 			if ( template.group != null )
 				put( PdfName.GROUP, template.group );

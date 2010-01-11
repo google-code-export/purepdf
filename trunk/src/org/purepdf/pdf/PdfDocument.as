@@ -158,6 +158,21 @@ package org.purepdf.pdf
 		{
 			return _pageSize.getBottom( marginBottom + margin );
 		}
+		
+		public function setPdfVersion( value: String ): void
+		{
+			writer.setPdfVersion( value );
+		}
+		
+		/**
+		 * Use this method to lock a content group
+		 * The state of a locked group can not be changed using the user
+		 * interface of a viewer application
+		 */
+		public function lockLayer( layer: PdfLayer ): void
+		{
+			writer.lockLayer( layer );
+		}
 
 		/**
 		 * close the document
