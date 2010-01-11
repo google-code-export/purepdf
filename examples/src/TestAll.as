@@ -9,6 +9,8 @@ package
 	{
 		protected var class_list: Vector.<Class> = new Vector.<Class>();
 		protected var filelist: Vector.<Array> = new Vector.<Array>();
+		protected var total_number: int;
+		protected var current_test_number: int = 0;
 		
 		protected var current: DefaultBasicExample;
 
@@ -29,6 +31,8 @@ package
 			class_list.push( ViewerExample );
 			class_list.push( SlideShow );
 			class_list.push( Layers );
+			
+			total_number = class_list.length;
 		}
 
 		override protected function createchildren(): void
@@ -45,9 +49,11 @@ package
 			if ( class_list.length == 0 )
 				return;
 
+			current_test_number++;
+			
 			var cls: Class = class_list.shift();
 			current = new cls();
-			create_default_button( getQualifiedClassName( current ) );
+			create_default_button( "(" + current_test_number + " of " + total_number + ") " + getQualifiedClassName( current ) );
 			createDescription();
 		}
 		
