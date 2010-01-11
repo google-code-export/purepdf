@@ -28,6 +28,7 @@ package
 			class_list.push( SimpleAnnotation );
 			class_list.push( ViewerExample );
 			class_list.push( SlideShow );
+			class_list.push( Layers );
 		}
 
 		override protected function createchildren(): void

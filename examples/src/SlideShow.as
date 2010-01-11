@@ -36,7 +36,7 @@ package
 			
 			createDocument("SlideShow Example", rect );
 			document.addEventListener( PageEvent.START_PAGE, onStartPage );
-			document.getWriter().setPdfVersion( PdfVersion.VERSION_1_5 );
+			document.setPdfVersion( PdfVersion.VERSION_1_5 );
 			
 			document.open();
 			document.setViewerPreferences( PdfViewPreferences.PageModeFullScreen );

@@ -22,7 +22,7 @@ package
 			rect.setBackgroundColor( new GrayColor( 0.7 ) );
 
 			createDocument( "Page borders example", rect );
-			document.getWriter().setPdfVersion( PdfVersion.VERSION_1_5 );
+			document.setPdfVersion( PdfVersion.VERSION_1_5 );
 			document.open();
 			
 			var cb: PdfContentByte = document.getDirectContent();
