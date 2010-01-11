@@ -20,7 +20,7 @@ package org.purepdf.pdf
 		
 		public function addAnnotation( annot: PdfAnnotation ): void
 		{
-			if( annot.is_form )
+			if( annot.isForm )
 			{
 				var field: PdfFormField = annot as PdfFormField;
 				if( field.parent == null )
@@ -76,9 +76,9 @@ package org.purepdf.pdf
 					continue;
 				}
 				
-				if( dic.is_form )
+				if( dic.isForm )
 				{
-					if( !dic.is_used )
+					if( !dic.isUsed )
 					{
 						var templates: HashMap = dic.templates;
 						if( templates != null )
@@ -90,10 +90,10 @@ package org.purepdf.pdf
 						acroForm.addDocumentField( field.getIndirectReference() );
 				}
 				
-				if( dic.is_annotation )
+				if( dic.isAnnotation )
 				{
 					array.add( dic.getIndirectReference() );
-					if( !dic.is_used )
+					if( !dic.isUsed )
 					{
 						var rect: PdfRectangle = dic.getValue( PdfName.RECT ) as PdfRectangle;
 						if( rect != null )
@@ -128,9 +128,9 @@ package org.purepdf.pdf
 					}
 				}
 				
-				if( !dic.is_used )
+				if( !dic.isUsed )
 				{
-					dic.is_used = true;
+					dic.isUsed = true;
 					writer.addToBody1( dic, dic.getIndirectReference() );
 				}
 			}

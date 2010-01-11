@@ -271,7 +271,7 @@ package org.purepdf.pdf
 			}
 		}
 
-		public function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference
+		internal function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference
 		{
 			if ( !opened )
 				throw new Error( "Document is not open" );
@@ -300,7 +300,7 @@ package org.purepdf.pdf
 			return null;
 		}
 
-		public function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
+		internal function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
 		{
 			if ( !documentExtGState.containsKey( gstate ) )
 			{
@@ -310,25 +310,25 @@ package org.purepdf.pdf
 			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
 		}
 
-		public function addToBody( object: PdfObject ): PdfIndirectObject
+		internal function addToBody( object: PdfObject ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add1( object );
 			return iobj;
 		}
 
-		public function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
+		internal function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add3( object, ref );
 			return iobj;
 		}
 
-		public function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
+		internal function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add2( object, inObjStm );
 			return iobj;
 		}
 
-		public function close(): void
+		internal function close(): void
 		{
 			if ( opened )
 			{
@@ -531,7 +531,7 @@ package org.purepdf.pdf
 		 * @return the <CODE>PdfIndirectReference</CODE>
 		 */
 
-		public function getPdfIndirectReference(): PdfIndirectReference
+		internal function getPdfIndirectReference(): PdfIndirectReference
 		{
 			return body.getPdfIndirectReference();
 		}
@@ -973,13 +973,13 @@ package org.purepdf.pdf
 			return imageDictionary.getValue( pdfImage.name ) as PdfIndirectReference;
 		}
 
-		public static function create( output: ByteArray, pagesize: RectangleElement ): PdfDocument
+		public static function create( output: ByteArray, pagesize: RectangleElement ): PdfWriter
 		{
 			var writer: PdfWriter = new PdfWriter( new SingletonCheck(), output, pagesize );
-			return writer.pdfDocument;
+			return writer;
 		}
 
-		public static function getISOBytes( text: String ): Bytes
+		internal static function getISOBytes( text: String ): Bytes
 		{
 			if ( text == null )
 				return null;
@@ -991,7 +991,7 @@ package org.purepdf.pdf
 			return byte;
 		}
 
-		public static function getVectorISOBytes( text: String ): Vector.<int>
+		internal static function getVectorISOBytes( text: String ): Vector.<int>
 		{
 			if ( text == null )
 				return null;
