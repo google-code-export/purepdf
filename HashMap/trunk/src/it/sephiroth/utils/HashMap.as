@@ -6,7 +6,7 @@ package it.sephiroth.utils
 
 	public class HashMap
 	{
-		private static const DEFAULT_INITIAL_CAPACITY: int = 16;
+		private static const DEFAULT_INITIAL_CAPACITY: int = 32;
 		private static const DEFAULT_LOAD_FACTOR: Number = 0.75;
 		private static const MAXIMUM_CAPACITY: int = 1 << 30;
 		private static const serialVersionUID: Number = 362498820763181265;
