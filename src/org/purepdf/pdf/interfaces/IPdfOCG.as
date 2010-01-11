@@ -8,7 +8,7 @@ package org.purepdf.pdf.interfaces
 	 */
 	public interface IPdfOCG
 	{
-		function getRef(): PdfIndirectReference;
-		function getPdfObject(): PdfObject;
+		function get ref(): PdfIndirectReference;
+		function get pdfObject(): PdfObject;
 	}
 }
