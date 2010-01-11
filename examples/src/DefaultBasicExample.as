@@ -28,6 +28,7 @@ package
 		protected var description_container: Sprite;
 		protected var create_button: Sprite;
 		protected var document: PdfDocument;
+		protected var writer: PdfWriter;
 		protected var end_time: Number;
 		protected var result_time: TextLine;
 
@@ -139,7 +140,8 @@ package
 			if ( rect == null )
 				rect = PageSize.A4;
 
-			document = PdfWriter.create( buffer, rect );
+			writer = PdfWriter.create( buffer, rect );
+			document = writer.pdfDocument;
 			document.addAuthor( "Alessandro Crugnola" );
 			document.addTitle( getQualifiedClassName( this ) );
 			document.addCreator( "http://purepdf.org" );

@@ -1,6 +1,6 @@
 package
 {
-	import cmodule.as3_jpeg_wrapper.CLibInit;
+	import com.adobe.images.JPGEncoder;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -9,7 +9,6 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
-	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.pdf.PdfViewPreferences;
 
@@ -17,16 +16,10 @@ package
 	{
 		[Embed( source="assets/image1.jpg" )]
 		private var cls1: Class;
-		
-		private var jpegLoader: CLibInit;
-		private var jpegLib: Object;
 
 		public function ViewerExample()
 		{
 			super(["This example show how you can customize PDF layout preferences"]);
-			
-			jpegLoader = new CLibInit();
-			jpegLib = jpegLoader.init();
 		}
 		
 		override protected function createchildren() : void
@@ -81,7 +74,7 @@ package
 			document.setViewerPreferences( mode );
 			
 			// JPEG image
-			var bytes: ByteArray = jpegLib.write_jpeg_file( bmp.getPixels( bmp.rect ), bmp.width, bmp.height, 3, 2, 90 );
+			var bytes: ByteArray = new JPGEncoder(90).encode( bmp );
 			var image: ImageElement = ImageElement.getInstance( bytes );
 			image.scalePercent( 50, 50 );
 			document.addElement( image );

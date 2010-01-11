@@ -25,9 +25,9 @@ package
 			document.open();
 			
 			var cb: PdfContentByte = document.getDirectContent();
-			var nested: PdfLayer = new PdfLayer("Nested Layer", document.getWriter() );
-			var nested_1: PdfLayer = new PdfLayer("Nested Layer 1", document.getWriter() );
-			var nested_2: PdfLayer = new PdfLayer("Nested Layer 2", document.getWriter() );
+			var nested: PdfLayer = new PdfLayer("Nested Layer", writer );
+			var nested_1: PdfLayer = new PdfLayer("Nested Layer 1", writer );
+			var nested_2: PdfLayer = new PdfLayer("Nested Layer 2", writer );
 			
 			nested.addChild( nested_1 );
 			nested.addChild( nested_2 );
@@ -56,9 +56,9 @@ package
 			// TITLE LAYERS
 			// ----------------------------
 			
-			var group: PdfLayer = PdfLayer.createTitle("Title nested layer", document.getWriter() );
-			var group_1: PdfLayer = PdfLayer.createTitle("Title nested layer 1", document.getWriter() );
-			var group_2: PdfLayer = PdfLayer.createTitle("Title nested layer 2", document.getWriter() );
+			var group: PdfLayer = PdfLayer.createTitle("Title nested layer", writer );
+			var group_1: PdfLayer = PdfLayer.createTitle("Title nested layer 1", writer );
+			var group_2: PdfLayer = PdfLayer.createTitle("Title nested layer 2", writer );
 			
 			group.addChild( group_1 );
 			group.addChild( group_2 );
