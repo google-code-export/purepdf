@@ -68,7 +68,7 @@ package org.purepdf.pdf
 		protected var textEmptySize: int;
 		protected var thisBoxSize: HashMap = new HashMap();
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
-		protected var writer: PdfWriter;
+		protected var _writer: PdfWriter;
 		protected var _duration: int = -1;
 		protected var _transition: PdfTransition = null;
 
@@ -104,8 +104,8 @@ package org.purepdf.pdf
 		{
 			pageEmpty = false;
 
-			if ( annot.getWriter() == null )
-				annot.setWriter( writer );
+			if ( annot.writer == null )
+				annot.writer = _writer;
 			annotationsImp.addAnnotation( annot );
 		}
 
@@ -161,7 +161,7 @@ package org.purepdf.pdf
 		
 		public function setPdfVersion( value: String ): void
 		{
-			writer.setPdfVersion( value );
+			_writer.setPdfVersion( value );
 		}
 		
 		/**
@@ -171,7 +171,7 @@ package org.purepdf.pdf
 		 */
 		public function lockLayer( layer: PdfLayer ): void
 		{
-			writer.lockLayer( layer );
+			_writer.lockLayer( layer );
 		}
 
 		/**
@@ -199,16 +199,16 @@ package org.purepdf.pdf
 				opened = false;
 				closed = true;
 			}
-			writer.close();
+			_writer.close();
 		}
 
 		public function getCatalog( pages: PdfIndirectReference ): PdfCatalog
 		{
 			logger.warn( 'getCatalog. to be implemented' );
-			var catalog: PdfCatalog = new PdfCatalog( pages, writer );
+			var catalog: PdfCatalog = new PdfCatalog( pages, _writer );
 
 			// version
-			writer.getPdfVersion().addToCatalog( catalog );
+			_writer.getPdfVersion().addToCatalog( catalog );
 
 			// preferences
 			viewerPreferences.addToCatalog( catalog );
@@ -218,12 +218,12 @@ package org.purepdf.pdf
 
 		public function getDefaultColorSpace(): PdfDictionary
 		{
-			return writer.getDefaultColorSpace();
+			return _writer.getDefaultColorSpace();
 		}
 
 		public function getDirectContent(): PdfContentByte
 		{
-			return writer.getDirectContent();
+			return _writer.getDirectContent();
 		}
 
 		public function getInfo(): PdfInfo
@@ -236,9 +236,9 @@ package org.purepdf.pdf
 			return pageN;
 		}
 
-		public function getWriter(): PdfWriter
+		public function get writer(): PdfWriter
 		{
-			return writer;
+			return _writer;
 		}
 
 		public function hashCode(): int
@@ -255,8 +255,8 @@ package org.purepdf.pdf
 
 		public function isPageEmpty(): Boolean
 		{
-			return writer == null || ( writer.getDirectContent().size() == 0 && writer.getDirectContentUnder().size() == 0 && ( pageEmpty
-				|| writer.isPaused() ) );
+			return _writer == null || ( _writer.getDirectContent().size() == 0 && _writer.getDirectContentUnder().size() == 0 && ( pageEmpty
+				|| _writer.isPaused() ) );
 		}
 
 		public function left( margin: Number=0 ): Number
@@ -293,7 +293,7 @@ package org.purepdf.pdf
 			
 			// 3
 			var page: PdfPage = new PdfPage( PdfRectangle.create( _pageSize, rotation ), thisBoxSize, resources, rotation );
-			page.put( PdfName.TABS, writer.getTabs() );
+			page.put( PdfName.TABS, _writer.getTabs() );
 
 			// 4
 			if( _transition != null )
@@ -310,7 +310,7 @@ package org.purepdf.pdf
 			
 			if ( annotationsImp.hasUnusedAnnotations() )
 			{
-				var array: PdfArray = annotationsImp.rotateAnnotations( writer, _pageSize );
+				var array: PdfArray = annotationsImp.rotateAnnotations( _writer, _pageSize );
 
 				if ( array.size() != 0 )
 					page.put( PdfName.ANNOTS, array );
@@ -324,7 +324,7 @@ package org.purepdf.pdf
 			{
 				text = null;
 			}
-			writer.add( page, new PdfContents( writer.getDirectContentUnder(), graphics, text, writer.getDirectContent(), _pageSize ) );
+			_writer.add( page, new PdfContents( _writer.getDirectContentUnder(), graphics, text, _writer.getDirectContent(), _pageSize ) );
 			// initialize the new page
 			initPage();
 			return true;
@@ -341,8 +341,8 @@ package org.purepdf.pdf
 				opened = true;
 				pageSize = _pageSize;
 				setMargins( marginLeft, marginRight, marginTop, marginBottom );
-				writer.open();
-				rootOutline = new PdfOutline( writer );
+				_writer.open();
+				rootOutline = new PdfOutline( _writer );
 				currentOutline = rootOutline;
 				initPage();
 			}
@@ -372,7 +372,7 @@ package org.purepdf.pdf
 		 */
 		public function set pageSize( value: RectangleElement ): void
 		{
-			if ( writer != null && writer.isPaused() )
+			if ( _writer != null && _writer.isPaused() )
 				return;
 
 			nextPageSize = RectangleElement.clone( value );
@@ -385,12 +385,12 @@ package org.purepdf.pdf
 
 		public function setDefaultColorSpace( key: PdfName, value: PdfObject ): void
 		{
-			writer.setDefaultColorSpace( key, value );
+			_writer.setDefaultColorSpace( key, value );
 		}
 
 		public function setMargins( marginLeft: Number, marginRight: Number, marginTop: Number, marginBottom: Number ): Boolean
 		{
-			if ( writer != null && writer.isPaused() )
+			if ( _writer != null && _writer.isPaused() )
 			{
 				return false;
 			}
@@ -464,9 +464,9 @@ package org.purepdf.pdf
 			pageN++;
 			annotationsImp.resetAnnotations();
 			_pageResources = new PageResources();
-			writer.resetContent();
-			graphics = new PdfContentByte( writer );
-			text = new PdfContentByte( writer );
+			_writer.resetContent();
+			graphics = new PdfContentByte( _writer );
+			text = new PdfContentByte( _writer );
 			text.reset();
 			text.beginText();
 			textEmptySize = text.size();
@@ -552,7 +552,7 @@ package org.purepdf.pdf
 
 		internal function add( element: Element ): Boolean
 		{
-			if ( writer != null && writer.isPaused() )
+			if ( _writer != null && _writer.isPaused() )
 			{
 				return false;
 			}
@@ -612,10 +612,10 @@ package org.purepdf.pdf
 
 		internal function addWriter( w: PdfWriter ): void
 		{
-			if ( writer == null )
+			if ( _writer == null )
 			{
-				writer = w;
-				annotationsImp = new PdfAnnotationsImp( writer );
+				_writer = w;
+				annotationsImp = new PdfAnnotationsImp( _writer );
 			}
 		}
 

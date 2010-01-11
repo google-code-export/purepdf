@@ -42,11 +42,11 @@ package org.purepdf.pdf
 		protected var form: Boolean = false;
 		protected var reference: PdfIndirectReference;
 		protected var used: Boolean = false;
-		protected var writer: PdfWriter;
+		protected var _writer: PdfWriter;
 
 		public function PdfAnnotation( $writer: PdfWriter, rect: RectangleElement )
 		{
-			writer = $writer;
+			_writer = $writer;
 
 			if ( rect != null )
 				put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
@@ -60,32 +60,32 @@ package org.purepdf.pdf
 		{
 			if ( reference == null )
 			{
-				reference = writer.getPdfIndirectReference();
+				reference = _writer.getPdfIndirectReference();
 			}
 			return reference;
 		}
 
-		public function getWriter(): PdfWriter
+		public function get writer(): PdfWriter
 		{
-			return writer;
+			return _writer;
 		}
 
-		public function get is_annotation(): Boolean
+		public function get isAnnotation(): Boolean
 		{
 			return annotation;
 		}
 
-		public function get is_form(): Boolean
+		public function get isForm(): Boolean
 		{
 			return form;
 		}
 
-		public function get is_used(): Boolean
+		public function get isUsed(): Boolean
 		{
 			return used;
 		}
 
-		public function set is_used( value: Boolean ): void
+		public function set isUsed( value: Boolean ): void
 		{
 			used = value;
 		}
@@ -95,9 +95,9 @@ package org.purepdf.pdf
 			return _placeInPage;
 		}
 
-		public function setWriter( $writer: PdfWriter ): void
+		public function set writer( $writer: PdfWriter ): void
 		{
-			writer = $writer;
+			_writer = $writer;
 		}
 
 		public function get templates(): HashMap
