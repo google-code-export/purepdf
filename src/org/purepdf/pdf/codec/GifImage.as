@@ -189,7 +189,7 @@ package org.purepdf.pdf.codec
 
 					if ( old_code == NullCode )
 					{
-						pixelStack.setValue( top++, suffix.getValue( code ) );
+						pixelStack.writeIntAtPosition( top++, suffix[code] );
 						old_code = code;
 						first = code;
 						continue;
@@ -205,7 +205,8 @@ package org.purepdf.pdf.codec
 					
 					while ( code > clear )
 					{
-						pixelStack.setValue( top++, suffix[ code ] );
+						//pixelStack[ top++ ] = suffix[code];
+						pixelStack.writeIntAtPosition( top++, suffix[ code ] );
 						code = prefix[ code ];
 					}
 					first = suffix[ code ] & 0xff;
