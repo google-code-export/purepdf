@@ -158,8 +158,8 @@ package org.purepdf.pdf
 			if ( image.hasBorders() )
 			{
 				saveState();
-				w = image.getWidth();
-				h = image.getHeight();
+				w = image.width;
+				h = image.height;
 				concatCTM( width / w, b / w, c / h, height / h, x, y );
 				rectangle( image );
 				restoreState();
@@ -1139,14 +1139,14 @@ package org.purepdf.pdf
 			var b: Number = rect.getBottom();
 			var r: Number = rect.getRight();
 			var l: Number = rect.getLeft();
-			var wt: Number = rect.getBorderWidthTop();
-			var wb: Number = rect.getBorderWidthBottom();
-			var wr: Number = rect.getBorderWidthRight();
-			var wl: Number = rect.getBorderWidthLeft();
-			var ct: RGBColor = rect.getBorderColorTop();
-			var cb: RGBColor = rect.getBorderColorBottom();
-			var cr: RGBColor = rect.getBorderColorRight();
-			var cl: RGBColor = rect.getBorderColorLeft();
+			var wt: Number = rect.borderWidthTop;
+			var wb: Number = rect.borderWidthBottom;
+			var wr: Number = rect.borderWidthRight;
+			var wl: Number = rect.borderWidthLeft;
+			var ct: RGBColor = rect.borderColorTop;
+			var cb: RGBColor = rect.borderColorBottom;
+			var cr: RGBColor = rect.borderColorRight;
+			var cl: RGBColor = rect.borderColorLeft;
 			saveState();
 			setLineCap( CapsStyle.NONE );
 			setLineJoin( JointStyle.MITER );
@@ -1331,7 +1331,7 @@ package org.purepdf.pdf
 			var y1: Number = rectangle.getBottom();
 			var x2: Number = rectangle.getRight();
 			var y2: Number = rectangle.getTop();
-			var background: RGBColor = rectangle.getBackgroundColor();
+			var background: RGBColor = rectangle.backgroundColor;
 
 			if ( background != null )
 			{
@@ -1351,9 +1351,9 @@ package org.purepdf.pdf
 			}
 			else
 			{
-				if ( rectangle.getBorderWidth() != RectangleElement.UNDEFINED )
-					setLineWidth( rectangle.getBorderWidth() );
-				var color: RGBColor = rectangle.getBorderColor();
+				if ( rectangle.borderWidth != RectangleElement.UNDEFINED )
+					setLineWidth( rectangle.borderWidth );
+				var color: RGBColor = rectangle.borderColor;
 
 				if ( color != null )
 					setStrokeColor( color );

@@ -572,8 +572,8 @@ package org.purepdf.elements.images
 		 */
 		public function scalePercent( percentX: Number, percentY: Number ):void
 		{
-			plainWidth = ( getWidth() * percentX) / 100;
-			plainHeight = (getHeight() * percentY) / 100;
+			plainWidth = ( width * percentX) / 100;
+			plainHeight = ( height * percentY) / 100;
 			var m: Vector.<Number> = matrix;
 			_scaledWidth = m[DX] - m[CX];
 			_scaledHeight = m[DY] - m[CY];
@@ -600,7 +600,7 @@ package org.purepdf.elements.images
 			_widthPercentage = value;
 		}
 		
-		public function getWidthPercentage(): Number
+		public function get widthPercentage(): Number
 		{
 			return _widthPercentage;
 		}

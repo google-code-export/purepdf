@@ -10,8 +10,10 @@ package org.purepdf.pdf
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.IElementListener;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;
+	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.NonImplementatioError;
@@ -23,7 +25,7 @@ package org.purepdf.pdf
 	[Event(name="startPage", 	type="org.purepdf.events.PageEvent")]
 	[Event(name="openDocument", type="org.purepdf.events.PageEvent")]
 	
-	public class PdfDocument extends EventDispatcher implements IObject
+	public class PdfDocument extends EventDispatcher implements IObject, IElementListener
 	{
 		internal static var compress: Boolean = false;
 
@@ -71,6 +73,7 @@ package org.purepdf.pdf
 		protected var _writer: PdfWriter;
 		protected var _duration: int = -1;
 		protected var _transition: PdfTransition = null;
+		protected var leadingCount: int = 0;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -124,7 +127,7 @@ package org.purepdf.pdf
 			if ( closed )
 				throw new Error( "document is closed" );
 
-			if ( !opened && element.iscontent )
+			if ( !opened && element.isContent )
 				throw new Error( "document is not opened" );
 			var success: Boolean = false;
 			success = add( element );
@@ -286,7 +289,7 @@ package org.purepdf.pdf
 			flushLines();
 			
 			// 1
-			var rotation: int = _pageSize.getRotation();
+			var rotation: int = _pageSize.rotation;
 			
 			// 2
 			var resources: PdfDictionary = _pageResources.getResources();
@@ -476,7 +479,7 @@ package org.purepdf.pdf
 			currentHeight = 0;
 			thisBoxSize = new HashMap();
 
-			if ( _pageSize.getBackgroundColor() != null || _pageSize.hasBorders() || _pageSize.getBorderColor() != null )
+			if ( _pageSize.backgroundColor != null || _pageSize.hasBorders() || _pageSize.borderColor != null )
 			{
 				add( _pageSize );
 			}
@@ -550,12 +553,10 @@ package org.purepdf.pdf
 			}
 		}
 
-		internal function add( element: Element ): Boolean
+		public function add( element: Element ): Boolean
 		{
 			if ( _writer != null && _writer.isPaused() )
-			{
 				return false;
-			}
 
 			switch ( element.type() )
 			{
@@ -592,7 +593,41 @@ package org.purepdf.pdf
 				case Element.IMGTEMPLATE:
 					addImage( ImageElement( element ) );
 					break;
+				
+				case Element.PHRASE:
+					leadingCount++;
+					leading = Phrase( element ).leading;
+					element.process( this );
+					leadingCount--;
+					break;
+				
+				case Element.CHUNK:
+					throw new NonImplementatioError();
+					/*
+					if( line == null )
+						carriageReturn();
+					
+					// we cast the element to a chunk
+					var chunk: PdfChunk = new PdfChunk( Chunk(element), anchorAction );
+
+					// we try to add the chunk to the line, until we succeed
+					var overflow: PdfChunk;
+					while( (overflow = line.add( chunk ) ) != null )
+					{
+						carriageReturn();
+						chunk = overflow;
+						chunk.trimFirstSpace();
+					}
+					
+					pageEmpty = false;
+					
+					if( chunk.isAttribute(Chunk.NEWPAGE) )
+						newPage();
+					*/
+					break;
+				
 				default:
+					logger.error("PdfDocument.add. Invalid type: " + element.type() );
 					throw new Error( 'PdfDocument.add. Invalid type: ' + element.type() );
 					return false;
 			}

@@ -23,7 +23,7 @@ package org.purepdf.pdf
 				streamBytes = new ByteArray();
 				
 				out = streamBytes;
-				var rotation: int = page.getRotation();
+				var rotation: int = page.rotation;
 				switch( rotation )
 				{
 					case 90:

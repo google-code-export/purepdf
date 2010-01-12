@@ -63,7 +63,7 @@ package org.purepdf.pdf
 		internal function rotateAnnotations( writer: PdfWriter, pageSize: RectangleElement ): PdfArray
 		{
 			var array: PdfArray = new PdfArray();
-			var rotation: int = pageSize.getRotation() % 360;
+			var rotation: int = pageSize.rotation % 360;
 			var currentPage: int = writer.getCurrentPageNumber();
 			
 			for( var k: int = 0; k < annotations.length; ++k )

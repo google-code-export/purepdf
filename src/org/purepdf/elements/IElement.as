@@ -3,9 +3,9 @@ package org.purepdf.elements
 
 	public interface IElement
 	{
-		function getChunks(): Array;
-		function isNestable(): Boolean;
-		function get iscontent(): Boolean;
+		function getChunks(): Vector.<Object>;
+		function get isNestable(): Boolean;
+		function get isContent(): Boolean;
 		function toString(): String;
 		function type(): int;
 	}

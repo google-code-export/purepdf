@@ -19,9 +19,9 @@ package org.purepdf.elements
 			return _content;
 		}
 
-		override public function getChunks(): Array
+		override public function getChunks(): Vector.<Object>
 		{
-			return new Array();
+			return new Vector.<Object>();
 		}
 
 		public function getContent(): String
@@ -50,12 +50,12 @@ package org.purepdf.elements
 			}
 		}
 
-		override public function isNestable(): Boolean
+		override public function get isNestable(): Boolean
 		{
 			return false;
 		}
 
-		override public function get iscontent(): Boolean
+		override public function get isContent(): Boolean
 		{
 			return false;
 		}

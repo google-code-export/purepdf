@@ -43,7 +43,7 @@ package org.purepdf.pdf
 
 		public function get height(): Number
 		{
-			return bBox.getHeight();
+			return bBox.height;
 		}
 
 		public function set height( value: Number ): void
@@ -85,7 +85,7 @@ package org.purepdf.pdf
 
 		public function get width(): Number
 		{
-			return bBox.getWidth();
+			return bBox.width;
 		}
 
 		public function set width( value: Number ): void
