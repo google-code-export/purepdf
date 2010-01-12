@@ -28,8 +28,8 @@ package org.purepdf.pdf
 		{
 			put( PdfName.TYPE, PdfName.XOBJECT );
 			put( PdfName.SUBTYPE, PdfName.IMAGE );
-			put( PdfName.WIDTH, new PdfNumber( image.getWidth()));
-			put( PdfName.HEIGHT, new PdfNumber( image.getHeight()));
+			put( PdfName.WIDTH, new PdfNumber( image.width));
+			put( PdfName.HEIGHT, new PdfNumber( image.height));
 
 			if ( image.layer != null )
 			{
@@ -100,8 +100,8 @@ package org.purepdf.pdf
 
 					if (( colorspace & Element.CCITT_ENDOFBLOCK ) != 0 )
 						decodeparms.put( PdfName.ENDOFBLOCK, PdfBoolean.PDF_FALSE );
-					decodeparms.put( PdfName.COLUMNS, new PdfNumber( image.getWidth()));
-					decodeparms.put( PdfName.ROWS, new PdfNumber( image.getHeight()));
+					decodeparms.put( PdfName.COLUMNS, new PdfNumber( image.width));
+					decodeparms.put( PdfName.ROWS, new PdfNumber( image.height));
 					put( PdfName.DECODEPARMS, decodeparms );
 				} else
 				{

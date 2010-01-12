@@ -21,8 +21,8 @@ package org.purepdf.elements.images
 			_colorspace = $components;
 			_bpc = $bpc;
 			_rawData = $data;
-			plainWidth = getWidth();
-			plainHeight = getHeight();
+			plainWidth = width;
+			plainHeight = height;
 		}
 	}
 }

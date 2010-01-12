@@ -12,24 +12,24 @@ package org.purepdf.elements
 		public static const TOP: int = 1;
 		public static const ALL: int = TOP | BOTTOM | LEFT | RIGHT;
 		public static const UNDEFINED: int = -1;
-		protected var backgroundColor: RGBColor = null;
-		protected var border: int = UNDEFINED;
-		protected var borderColor: RGBColor = null;
-		protected var borderColorBottom: RGBColor = null;
-		protected var borderColorLeft: RGBColor = null;
-		protected var borderColorRight: RGBColor = null;
-		protected var borderColorTop: RGBColor = null;
-		protected var borderWidth: Number = UNDEFINED;
-		protected var borderWidthBottom: Number = UNDEFINED;
-		protected var borderWidthLeft: Number = UNDEFINED;
-		protected var borderWidthRight: Number = UNDEFINED;
-		protected var borderWidthTop: Number = UNDEFINED;
+		protected var _backgroundColor: RGBColor = null;
+		protected var _border: int = UNDEFINED;
+		protected var _borderColor: RGBColor = null;
+		protected var _borderColorBottom: RGBColor = null;
+		protected var _borderColorLeft: RGBColor = null;
+		protected var _borderColorRight: RGBColor = null;
+		protected var _borderColorTop: RGBColor = null;
+		protected var _borderWidth: Number = UNDEFINED;
+		protected var _borderWidthBottom: Number = UNDEFINED;
+		protected var _borderWidthLeft: Number = UNDEFINED;
+		protected var _borderWidthRight: Number = UNDEFINED;
+		protected var _borderWidthTop: Number = UNDEFINED;
 		protected var llx: Number;
 		protected var lly: Number;
-		protected var rotation: int = 0;
+		protected var _rotation: int = 0;
 		protected var urx: Number;
 		protected var ury: Number;
-		protected var useVariableBorders: Boolean = false;
+		protected var _useVariableBorders: Boolean = false;
 
 		public function RectangleElement( $llx: Number, $lly: Number, $urx: Number, $ury: Number )
 		{
@@ -41,102 +41,102 @@ package org.purepdf.elements
 
 		public function cloneNonPositionParameters( rect: RectangleElement ): void
 		{
-			rotation = rect.rotation;
-			backgroundColor = rect.backgroundColor;
-			border = rect.border;
-			useVariableBorders = rect.useVariableBorders;
-			borderWidth = rect.borderWidth;
-			borderWidthBottom = rect.borderWidthBottom;
-			borderWidthLeft = rect.borderWidthLeft;
-			borderWidthRight = rect.borderWidthRight;
-			borderWidthTop = rect.borderWidthTop;
-			borderColor = rect.borderColor;
-			borderColorBottom = rect.borderColorBottom;
-			borderColorLeft = rect.borderColorLeft;
-			borderColorRight = rect.borderColorRight;
-			borderColorTop = rect.borderColorTop;
+			_rotation = rect._rotation;
+			_backgroundColor = rect._backgroundColor;
+			_border = rect._border;
+			_useVariableBorders = rect._useVariableBorders;
+			_borderWidth = rect._borderWidth;
+			_borderWidthBottom = rect._borderWidthBottom;
+			_borderWidthLeft = rect._borderWidthLeft;
+			_borderWidthRight = rect._borderWidthRight;
+			_borderWidthTop = rect._borderWidthTop;
+			_borderColor = rect._borderColor;
+			_borderColorBottom = rect._borderColorBottom;
+			_borderColorLeft = rect._borderColorLeft;
+			_borderColorRight = rect._borderColorRight;
+			_borderColorTop = rect._borderColorTop;
 		}
 
 		public function disableBorderSide( side: int ): void
 		{
-			if ( border == UNDEFINED )
-				border = 0;
-			border &= ~side;
+			if ( _border == UNDEFINED )
+				_border = 0;
+			_border &= ~side;
 		}
 
 		public function enableBorderSide( side: int ): void
 		{
-			if ( border == UNDEFINED )
-				border = 0;
-			border != side;
+			if ( _border == UNDEFINED )
+				_border = 0;
+			_border != side;
 		}
 
-		public function getBackgroundColor(): RGBColor
+		public function get backgroundColor(): RGBColor
 		{
-			return backgroundColor;
+			return _backgroundColor;
 		}
 
-		public function getBorder(): int
+		public function get border(): int
 		{
-			return border;
+			return _border;
 		}
 
-		public function getBorderColor(): RGBColor
+		public function get borderColor(): RGBColor
 		{
-			return borderColor;
+			return _borderColor;
 		}
 
-		public function getBorderColorBottom(): RGBColor
+		public function get borderColorBottom(): RGBColor
 		{
-			if ( borderColorBottom == null )
-				return borderColor;
-			return borderColorBottom;
+			if ( _borderColorBottom == null )
+				return _borderColor;
+			return _borderColorBottom;
 		}
 
-		public function getBorderColorLeft(): RGBColor
+		public function get borderColorLeft(): RGBColor
 		{
-			if ( borderColorLeft == null )
-				return borderColor;
-			return borderColorLeft;
+			if ( _borderColorLeft == null )
+				return _borderColor;
+			return _borderColorLeft;
 		}
 
-		public function getBorderColorRight(): RGBColor
+		public function get borderColorRight(): RGBColor
 		{
-			if ( borderColorRight == null )
-				return borderColor;
-			return borderColorRight;
+			if ( _borderColorRight == null )
+				return _borderColor;
+			return _borderColorRight;
 		}
 
-		public function getBorderColorTop(): RGBColor
+		public function get borderColorTop(): RGBColor
 		{
-			if ( borderColorTop == null )
-				return borderColor;
-			return borderColorTop;
+			if ( _borderColorTop == null )
+				return _borderColor;
+			return _borderColorTop;
 		}
 
-		public function getBorderWidth(): Number
+		public function get borderWidth(): Number
 		{
-			return borderWidth;
+			return _borderWidth;
 		}
 
-		public function getBorderWidthBottom(): Number
+		public function get borderWidthBottom(): Number
 		{
-			return getVariableBorderWidth( borderWidthBottom, BOTTOM );
+			return getVariableBorderWidth( _borderWidthBottom, BOTTOM );
 		}
 
-		public function getBorderWidthLeft(): Number
+		public function get borderWidthLeft(): Number
 		{
-			return getVariableBorderWidth( borderWidthLeft, LEFT );
+			return getVariableBorderWidth( _borderWidthLeft, LEFT );
 		}
 
-		public function getBorderWidthRight(): Number
+		public function get borderWidthRight(): Number
 		{
-			return getVariableBorderWidth( borderWidthRight, RIGHT );
+			return getVariableBorderWidth( _borderWidthRight, RIGHT );
 		}
 
-		public function getBorderWidthTop(): Number
+		public function get borderWidthTop(): Number
 		{
-			return getVariableBorderWidth( borderWidthTop, TOP );
+			return getVariableBorderWidth( _borderWidthTop, TOP );
 		}
 
 		public function getBottom( margin: Number=0 ): Number
@@ -144,19 +144,19 @@ package org.purepdf.elements
 			return lly + margin;
 		}
 
-		override public function getChunks(): Array
+		override public function getChunks(): Vector.<Object>
 		{
-			return new Array();
+			return new Vector.<Object>();
 		}
 
-		public function getGrayFill(): Number
+		public function get grayFill(): Number
 		{
-			if ( backgroundColor is GrayColor )
-				return GrayColor( backgroundColor ).gray;
+			if ( _backgroundColor is GrayColor )
+				return GrayColor( _backgroundColor ).gray;
 			return 0;
 		}
 
-		public function getHeight(): Number
+		public function get height(): Number
 		{
 			return ury - lly;
 		}
@@ -171,9 +171,9 @@ package org.purepdf.elements
 			return urx - margin;
 		}
 
-		public function getRotation(): int
+		public function get rotation(): int
 		{
-			return rotation;
+			return _rotation;
 		}
 
 		public function getTop( margin: Number=0 ): Number
@@ -181,42 +181,42 @@ package org.purepdf.elements
 			return ury - margin;
 		}
 
-		public function getWidth(): Number
+		public function get width(): Number
 		{
 			return urx - llx;
 		}
 
 		public function hasBorder( borderType: int ): Boolean
 		{
-			if ( border == UNDEFINED )
+			if ( _border == UNDEFINED )
 				return false;
-			return ( border & borderType ) == borderType;
+			return ( _border & borderType ) == borderType;
 		}
 
 		public function hasBorders(): Boolean
 		{
-			switch ( border )
+			switch ( _border )
 			{
 				case UNDEFINED:
 				case NO_BORDER:
 					return false;
 				default:
-					return borderWidth > 0 || borderWidthLeft > 0 || borderWidthRight > 0 || borderWidthTop > 0 || borderWidthBottom
+					return _borderWidth > 0 || _borderWidthLeft > 0 || _borderWidthRight > 0 || _borderWidthTop > 0 || _borderWidthBottom
 						> 0;
 			}
 		}
 
-		override public function isNestable(): Boolean
+		override public function get isNestable(): Boolean
 		{
 			return false;
 		}
 
 		public function isUseVariableBorders(): Boolean
 		{
-			return useVariableBorders;
+			return _useVariableBorders;
 		}
 
-		override public function get iscontent(): Boolean
+		override public function get isContent(): Boolean
 		{
 			return true;
 		}
@@ -265,39 +265,39 @@ package org.purepdf.elements
 		public function rotate(): RectangleElement
 		{
 			var rect: RectangleElement = new RectangleElement( lly, llx, ury, urx );
-			rect.rotation = rotation + 90;
-			rect.rotation %= 360;
+			rect._rotation = _rotation + 90;
+			rect._rotation %= 360;
 			return rect;
 		}
 
 		public function setBackgroundColor( value: RGBColor ): void
 		{
-			backgroundColor = value;
+			_backgroundColor = value;
 		}
 
 		public function setBorderColor( value: RGBColor ): void
 		{
-			borderColor = value;
+			_borderColor = value;
 		}
 
 		public function setBorderColorLeft( value: RGBColor ): void
 		{
-			borderColorLeft = value;
+			_borderColorLeft = value;
 		}
 
 		public function setBorderColorRight( value: RGBColor ): void
 		{
-			borderColorRight = value;
+			_borderColorRight = value;
 		}
 
 		public function setBorderColorTop( value: RGBColor ): void
 		{
-			borderColorTop = value;
+			_borderColorTop = value;
 		}
 		
 		public function setBorderColorBottom( value: RGBColor ): void
 		{
-			borderColorBottom = value;
+			_borderColorBottom = value;
 		}
 
 		/**
@@ -311,36 +311,36 @@ package org.purepdf.elements
 		 */
 		public function setBorderSides( borderType: int ): void
 		{
-			border = borderType;
+			_border = borderType;
 		}
 
 		public function setBorderWidth( value: Number ): void
 		{
-			borderWidth = value;
+			_borderWidth = value;
 		}
 
 		public function setBorderWidthBottom( value: Number ): void
 		{
-			borderWidthBottom = value;
-			updateBorderBasedOnWidth( borderWidthBottom, BOTTOM );
+			_borderWidthBottom = value;
+			updateBorderBasedOnWidth( _borderWidthBottom, BOTTOM );
 		}
 
 		public function setBorderWidthLeft( value: Number ): void
 		{
-			borderWidthLeft = value;
-			updateBorderBasedOnWidth( borderWidthLeft, LEFT );
+			_borderWidthLeft = value;
+			updateBorderBasedOnWidth( _borderWidthLeft, LEFT );
 		}
 
 		public function setBorderWidthRight( value: Number ): void
 		{
-			borderWidthRight = value;
-			updateBorderBasedOnWidth( borderWidthRight, RIGHT );
+			_borderWidthRight = value;
+			updateBorderBasedOnWidth( _borderWidthRight, RIGHT );
 		}
 
 		public function setBorderWidthTop( value: Number ): void
 		{
-			borderWidthTop = value;
-			updateBorderBasedOnWidth( borderWidthTop, TOP );
+			_borderWidthTop = value;
+			updateBorderBasedOnWidth( _borderWidthTop, TOP );
 		}
 
 		public function setBottom( $lly: Number ): void
@@ -350,7 +350,7 @@ package org.purepdf.elements
 
 		public function setGrayFill( value: Number ): void
 		{
-			backgroundColor = new GrayColor( value * 255 );
+			_backgroundColor = new GrayColor( value * 255 );
 		}
 
 		public function setLeft( $llx: Number ): void
@@ -371,9 +371,9 @@ package org.purepdf.elements
 		override public function toString(): String
 		{
 			var buf: String = "Rectangle: ";
-			buf += getWidth() + "x";
-			buf += getHeight() + " (rot: ";
-			buf += rotation + " degrees)";
+			buf += width + "x";
+			buf += height + " (rot: ";
+			buf += _rotation + " degrees)";
 			return buf;
 		}
 
@@ -384,14 +384,14 @@ package org.purepdf.elements
 
 		private function getVariableBorderWidth( variableWithValue: Number, side: int ): Number
 		{
-			if ( ( border & side ) != 0 )
-				return variableWithValue != UNDEFINED ? variableWithValue : borderWidth;
+			if ( ( _border & side ) != 0 )
+				return variableWithValue != UNDEFINED ? variableWithValue : _borderWidth;
 			return 0;
 		}
 
 		private function updateBorderBasedOnWidth( width: Number, side: int ): void
 		{
-			useVariableBorders = true;
+			_useVariableBorders = true;
 
 			if ( width > 0 )
 				enableBorderSide( side );

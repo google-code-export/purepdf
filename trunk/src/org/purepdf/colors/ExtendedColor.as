@@ -9,23 +9,23 @@ package org.purepdf.colors
 		public static const TYPE_RGB: int = 0;
 		public static const TYPE_SEPARATION: int = 3;
 		public static const TYPE_SHADING: int = 5;
-		protected var type: int;
+		protected var _type: int;
 
 		public function ExtendedColor( $type: int )
 		{
 			super( 0, 0, 0 );
-			type = $type;
+			_type = $type;
 		}
 
-		public function getType(): int
+		public function get type(): int
 		{
-			return type;
+			return _type;
 		}
 
 		public static function getType( color: RGBColor ): int
 		{
 			if ( color is ExtendedColor )
-				return ExtendedColor( color ).getType();
+				return ExtendedColor( color ).type;
 			return TYPE_RGB;
 		}
 

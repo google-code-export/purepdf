@@ -54,18 +54,23 @@ package org.purepdf.elements
 		public function Element()
 		{
 		}
-
-		public function getChunks(): Array
+		
+		public function process( listener: IElementListener ): Boolean
 		{
 			throw new NonImplementatioError();
 		}
 
-		public function isNestable(): Boolean
+		public function getChunks(): Vector.<Object>
 		{
 			throw new NonImplementatioError();
 		}
 
-		public function get iscontent(): Boolean
+		public function get isNestable(): Boolean
+		{
+			throw new NonImplementatioError();
+		}
+
+		public function get isContent(): Boolean
 		{
 			throw new NonImplementatioError();
 		}

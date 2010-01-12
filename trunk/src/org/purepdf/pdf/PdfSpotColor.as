@@ -38,7 +38,7 @@ package org.purepdf.pdf
 
 			if ( altcs is ExtendedColor )
 			{
-				var type: int = ExtendedColor( altcs ).getType();
+				var type: int = ExtendedColor( altcs ).type;
 
 				switch ( type )
 				{

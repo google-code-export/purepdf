@@ -221,8 +221,8 @@ package org.purepdf.elements.images
 				}
 			}
 			
-			plainWidth = getWidth();
-			plainHeight = getHeight();
+			plainWidth = width;
+			plainHeight = height;
 			
 			if( icc != null )
 			{

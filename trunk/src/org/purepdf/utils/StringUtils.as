@@ -20,6 +20,14 @@ package org.purepdf.utils
 			return src.indexOf( value ) == 0;
 		}
 		
+		public static function endsWith( src: String, value: String ): Boolean
+		{
+			var index: int = src.lastIndexOf( value );
+			if( index > -1 )
+				return (index + value.length) == src.length;
+			return false;
+		}
+		
 		public static function left_trim( value: String ): String
 		{
 			if( EMPTY_CHAR.indexOf( value.charCodeAt(0) ) > -1 )
