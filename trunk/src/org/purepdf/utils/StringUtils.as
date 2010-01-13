@@ -4,6 +4,16 @@ package org.purepdf.utils
 	{
 		private static const EMPTY_CHAR: Vector.<int> = Vector.<int>([ 9, 32, 10, 13 ]);
 		
+		public static function toCharArray( s: String ): Vector.<int>
+		{
+			var r: Vector.<int> = new Vector.<int>( s.length );
+			for( var k: int = 0; k < s.length; ++k )
+			{
+				r[k] = s.charCodeAt(k);
+			}
+			return r;
+		}
+		
 		public static function padLeft( p_string: String, p_padChar: String, p_length: uint ): String
 		{
 			var s: String = p_string;
