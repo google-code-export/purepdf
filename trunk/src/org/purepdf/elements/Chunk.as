@@ -77,6 +77,11 @@ package org.purepdf.elements
 		{
 			return _font;
 		}
+		
+		override public function type() : int
+		{
+			return CHUNK;
+		}
 			
 		
 		public function set attributes( value: HashMap ): void

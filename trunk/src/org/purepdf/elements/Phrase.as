@@ -3,6 +3,7 @@ package org.purepdf.elements
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.Font;
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class Phrase extends TextElementaryArray
@@ -94,7 +95,7 @@ package org.purepdf.elements
 				}
 				return true;
 			}
-			catch( de: Error )
+			catch( de: DocumentError )
 			{
 				return false;
 			}
@@ -114,7 +115,7 @@ package org.purepdf.elements
 		public function get leading(): Number
 		{
 			if ( isNaN( _leading ) && _font != null )
-				return font.getCalculatedLeading( 1.5 );
+				return _font.getCalculatedLeading( 1.5 );
 
 			return _leading;
 		}
