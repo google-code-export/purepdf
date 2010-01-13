@@ -48,12 +48,8 @@ package org.purepdf.io
 		
 		public function read(): int
 		{
-			try
-			{
-				return data.readUnsignedByte();
-			} catch( e: Error )
-			{
-			}
+			if( data.bytesAvailable )
+				return data[ data.position++ ] & 0xFF;
 			return -1;
 		}
 		
