@@ -2,9 +2,9 @@ package org.purepdf.errors
 {
 	public class NonImplementatioError extends Error
 	{
-		public function NonImplementatioError()
+		public function NonImplementatioError( msg:* = "NonImplementationError" )
 		{
-			super("NonImplementationError");
+			super( msg );
 		}
 	}
 }
