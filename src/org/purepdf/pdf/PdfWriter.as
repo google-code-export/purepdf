@@ -24,6 +24,8 @@ package org.purepdf.pdf
 
 	public class PdfWriter extends ObjectHash
 	{
+		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
+		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
 
@@ -75,6 +77,7 @@ package org.purepdf.pdf
 		protected var root: PdfPages;
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
+		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
 		
 		use namespace pdf_core;
 
@@ -94,6 +97,11 @@ package org.purepdf.pdf
 			directContentUnder = new PdfContentByte( this );
 		}
 		
+		public function get spaceCharRatio():Number
+		{
+			return _spaceCharRatio;
+		}
+
 		internal function getOCProperties(): PdfOCProperties 
 		{
 			fillOCProperties( true );

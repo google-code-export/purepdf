@@ -5,20 +5,25 @@ package org.purepdf.pdf
 	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.IObject;
+	import it.sephiroth.utils.collections.iterators.Iterator;
 	import it.sephiroth.utils.hashLib;
 	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
+	import org.purepdf.Font;
+	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElementListener;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;
+	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
+	import org.purepdf.utils.iterators.VectorIterator;
 
 	[Event(name="closeDocument",type="org.purepdf.events.PageEvent")]
 	[Event(name="endPage",		type="org.purepdf.events.PageEvent")]
@@ -74,6 +79,8 @@ package org.purepdf.pdf
 		protected var _duration: int = -1;
 		protected var _transition: PdfTransition = null;
 		protected var leadingCount: int = 0;
+		protected var isSectionTitle: Boolean = false;
+		protected var anchorAction: PdfAction = null;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -421,7 +428,32 @@ package org.purepdf.pdf
 
 		protected function carriageReturn(): void
 		{
-			logger.warn( 'carriageReturn. to be implemented' );
+			if( lines == null )
+				lines = new Vector.<PdfLine>();
+			
+			if( line != null )
+			{
+				if( currentHeight + line.height + leading < indentTop - indentBottom )
+				{
+					if( line.size() > 0 )
+					{
+						currentHeight += line.height;
+						lines.push( line );
+						pageEmpty = false;
+					}
+				} else 
+				{
+					newPage();
+				}
+			}
+			
+			if( imageEnd > -1 && currentHeight > imageEnd )
+			{
+				imageEnd = -1;
+				indentation.imageIndentRight = 0;
+				indentation.imageIndentLeft = 0;
+			}
+			line = new PdfLine( indentLeft, indentRight, alignment, leading );
 		}
 
 		protected function flushLines(): Number
@@ -436,9 +468,49 @@ package org.purepdf.pdf
 			}
 
 			if ( lines.length == 0 )
-			{
 				return 0;
+			
+			
+			var currentValues: Vector.<Object> = new Vector.<Object>(2);
+			var currentFont: PdfFont = null;
+			var displacement: Number = 0;
+			var l: PdfLine;
+			var lastBaseFactor: Number = 0;
+			currentValues[1] = lastBaseFactor;
+			
+			for( var i: Iterator = new VectorIterator( Vector.<Object>(lines) ); i.hasNext(); )
+			{
+				l = PdfLine( i.next() );
+				
+				var moveTextX: Number = l.indentLeft - indentLeft + indentation.indentLeft + indentation.listIndentLeft + indentation.sectionIndentLeft;
+				text.moveText( moveTextX, -l.height );
+				
+				if( l.listSymbol != null)
+				{
+					throw new NonImplementatioError();
+					//ColumnText.showTextAligned(graphics, Element.ALIGN_LEFT, new Phrase(l.listSymbol()), text.getXTLM() - l.listIndent(), text.getYTLM(), 0);
+				}
+				
+				currentValues[0] = currentFont;
+				writeLineToContent( l, text, graphics, currentValues, writer.spaceCharRatio );
+				
+				currentFont = PdfFont( currentValues[0] );
+				displacement += l.height;
+				text.moveText( -moveTextX, 0 );
+				
 			}
+			
+			lines = new Vector.<PdfLine>();
+			return displacement;
+		}
+		
+		/**
+		 * Writes a text line to the document. It takes care of all the attributes.
+		 * @throws DocumentError
+		 * @throws Error
+		 */
+		internal function writeLineToContent( line: PdfLine, text: PdfContentByte, graphics: PdfContentByte, currentValues: Vector.<Object>, ratio: Number ): void
+		{
 			throw new NonImplementatioError();
 		}
 
@@ -594,6 +666,38 @@ package org.purepdf.pdf
 					addImage( ImageElement( element ) );
 					break;
 				
+				case Element.PARAGRAPH:
+					leadingCount++;
+					var paragraph: Paragraph = Paragraph(element);
+					addSpacing( paragraph.spacingBefore, leading, paragraph.font );
+					alignment = paragraph.alignment;
+					leading = paragraph.totalLeading;
+					carriageReturn();
+					
+					if( currentHeight + line.height + leading > indentTop - indentBottom )
+						newPage();
+					
+					indentation.indentLeft += paragraph.indentationLeft;
+					indentation.indentRight += paragraph.indentationRight;
+					carriageReturn();
+
+					if( paragraph.keeptogether )
+					{
+						throw new NonImplementatioError();
+					} else {
+						line.extraIndent = paragraph.firstLineIndent;
+						element.process( this );
+						carriageReturn();
+						addSpacing( paragraph.spacingAfter, paragraph.totalLeading, paragraph.font );
+					}
+					
+					alignment = Element.ALIGN_LEFT;
+					indentation.indentLeft -= paragraph.indentationLeft;
+					indentation.indentRight -= paragraph.indentationRight;
+					carriageReturn();
+					leadingCount--;
+					break;
+				
 				case Element.PHRASE:
 					leadingCount++;
 					leading = Phrase( element ).leading;
@@ -602,28 +706,22 @@ package org.purepdf.pdf
 					break;
 				
 				case Element.CHUNK:
-					throw new NonImplementatioError();
-					/*
 					if( line == null )
 						carriageReturn();
 					
-					// we cast the element to a chunk
-					var chunk: PdfChunk = new PdfChunk( Chunk(element), anchorAction );
-
-					// we try to add the chunk to the line, until we succeed
+					var chunk: PdfChunk = PdfChunk.createFromChunk( Chunk(element), anchorAction );
 					var overflow: PdfChunk;
-					while( (overflow = line.add( chunk ) ) != null )
+					
+					while( ( overflow = line.add( chunk ) ) != null )
 					{
 						carriageReturn();
 						chunk = overflow;
 						chunk.trimFirstSpace();
 					}
-					
 					pageEmpty = false;
 					
-					if( chunk.isAttribute(Chunk.NEWPAGE) )
+					if( chunk.isAttribute( Chunk.NEWPAGE ) )
 						newPage();
-					*/
 					break;
 				
 				default:
@@ -635,6 +733,33 @@ package org.purepdf.pdf
 			return true;
 		}
 
+		
+		/**
+		 * Adds extra space.
+		 * This method should probably be rewritten.
+		 */
+		protected function addSpacing( extraspace: Number, oldleading: Number, f: Font ): void
+		{
+			if( extraspace == 0 ) return;
+			if( pageEmpty ) return;
+			if( currentHeight + line.height + leading > indentTop - indentBottom ) return;
+			leading = extraspace;
+			carriageReturn();
+			if( f.isUnderline || f.isStrikethru )
+			{
+				f = f.clone() as Font;
+				var style: int = f.style;
+				style &= ~Font.UNDERLINE;
+				style &= ~Font.STRIKETHRU;
+				f.style = style;
+			}
+			var space: Chunk = new Chunk( " ", f );
+			space.process( this );
+			carriageReturn();
+			leading = oldleading;
+		}
+
+		
 		internal function addCreationDate(): Boolean
 		{
 			return add( new Meta( Element.CREATIONDATE, PdfInfo.getCreationDate() ) );

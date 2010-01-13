@@ -506,20 +506,15 @@ package org.purepdf.pdf
 		public static function intToByte( value: int ): int
 		{
 			if( value >= BYTE_MIN_VALUE && value <= BYTE_MAX_VALUE )
-			{
 				return value;
-			}
 			
 			var r: int = value%128;
 			var neg: Boolean = value < 0;
 			
 			if( neg )
-			{
 				return r;
-			} else {
+			else
 				return r - 128;
-			}
-			
 		}
 
 	}
