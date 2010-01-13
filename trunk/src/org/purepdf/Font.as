@@ -1,7 +1,7 @@
 package org.purepdf
 {
 	import org.purepdf.colors.RGBColor;
-	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.html.Markup;
 	import org.purepdf.pdf.fonts.BaseFont;
 
@@ -39,6 +39,11 @@ package org.purepdf
 
 			if ( $baseFont != null )
 				_family = UNDEFINED;
+		}
+		
+		public function clone(): Object
+		{
+			return new Font( _family, _size, _style, _color, _baseFont );
 		}
 
 
@@ -265,7 +270,7 @@ package org.purepdf
 					break;
 
 				case TIMES_ROMAN:
-					switch ( style & BOLDITALIC )
+					switch ( s & BOLDITALIC )
 				{
 					case BOLD:
 						fontName = BaseFont.TIMES_BOLD;
@@ -297,7 +302,7 @@ package org.purepdf
 
 				default:
 				case Font.HELVETICA:
-					switch ( style & BOLDITALIC )
+					switch ( s & BOLDITALIC )
 				{
 					case BOLD:
 						fontName = BaseFont.HELVETICA_BOLD;
@@ -316,8 +321,13 @@ package org.purepdf
 					break;
 			}
 
-			throw new NonImplementatioError();
-			//cfont = BaseFont.createFont( fontName, encoding, false );
+			try
+			{
+				cfont = BaseFont.createFont( fontName, encoding, false );
+			} catch( ee: Error )
+			{
+				throw new ConversionError(ee.message);
+			}
 			return cfont;
 		}
 
@@ -435,9 +445,7 @@ package org.purepdf
 
 		/**
 		 * Translates a String style value into the
-		 * index value is used for this style in this class.
-		 *
-		 * @param style
+		 * index value is used for this style
 		 */
 		public static function getStyleValue( style: String ): int
 		{
