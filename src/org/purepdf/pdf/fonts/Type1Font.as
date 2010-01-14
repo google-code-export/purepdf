@@ -1,7 +1,9 @@
 package org.purepdf.pdf.fonts
 {
 	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.HashMap;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -97,6 +99,10 @@ package org.purepdf.pdf.fonts
 			createEncoding();
 		}
 
+		override public function hasKernPairs(): Boolean
+		{
+			return !KernPairs.isEmpty();
+		}
 
 		protected function createEncoding(): void
 		{
@@ -142,6 +148,28 @@ package org.purepdf.pdf.fonts
 					charBBoxes[ k ] = getRawCharBBox( c, name );
 				}
 			}
+		}
+		
+		override public function getKerning( char1: int, char2: int ): int
+		{
+			var first: String = GlyphList.unicode2name( char1 );
+			if (first == null)
+				return 0;
+			
+			var second: String = GlyphList.unicode2name( char2 );
+			if (second == null)
+				return 0;
+			
+			var obj: Vector.<Object> = Vector.<Object>(KernPairs.getValue(first));
+			if (obj == null)
+				return 0;
+			
+			for( var k: int = 0; k < obj.length; k += 2)
+			{
+				if( second == obj[k] )
+					return obj[k + 1] as int;
+			}
+			return 0;
 		}
 
 		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>

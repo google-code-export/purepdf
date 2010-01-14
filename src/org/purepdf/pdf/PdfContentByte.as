@@ -24,6 +24,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
 
@@ -122,8 +123,8 @@ package org.purepdf.pdf
 		 *
 		 * @param image the <CODE>ImageElement</CODE> object
 		 * @param width
-		 * @param b element of the transformation matrix
-		 * @param c element of the transformation matrix
+		 * @param b element of the matrix
+		 * @param c element of the matrix
 		 * @param height
 		 * @param x
 		 * @param y
@@ -389,13 +390,13 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Concatenate a matrix to the current transformation matrix.
-		 * @param a an element of the transformation matrix
-		 * @param b an element of the transformation matrix
-		 * @param c an element of the transformation matrix
-		 * @param d an element of the transformation matrix
-		 * @param e an element of the transformation matrix
-		 * @param f an element of the transformation matrix
+		 * Concatenate a matrix to the current matrix.
+		 * @param a an element of the matrix
+		 * @param b an element of the matrix
+		 * @param c an element of the matrix
+		 * @param d an element of the matrix
+		 * @param e an element of the matrix
+		 * @param f an element of the matrix
 		 **/
 		public function concatCTM( a: Number, b: Number, c: Number, d: Number, e: Number, f: Number ): void
 		{
@@ -1643,6 +1644,234 @@ package org.purepdf.pdf
 		{
 			showText2( text );
 			content.append_string( "Tj" ).append_separator();
+		}
+		
+		/**
+		 * Shows text aligned (left, center or right) with rotation.
+		 * @param alignment the alignment can be ALIGN_CENTER, ALIGN_RIGHT or ALIGN_LEFT
+		 * @param text the text to show
+		 * @param x the x position
+		 * @param y the y  position
+		 * @param rotation the rotation in degrees
+		 */
+		public function showTextAligned( alignment: int, text: String, x: Number, y: Number, rotation: Number, kerned: Boolean = false ): void
+		{
+			if( state.fontDetails == null )
+				throw new NullPointerError("set font and size before write text");
+			
+			if( rotation == 0 )
+			{
+				switch( alignment )
+				{
+					case ALIGN_CENTER:
+						x -= getEffectiveStringWidth( text, kerned ) / 2;
+						break;
+					
+					case ALIGN_RIGHT:
+						x -= getEffectiveStringWidth( text, kerned );
+						break;
+				}
+				setTextMatrix( 1, 0, 0, 1, x, y );
+				if( kerned )
+					showTextKerned( text );
+				else
+					showText( text );
+			} else 
+			{
+				var alpha: Number = rotation * Math.PI / 180.0;
+				var cos: Number = Math.cos(alpha);
+				var sin: Number = Math.sin(alpha);
+				var len: Number;
+				
+				switch( alignment )
+				{
+					case ALIGN_CENTER:
+						len = getEffectiveStringWidth(text, kerned) / 2;
+						x -=  len * cos;
+						y -=  len * sin;
+						break;
+					
+					case ALIGN_RIGHT:
+						len = getEffectiveStringWidth(text, kerned);
+						x -=  len * cos;
+						y -=  len * sin;
+						break;
+				}
+				
+				setTextMatrix(cos, sin, -sin, cos, x, y);
+				if( kerned )
+					showTextKerned( text );
+				else
+					showText( text );
+				setTextMatrix(1, 0, 0, 1, 0, 0);
+			}
+		}
+		
+		/**
+		 * Shows the text kerned
+		 */
+		public function showTextKerned( text: String ): void
+		{
+			if( state.fontDetails == null )
+				throw new NullPointerError("font and size must be set before write text");
+			var bf: BaseFont = state.fontDetails.baseFont;
+			if( bf.hasKernPairs() )
+				showTextArray( getKernArray(text, bf) );
+			else
+				showText( text );
+		}
+		
+		/**
+		 * Show an array of kerned text
+		 */
+		public function showTextArray( text: PdfTextArray ): void
+		{
+			if( state.fontDetails == null )
+				throw new NullPointerError("font and size must be set before write text");
+			content.append_string("[");
+			var arrayList: Vector.<Object> = text.arrayList;
+			var lastWasNumber: Boolean = false;
+			for( var k: int = 0; k < arrayList.length; ++k )
+			{
+				var obj: Object = arrayList[k];
+				if( obj is String )
+				{
+					showText2( String( obj ) );
+					lastWasNumber = false;
+				} else 
+				{
+					if( lastWasNumber )
+						content.append_char(' ');
+					else
+						lastWasNumber = true;
+					content.append_number( Number( obj ) );
+				}
+			}
+			content.append_string( "]TJ" ).append_separator();
+		}		
+		
+		/**
+		 * Constructs a kern array for a text in a certain font
+		 * @param text the text
+		 * @param font the font
+		 * @return a PdfTextArray
+		 */
+		internal static function getKernArray( text: String, font: BaseFont ): PdfTextArray
+		{
+			var pa: PdfTextArray = new PdfTextArray();
+			var acc: String = "";
+			var len: int = text.length - 1;
+			var c: Vector.<int> = StringUtils.toCharArray( text );
+			if( len >= 0 )
+				StringUtils.appendChars( acc, c, 0, 1 );
+			
+			for( var k: int = 0; k < len; ++k )
+			{
+				var c2: int = c[k + 1];
+				var kern: int = font.getKerning( c[k], c2 );
+				if( kern == 0 )
+					acc += String.fromCharCode( c2 & 0xff );
+				else 
+				{
+					pa.addString( acc );
+					acc = "";
+					StringUtils.appendChars( acc, c, k+1, 1 );
+					pa.addNumber( -kern );
+				}
+			}
+			pa.addString( acc );
+			return pa;
+		}
+		
+		/**
+		 * Computes the width of the given string taking in account
+		 * the current values of "Character spacing", "Word Spacing"
+		 * and "Horizontal Scaling"
+		 */
+		public function getEffectiveStringWidth( text: String, kerned: Boolean = false ): Number
+		{
+			var bf: BaseFont = state.fontDetails.baseFont;
+			var w: Number;
+			
+			if( kerned )
+				w = bf.getWidthPointKerned( text, state.size );
+			else
+				w = bf.getWidthPoint( text, state.size );
+			
+			if( state.charSpace != 0.0 && text.length > 1 )
+				w += state.charSpace * (text.length -1);
+			
+			var ft: int = bf.fontType;
+			if( state.wordSpace != 0 && (ft == BaseFont.FONT_TYPE_T1 || ft == BaseFont.FONT_TYPE_TT || ft == BaseFont.FONT_TYPE_T3)) 
+			{
+				for ( var i: int = 0; i < (text.length -1); i++)
+				{
+					if( text.charCodeAt(i) == 32 )
+						w += state.wordSpace;
+				}
+			}
+			
+			if( state.scale != 100.0 )
+				w = (w * state.scale) / 100.0;
+			
+			return w;
+		}
+
+		/**
+		 * Creates a new template. This template can be included in this
+		 * PdfContentByte or in another template. Templates are written only when document
+		 * is closed.
+		 */
+		public function createTemplate( width: Number, height: Number, forcedName: PdfName  = null ): PdfTemplate
+		{
+			checkWriter();
+			var template: PdfTemplate = new PdfTemplate( writer );
+			template.width = width;
+			template.height = height;
+			writer.addDirectTemplateSimple( template, forcedName );
+			return template;
+		}
+		
+		/**
+		 * Adds a template to this content
+		 *
+		 * @param template the template
+		 * @param a element of the matrix
+		 * @param b element matrix
+		 * @param c element matrix
+		 * @param d element matrix
+		 * @param tx element matrix
+		 * @param ty element matrix
+		 * 
+		 * @see flash.geom.Matrix
+		 */
+		public function addTemplate( template: PdfTemplate, a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, tx: Number = 0, ty: Number = 0 ): void
+		{
+			checkWriter();
+			checkNoPattern( template );
+			var name: PdfName = writer.addDirectTemplateSimple( template, null );
+			var prs: PageResources = pageResources;
+			name = prs.addXObject( name, template.indirectReference );
+			content.append_string("q ");
+			content.append_number(a).append_char(' ');
+			content.append_number(b).append_char(' ');
+			content.append_number(c).append_char(' ');
+			content.append_number(d).append_char(' ');
+			content.append_number(tx).append_char(' ');
+			content.append_number(ty).append_string(" cm ");
+			content.append_bytes( name.getBytes() ).append_string(" Do Q").append_separator();
+		}
+		
+		/** 
+		 * Check if the template is a pattern. In that case
+		 * throws an Error
+		 * 
+		 * @throws RuntimeError
+		 */
+		internal function checkNoPattern( t: PdfTemplate ): void
+		{
+			if( t.type == PdfTemplate.TYPE_PATTERN )
+				throw new RuntimeError("template was expected");
 		}
 		
 		/**
