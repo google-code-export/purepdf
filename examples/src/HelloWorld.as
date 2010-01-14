@@ -8,7 +8,7 @@ package
 	{
 		public function HelloWorld(d_list:Array=null)
 		{
-			super(["This example shows how to add a simple text to the document"]);
+			super(["This example shows how to add a simple text to the document","using a Paragraph element"]);
 		}
 		
 		override protected function execute(event:Event=null) : void

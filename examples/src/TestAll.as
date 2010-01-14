@@ -25,6 +25,9 @@ package
 			class_list.push( GraphicState );
 			class_list.push( HelloWorld );
 			class_list.push( HelloWorld2 );
+			class_list.push( HelloWorld3 );
+			class_list.push( HelloWorld4 );
+			class_list.push( HelloWorld5 );
 			class_list.push( ImageTypes );
 			class_list.push( Layers );
 			class_list.push( LineStyles );
