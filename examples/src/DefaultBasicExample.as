@@ -75,7 +75,7 @@ package
 			if ( stage )
 			{
 				result_time.x = ( stage.stageWidth - result_time.width ) / 2;
-				result_time.y = create_button.y + create_button.height + result_time.height + 5;
+				result_time.y = create_button.y - result_time.height - 5;
 				addChild( result_time );
 			}
 		}

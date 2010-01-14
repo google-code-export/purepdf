@@ -11,6 +11,7 @@ package
 		protected var filelist: Vector.<Array> = new Vector.<Array>();
 		protected var total_number: int;
 		protected var current_test_number: int = 0;
+		protected var skip_button: Sprite;
 		
 		protected var current: DefaultBasicExample;
 
@@ -22,17 +23,17 @@ package
 			class_list.push( ClippingPath );
 			class_list.push( DrawingPaths );
 			class_list.push( GraphicState );
+			class_list.push( HelloWorld );
+			class_list.push( HelloWorld2 );
 			class_list.push( ImageTypes );
+			class_list.push( Layers );
 			class_list.push( LineStyles );
 			class_list.push( Patterns );
 			class_list.push( SeparationColors );
 			class_list.push( ShadingPatterns );
 			class_list.push( SimpleAnnotation );
-			class_list.push( ViewerExample );
 			class_list.push( SlideShow );
-			class_list.push( Layers );
-			class_list.push( HelloWorld );
-			class_list.push( HelloWorld2 );
+			class_list.push( ViewerExample );
 			
 			total_number = class_list.length;
 		}
@@ -41,7 +42,6 @@ package
 		{
 			description_container = new Sprite();
 			addChild( description_container );
-			
 			
 			create_class();
 		}
@@ -55,8 +55,18 @@ package
 			
 			var cls: Class = class_list.shift();
 			current = new cls();
+			
 			create_default_button( "(" + current_test_number + " of " + total_number + ") " + getQualifiedClassName( current ) );
+			create_skip_button();
+			
 			createDescription();
+		}
+		
+		protected function create_skip_button(): void
+		{
+			skip_button = createButton( 0x009900, "skip »", skipTest );
+			center( skip_button, create_button );
+			addChild( skip_button );
 		}
 		
 		override internal function createDescription() : void
@@ -65,6 +75,11 @@ package
 			{
 				description( current.description_list );
 			}
+		}
+		
+		protected function skipTest( event: Event ): void
+		{
+			execute_next();
 		}
 
 		override protected function execute( event: Event=null ): void
@@ -97,6 +112,12 @@ package
 			{
 				removeChild( create_button );
 				create_button = null;
+			}
+			
+			if( skip_button )
+			{
+				removeChild( skip_button );
+				skip_button = null;
 			}
 
 			if ( result_time )

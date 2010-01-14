@@ -29,7 +29,7 @@ package
 			
 			var cb: PdfContentByte = document.getDirectContent();
 			var gs: PdfGState;
-			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.pageSize.getHeight() ) );
+			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.pageSize.height ) );
 			
 			cb.saveState();
 			cb.setFillColor( new RGBColor( 255, 0, 0 ) );
