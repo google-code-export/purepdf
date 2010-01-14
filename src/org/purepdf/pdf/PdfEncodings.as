@@ -123,7 +123,8 @@ package org.purepdf.pdf
 				
 				for( k = 0; k < len; ++k )
 				{
-					code = ByteBuffer.intToByte( text.charCodeAt( k ) );
+					//code = ByteBuffer.intToByte( text.charCodeAt( k ) );
+					code = text.charCodeAt(k);
 					if( code < 128 || ( code > 160 && code <= 255 ) )
 						c = code;
 					else
