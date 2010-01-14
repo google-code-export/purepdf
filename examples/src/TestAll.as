@@ -31,6 +31,8 @@ package
 			class_list.push( ViewerExample );
 			class_list.push( SlideShow );
 			class_list.push( Layers );
+			class_list.push( HelloWorld );
+			class_list.push( HelloWorld2 );
 			
 			total_number = class_list.length;
 		}
