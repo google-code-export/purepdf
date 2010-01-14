@@ -20,67 +20,68 @@ package org.purepdf.elements
 		{
 			super();
 		}
-		
-		override public function type() : int
-		{
-			return PARAGRAPH;
-		}
-		
-		public function get totalLeading(): Number
-		{
-			var m: Number = _font == null ? Font.DEFAULTSIZE * _multipliedLeading : font.getCalculatedLeading( _multipliedLeading );
-			if( m > 0 && !hasLeading() )
-				return m;
-			return leading + m;
-		}
-		
-		public function get extraParagraphSpace():Number
-		{
-			return _extraParagraphSpace;
-		}
 
-		public function get keeptogether():Boolean
-		{
-			return _keeptogether;
-		}
-
-		public function get alignment():int
+		public function get alignment(): int
 		{
 			return _alignment;
 		}
 
-		public function get multipliedLeading():Number
+		public function get extraParagraphSpace(): Number
 		{
-			return _multipliedLeading;
+			return _extraParagraphSpace;
 		}
 
-		public function get indentationRight():Number
+		public function get firstLineIndent(): Number
 		{
-			return _indentationRight;
+			return _firstLineIndent;
 		}
 
-		public function get indentationLeft():Number
+		public function get indentationLeft(): Number
 		{
 			return _indentationLeft;
 		}
 
-		public function get firstLineIndent():Number
+		public function get indentationRight(): Number
 		{
-			return _firstLineIndent;
+			return _indentationRight;
+		}
+
+		public function get keeptogether(): Boolean
+		{
+			return _keeptogether;
+		}
+
+		public function get multipliedLeading(): Number
+		{
+			return _multipliedLeading;
+		}
+
+		public function get spacingAfter(): Number
+		{
+			return _spacingAfter;
 		}
 
 		public function get spacingBefore(): Number
 		{
 			return _spacingBefore;
 		}
-		
-		public function get spacingAfter(): Number
-		{
-			return _spacingAfter;
-		}
-			
 
-		public static function create( string: String, font: Font = null ): Paragraph
+		public function get totalLeading(): Number
+		{
+			var m: Number = _font == null ? Font.DEFAULTSIZE * _multipliedLeading : font.getCalculatedLeading( _multipliedLeading );
+
+			if ( m > 0 && !hasLeading() )
+				return m;
+			return leading + m;
+		}
+
+		override public function type(): int
+		{
+			return PARAGRAPH;
+		}
+
+
+		public static function create( string: String, font: Font=null ): Paragraph
 		{
 			var p: Paragraph = new Paragraph();
 			p.init( Number.NaN, string, font != null ? font : new Font() );

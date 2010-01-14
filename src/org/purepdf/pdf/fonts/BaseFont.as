@@ -2,7 +2,6 @@ package org.purepdf.pdf.fonts
 {
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -79,8 +78,11 @@ package org.purepdf.pdf.fonts
 		public static const notdef: String = ".notdef";
 		protected static var _builtinFonts14: HashMap;
 		protected static var fontCache: HashMap = new HashMap();
+
+		private static var logger: ILogger = LoggerFactory.getClassLogger( BaseFont );
 		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
 		protected var _encoding: String;
+		protected var _fontType: int;
 		protected var charBBoxes: Vector.<Vector.<int>> = new Vector.<Vector.<int>>( 256 );
 		protected var differences: Vector.<String> = new Vector.<String>( 256 );
 		protected var directTextToByte: Boolean = false;
@@ -94,57 +96,17 @@ package org.purepdf.pdf.fonts
 		protected var subsetRanges: Array;
 		protected var unicodeDifferences: Vector.<int> = new Vector.<int>( 256 );
 		protected var widths: Vector.<int> = new Vector.<int>( 256 );
-		protected var _fontType: int;
-		
-		private static var logger: ILogger = LoggerFactory.getClassLogger( BaseFont );
 
 		public function BaseFont()
 		{
 			super();
 		}
 
-		/**
-		 * @throws DocumentError
-		 * @throws IOError
-		 */
-		internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
-		{
-			throw new NonImplementatioError("Font instance does not implement the writeFont method");
-		}
-		
-		/**
-		 * @throws IOError
-		 * @throws DocumentError;
-		 */
-		internal function getFullFontStream(): PdfStream
-		{
-			throw new NonImplementatioError("getFullFontStream not implemented in font class");
-		}
-		
-		public function get fontType(): int
-		{
-			return _fontType;
-		}
-		
 		public function addSubsetTange( range: Vector.<int> ): void
 		{
 			if ( subsetRanges == null )
 				subsetRanges = new Array();
 			subsetRanges.push( range );
-		}
-		
-		/**
-		 * Gets the width from the font according to the Unicode char c
-		 * or the name
-		 */
-		protected function getRawWidth( c: int, name: String ): int
-		{
-			throw new NonImplementatioError();
-		}
-		
-		protected function getRawCharBBox( c: int, name: String ): Vector.<int>
-		{
-			throw new NonImplementatioError();
 		}
 
 		public function get compressionLevel(): int
@@ -164,6 +126,11 @@ package org.purepdf.pdf.fonts
 			return _encoding;
 		}
 
+		public function get fontType(): int
+		{
+			return _fontType;
+		}
+
 		public function getFamilyFontName(): Vector.<Vector.<String>>
 		{
 			throw new NonImplementatioError();
@@ -180,14 +147,75 @@ package org.purepdf.pdf.fonts
 		 */
 		public function getWidth( code: Object ): int
 		{
-			if( code is String )
-				return _getWidthS( String(code) );
-			else if( code is Number )
-				return _getWidthI( int(code) );
-			
-			throw new ArgumentError("Alloed parameter are only int and String");
+			if ( code is String )
+				return _getWidthS( String( code ) );
+			else if ( code is Number )
+				return _getWidthI( int( code ) );
+
+			throw new ArgumentError( "Alloed parameter are only int and String" );
 		}
-		
+
+		/**
+		 * Gets the width of a char in points.
+		 *
+		 * @param code. Allowed values are int, String
+		 */
+		public function getWidthPoint( code: Object, fontSize: Number ): Number
+		{
+			return getWidth( code ) * 0.001 * fontSize;
+		}
+
+		protected function getRawCharBBox( c: int, name: String ): Vector.<int>
+		{
+			throw new NonImplementatioError();
+		}
+
+		/**
+		 * Gets the width from the font according to the Unicode char c
+		 * or the name
+		 */
+		protected function getRawWidth( c: int, name: String ): int
+		{
+			throw new NonImplementatioError();
+		}
+
+		/**
+		 * Converts a char to a Bytes according to the font's encoding.
+		 */
+		internal function convertToBytes( char1: String ): Bytes
+		{
+			var code: int = char1.charCodeAt( 0 );
+
+			if ( directTextToByte )
+				return PdfEncodings.convertToBytes( char1, null );
+
+			if ( specialMap != null )
+				if ( specialMap[ code ] )
+					return new Bytes( [ specialMap[ code ] ] );
+				else
+					return new Bytes();
+
+			return PdfEncodings.convertToBytes( char1, _encoding );
+		}
+
+		/**
+		 * @throws IOError
+		 * @throws DocumentError;
+		 */
+		internal function getFullFontStream(): PdfStream
+		{
+			throw new NonImplementatioError( "getFullFontStream not implemented in font class" );
+		}
+
+		/**
+		 * @throws DocumentError
+		 * @throws IOError
+		 */
+		internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
+		{
+			throw new NonImplementatioError( "Font instance does not implement the writeFont method" );
+		}
+
 		private function _getWidthI( code: int ): int
 		{
 			if ( fastWinansi )
@@ -212,77 +240,37 @@ package org.purepdf.pdf.fonts
 		{
 			var total: int = 0;
 			var k: int;
-			
-			if( fastWinansi )
+
+			if ( fastWinansi )
 			{
 				var len: int = text.length;
-				for( k = 0; k < len; ++k )
+
+				for ( k = 0; k < len; ++k )
 				{
 					var char1: int = text.charCodeAt( k );
-					if( char1 < 128 || ( char1 >= 160 && char1 <= 255 ) )
-						total += widths[char1];
+
+					if ( char1 < 128 || ( char1 >= 160 && char1 <= 255 ) )
+						total += widths[ char1 ];
 					else
-						total += widths[ PdfEncodings.winansi[char1] ];
+						total += widths[ PdfEncodings.winansi[ char1 ] ];
 				}
 				return total;
-			} else 
+			}
+			else
 			{
 				var mbytes: Bytes = convertToBytes( text );
-				
-				for( k = 0; k < mbytes.length; ++k )
-					total += widths[0xff & mbytes[k]];
+
+				for ( k = 0; k < mbytes.length; ++k )
+					total += widths[ 0xff & mbytes[ k ] ];
 			}
 			return total;
 		}
 
-		/**
-		 * Gets the width of a char in points.
-		 * 
-		 * @param code. Allowed values are int, String
-		 */
-		public function getWidthPoint( code: Object, fontSize: Number ): Number
-		{
-			return getWidth( code ) * 0.001 * fontSize;
-		}
-
-		/**
-		 * Converts a char to a Bytes according to the font's encoding.
-		 */
-		internal function convertToBytes( char1: String ): Bytes
-		{
-			var code: int = char1.charCodeAt( 0 );
-
-			if ( directTextToByte )
-				return PdfEncodings.convertToBytes( char1, null );
-
-			if ( specialMap != null )
-				if ( specialMap[ code ] )
-					return new Bytes( [ specialMap[ code ] ] );
-				else
-					return new Bytes();
-
-			return PdfEncodings.convertToBytes( char1, _encoding );
-		}
-
 		public static function get builtinFonts14(): HashMap
 		{
-			if( _builtinFonts14 == null )
+			if ( _builtinFonts14 == null )
 				init_builtinFonts14();
 			return _builtinFonts14;
-		}
-		
-		/**
-		 * Normalize the encoding name
-		 */
-		protected static function normalizeEncoding( enc: String ): String
-		{
-			if( enc == "winansi" || enc == "" )
-				return CP1252;
-			
-			else if( enc == "macroman" )
-				return MACROMAN;
-			else
-				return enc;
 		}
 
 		/** Creates a new font. This font can be one of the 14 built in types,
@@ -339,11 +327,11 @@ package org.purepdf.pdf.fonts
 		 * @throws IOException the font file could not be read
 		 * @since	2.1.5
 		 */
-		public static function createFont( name: String, encoding: String, embedded: Boolean=NOT_EMBEDDED, cached: Boolean=CACHED
-			, ttfAfm: Vector.<int>=null, pfb: Vector.<int>=null, noThrow: Boolean=false, forceRead: Boolean=false ): BaseFont
+		public static function createFont( name: String, encoding: String, embedded: Boolean=NOT_EMBEDDED, cached: Boolean=CACHED, ttfAfm: Vector
+			.<int>=null, pfb: Vector.<int>=null, noThrow: Boolean=false, forceRead: Boolean=false ): BaseFont
 		{
-			logger.warn("BaseFont.createFont. To be implemented");
-			
+			logger.warn( "BaseFont.createFont. To be implemented" );
+
 			var nameBase: String = getBaseName( name );
 			encoding = normalizeEncoding( encoding );
 			var is_builtinFonts14: Boolean = builtinFonts14.containsKey( name );
@@ -376,12 +364,12 @@ package org.purepdf.pdf.fonts
 			{
 				throw new NonImplementatioError();
 				/*if ( encoding == IDENTITY_H || encoding == IDENTITY_V )
-					fontBuilt = new TrueTypeFontUnicode( name, encoding, embedded, ttfAfm, forceRead );
-				else
-				{
-					fontBuilt = new TrueTypeFont( name, encoding, embedded, ttfAfm, false, forceRead );
-					fontBuilt.fastWinansi = encoding == CP1252;
-				}*/
+				   fontBuilt = new TrueTypeFontUnicode( name, encoding, embedded, ttfAfm, forceRead );
+				   else
+				   {
+				   fontBuilt = new TrueTypeFont( name, encoding, embedded, ttfAfm, false, forceRead );
+				   fontBuilt.fastWinansi = encoding == CP1252;
+				 }*/
 			}
 			else if ( isCJKFont )
 				throw new NonImplementatioError(); //fontBuilt = new CJKFont( name, encoding, embedded );
@@ -414,6 +402,20 @@ package org.purepdf.pdf.fonts
 				return name.substring( 0, name.length - 11 );
 			else
 				return name;
+		}
+
+		/**
+		 * Normalize the encoding name
+		 */
+		protected static function normalizeEncoding( enc: String ): String
+		{
+			if ( enc == "winansi" || enc == "" )
+				return CP1252;
+
+			else if ( enc == "macroman" )
+				return MACROMAN;
+			else
+				return enc;
 		}
 
 		private static function init_builtinFonts14(): void
