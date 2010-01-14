@@ -2,6 +2,7 @@ package org.purepdf.pdf
 {
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
+	import org.purepdf.utils.pdf_core;
 
 	public class PdfTemplate extends PdfContentByte
 	{
@@ -16,6 +17,8 @@ package org.purepdf.pdf
 		protected var _pageResources: PageResources;
 		protected var thisReference: PdfIndirectReference;
 		private var _layer: IPdfOCG;
+		
+		use namespace pdf_core;
 
 		public function PdfTemplate( $writer: PdfWriter=null )
 		{

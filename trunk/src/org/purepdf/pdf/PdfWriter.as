@@ -555,12 +555,12 @@ package org.purepdf.pdf
 			return null;
 		}
 
-		internal function addDirectImageSimple( image: ImageElement ): PdfName
+		pdf_core function addDirectImageSimple( image: ImageElement ): PdfName
 		{
 			return addDirectImageSimple2( image, null );
 		}
 
-		internal function addDirectImageSimple2( image: ImageElement, fixedRef: PdfIndirectReference ): PdfName
+		pdf_core function addDirectImageSimple2( image: ImageElement, fixedRef: PdfIndirectReference ): PdfName
 		{
 			var name: PdfName;
 
@@ -615,7 +615,7 @@ package org.purepdf.pdf
 		 * @return the <CODE>PdfName</CODE> for this template
 		 */
 
-		internal function addDirectTemplateSimple( template: PdfTemplate, forcedName: PdfName ): PdfName
+		pdf_core function addDirectTemplateSimple( template: PdfTemplate, forcedName: PdfName ): PdfName
 		{
 			var ref: PdfIndirectReference = template.indirectReference;
 			var obj: Vector.<Object> = Vector.<Object>( formXObjects.getValue( ref ) );
@@ -649,7 +649,7 @@ package org.purepdf.pdf
 			logger.warn( "addLocalDestinations not implemented" );
 		}
 
-		internal function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
+		pdf_core function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
 		{
 			if ( !documentExtGState.containsKey( gstate ) )
 			{
@@ -752,7 +752,7 @@ package org.purepdf.pdf
 			}
 		}
 
-		internal function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
+		pdf_core function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
 		{
 			if ( !documentProperties.containsKey( prop ) )
 				documentProperties.put( prop, Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentProperties.size() + 1 ) ), refi ] ) );

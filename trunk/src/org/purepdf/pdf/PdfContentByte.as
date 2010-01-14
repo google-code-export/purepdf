@@ -57,6 +57,8 @@ package org.purepdf.pdf
 		protected var state: GraphicState = new GraphicState();
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
 		protected var writer: PdfWriter;
+		
+		use namespace pdf_core;
 
 		public function PdfContentByte( $writer: PdfWriter )
 		{
@@ -431,7 +433,7 @@ package org.purepdf.pdf
 			painter.height = height;
 			painter.xstep = xstep;
 			painter.ystep = ystep;
-			writer.pdf_core::addSimplePattern( painter );
+			writer.addSimplePattern( painter );
 			return painter;
 		}
 
@@ -459,7 +461,7 @@ package org.purepdf.pdf
 			painter.height = height;
 			painter.xstep = xstep;
 			painter.ystep = ystep;
-			writer.pdf_core::addSimplePattern( painter );
+			writer.addSimplePattern( painter );
 			return painter;
 		}
 
@@ -579,9 +581,9 @@ package org.purepdf.pdf
 		{
 			state.xTLM = x;
 			state.yTLM = y;
-			content.append_number(a).append_char(' ').append_number(b).pdf_core::append_int(32)
-				.append_number(c).append_int(32).append_number(d).pdf_core::append_int(32)
-				.append_number(x).pdf_core::append_int(32).append_number(y).append_string(" Tm")
+			content.append_number(a).append_char(' ').append_number(b).append_int(32)
+				.append_number(c).append_int(32).append_number(d).append_int(32)
+				.append_number(x).append_int(32).append_number(y).append_string(" Tm")
 				.append_separator();
 		}
 
@@ -623,7 +625,7 @@ package org.purepdf.pdf
 		 */
 		public function paintShading( value: PdfShading ): void
 		{
-			writer.pdf_core::addSimpleShading( value );
+			writer.addSimpleShading( value );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addShading( value.shadingName, value.shadingReference );
 			content.append_bytes( name.getBytes() ).append_string( " sh" ).append_separator();
@@ -668,7 +670,7 @@ package org.purepdf.pdf
 		{
 			if ( params[ 0 ] is RectangleElement )
 			{
-				pdf_core::setRectangle( params[ 0 ] );
+				setRectangle( params[ 0 ] );
 			}
 			else
 			{
@@ -1549,7 +1551,7 @@ package org.purepdf.pdf
 		{
 			checkWriter();
 			var psr: PageResources = pageResources;
-			var name: PdfName = writer.pdf_core::addSimplePattern( p );
+			var name: PdfName = writer.addSimplePattern( p );
 			name = psr.addPattern( name, p.indirectReference );
 			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
 				.append_string( fill ? " scn" : " SCN" ).append_separator();
@@ -1558,9 +1560,9 @@ package org.purepdf.pdf
 		private function setPattern3( p: PdfPatternPainter, color: RGBColor, tint: Number, fill: Boolean ): void
 		{
 			var psr: PageResources = pageResources;
-			var name: PdfName = writer.pdf_core::addSimplePattern( p );
+			var name: PdfName = writer.addSimplePattern( p );
 			name = psr.addPattern( name, p.indirectReference );
-			var cDetail: ColorDetails = writer.pdf_core::addSimplePatternColorSpace( color );
+			var cDetail: ColorDetails = writer.addSimplePatternColorSpace( color );
 			var cName: PdfName = psr.addColor( cDetail.colorName, cDetail.indirectReference );
 			content.append_bytes( cName.getBytes() ).append_string( fill ? " cs" : " CS" ).append_separator();
 			outputColorNumbers( color, tint );
@@ -1569,7 +1571,7 @@ package org.purepdf.pdf
 
 		private function setShadingFillOrStroke( shading: PdfShadingPattern, fill: Boolean ): void
 		{
-			writer.pdf_core::addSimpleShadingPattern( shading );
+			writer.addSimpleShadingPattern( shading );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addPattern( shading.patternName, shading.patternReference );
 			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
@@ -1583,7 +1585,7 @@ package org.purepdf.pdf
 		private function setSpotColor( sp: PdfSpotColor, tint: Number, fill: Boolean ): void
 		{
 			checkWriter();
-			state.colorDetails = writer.pdf_core::addSimple( sp );
+			state.colorDetails = writer.addSimpleSpotColor( sp );
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.colorDetails.colorName;
 			name = prs.addColor( name, state.colorDetails.indirectReference );
@@ -1601,7 +1603,7 @@ package org.purepdf.pdf
 			if( size < 0.0001 && size > -0.0001 )
 				throw new ArgumentError( "font size too small");
 			state.size = size;
-			state.fontDetails = writer.pdf_core::addSimpleFont( bf );
+			state.fontDetails = writer.addSimpleFont( bf );
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.fontDetails.fontName;
 			name = prs.addFont( name, state.fontDetails.indirectReference );
@@ -1653,7 +1655,7 @@ package org.purepdf.pdf
 		{
 			if( state.fontDetails == null )
 				throw new NullPointerError("font and size must be set before writing any text");
-			var b: Bytes = state.fontDetails.pdf_core::convertToBytes( text );
+			var b: Bytes = state.fontDetails.convertToBytes( text );
 			escapeString( b, content );
 		}
 
@@ -1742,7 +1744,7 @@ package org.purepdf.pdf
 
 		internal static function escapeString( byte: Bytes, content: ByteBuffer ): ByteBuffer
 		{
-			content.pdf_core::append_int( '('.charCodeAt( 0 ) );
+			content.append_int( '('.charCodeAt( 0 ) );
 
 			for ( var k: int = 0; k < byte.length; ++k )
 			{
@@ -1768,10 +1770,10 @@ package org.purepdf.pdf
 					case '(':
 					case ')':
 					case '\\':
-						content.pdf_core::append_int( '\\'.charCodeAt( 0 ) ).pdf_core::append_int( c );
+						content.append_int( '\\'.charCodeAt( 0 ) ).append_int( c );
 						break;
 					default:
-						content.pdf_core::append_int( c );
+						content.append_int( c );
 						break;
 				}
 			}
