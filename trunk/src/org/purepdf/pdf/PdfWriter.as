@@ -1,13 +1,11 @@
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
-	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.HashSet;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.colors.ExtendedColor;
@@ -27,13 +25,19 @@ package org.purepdf.pdf
 
 	public class PdfWriter extends ObjectHash
 	{
-		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
-		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
+
+		use namespace pdf_core;
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
+		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const RELEASE: String = '0.0.1_ALPHA';
+		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
 		public static const VERSION: String = NAME + ' ' + RELEASE;
+		protected var OCGLocked: PdfArray = new PdfArray();
+		protected var OCGRadioGroup: PdfArray = new PdfArray();
+		protected var OCProperties: PdfOCProperties;
+		protected var _rgbTransparencyBlending: Boolean;
 
 		protected var body: PdfBody;
 		protected var colorNumber: int = 1;
@@ -44,22 +48,19 @@ package org.purepdf.pdf
 		protected var defaultPageSize: PageSize;
 		protected var directContent: PdfContentByte;
 		protected var directContentUnder: PdfContentByte;
-		protected var documentFonts: HashMap = new HashMap();	// LinkedHashMap
 		protected var documentColors: HashMap = new HashMap();
 		protected var documentExtGState: HashMap = new HashMap();
-		protected var documentPatterns: HashMap = new HashMap();
-		protected var documentShadings: HashMap = new HashMap();
-		protected var documentShadingPatterns: HashMap = new HashMap();
+		protected var documentFonts: HashMap = new HashMap(); // LinkedHashMap
 		protected var documentOCG: HashSet = new HashSet();
 		protected var documentOCGOrder: Vector.<IPdfOCG> = new Vector.<IPdfOCG>();
+		protected var documentPatterns: HashMap = new HashMap();
 		protected var documentProperties: HashMap = new HashMap();
-		protected var OCProperties: PdfOCProperties;
-		protected var OCGRadioGroup: PdfArray = new PdfArray();
-
-		protected var fontCount: int = 1;
-		protected var OCGLocked: PdfArray = new PdfArray();
+		protected var documentShadingPatterns: HashMap = new HashMap();
+		protected var documentShadings: HashMap = new HashMap();
 		protected var documentSpotPatterns: HashMap = new HashMap();
 		protected var extraCatalog: PdfDictionary;
+
+		protected var fontCount: int = 1;
 		protected var formXObjects: HashMap = new HashMap();
 		protected var formXObjectsCounter: int = 1;
 		protected var fullCompression: Boolean = false;
@@ -67,7 +68,6 @@ package org.purepdf.pdf
 		protected var imageDictionary: PdfDictionary = new PdfDictionary();
 		protected var images: HashMap = new HashMap();
 		protected var opened: Boolean = false;
-		protected var _rgbTransparencyBlending: Boolean;
 
 		protected var os: OutputStreamCounter;
 		protected var pageReferences: Vector.<PdfIndirectReference> = new Vector.<PdfIndirectReference>();
@@ -83,8 +83,6 @@ package org.purepdf.pdf
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
 		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
-		
-		use namespace pdf_core;
 
 		private var logger: ILogger = LoggerFactory.getClassLogger( PdfWriter );
 
@@ -100,334 +98,6 @@ package org.purepdf.pdf
 
 			directContent = new PdfContentByte( this );
 			directContentUnder = new PdfContentByte( this );
-		}
-		
-		public function get spaceCharRatio():Number
-		{
-			return _spaceCharRatio;
-		}
-
-		internal function getOCProperties(): PdfOCProperties 
-		{
-			fillOCProperties( true );
-			return OCProperties;
-		}
-		
-		/**
-		 * Gets the transparency blending colorspace
-		 */
-		public function get rgbTransparencyBlending(): Boolean
-		{
-			return _rgbTransparencyBlending;
-		}
-		
-		/**
-		 * Sets the transparency blending colorspace to RGB
-		 */
-		public function set rgbTransparencyBlending(  value: Boolean ): void
-		{
-			_rgbTransparencyBlending = value;
-		}
-		
-		protected function fillOCProperties( erase: Boolean ): void
-		{
-			var layer: PdfLayer;
-			var k: int;
-			var gr: PdfArray;
-			var i: Iterator;
-			
-			if( OCProperties == null )
-				OCProperties = new PdfOCProperties();
-			
-			if (erase) 
-			{
-				OCProperties.remove(PdfName.OCGS);
-				OCProperties.remove(PdfName.D);
-			}
-			
-			if (OCProperties.getValue(PdfName.OCGS) == null) 
-			{
-				gr = new PdfArray();
-				for( i = documentOCG.iterator(); i.hasNext();)
-				{
-					layer = PdfLayer( i.next() );
-					gr.add( layer.ref );
-				}
-				OCProperties.put(PdfName.OCGS, gr);
-			}
-			
-			if (OCProperties.getValue(PdfName.D) != null)
-				return;
-			
-			var docOrder: Vector.<IPdfOCG> = documentOCGOrder.concat();
-			for ( k = 0; k < docOrder.length; ++k )
-			{
-				layer = PdfLayer( docOrder[k] );
-				
-				if (layer.parent != null)
-				{
-					docOrder.splice( k, 1 );
-					--k;
-				}
-			}
-			
-			var order: PdfArray = new PdfArray();
-			
-			for( k = 0; k < docOrder.length; ++k ) 
-			{
-				layer = PdfLayer( docOrder[k] );
-				getOCGOrder( order, layer );
-			}
-			
-			var d: PdfDictionary = new PdfDictionary();
-			OCProperties.put(PdfName.D, d);
-			d.put(PdfName.ORDER, order);
-			gr = new PdfArray();
-			
-			for( i = documentOCG.iterator(); i.hasNext();) 
-			{
-				layer = PdfLayer( i.next() );
-				if( !layer.visible )
-					gr.add( layer.ref );
-			}
-			
-			if( gr.size() > 0 )
-				d.put( PdfName.OFF, gr );
-			
-			if( OCGRadioGroup.size() > 0 )
-				d.put( PdfName.RBGROUPS, OCGRadioGroup );
-			
-			if( OCGLocked.size() > 0 )
-				d.put( PdfName.LOCKED, OCGLocked );
-			
-			addASEvent( PdfName.VIEW, PdfName.ZOOM );
-			addASEvent( PdfName.VIEW, PdfName.VIEW );
-			addASEvent( PdfName.PRINT, PdfName.PRINT );
-			addASEvent( PdfName.EXPORT, PdfName.EXPORT );
-			d.put( PdfName.LISTMODE, PdfName.VISIBLEPAGES );
-		}
-		
-		private function addASEvent( event: PdfName, category: PdfName ): void
-		{
-			var arr: PdfArray = new PdfArray();
-			
-			for ( var i: Iterator = documentOCG.iterator(); i.hasNext();)
-			{
-				var layer: PdfLayer = PdfLayer(i.next());
-				var usage: PdfDictionary = PdfDictionary( layer.getValue( PdfName.USAGE ) );
-				if( usage != null && usage.getValue( category ) != null )
-					arr.add( layer.ref );
-			}
-			
-			if (arr.size() == 0)
-				return;
-			
-			var d: PdfDictionary = PdfDictionary( OCProperties.getValue( PdfName.D ) );
-			var arras: PdfArray = d.getValue( PdfName.AS ) as PdfArray;
-			if( arras == null )
-			{
-				arras = new PdfArray();
-				d.put(PdfName.AS, arras);
-			}
-			
-			var asd: PdfDictionary = new PdfDictionary();
-			asd.put( PdfName.EVENT, event );
-			asd.put( PdfName.CATEGORY, new PdfArray( category ) );
-			asd.put( PdfName.OCGS, arr );
-			arras.add( asd );
-		}
-		
-		private static function getOCGOrder( order: PdfArray, layer: PdfLayer ): void
-		{
-			if (!layer.onPanel )
-				return;
-			
-			if (layer.title == null)
-				order.add(layer.ref);
-			
-			var children: Vector.<IPdfOCG> = layer.children;
-			if (children == null)
-				return;
-			
-			var kids: PdfArray = new PdfArray();
-			if ( layer.title != null)
-				kids.add(new PdfString(layer.title, PdfObject.TEXT_UNICODE));
-			
-			for ( var k: int = 0; k < children.length; ++k )
-			{
-				getOCGOrder( kids, PdfLayer(children[k]) );
-			}
-			
-			if (kids.size() > 0 )
-				order.add(kids);
-		}
-		
-		internal function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
-		{
-			if( !documentProperties.containsKey(prop) )
-				documentProperties.put( prop, Vector.<PdfObject>([ new PdfName("Pr" + (documentProperties.size() + 1 )), refi ]) );
-			
-			return documentProperties.getValue( prop ) as Vector.<PdfObject>;
-		}
-		
-		internal function lockLayer( layer: PdfLayer ): void
-		{
-			OCGLocked.add( layer.ref );
-		}
-		
-		protected function propertyExists( prop: Object ): Boolean
-		{
-			return documentProperties.containsKey( prop );
-		}
-		
-		internal function registerLayer( layer: IPdfOCG ): void
-		{
-			if( layer is PdfLayer )
-			{
-				var la: PdfLayer = PdfLayer( layer );
-				if( la.title == null )
-				{
-					if( !documentOCG.contains(layer) )
-					{
-						documentOCG.add(layer);
-						documentOCGOrder.push(layer);
-					} else {
-						documentOCG.add(layer);
-					}
-				}
-			} else {
-				throw new ArgumentError("only PdfLayer is accepted");
-			}
-		}
-
-		internal function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference
-		{
-			if ( !opened )
-				throw new Error( "Document is not open" );
-
-			var object: PdfIndirectObject;
-			object = addToBody( contents );
-
-			page.add( object.getIndirectReference() );
-
-			if ( group != null )
-			{
-				page.put( PdfName.GROUP, group );
-				group = null;
-			}
-			else if ( _rgbTransparencyBlending )
-			{
-				var pp: PdfDictionary = new PdfDictionary();
-				pp.put( PdfName.TYPE, PdfName.GROUP );
-				pp.put( PdfName.S, PdfName.TRANSPARENCY );
-				pp.put( PdfName.CS, PdfName.DEVICERGB );
-				page.put( PdfName.GROUP, pp );
-			}
-
-			root.addPage( page );
-			currentPageNumber++;
-			return null;
-		}
-		
-		internal function addLocalDestinations( dest: PdfDestination ): void
-		{
-			logger.warn("addLocalDestinations not implemented");
-		}
-
-		internal function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
-		{
-			if ( !documentExtGState.containsKey( gstate ) )
-			{
-				var obj: Vector.<PdfObject> = Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentExtGState.size() + 1 ) ), getPdfIndirectReference() ] );
-				documentExtGState.put( gstate, obj );
-			}
-			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
-		}
-
-		pdf_core function addToBody( object: PdfObject ): PdfIndirectObject
-		{
-			var iobj: PdfIndirectObject = body.add1( object );
-			return iobj;
-		}
-
-		pdf_core function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
-		{
-			var iobj: PdfIndirectObject = body.add3( object, ref );
-			return iobj;
-		}
-
-		pdf_core function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
-		{
-			var iobj: PdfIndirectObject = body.add2( object, inObjStm );
-			return iobj;
-		}
-
-		internal function close(): void
-		{
-			if ( opened )
-			{
-				if ( ( currentPageNumber - 1 ) != pageReferences.length )
-					throw new Error( "The page " + pageReferences.length + " was requested, but the document has only " + ( currentPageNumber
-						- 1 ) + " pages" );
-				pdf.close();
-
-				addSharedObjectsToBody();
-				var rootRef: PdfIndirectReference = root.writePageTree();
-
-				var catalog: PdfDictionary = getCatalog( rootRef );
-
-				if ( xmpMetadata != null )
-				{
-					logger.warn( 'implement this' );
-				}
-
-				/*
-				   if( isPdfX() )
-				   {
-				   pdfConformance.completeInfoDictionary( getInfo() );
-				   pdfConformance.completeExtraCatalog( getExtraCatalog() );
-				   }
-				 */
-
-				if ( extraCatalog != null )
-					catalog.mergeDifferent( extraCatalog );
-
-				writeOutlines( catalog, false );
-				var indirectCatalog: PdfIndirectObject = addToBody2( catalog, false );
-				var infoObj: PdfIndirectObject = addToBody2( getInfo(), false );
-
-				// encryption
-				var encryption: PdfIndirectReference = null;
-				var fileID: PdfObject = null;
-				body.flushObjStm();
-
-				if ( crypto != null )
-				{
-					logger.warn( 'implement this' );
-				}
-				else
-				{
-					fileID = PdfEncryption.createInfoId( PdfEncryption.createDocumentId() );
-				}
-
-				// write the cross-reference table of the body
-				body.writeCrossReferenceTable( os, indirectCatalog.getIndirectReference(), infoObj.getIndirectReference(), encryption
-					, fileID, prevxref );
-
-				// full compression
-				if ( fullCompression )
-				{
-					os.writeBytes( getISOBytes( "startxref\n" ) );
-					os.writeBytes( getISOBytes( body.offset().toString() ) );
-					os.writeBytes( getISOBytes( "\n%%EOF\n" ) );
-				}
-				else
-				{
-					var trailer: PdfTrailer = new PdfTrailer( body.size(), body.offset(), indirectCatalog.getIndirectReference(), infoObj
-						.getIndirectReference(), encryption, fileID, prevxref );
-					trailer.toPdf( this, os );
-				}
-			}
 		}
 
 		/**
@@ -558,28 +228,6 @@ package org.purepdf.pdf
 			return ref;
 		}
 
-		/**
-		 * Use this to get an <CODE>PdfIndirectReference</CODE> for an object that
-		 * will be created in the future.
-		 * Use this method only if you know what you're doing!
-		 * @return the <CODE>PdfIndirectReference</CODE>
-		 */
-
-		internal function getPdfIndirectReference(): PdfIndirectReference
-		{
-			return body.getPdfIndirectReference();
-		}
-
-		internal function getPdfVersion(): PdfVersion
-		{
-			return pdf_version;
-		}
-		
-		internal function setPdfVersion( value: String ): void
-		{
-			pdf_version.setPdfVersion( value );
-		}
-
 		public function getTabs(): PdfName
 		{
 			return tabs;
@@ -627,6 +275,22 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Gets the transparency blending colorspace
+		 */
+		public function get rgbTransparencyBlending(): Boolean
+		{
+			return _rgbTransparencyBlending;
+		}
+
+		/**
+		 * Sets the transparency blending colorspace to RGB
+		 */
+		public function set rgbTransparencyBlending( value: Boolean ): void
+		{
+			_rgbTransparencyBlending = value;
+		}
+
+		/**
 		 *
 		 * @param key
 		 * 		the name of the colorspace. It can be PdfName.DEFAULTGRAY, PdfName.DEFAULTRGB or PdfName.DEFAULTCMYK
@@ -653,6 +317,11 @@ package org.purepdf.pdf
 			tabs = value;
 		}
 
+		public function get spaceCharRatio(): Number
+		{
+			return _spaceCharRatio;
+		}
+
 		protected function addSharedObjectsToBody(): void
 		{
 			logger.warn( 'addSharedObjectsToBody. partially implemented' );
@@ -662,28 +331,33 @@ package org.purepdf.pdf
 
 			// 3 add the fonts
 			it = documentFonts.values().iterator();
-			for( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				var details: FontDetails = FontDetails( it.next() );
 				details.writeFont( this );
 			}
-			
+
 			// 4 add the form XObjects
 			it = formXObjects.values().iterator();
-			for( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				objs = Vector.<Object>( it.next() );
-				var template: PdfTemplate = objs[1] as PdfTemplate;
-				if( template != null && template.indirectReference is PRIndirectReference )
+				var template: PdfTemplate = objs[ 1 ] as PdfTemplate;
+
+				if ( template != null && template.indirectReference is PRIndirectReference )
 					continue;
-				if( template != null && template.type == PdfTemplate.TYPE_TEMPLATE )
+
+				if ( template != null && template.type == PdfTemplate.TYPE_TEMPLATE )
 					addToBody1( template.getFormXObject( compressionLevel ), template.indirectReference );
 			}
-			
+
 			// 5 add all the dependencies in the imported pages
 			// 6 add the spotcolors
 			it = documentColors.values().iterator();
-			for ( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				var color: ColorDetails = ColorDetails( it.next() );
 				addToBody1( color.getSpotColor( this ), color.indirectReference );
@@ -692,30 +366,34 @@ package org.purepdf.pdf
 			// 7 add the pattern
 			it = documentPatterns.keySet().iterator();
 			var pat: PdfPatternPainter;
-			for( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				pat = it.next() as PdfPatternPainter;
 				addToBody1( pat.getPattern( compressionLevel ), pat.indirectReference );
 			}
-			
+
 			// 8 add the shading patterns
 			it = documentShadingPatterns.keySet().iterator();
-			for( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				var shadingPattern: PdfShadingPattern = PdfShadingPattern( it.next() );
 				shadingPattern.addToBody();
 			}
-			
+
 			// 9 add the shadings
 			it = documentShadings.keySet().iterator();
-			for( it; it.hasNext();)
+
+			for ( it; it.hasNext();  )
 			{
 				var shading: PdfShading = PdfShading( it.next() );
 				shading.addToBody();
 			}
-			
+
 			// 10 add the extgstate
 			it = documentExtGState.entrySet().iterator();
+
 			for ( it; it.hasNext();  )
 			{
 				var entry: Entry = it.next();
@@ -727,11 +405,93 @@ package org.purepdf.pdf
 			// 11 add the properties
 			// 13 add the OCG layers
 			it = documentOCG.iterator();
-			for( it; it.hasNext(); )
+
+			for ( it; it.hasNext();  )
 			{
 				var layer: IPdfOCG = IPdfOCG( it.next() );
 				addToBody1( layer.pdfObject, layer.ref );
 			}
+		}
+
+		protected function fillOCProperties( erase: Boolean ): void
+		{
+			var layer: PdfLayer;
+			var k: int;
+			var gr: PdfArray;
+			var i: Iterator;
+
+			if ( OCProperties == null )
+				OCProperties = new PdfOCProperties();
+
+			if ( erase )
+			{
+				OCProperties.remove( PdfName.OCGS );
+				OCProperties.remove( PdfName.D );
+			}
+
+			if ( OCProperties.getValue( PdfName.OCGS ) == null )
+			{
+				gr = new PdfArray();
+
+				for ( i = documentOCG.iterator(); i.hasNext();  )
+				{
+					layer = PdfLayer( i.next() );
+					gr.add( layer.ref );
+				}
+				OCProperties.put( PdfName.OCGS, gr );
+			}
+
+			if ( OCProperties.getValue( PdfName.D ) != null )
+				return;
+
+			var docOrder: Vector.<IPdfOCG> = documentOCGOrder.concat();
+
+			for ( k = 0; k < docOrder.length; ++k )
+			{
+				layer = PdfLayer( docOrder[ k ] );
+
+				if ( layer.parent != null )
+				{
+					docOrder.splice( k, 1 );
+					--k;
+				}
+			}
+
+			var order: PdfArray = new PdfArray();
+
+			for ( k = 0; k < docOrder.length; ++k )
+			{
+				layer = PdfLayer( docOrder[ k ] );
+				getOCGOrder( order, layer );
+			}
+
+			var d: PdfDictionary = new PdfDictionary();
+			OCProperties.put( PdfName.D, d );
+			d.put( PdfName.ORDER, order );
+			gr = new PdfArray();
+
+			for ( i = documentOCG.iterator(); i.hasNext();  )
+			{
+				layer = PdfLayer( i.next() );
+
+				if ( !layer.visible )
+					gr.add( layer.ref );
+			}
+
+			if ( gr.size() > 0 )
+				d.put( PdfName.OFF, gr );
+
+			if ( OCGRadioGroup.size() > 0 )
+				d.put( PdfName.RBGROUPS, OCGRadioGroup );
+
+			if ( OCGLocked.size() > 0 )
+				d.put( PdfName.LOCKED, OCGLocked );
+
+			addASEvent( PdfName.VIEW, PdfName.ZOOM );
+			addASEvent( PdfName.VIEW, PdfName.VIEW );
+			addASEvent( PdfName.PRINT, PdfName.PRINT );
+			addASEvent( PdfName.EXPORT, PdfName.EXPORT );
+			d.put( PdfName.LISTMODE, PdfName.VISIBLEPAGES );
 		}
 
 		/*
@@ -745,20 +505,54 @@ package org.purepdf.pdf
 		{
 			var catalog: PdfDictionary = pdf.getCatalog( rootObj );
 
-			if( !documentOCG.isEmpty() )
+			if ( !documentOCG.isEmpty() )
 			{
-				fillOCProperties(false);
+				fillOCProperties( false );
 				catalog.put( PdfName.OCPROPERTIES, OCProperties );
 			}
-			
+
 			logger.warn( 'getCatalog. to be implemented' );
 
 			return catalog;
 		}
 
+		protected function propertyExists( prop: Object ): Boolean
+		{
+			return documentProperties.containsKey( prop );
+		}
+
 		protected function writeOutlines( catalog: PdfDictionary, namedAsNames: Boolean ): void
 		{
 			logger.warn( 'writeOutlines. to be implemented' );
+		}
+
+		internal function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference
+		{
+			if ( !opened )
+				throw new Error( "Document is not open" );
+
+			var object: PdfIndirectObject;
+			object = addToBody( contents );
+
+			page.add( object.getIndirectReference() );
+
+			if ( group != null )
+			{
+				page.put( PdfName.GROUP, group );
+				group = null;
+			}
+			else if ( _rgbTransparencyBlending )
+			{
+				var pp: PdfDictionary = new PdfDictionary();
+				pp.put( PdfName.TYPE, PdfName.GROUP );
+				pp.put( PdfName.S, PdfName.TRANSPARENCY );
+				pp.put( PdfName.CS, PdfName.DEVICERGB );
+				page.put( PdfName.GROUP, pp );
+			}
+
+			root.addPage( page );
+			currentPageNumber++;
+			return null;
 		}
 
 		internal function addDirectImageSimple( image: ImageElement ): PdfName
@@ -849,65 +643,41 @@ package org.purepdf.pdf
 
 			return name;
 		}
-		
+
+		internal function addLocalDestinations( dest: PdfDestination ): void
+		{
+			logger.warn( "addLocalDestinations not implemented" );
+		}
+
+		internal function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
+		{
+			if ( !documentExtGState.containsKey( gstate ) )
+			{
+				var obj: Vector.<PdfObject> = Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentExtGState.size() + 1 ) ), getPdfIndirectReference() ] );
+				documentExtGState.put( gstate, obj );
+			}
+			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
+		}
+
 		/**
 		 * Adds a font to the document but not to the page resources.
 		 * It is used for templates.
-		 * 
+		 *
 		 * @see org.purepdf.pdf.fonts.BaseFont
 		 */
 		pdf_core function addSimpleFont( bf: BaseFont ): FontDetails
 		{
-			if( bf.fontType == BaseFont.FONT_TYPE_DOCUMENT )
-				return new FontDetails( new PdfName("F" + (fontCount++)), DocumentFont( bf ).indirectReference, bf );
-			
-			var ret: FontDetails = documentFonts.getValue( bf ) as FontDetails;
-			if( ret == null )
-			{
-				ret = new FontDetails( new PdfName("F" + (fontCount++)), body.getPdfIndirectReference(), bf );
-				documentFonts.put( bf, ret );
-			}
-			return ret;
-		}
+			if ( bf.fontType == BaseFont.FONT_TYPE_DOCUMENT )
+				return new FontDetails( new PdfName( "F" + ( fontCount++ ) ), DocumentFont( bf ).indirectReference, bf );
 
-		/**
-		 * Adds a SpotColor to the document but not to the page resources.
-		 *
-		 * @param spc the SpotColor
-		 * @return a Vector of Objects where position 0 is a PdfName
-		 * and position 1 is an PdfIndirectReference
-		 *
-		 */
-		pdf_core function addSimpleSpotColor( spc: PdfSpotColor ): ColorDetails
-		{
-			var ret: ColorDetails = documentColors.getValue( spc ) as ColorDetails;
+			var ret: FontDetails = documentFonts.getValue( bf ) as FontDetails;
 
 			if ( ret == null )
 			{
-				ret = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), spc );
-				documentColors.put( spc, ret );
+				ret = new FontDetails( new PdfName( "F" + ( fontCount++ ) ), body.getPdfIndirectReference(), bf );
+				documentFonts.put( bf, ret );
 			}
 			return ret;
-		}
-		
-		
-		pdf_core function eliminateFontSubset( fonts: PdfDictionary ): void
-		{
-			for( var it: Iterator = documentFonts.values().iterator(); it.hasNext();)
-			{
-				var ft: FontDetails = FontDetails(it.next());
-				if( fonts.getValue( ft.fontName ) != null )
-					ft.subset = false;
-			}
-		}
-		
-		pdf_core function addSimpleShading( value: PdfShading ): void
-		{
-			if( !documentShadings.containsKey( value ) )
-			{
-				documentShadings.put( value, null );
-				value.setName( documentShadings.size() );
-			}
 		}
 
 		pdf_core function addSimplePattern( painter: PdfPatternPainter ): PdfName
@@ -922,17 +692,6 @@ package org.purepdf.pdf
 			}
 
 			return name;
-		}
-		
-		pdf_core function addSimpleShadingPattern( shading: PdfShadingPattern ): void
-		{
-			if( !documentShadingPatterns.containsKey( shading ) )
-			{
-				shading.setName( patternCounter );
-				++patternCounter;
-				documentShadingPatterns.put( shading, null );
-				addSimpleShading( shading.shading );
-			}
 		}
 
 		pdf_core function addSimplePatternColorSpace( color: RGBColor ): ColorDetails
@@ -993,10 +752,184 @@ package org.purepdf.pdf
 			}
 		}
 
+		internal function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
+		{
+			if ( !documentProperties.containsKey( prop ) )
+				documentProperties.put( prop, Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentProperties.size() + 1 ) ), refi ] ) );
+
+			return documentProperties.getValue( prop ) as Vector.<PdfObject>;
+		}
+
+		pdf_core function addSimpleShading( value: PdfShading ): void
+		{
+			if ( !documentShadings.containsKey( value ) )
+			{
+				documentShadings.put( value, null );
+				value.setName( documentShadings.size() );
+			}
+		}
+
+		pdf_core function addSimpleShadingPattern( shading: PdfShadingPattern ): void
+		{
+			if ( !documentShadingPatterns.containsKey( shading ) )
+			{
+				shading.setName( patternCounter );
+				++patternCounter;
+				documentShadingPatterns.put( shading, null );
+				addSimpleShading( shading.shading );
+			}
+		}
+
+		/**
+		 * Adds a SpotColor to the document but not to the page resources.
+		 *
+		 * @param spc the SpotColor
+		 * @return a Vector of Objects where position 0 is a PdfName
+		 * and position 1 is an PdfIndirectReference
+		 *
+		 */
+		pdf_core function addSimpleSpotColor( spc: PdfSpotColor ): ColorDetails
+		{
+			var ret: ColorDetails = documentColors.getValue( spc ) as ColorDetails;
+
+			if ( ret == null )
+			{
+				ret = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), spc );
+				documentColors.put( spc, ret );
+			}
+			return ret;
+		}
+
+		pdf_core function addToBody( object: PdfObject ): PdfIndirectObject
+		{
+			var iobj: PdfIndirectObject = body.add1( object );
+			return iobj;
+		}
+
+		pdf_core function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
+		{
+			var iobj: PdfIndirectObject = body.add3( object, ref );
+			return iobj;
+		}
+
+		pdf_core function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
+		{
+			var iobj: PdfIndirectObject = body.add2( object, inObjStm );
+			return iobj;
+		}
+
+		internal function close(): void
+		{
+			if ( opened )
+			{
+				if ( ( currentPageNumber - 1 ) != pageReferences.length )
+					throw new Error( "The page " + pageReferences.length + " was requested, but the document has only " + ( currentPageNumber
+						- 1 ) + " pages" );
+				pdf.close();
+
+				addSharedObjectsToBody();
+				var rootRef: PdfIndirectReference = root.writePageTree();
+
+				var catalog: PdfDictionary = getCatalog( rootRef );
+
+				if ( xmpMetadata != null )
+				{
+					logger.warn( 'implement this' );
+				}
+
+				/*
+				   if( isPdfX() )
+				   {
+				   pdfConformance.completeInfoDictionary( getInfo() );
+				   pdfConformance.completeExtraCatalog( getExtraCatalog() );
+				   }
+				 */
+
+				if ( extraCatalog != null )
+					catalog.mergeDifferent( extraCatalog );
+
+				writeOutlines( catalog, false );
+				var indirectCatalog: PdfIndirectObject = addToBody2( catalog, false );
+				var infoObj: PdfIndirectObject = addToBody2( getInfo(), false );
+
+				// encryption
+				var encryption: PdfIndirectReference = null;
+				var fileID: PdfObject = null;
+				body.flushObjStm();
+
+				if ( crypto != null )
+				{
+					logger.warn( 'implement this' );
+				}
+				else
+				{
+					fileID = PdfEncryption.createInfoId( PdfEncryption.createDocumentId() );
+				}
+
+				// write the cross-reference table of the body
+				body.writeCrossReferenceTable( os, indirectCatalog.getIndirectReference(), infoObj.getIndirectReference(), encryption
+					, fileID, prevxref );
+
+				// full compression
+				if ( fullCompression )
+				{
+					os.writeBytes( getISOBytes( "startxref\n" ) );
+					os.writeBytes( getISOBytes( body.offset().toString() ) );
+					os.writeBytes( getISOBytes( "\n%%EOF\n" ) );
+				}
+				else
+				{
+					var trailer: PdfTrailer = new PdfTrailer( body.size(), body.offset(), indirectCatalog.getIndirectReference(), infoObj
+						.getIndirectReference(), encryption, fileID, prevxref );
+					trailer.toPdf( this, os );
+				}
+			}
+		}
+
+
+		pdf_core function eliminateFontSubset( fonts: PdfDictionary ): void
+		{
+			for ( var it: Iterator = documentFonts.values().iterator(); it.hasNext();  )
+			{
+				var ft: FontDetails = FontDetails( it.next() );
+
+				if ( fonts.getValue( ft.fontName ) != null )
+					ft.subset = false;
+			}
+		}
+
 
 		internal function getColorspaceName(): PdfName
 		{
 			return new PdfName( "CS" + ( colorNumber++ ) );
+		}
+
+		internal function getOCProperties(): PdfOCProperties
+		{
+			fillOCProperties( true );
+			return OCProperties;
+		}
+
+		/**
+		 * Use this to get an <CODE>PdfIndirectReference</CODE> for an object that
+		 * will be created in the future.
+		 * Use this method only if you know what you're doing!
+		 * @return the <CODE>PdfIndirectReference</CODE>
+		 */
+
+		internal function getPdfIndirectReference(): PdfIndirectReference
+		{
+			return body.getPdfIndirectReference();
+		}
+
+		internal function getPdfVersion(): PdfVersion
+		{
+			return pdf_version;
+		}
+
+		internal function lockLayer( layer: PdfLayer ): void
+		{
+			OCGLocked.add( layer.ref );
 		}
 
 		internal function open(): PdfDocument
@@ -1009,6 +942,36 @@ package org.purepdf.pdf
 			}
 
 			return pdf;
+		}
+
+		internal function registerLayer( layer: IPdfOCG ): void
+		{
+			if ( layer is PdfLayer )
+			{
+				var la: PdfLayer = PdfLayer( layer );
+
+				if ( la.title == null )
+				{
+					if ( !documentOCG.contains( layer ) )
+					{
+						documentOCG.add( layer );
+						documentOCGOrder.push( layer );
+					}
+					else
+					{
+						documentOCG.add( layer );
+					}
+				}
+			}
+			else
+			{
+				throw new ArgumentError( "only PdfLayer is accepted" );
+			}
+		}
+
+		internal function setPdfVersion( value: String ): void
+		{
+			pdf_version.setPdfVersion( value );
 		}
 
 		private function add2( pdfImage: PdfImage, fixedRef: PdfIndirectReference ): PdfIndirectReference
@@ -1029,6 +992,38 @@ package org.purepdf.pdf
 				return fixedRef;
 			}
 			return imageDictionary.getValue( pdfImage.name ) as PdfIndirectReference;
+		}
+
+		private function addASEvent( event: PdfName, category: PdfName ): void
+		{
+			var arr: PdfArray = new PdfArray();
+
+			for ( var i: Iterator = documentOCG.iterator(); i.hasNext();  )
+			{
+				var layer: PdfLayer = PdfLayer( i.next() );
+				var usage: PdfDictionary = PdfDictionary( layer.getValue( PdfName.USAGE ) );
+
+				if ( usage != null && usage.getValue( category ) != null )
+					arr.add( layer.ref );
+			}
+
+			if ( arr.size() == 0 )
+				return;
+
+			var d: PdfDictionary = PdfDictionary( OCProperties.getValue( PdfName.D ) );
+			var arras: PdfArray = d.getValue( PdfName.AS ) as PdfArray;
+
+			if ( arras == null )
+			{
+				arras = new PdfArray();
+				d.put( PdfName.AS, arras );
+			}
+
+			var asd: PdfDictionary = new PdfDictionary();
+			asd.put( PdfName.EVENT, event );
+			asd.put( PdfName.CATEGORY, new PdfArray( category ) );
+			asd.put( PdfName.OCGS, arr );
+			arras.add( asd );
 		}
 
 		public static function create( output: ByteArray, pagesize: RectangleElement ): PdfWriter
@@ -1059,6 +1054,33 @@ package org.purepdf.pdf
 			for ( var k: int = 0; k < len; ++k )
 				byte[ k ] = text.charCodeAt( k );
 			return byte;
+		}
+
+		private static function getOCGOrder( order: PdfArray, layer: PdfLayer ): void
+		{
+			if ( !layer.onPanel )
+				return;
+
+			if ( layer.title == null )
+				order.add( layer.ref );
+
+			var children: Vector.<IPdfOCG> = layer.children;
+
+			if ( children == null )
+				return;
+
+			var kids: PdfArray = new PdfArray();
+
+			if ( layer.title != null )
+				kids.add( new PdfString( layer.title, PdfObject.TEXT_UNICODE ) );
+
+			for ( var k: int = 0; k < children.length; ++k )
+			{
+				getOCGOrder( kids, PdfLayer( children[ k ] ) );
+			}
+
+			if ( kids.size() > 0 )
+				order.add( kids );
 		}
 	}
 }

@@ -1,9 +1,7 @@
 package org.purepdf.pdf.fonts
 {
 	import flash.utils.ByteArray;
-	
 	import it.sephiroth.utils.HashMap;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -28,6 +26,8 @@ package org.purepdf.pdf.fonts
 
 	public class Type1Font extends BaseFont
 	{
+
+		use namespace pdf_core;
 		private static const PFB_TYPES: Vector.<int> = Vector.<int>( [ 1, 2, 1 ] );
 
 		private static var logger: ILogger = LoggerFactory.getClassLogger( Type1Font );
@@ -56,8 +56,6 @@ package org.purepdf.pdf.fonts
 		private var lly: int = -200;
 		private var urx: int = 1000;
 		private var ury: int = 900;
-		
-		use namespace pdf_core;
 
 		public function Type1Font( afmFile: String, enc: String, emb: Boolean, ttfAfm: Vector.<int>, pfb: Vector.<int>, forceRead: Boolean )
 		{
