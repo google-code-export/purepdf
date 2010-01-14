@@ -80,10 +80,10 @@ package org.purepdf.elements
 		}
 			
 
-		public static function create( string: String ): Paragraph
+		public static function create( string: String, font: Font = null ): Paragraph
 		{
 			var p: Paragraph = new Paragraph();
-			p.init( Number.NaN, string, new Font() );
+			p.init( Number.NaN, string, font != null ? font : new Font() );
 			return p;
 		}
 	}

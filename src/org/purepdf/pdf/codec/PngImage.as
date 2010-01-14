@@ -181,7 +181,6 @@ package org.purepdf.pdf.codec
 				try
 				{
 					filter = dataStream.readUnsignedByte();
-					logger.debug( '({0}) filter: {1}', srcY, filter );
 					dataStream.readFully( curr.buffer, 0, bytesPerRow );
 				}
 				catch ( e: Error )

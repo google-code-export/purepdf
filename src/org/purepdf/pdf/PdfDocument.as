@@ -11,6 +11,7 @@ package org.purepdf.pdf
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.Font;
+	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElementListener;
@@ -20,10 +21,12 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
 	import org.purepdf.utils.iterators.VectorIterator;
+	import org.purepdf.utils.pdf_core;
 
 	[Event(name="closeDocument",type="org.purepdf.events.PageEvent")]
 	[Event(name="endPage",		type="org.purepdf.events.PageEvent")]
@@ -81,6 +84,7 @@ package org.purepdf.pdf
 		protected var leadingCount: int = 0;
 		protected var isSectionTitle: Boolean = false;
 		protected var anchorAction: PdfAction = null;
+		protected var localDestinations: *;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -185,8 +189,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * close the document
-		 *
+		 * Close the document
 		 */
 		public function close(): void
 		{
@@ -203,6 +206,10 @@ package org.purepdf.pdf
 				throw new RuntimeError( "not all annotation could be added to the document" );
 			}
 			dispatchEvent( new PageEvent( PageEvent.CLOSE_DOCUMENT ) );
+			
+			writer.addLocalDestinations( localDestinations );
+			calculateOutlineCount();
+			writeOutlines();
 
 			if ( !closed )
 			{
@@ -210,6 +217,82 @@ package org.purepdf.pdf
 				closed = true;
 			}
 			_writer.close();
+		}
+		
+		internal function writeOutlines(): void
+		{
+			if( rootOutline.kids.length == 0 )
+				return;
+			
+			outlineTree( rootOutline );
+			writer.pdf_core::addToBody1( rootOutline, rootOutline.indirectReference );
+		}
+		
+		internal function outlineTree( outline: PdfOutline ): void
+		{
+			outline.indirectReference = writer.getPdfIndirectReference();
+			if (outline.parent != null)
+				outline.put(PdfName.PARENT, outline.parent.indirectReference);
+			var kids: Vector.<Object> = Vector.<Object>( outline.kids );
+			var k: int;
+			var size: int = kids.length;
+			
+			for( k = 0; k < size; ++k )
+				outlineTree( PdfOutline( kids[k] ) );
+					
+			for( k = 0; k < size; ++k )
+			{
+				if( k > 0 )
+					PdfOutline( kids[k] ).put( PdfName.PREV, PdfOutline( kids[k - 1]).indirectReference );
+				if( k < size - 1 )
+					PdfOutline(kids[k]).put( PdfName.NEXT, PdfOutline( kids[k + 1] ).indirectReference );
+			}
+			if( size > 0 )
+			{
+				outline.put( PdfName.FIRST, PdfOutline(kids[0]).indirectReference);
+				outline.put( PdfName.LAST, PdfOutline(kids[size - 1]).indirectReference);
+			}
+			
+			for( k = 0; k < size; ++k )
+			{
+				var kid: PdfOutline = PdfOutline( kids[k] );
+				writer.pdf_core::addToBody1( kid, kid.indirectReference );
+			}
+		}
+		
+		internal function calculateOutlineCount(): void
+		{
+			if( rootOutline.kids.length == 0 )
+				return;
+			traverseOutlineCount( rootOutline );
+		}
+		
+		internal function traverseOutlineCount( outline: PdfOutline ): void
+		{
+			var kids: Vector.<PdfOutline> = outline.kids;
+			var parent: PdfOutline = outline.parent;
+			
+			if( kids.length == 0 )
+			{
+				if( parent != null )
+					parent.count = parent.count + 1;
+			} else 
+			{
+				for( var k: int = 0; k < kids.length; ++k )
+					traverseOutlineCount( PdfOutline( kids[k] ) );
+				
+				if( parent != null )
+				{
+					if( outline.isOpen())
+					{
+						parent.count = outline.count + parent.count + 1;
+					}
+					else {
+						parent.count = parent.count + 1;
+						outline.count = -outline.count;
+					}
+				}
+			}
 		}
 
 		public function getCatalog( pages: PdfIndirectReference ): PdfCatalog
@@ -299,6 +382,14 @@ package org.purepdf.pdf
 			var rotation: int = _pageSize.rotation;
 			
 			// 2
+			pageResources.addDefaultColorDiff( writer.getDefaultColorSpace() );
+			if( writer.isRgbTransparencyBlending() )
+			{
+				var dcs: PdfDictionary = new PdfDictionary();
+				dcs.put( PdfName.CS, PdfName.DEVICERGB );
+				pageResources.addDefaultColorDiff( dcs );
+			}
+			
 			var resources: PdfDictionary = _pageResources.getResources();
 			
 			// 3
@@ -511,7 +602,125 @@ package org.purepdf.pdf
 		 */
 		internal function writeLineToContent( line: PdfLine, text: PdfContentByte, graphics: PdfContentByte, currentValues: Vector.<Object>, ratio: Number ): void
 		{
-			throw new NonImplementatioError();
+			var currentFont: PdfFont = PdfFont(currentValues[0]);
+			var lastBaseFactor: Number = Number(currentValues[1]);
+			var chunk: PdfChunk;
+			var numberOfSpaces: int;
+			var lineLen: int;
+			var isJustified: Boolean;
+			var hangingCorrection: Number = 0;
+			var hScale: Number = 1;
+			var lastHScale: Number = Number.NaN;
+			var baseWordSpacing: Number = 0;
+			var baseCharacterSpacing: Number = 0;
+			var glueWidth: Number = 0;
+			
+			numberOfSpaces = line.numberOfSpaces
+			lineLen = line.lengthUtf32;
+			isJustified = line.hasToBeJustified() && (numberOfSpaces != 0 || lineLen > 1);
+			var separatorCount: int = line.separatorCount;
+
+			if( separatorCount > 0 )
+			{
+				glueWidth = line.widthLeft / separatorCount;
+			} else if (isJustified)
+			{
+				throw new NonImplementatioError("line justification not et implemented");
+			}
+
+			var lastChunkStroke: int = line.lastStrokeChunk;
+			var chunkStrokeIdx: int = 0;
+			var xMarker: Number = text.xTLM;
+			var baseXMarker: Number = xMarker;
+			var yMarker: Number = text.yTLM;
+			var adjustMatrix: Boolean = false;
+			var tabPosition: Number = 0;
+
+			var k: int;
+			for( var j: Iterator = line.iterator(); j.hasNext(); )
+			{
+				chunk = PdfChunk(j.next());
+				var color: RGBColor = chunk.color;
+				hScale = 1;
+				
+				if (chunkStrokeIdx <= lastChunkStroke) {
+					throw new NonImplementatioError();
+				}
+				
+				if( chunk.font.compareTo(currentFont) != 0) {
+					currentFont = chunk.font;
+					text.setFontAndSize( currentFont.font, currentFont.size );					
+				}
+				
+				var rise: Number = 0;
+				var textRender: Vector.<Object> = chunk.getAttribute( Chunk.TEXTRENDERMODE ) as Vector.<Object>;
+				var tr: int = 0;
+				var strokeWidth: Number = 1;
+				var strokeColor: RGBColor = null;
+				var fr: Object = ( chunk.getAttribute( Chunk.SUBSUPSCRIPT ) );
+				
+				if (textRender != null) {
+					throw new NonImplementatioError("textrenderer not yet supported");
+				}
+				
+				if( fr != null )
+					rise = Number(fr);
+				if( color != null )
+					text.setFillColor( color );
+				if( rise != 0 )
+					text.setTextRise( rise );
+				if( chunk.isImage() )
+					adjustMatrix = true;
+				else if( chunk.isHorizontalSeparator() )
+				{
+					throw new NonImplementatioError();
+				} else if( chunk.isTab() )
+				{
+					throw new NonImplementatioError();
+				} else if( isJustified && numberOfSpaces > 0 && chunk.isSpecialEncoding() )
+				{
+					throw new NonImplementatioError();
+				} else {
+					if( isJustified && hScale != lastHScale )
+					{
+						lastHScale = hScale;
+						text.setWordSpacing( baseWordSpacing / hScale);
+						text.setCharacterSpacing( baseCharacterSpacing / hScale + text.getCharacterSpacing() );
+					}
+					text.showText( chunk.toString() );
+				}
+				
+				if (rise != 0)
+					text.setTextRise( 0 );
+				if (color != null)
+					text.resetFill();
+				if (tr != PdfContentByte.TEXT_RENDER_MODE_FILL)
+					text.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				if (strokeColor != null)
+					text.resetStroke();
+				if (strokeWidth != 1)
+					text.setLineWidth(1);
+				if (chunk.isAttribute(Chunk.SKEW) || chunk.isAttribute(Chunk.HSCALE)) {
+					adjustMatrix = true;
+					text.setTextMatrix(xMarker, yMarker);
+				}
+				if (chunk.isAttribute(Chunk.CHAR_SPACING)) {
+					text.setCharacterSpacing(baseCharacterSpacing);
+				}
+			}
+			
+			if( isJustified )
+			{
+				text.setWordSpacing(0);
+				text.setCharacterSpacing(0);
+				if( line.isNewlineSplit() )
+					lastBaseFactor = 0;
+			}
+			
+			if( adjustMatrix )
+				text.moveText( baseXMarker - text.xTLM, 0 );
+			currentValues[0] = currentFont;
+			currentValues[1] = lastBaseFactor;
 		}
 
 		protected function get indentBottom(): Number
@@ -570,7 +779,7 @@ package org.purepdf.pdf
 			}
 			catch ( e: Error )
 			{
-				throw e;
+				throw new ConversionError(e);
 			}
 			leading = oldleading;
 			alignment = oldAlignment;

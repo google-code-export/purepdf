@@ -8,8 +8,10 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfEncodings;
+	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfStream;
+	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringUtils;
 
@@ -101,6 +103,24 @@ package org.purepdf.pdf.fonts
 			super();
 		}
 
+		/**
+		 * @throws DocumentError
+		 * @throws IOError
+		 */
+		internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
+		{
+			throw new NonImplementatioError("Font instance does not implement the writeFont method");
+		}
+		
+		/**
+		 * @throws IOError
+		 * @throws DocumentError;
+		 */
+		internal function getFullFontStream(): PdfStream
+		{
+			throw new NonImplementatioError("getFullFontStream not implemented in font class");
+		}
+		
 		public function get fontType(): int
 		{
 			return _fontType;

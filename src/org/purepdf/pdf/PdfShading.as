@@ -24,6 +24,8 @@ package org.purepdf.pdf
 		protected var _writer: PdfWriter;
 
 		private var _cspace: RGBColor;
+		
+		use namespace pdf_core;
 
 		public function PdfShading( $writer: PdfWriter )
 		{

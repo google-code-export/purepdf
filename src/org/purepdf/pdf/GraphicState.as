@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
+	import org.purepdf.pdf.fonts.FontDetails;
 
 	public class GraphicState extends ObjectHash
 	{
@@ -12,6 +13,7 @@ package org.purepdf.pdf
 		internal var wordSpace: Number = 0;
 		internal var xTLM: Number = 0;
 		internal var yTLM: Number = 0;
+		internal var fontDetails: FontDetails;
 
 		public function GraphicState()
 		{
@@ -28,6 +30,7 @@ package org.purepdf.pdf
 			g.charSpace = state.charSpace;
 			g.wordSpace = state.wordSpace;
 			g.colorDetails = state.colorDetails;
+			g.fontDetails = state.fontDetails;
 			return g;
 		}
 	}

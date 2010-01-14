@@ -10,14 +10,27 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.io.LineReader;
 	import org.purepdf.pdf.ByteBuffer;
+	import org.purepdf.pdf.PdfArray;
+	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfEncodings;
+	import org.purepdf.pdf.PdfIndirectObject;
+	import org.purepdf.pdf.PdfIndirectReference;
+	import org.purepdf.pdf.PdfName;
+	import org.purepdf.pdf.PdfNumber;
+	import org.purepdf.pdf.PdfObject;
+	import org.purepdf.pdf.PdfRectangle;
+	import org.purepdf.pdf.PdfStream;
+	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringTokenizer;
 	import org.purepdf.utils.StringUtils;
+	import org.purepdf.utils.pdf_core;
 
 	public class Type1Font extends BaseFont
 	{
 		private static const PFB_TYPES: Vector.<int> = Vector.<int>( [ 1, 2, 1 ] );
+
+		private static var logger: ILogger = LoggerFactory.getClassLogger( Type1Font );
 		protected var pfb: Vector.<int>;
 		private var Ascender: int = 800;
 		private var CapHeight: int = 700;
@@ -44,125 +57,289 @@ package org.purepdf.pdf.fonts
 		private var urx: int = 1000;
 		private var ury: int = 900;
 		
-		private static var logger: ILogger = LoggerFactory.getClassLogger( Type1Font );
+		use namespace pdf_core;
 
 		public function Type1Font( afmFile: String, enc: String, emb: Boolean, ttfAfm: Vector.<int>, pfb: Vector.<int>, forceRead: Boolean )
 		{
-			if (emb && ttfAfm != null && pfb == null)
-				throw new DocumentError("two byte arrays are needed. if the type1 font is embedded");
-			if (emb && ttfAfm != null)
+			if ( emb && ttfAfm != null && pfb == null )
+				throw new DocumentError( "two byte arrays are needed. if the type1 font is embedded" );
+
+			if ( emb && ttfAfm != null )
 				this.pfb = pfb;
-			
+
 			_encoding = enc;
 			embedded = emb;
 			fileName = afmFile;
 			_fontType = FONT_TYPE_T1;
-			
-			if( builtinFonts14.containsKey( afmFile ) )
+
+			if ( builtinFonts14.containsKey( afmFile ) )
 			{
 				embedded = false;
 				builtinFont = true;
-				
+
 				var byte: ByteArray = FontsResourceFactory.getInstance().getFontFile( afmFile + ".afm" );
 
-				if( byte == null )
+				if ( byte == null )
 					throw new DocumentError( afmFile + " not found in resources" );
-				
+
 				process( new LineReader( byte ) );
-			} else
-			{
-				throw new DocumentError( afmFile + " is not an amf or pfm recognized font file");
 			}
-			
+			else
+			{
+				throw new DocumentError( afmFile + " is not an amf or pfm recognized font file" );
+			}
+
 			EncodingScheme = StringUtils.trim( EncodingScheme );
-			
-			if( EncodingScheme == "AdobeStandardEncoding" || EncodingScheme == "StandardEncoding" )
+
+			if ( EncodingScheme == "AdobeStandardEncoding" || EncodingScheme == "StandardEncoding" )
 				fontSpecific = false;
-			
-			if( !StringUtils.startsWith( encoding, "#" ) )
-				PdfEncodings.convertToBytes(" ", enc );
+
+			if ( !StringUtils.startsWith( encoding, "#" ) )
+				PdfEncodings.convertToBytes( " ", enc );
 			createEncoding();
 		}
-		
-		override protected function getRawWidth(c:int, name:String) : int
-		{
-			var metrics: Vector.<Object>;
-			if( name == null )
-			{
-				metrics = CharMetrics.getValue(c) as Vector.<Object>;
-			} else
-			{
-				if( name == notdef)
-					return 0;
-				metrics = CharMetrics.getValue( name ) as Vector.<Object>;
-			}
-			
-			if( metrics != null )
-				return metrics[1] as int;
-			return 0;
-		}
-		
-		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>
-		{
-			var metrics: Vector.<Object>;
-			if( name == null ) 
-			{
-				metrics = CharMetrics.getValue( c ) as Vector.<Object>;
-			} else
-			{
-				if( name == notdef )
-					return null;
-				metrics = CharMetrics.getValue( name ) as Vector.<Object>;
-			}
-			if( metrics != null )
-				return metrics[3] as Vector.<int>;
-			return null;
-		}
-		
-		
+
+
 		protected function createEncoding(): void
 		{
 			var k: int;
-			if( StringUtils.startsWith( encoding, "#" ) )
+
+			if ( StringUtils.startsWith( encoding, "#" ) )
 			{
 				throw new NonImplementatioError();
-			} else if( fontSpecific )
+			}
+			else if ( fontSpecific )
 			{
-				for( k = 0; k < 256; ++k )
+				for ( k = 0; k < 256; ++k )
 				{
-					widths[k] = getRawWidth(k, null);
-					charBBoxes[k] = getRawCharBBox(k, null);
+					widths[ k ] = getRawWidth( k, null );
+					charBBoxes[ k ] = getRawCharBBox( k, null );
 				}
-			} else {
+			}
+			else
+			{
 				var s: String;
 				var name: String;
 				var c: int;
-				var b: Bytes = new Bytes(1);
-				for( k = 0; k < 256; ++k )
+				var b: Bytes = new Bytes( 1 );
+
+				for ( k = 0; k < 256; ++k )
 				{
-					b[0] = ByteBuffer.intToByte(k);
+					b[ 0 ] = ByteBuffer.intToByte( k );
 					s = PdfEncodings.convertToString( b, encoding );
-					if( s.length > 0 )
-						c = s.charCodeAt(0);
+
+					if ( s.length > 0 )
+						c = s.charCodeAt( 0 );
 					else
-						c = 63;	// '?'
-					
-					name = GlyphList.unicode2name(c);
-					
-					if( name == null )
+						c = 63; // '?'
+
+					name = GlyphList.unicode2name( c );
+
+					if ( name == null )
 						name = notdef;
-					
-					differences[k] = name;
-					unicodeDifferences[k] = c;
-					widths[k] = getRawWidth(c, name);
-					charBBoxes[k] = getRawCharBBox(c, name);
+
+					differences[ k ] = name;
+					unicodeDifferences[ k ] = c;
+					widths[ k ] = getRawWidth( c, name );
+					charBBoxes[ k ] = getRawCharBBox( c, name );
 				}
 			}
 		}
-		
+
+		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>
+		{
+			var metrics: Vector.<Object>;
+
+			if ( name == null )
+			{
+				metrics = CharMetrics.getValue( c ) as Vector.<Object>;
+			}
+			else
+			{
+				if ( name == notdef )
+					return null;
+				metrics = CharMetrics.getValue( name ) as Vector.<Object>;
+			}
+
+			if ( metrics != null )
+				return metrics[ 3 ] as Vector.<int>;
+			return null;
+		}
+
+		override protected function getRawWidth( c: int, name: String ): int
+		{
+			var metrics: Vector.<Object>;
+
+			if ( name == null )
+			{
+				metrics = CharMetrics.getValue( c ) as Vector.<Object>;
+			}
+			else
+			{
+				if ( name == notdef )
+					return 0;
+				metrics = CharMetrics.getValue( name ) as Vector.<Object>;
+			}
+
+			if ( metrics != null )
+				return metrics[ 1 ] as int;
+			return 0;
+		}
+
+		override internal function getFullFontStream(): PdfStream
+		{
+			if ( builtinFont || !embedded )
+				return null;
+
+			throw new NonImplementatioError();
+		}
+
+		override internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
+		{
+			var firstChar: int = params[ 0 ] as int;
+			var lastChar: int = params[ 1 ] as int;
+			var shortTag: Vector.<int> = Vector.<int>( params[ 2 ] );
+			var subsetp: Boolean = params[ 3 ] && subset;
+			var k: int;
+
+			if ( !subsetp )
+			{
+				firstChar = 0;
+				lastChar = shortTag.length - 1;
+
+				for ( k = 0; k < shortTag.length; ++k )
+					shortTag[ k ] = 1;
+			}
+
+			var ind_font: PdfIndirectReference = null;
+			var pobj: PdfObject = null;
+			var obj: PdfIndirectObject = null;
+
+			pobj = getFullFontStream();
+
+			if ( pobj != null )
+			{
+				obj = writer.addToBody( pobj );
+				ind_font = obj.getIndirectReference();
+			}
+
+			pobj = getFontDescriptor( ind_font );
+
+			if ( pobj != null )
+			{
+				obj = writer.addToBody( pobj );
+				ind_font = obj.getIndirectReference();
+			}
+
+			pobj = getFontBaseType( ind_font, firstChar, lastChar, shortTag );
+			writer.addToBody1( pobj, ref );
+		}
+
+		private function getFontBaseType( fontDescriptor: PdfIndirectReference, firstChar: int, lastChar: int, shortTag: Vector.<int> ): PdfDictionary
+		{
+			var k: int;
+			var dic: PdfDictionary = new PdfDictionary( PdfName.FONT );
+			dic.put( PdfName.SUBTYPE, PdfName.TYPE1 );
+			dic.put( PdfName.BASEFONT, new PdfName( FontName ) );
+			var stdEncoding: Boolean = encoding == "Cp1252" || encoding == "MacRoman";
+
+			if ( !fontSpecific || specialMap != null )
+			{
+				for ( k = firstChar; k <= lastChar; ++k )
+				{
+					if ( !differences[ k ] == notdef )
+					{
+						firstChar = k;
+						break;
+					}
+				}
+
+				if ( stdEncoding )
+					dic.put( PdfName.ENCODING, encoding == "Cp1252" ? PdfName.WIN_ANSI_ENCODING : PdfName.MAC_ROMAN_ENCODING );
+				else
+				{
+					var enc: PdfDictionary = new PdfDictionary( PdfName.ENCODING );
+					var dif: PdfArray = new PdfArray();
+					var gap: Boolean = true;
+
+					for ( k = firstChar; k <= lastChar; ++k )
+					{
+						if ( shortTag[ k ] != 0 )
+						{
+							if ( gap )
+							{
+								dif.add( new PdfNumber( k ) );
+								gap = false;
+							}
+							dif.add( new PdfName( differences[ k ] ) );
+						}
+						else
+							gap = true;
+					}
+					enc.put( PdfName.DIFFERENCES, dif );
+					dic.put( PdfName.ENCODING, enc );
+				}
+			}
+
+			if ( specialMap != null || forceWidthsOutput || !( builtinFont && ( fontSpecific || stdEncoding ) ) )
+			{
+				dic.put( PdfName.FIRSTCHAR, new PdfNumber( firstChar ) );
+				dic.put( PdfName.LASTCHAR, new PdfNumber( lastChar ) );
+				var wd: PdfArray = new PdfArray();
+
+				for ( k = firstChar; k <= lastChar; ++k )
+				{
+					if ( shortTag[ k ] == 0 )
+						wd.add( new PdfNumber( 0 ) );
+					else
+						wd.add( new PdfNumber( widths[ k ] ) );
+				}
+				dic.put( PdfName.WIDTHS, wd );
+			}
+
+			if ( !builtinFont && fontDescriptor != null )
+				dic.put( PdfName.FONTDESCRIPTOR, fontDescriptor );
+			return dic;
+		}
+
+		private function getFontDescriptor( fontStream: PdfIndirectReference ): PdfDictionary
+		{
+			if ( builtinFont )
+				return null;
+
+			var dic: PdfDictionary = new PdfDictionary( PdfName.FONTDESCRIPTOR );
+			dic.put( PdfName.ASCENT, new PdfNumber( Ascender ) );
+			dic.put( PdfName.CAPHEIGHT, new PdfNumber( CapHeight ) );
+			dic.put( PdfName.DESCENT, new PdfNumber( Descender ) );
+			dic.put( PdfName.FONTBBOX, new PdfRectangle( llx, lly, urx, ury ) );
+			dic.put( PdfName.FONTNAME, new PdfName( FontName ) );
+			dic.put( PdfName.ITALICANGLE, new PdfNumber( ItalicAngle ) );
+			dic.put( PdfName.STEMV, new PdfNumber( StdVW ) );
+
+			if ( fontStream != null )
+				dic.put( PdfName.FONTFILE, fontStream );
+			var flags: int = 0;
+
+			if ( IsFixedPitch )
+				flags |= 1;
+			flags |= fontSpecific ? 4 : 32;
+
+			if ( ItalicAngle < 0 )
+				flags |= 64;
+
+			if ( FontName.indexOf( "Caps" ) >= 0 || StringUtils.endsWith( FontName, "SC" ) )
+				flags |= 131072;
+
+			if ( Weight == "Bold" )
+				flags |= 262144;
+			dic.put( PdfName.FLAGS, new PdfNumber( flags ) );
+
+			return dic;
+		}
+
 		/**
 		 * Reads the font metrics
-		 * 
+		 *
 		 * @param rf ByteArray containing the AFM file
 		 * @throws DocumentError
 		 * @throws IOError
@@ -173,231 +350,222 @@ package org.purepdf.pdf.fonts
 			var isMetrics: Boolean = false;
 			var tokens: StringTokenizer;
 			var ident: String;
-			
-			while( ( line = rf.readLine() ) != null )
+
+			while ( ( line = rf.readLine() ) != null )
 			{
 				tokens = new StringTokenizer( line );
-				
-				if( !tokens.hasMoreTokens() )
+
+				if ( !tokens.hasMoreTokens() )
 					continue;
-				
+
 				ident = tokens.nextToken();
-				
-				switch( ident )
+
+				switch ( ident )
 				{
-					case "FontName": 
+					case "FontName":
 						FontName = tokens.nextToken();
 						break;
-					
+
 					case "FullName":
 						FullName = tokens.nextToken();
 						break;
-					
+
 					case "FamilyName":
 						FamilyName = tokens.nextToken();
 						break;
-					
+
 					case "Weight":
 						Weight = tokens.nextToken();
 						break;
-					
+
 					case "ItalicAngle":
 						ItalicAngle = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "IsFixedPitch":
 						IsFixedPitch = tokens.nextToken() == "true";
 						break;
-					
+
 					case "CharacterSet":
 						CharacterSet = tokens.nextToken();
 						break;
-					
+
 					case "FontBBox":
 						llx = parseFloat( tokens.nextToken() );
 						lly = parseFloat( tokens.nextToken() );
 						urx = parseFloat( tokens.nextToken() );
 						ury = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "UnderlinePosition":
 						UnderlinePosition = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "UnderlineTickness":
 						UnderlineThickness = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "EncodingScheme":
 						EncodingScheme = tokens.nextToken();
 						break;
-					
+
 					case "CapHeight":
 						CapHeight = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "XHeight":
 						XHeight = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "Ascender":
 						Ascender = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "Descender":
 						Descender = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "StdHW":
 						StdHW = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "StdVW":
 						StdVW = parseFloat( tokens.nextToken() );
 						break;
-					
+
 					case "StartCharMetrics":
 						isMetrics = true;
 						break;
 				}
-				
-				if( isMetrics ) break;
-			}
-			
-			if( !isMetrics )
-				throw new DocumentError("missing StartCharMetrics");
 
-			while( ( line = rf.readLine() ) != null )
+				if ( isMetrics )
+					break;
+			}
+
+			if ( !isMetrics )
+				throw new DocumentError( "missing StartCharMetrics" );
+
+			while ( ( line = rf.readLine() ) != null )
 			{
 				tokens = new StringTokenizer( line );
-				if( !tokens.hasMoreTokens() )
+
+				if ( !tokens.hasMoreTokens() )
 					continue;
-				
+
 				ident = tokens.nextToken();
-				
-				if( ident == "EndCharMetrics" )
+
+				if ( ident == "EndCharMetrics" )
 				{
 					isMetrics = false;
 					break;
 				}
-				
+
 				var C: int = -1;
 				var WX: int = 250;
 				var N: String = "";
 				var B: Vector.<int>;
-				
+
 				tokens = new StringTokenizer( line, /\s?;\s?/g );
-				while( tokens.hasMoreTokens() )
+
+				while ( tokens.hasMoreTokens() )
 				{
 					var tokc: StringTokenizer = new StringTokenizer( tokens.nextToken() );
-					
-					if( !tokc.hasMoreTokens() )
+
+					if ( !tokc.hasMoreTokens() )
 						continue;
-					
+
 					ident = tokc.nextToken();
-					
-					if( ident == "C" )
+
+					if ( ident == "C" )
 						C = parseInt( tokc.nextToken() );
-					else if( ident == "WX" )
+					else if ( ident == "WX" )
 						WX = parseFloat( tokc.nextToken() );
-					else if( ident == "N" )
+					else if ( ident == "N" )
 						N = tokc.nextToken();
-					else if( ident == "B" )
-						B = Vector.<int>([ parseInt( tokc.nextToken() ), 
-							parseInt( tokc.nextToken() ),
-							parseInt( tokc.nextToken() ),
-							parseInt( tokc.nextToken() ) ]);
+					else if ( ident == "B" )
+						B = Vector.<int>( [ parseInt( tokc.nextToken() ), parseInt( tokc.nextToken() ), parseInt( tokc.nextToken() ), parseInt( tokc
+							.nextToken() ) ] );
 				}
-				
-				var metrics: Vector.<Object> = Vector.<Object>([ C, WX, N, B ]);
-				if( C >= 0 )
+
+				var metrics: Vector.<Object> = Vector.<Object>( [ C, WX, N, B ] );
+
+				if ( C >= 0 )
 					CharMetrics.put( C, metrics );
 				CharMetrics.put( N, metrics );
 			}
-			
-			if( isMetrics )
-				throw new DocumentError("missing EndCharMetrics");
-			
-			if( !CharMetrics.containsKey("nonbreakingspace") )
+
+			if ( isMetrics )
+				throw new DocumentError( "missing EndCharMetrics" );
+
+			if ( !CharMetrics.containsKey( "nonbreakingspace" ) )
 			{
-				var space: Vector.<Object> = CharMetrics.getValue("space") as Vector.<Object>;
-				if( space != null )
-					CharMetrics.put("nonbreakingspace", space );
+				var space: Vector.<Object> = CharMetrics.getValue( "space" ) as Vector.<Object>;
+
+				if ( space != null )
+					CharMetrics.put( "nonbreakingspace", space );
 			}
-			
-			while( ( line = rf.readLine() ) != null )
+
+			while ( ( line = rf.readLine() ) != null )
 			{
 				tokens = new StringTokenizer( line );
-				if( !tokens.hasMoreTokens() )
+
+				if ( !tokens.hasMoreTokens() )
 					continue;
-				
+
 				ident = tokens.nextToken();
-				if( ident == "EndFontMetrics" )
+
+				if ( ident == "EndFontMetrics" )
 					return;
-				if( ident == "StartKernPairs" )
+
+				if ( ident == "StartKernPairs" )
 				{
 					isMetrics = true;
 					break;
 				}
 			}
-			
-			if( !isMetrics )
-				throw new DocumentError("Missing EndFontMetrics");
-			
-			while( ( line = rf.readLine() ) != null )
+
+			if ( !isMetrics )
+				throw new DocumentError( "Missing EndFontMetrics" );
+
+			while ( ( line = rf.readLine() ) != null )
 			{
-				tokens = new StringTokenizer(line);
-				if( !tokens.hasMoreTokens() )
+				tokens = new StringTokenizer( line );
+
+				if ( !tokens.hasMoreTokens() )
 					continue;
-				
+
 				ident = tokens.nextToken();
-				
-				if( ident == "KPX" )
+
+				if ( ident == "KPX" )
 				{
 					var first: String = tokens.nextToken();
 					var second: String = tokens.nextToken();
 					var width: int = parseInt( tokens.nextToken() );
-					var relateds: Vector.<Object> = KernPairs.getValue(first) as Vector.<Object>;
-					if( relateds == null )
+					var relateds: Vector.<Object> = KernPairs.getValue( first ) as Vector.<Object>;
+
+					if ( relateds == null )
 					{
-						KernPairs.put( first, Vector.<Object>([second, width]));
-					} else {
+						KernPairs.put( first, Vector.<Object>( [ second, width ] ) );
+					}
+					else
+					{
 						var n: int = relateds.length;
 						var relateds2: Vector.<Object>;
 						relateds2 = relateds.concat();
-						relateds2[n] = second;
-						relateds2[n+1] = width;
+						relateds2[ n ] = second;
+						relateds2[ n + 1 ] = width;
 						KernPairs.put( first, relateds2 );
-					}	
-				} else if( ident == "EndKernPairs" )
+					}
+				}
+				else if ( ident == "EndKernPairs" )
 				{
 					isMetrics = false;
 					break;
 				}
 			}
-			
-			if( isMetrics )
-				throw new DocumentError("missing EndKernPairs");
-			
-			
+
+			if ( isMetrics )
+				throw new DocumentError( "missing EndKernPairs" );
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 }

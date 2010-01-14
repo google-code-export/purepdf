@@ -17,6 +17,9 @@ package org.purepdf.pdf
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.DocumentFont;
+	import org.purepdf.pdf.fonts.FontDetails;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
@@ -41,6 +44,7 @@ package org.purepdf.pdf
 		protected var defaultPageSize: PageSize;
 		protected var directContent: PdfContentByte;
 		protected var directContentUnder: PdfContentByte;
+		protected var documentFonts: HashMap = new HashMap();	// LinkedHashMap
 		protected var documentColors: HashMap = new HashMap();
 		protected var documentExtGState: HashMap = new HashMap();
 		protected var documentPatterns: HashMap = new HashMap();
@@ -52,6 +56,7 @@ package org.purepdf.pdf
 		protected var OCProperties: PdfOCProperties;
 		protected var OCGRadioGroup: PdfArray = new PdfArray();
 
+		protected var fontCount: int = 1;
 		protected var OCGLocked: PdfArray = new PdfArray();
 		protected var documentSpotPatterns: HashMap = new HashMap();
 		protected var extraCatalog: PdfDictionary;
@@ -62,6 +67,7 @@ package org.purepdf.pdf
 		protected var imageDictionary: PdfDictionary = new PdfDictionary();
 		protected var images: HashMap = new HashMap();
 		protected var opened: Boolean = false;
+		protected var _rgbTransparencyBlending: Boolean;
 
 		protected var os: OutputStreamCounter;
 		protected var pageReferences: Vector.<PdfIndirectReference> = new Vector.<PdfIndirectReference>();
@@ -73,7 +79,6 @@ package org.purepdf.pdf
 		protected var pdf: PdfDocument;
 		protected var pdf_version: PdfVersion = new PdfVersion();
 		protected var prevxref: int = 0;
-		protected var rgbTransparencyBlending: Boolean;
 		protected var root: PdfPages;
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
@@ -106,6 +111,22 @@ package org.purepdf.pdf
 		{
 			fillOCProperties( true );
 			return OCProperties;
+		}
+		
+		/**
+		 * Gets the transparency blending colorspace
+		 */
+		public function get rgbTransparencyBlending(): Boolean
+		{
+			return _rgbTransparencyBlending;
+		}
+		
+		/**
+		 * Sets the transparency blending colorspace to RGB
+		 */
+		public function set rgbTransparencyBlending(  value: Boolean ): void
+		{
+			_rgbTransparencyBlending = value;
 		}
 		
 		protected function fillOCProperties( erase: Boolean ): void
@@ -294,7 +315,7 @@ package org.purepdf.pdf
 				page.put( PdfName.GROUP, group );
 				group = null;
 			}
-			else if ( rgbTransparencyBlending )
+			else if ( _rgbTransparencyBlending )
 			{
 				var pp: PdfDictionary = new PdfDictionary();
 				pp.put( PdfName.TYPE, PdfName.GROUP );
@@ -307,6 +328,11 @@ package org.purepdf.pdf
 			currentPageNumber++;
 			return null;
 		}
+		
+		internal function addLocalDestinations( dest: PdfDestination ): void
+		{
+			logger.warn("addLocalDestinations not implemented");
+		}
 
 		internal function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
 		{
@@ -318,19 +344,19 @@ package org.purepdf.pdf
 			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
 		}
 
-		internal function addToBody( object: PdfObject ): PdfIndirectObject
+		pdf_core function addToBody( object: PdfObject ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add1( object );
 			return iobj;
 		}
 
-		internal function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
+		pdf_core function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add3( object, ref );
 			return iobj;
 		}
 
-		internal function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
+		pdf_core function addToBody2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
 		{
 			var iobj: PdfIndirectObject = body.add2( object, inObjStm );
 			return iobj;
@@ -622,20 +648,6 @@ package org.purepdf.pdf
 			group = value;
 		}
 
-		/**
-		 * Sets the transparency blending colorspace to RGB. The default blending colorspace is
-		 * CMYK and will result in faded colors in the screen and in printing. Calling this method
-		 * will return the RGB colors to what is expected. The RGB blending will be applied to all subsequent pages
-		 * until other value is set.
-		 * Note that this is a generic solution that may not work in all cases.
-		 * @param rgbTransparencyBlending <code>true</code> to set the transparency blending colorspace to RGB, <code>false</code>
-		 * to use the default blending colorspace
-		 */
-		public function setRgbTransparencyBlending( value: Boolean ): void
-		{
-			rgbTransparencyBlending = value;
-		}
-
 		public function setTabs( value: PdfName ): void
 		{
 			tabs = value;
@@ -649,6 +661,13 @@ package org.purepdf.pdf
 			var objs: Vector.<Object>;
 
 			// 3 add the fonts
+			it = documentFonts.values().iterator();
+			for( it; it.hasNext(); )
+			{
+				var details: FontDetails = FontDetails( it.next() );
+				details.writeFont( this );
+			}
+			
 			// 4 add the form XObjects
 			it = formXObjects.values().iterator();
 			for( it; it.hasNext(); )
@@ -830,6 +849,26 @@ package org.purepdf.pdf
 
 			return name;
 		}
+		
+		/**
+		 * Adds a font to the document but not to the page resources.
+		 * It is used for templates.
+		 * 
+		 * @see org.purepdf.pdf.fonts.BaseFont
+		 */
+		pdf_core function addSimpleFont( bf: BaseFont ): FontDetails
+		{
+			if( bf.fontType == BaseFont.FONT_TYPE_DOCUMENT )
+				return new FontDetails( new PdfName("F" + (fontCount++)), DocumentFont( bf ).indirectReference, bf );
+			
+			var ret: FontDetails = documentFonts.getValue( bf ) as FontDetails;
+			if( ret == null )
+			{
+				ret = new FontDetails( new PdfName("F" + (fontCount++)), body.getPdfIndirectReference(), bf );
+				documentFonts.put( bf, ret );
+			}
+			return ret;
+		}
 
 		/**
 		 * Adds a SpotColor to the document but not to the page resources.
@@ -839,7 +878,7 @@ package org.purepdf.pdf
 		 * and position 1 is an PdfIndirectReference
 		 *
 		 */
-		pdf_core function addSimple( spc: PdfSpotColor ): ColorDetails
+		pdf_core function addSimpleSpotColor( spc: PdfSpotColor ): ColorDetails
 		{
 			var ret: ColorDetails = documentColors.getValue( spc ) as ColorDetails;
 
@@ -849,6 +888,17 @@ package org.purepdf.pdf
 				documentColors.put( spc, ret );
 			}
 			return ret;
+		}
+		
+		
+		pdf_core function eliminateFontSubset( fonts: PdfDictionary ): void
+		{
+			for( var it: Iterator = documentFonts.values().iterator(); it.hasNext();)
+			{
+				var ft: FontDetails = FontDetails(it.next());
+				if( fonts.getValue( ft.fontName ) != null )
+					ft.subset = false;
+			}
 		}
 		
 		pdf_core function addSimpleShading( value: PdfShading ): void
@@ -925,7 +975,7 @@ package org.purepdf.pdf
 					return patternColorspaceGRAY;
 				case ExtendedColor.TYPE_SEPARATION:
 				{
-					var details: ColorDetails = pdf_core::addSimple( SpotColor( color ).pdfSpotColor );
+					var details: ColorDetails = pdf_core::addSimpleSpotColor( SpotColor( color ).pdfSpotColor );
 					var patternDetails: ColorDetails = documentSpotPatterns.getValue( details ) as ColorDetails;
 
 					if ( patternDetails == null )

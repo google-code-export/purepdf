@@ -17,8 +17,11 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.errors.IllegalPdfSyntaxError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
@@ -72,6 +75,24 @@ package org.purepdf.pdf
 		{
 			addImage1( image, false );
 		}
+		
+		/**
+		 * Sets the text rendering mode
+		 */
+		public function setTextRenderingMode( rendering: int ): void 
+		{
+			content.append_number( rendering ).append_string( " Tr" ).append_separator();
+		}
+
+		
+		/**
+		 * Change the word spacing
+		 */
+		public function setWordSpacing( wordSpace: Number ): void
+		{
+			state.wordSpace = wordSpace;
+			content.append_number( wordSpace ).append_string( " Tw" ).append_separator();
+		}
 
 		/**
 		 * Adds an <CODE>ImageElement</CODE> to the page. The <CODE>ImageElement</CODE> must have
@@ -84,7 +105,7 @@ package org.purepdf.pdf
 		public function addImage1( image: ImageElement, inlineImage: Boolean ): void
 		{
 			if ( !image.hasAbsoluteY )
-				throw new Error( "image must have absolute position" );
+				throw new ArgumentError( "image must have absolute position" );
 			var matrix: Vector.<Number> = image.matrix;
 			matrix[ ImageElement.CX ] = image.absoluteX - matrix[ ImageElement.CX ];
 			matrix[ ImageElement.CY ] = image.absoluteY - matrix[ ImageElement.CY ];
@@ -121,8 +142,9 @@ package org.purepdf.pdf
 				var template: PdfTemplate = image.templateData;
 				w = template.width;
 				h = template.height;
+				
 				throw new NonImplementatioError();
-					//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
+				//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
 			}
 			else
 			{
@@ -306,11 +328,11 @@ package org.purepdf.pdf
 		public function beginText(): void
 		{
 			if ( inText )
-				throw new Error( "Unbalanced begin and end text" );
+				throw new IllegalPdfSyntaxError( "Unbalanced begin and end text" );
 			inText = true;
 			state.xTLM = 0;
 			state.yTLM = 0;
-			content.append( "BT" ).append_separator();
+			content.append_string( "BT" ).append_separator();
 		}
 
 		/** Draws a circle. The endpoint will (x+r, y).
@@ -482,7 +504,7 @@ package org.purepdf.pdf
 			}
 			else
 			{
-				throw new Error( "unbalanced layer operators" );
+				throw new IllegalPdfSyntaxError( "unbalanced layer operators" );
 			}
 
 			while ( n-- > 0 )
@@ -492,7 +514,7 @@ package org.purepdf.pdf
 		public function endText(): void
 		{
 			if ( !inText )
-				throw new Error( "Unbalanced begin and end text" );
+				throw new IllegalPdfSyntaxError( "Unbalanced begin and end text" );
 			inText = false;
 			content.append( "ET" ).append_separator();
 		}
@@ -542,10 +564,27 @@ package org.purepdf.pdf
 			content.append_number( x ).append_char( ' ' ).append_number( y ).append( " Td" ).append_separator();
 		}
 
+		/**
+		 * Move the current point omitting any connecting line segment.
+		 */
 		public function moveTo( x: Number, y: Number ): void
 		{
 			content.append_number( x ).append_string( ' ' ).append_number( y ).append_string( " m" ).append_separator();
 		}
+		
+		/**
+		 * Change the text matrix
+		 */
+		public function setTextMatrix( a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, x: Number = 0, y: Number = 0 ): void
+		{
+			state.xTLM = x;
+			state.yTLM = y;
+			content.append_number(a).append_char(' ').append_number(b).pdf_core::append_int(32)
+				.append_number(c).append_int(32).append_number(d).pdf_core::append_int(32)
+				.append_number(x).pdf_core::append_int(32).append_number(y).append_string(" Tm")
+				.append_separator();
+		}
+
 
 		/**
 		 * Ends the path without filling or stroking it.
@@ -559,6 +598,23 @@ package org.purepdf.pdf
 		{
 			return pdf.pageResources;
 		}
+		
+		/**
+		 * Get the x position of the text line matrix.
+		 */
+		public function get xTLM(): Number
+		{
+			return state.xTLM;
+		}
+		
+		/**
+		 * Get the y position of the text line matrix
+		 */
+		public function get yTLM(): Number
+		{
+			return state.yTLM;
+		}
+
 
 		/**
 		 * Paint using a shading object
@@ -658,7 +714,7 @@ package org.purepdf.pdf
 			var idx: int = stateList.length - 1;
 
 			if ( idx < 0 )
-				throw new Error( 'IllegalPdfSyntaxException' );
+				throw new IllegalPdfSyntaxError("nothing to restore");
 			state = stateList[ idx ];
 			stateList.splice( idx, 1 );
 		}
@@ -899,15 +955,11 @@ package org.purepdf.pdf
 
 		/**
 		 * Changes the line width.
-		 * <P>
-		 * The line width specifies the thickness of the line used to stroke a path and is measured
-		 * in user space units.<BR>
-		 *
 		 * @param	w
 		 */
 		public function setLineWidth( w: Number ): void
 		{
-			content.append_number( w ).append( " w" ).append_separator();
+			content.append_number( w ).append_string( " w" ).append_separator();
 		}
 
 		/**
@@ -1311,17 +1363,17 @@ package org.purepdf.pdf
 
 			if ( inText )
 			{
-				throw new Error( "unbalanced begin and end text operators" );
+				throw new IllegalPdfSyntaxError( "unbalanced begin and end text operators" );
 			}
 
 			if ( layerDepth != null && !( layerDepth.length == 0 ) )
 			{
-				throw new Error( "unbalanced layer operators" );
+				throw new IllegalPdfSyntaxError( "unbalanced layer operators" );
 			}
 
 			if ( !( stateList.length == 0 ) )
 			{
-				throw new Error( "unbalanced save and restore state operators" );
+				throw new IllegalPdfSyntaxError( "unbalanced save and restore state operators" );
 			}
 		}
 
@@ -1540,30 +1592,80 @@ package org.purepdf.pdf
 				? " scn" : " SCN" ).append_separator();
 		}
 
+		/**
+		 * Set the font and the size for the subsequent text writing
+		 */
+		public function setFontAndSize( bf: BaseFont, size: Number ): void
+		{
+			checkWriter();
+			if( size < 0.0001 && size > -0.0001 )
+				throw new ArgumentError( "font size too small");
+			state.size = size;
+			state.fontDetails = writer.pdf_core::addSimpleFont( bf );
+			var prs: PageResources = pageResources;
+			var name: PdfName = state.fontDetails.fontName;
+			name = prs.addFont( name, state.fontDetails.indirectReference );
+			content.append_bytes( name.getBytes() ).append_char(' ').append_number(size).append_string(" Tf").append_separator();
+		}
+		
+		/**
+		 * This allows to write text in subscript or superscript mode
+		 */
+		public function setTextRise( rise: Number ): void
+		{
+			content.append_number( rise ).append_string( " Ts" ).append_separator();
+		}
+		
+		/**
+		 * Get the current character spacing
+		 */
+		public function getCharacterSpacing(): Number
+		{
+			return state.charSpace;
+		}
+
+		/**
+		 * Change the character spacing
+		 */
+		public function setCharacterSpacing( charSpace: Number ): void
+		{
+			state.charSpace = charSpace;
+			content.append_number( charSpace ).append_string( " Tc" ).append_separator();
+		}
+		
+		
+		/**
+		 * Shows the text
+		 */
+		public function showText( text: String ): void
+		{
+			showText2( text );
+			content.append_string( "Tj" ).append_separator();
+		}
+		
+		/**
+		 * A helper to insert into the content stream the <CODE>text</CODE>
+		 * converted to bytes according to the font's encoding.
+		 *
+		 * @param text the text to write
+		 */
+		private function showText2( text: String ): void
+		{
+			if( state.fontDetails == null )
+				throw new NullPointerError("font and size must be set before writing any text");
+			var b: Bytes = state.fontDetails.pdf_core::convertToBytes( text );
+			escapeString( b, content );
+		}
 
 		/**
 		 * Generates an array of bezier curves to draw an arc.
-		 * <P>
-		 * (x1, y1) and (x2, y2) are the corners of the enclosing rectangle.
-		 * Angles, measured in degrees, start with 0 to the right (the positive X
-		 * axis) and increase counter-clockwise.  The arc extends from startAng
-		 * to startAng+extent.  I.e. startAng=0 and extent=180 yields an openside-down
-		 * semi-circle.
-		 * <P>
-		 * The resulting coordinates are of the form float[]{x1,y1,x2,y2,x3,y3, x4,y4}
-		 * such that the curve goes from (x1, y1) to (x4, y4) with (x2, y2) and
-		 * (x3, y3) as their respective Bezier control points.
-		 * <P>
-		 * Note: this code was taken from ReportLab (www.reportlab.org), an excellent
-		 * PDF generator for Python (BSD license: http://www.reportlab.org/devfaq.html#1.3 ).
-		 *
-		 * @param x1 a corner of the enclosing rectangle
-		 * @param y1 a corner of the enclosing rectangle
-		 * @param x2 a corner of the enclosing rectangle
-		 * @param y2 a corner of the enclosing rectangle
+		 * 
+		 * @param x1
+		 * @param y1
+		 * @param x2
+		 * @param y2
 		 * @param startAng starting angle in degrees
 		 * @param extent angle extent in degrees
-		 * @return a list of float[] with the bezier curves
 		 */
 		public static function bezierArc( x1: Number, y1: Number, x2: Number, y2: Number, startAng: Number, extent: Number ): Vector
 			.<Vector.<Number>>
