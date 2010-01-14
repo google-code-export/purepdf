@@ -1,11 +1,13 @@
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.HashSet;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.colors.ExtendedColor;
@@ -13,6 +15,7 @@ package org.purepdf.pdf
 	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.fonts.BaseFont;
@@ -618,28 +621,34 @@ package org.purepdf.pdf
 		pdf_core function addDirectTemplateSimple( template: PdfTemplate, forcedName: PdfName ): PdfName
 		{
 			var ref: PdfIndirectReference = template.indirectReference;
-			var obj: Vector.<Object> = Vector.<Object>( formXObjects.getValue( ref ) );
+			var obj: Vector.<Object> = formXObjects.getValue( ref ) as Vector.<Object>;
 			var name: PdfName = null;
 
-			if ( obj == null )
+			try
 			{
-				if ( forcedName == null )
+				if ( obj == null )
 				{
-					name = new PdfName( "Xf" + formXObjectsCounter );
-					++formXObjectsCounter;
+					if ( forcedName == null )
+					{
+						name = new PdfName( "Xf" + formXObjectsCounter );
+						++formXObjectsCounter;
+					}
+					else
+						name = forcedName;
+	
+					if ( template.type == PdfTemplate.TYPE_IMPORTED )
+					{
+						// If we got here from PdfCopy we'll have to fill importedPages
+						throw new NonImplementatioError();
+					}
+					formXObjects.put( ref, Vector.<Object>( [ name, template ] ) );
 				}
 				else
-					name = forcedName;
-
-				if ( template.type == PdfTemplate.TYPE_IMPORTED )
-				{
-					// If we got here from PdfCopy we'll have to fill importedPages
-					throw new NonImplementatioError();
-				}
-				formXObjects.put( ref, Vector.<Object>( [ name, template ] ) );
+					name = PdfName( obj[ 0 ] );
+			} catch( e: Error )
+			{
+				throw new ConversionError(e);
 			}
-			else
-				name = PdfName( obj[ 0 ] );
 
 			return name;
 		}

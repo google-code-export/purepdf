@@ -2,7 +2,6 @@ package org.purepdf.elements.images
 {
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
-	
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
@@ -43,7 +42,6 @@ package org.purepdf.elements.images
 		public static const TEXTWRAP: int = 4;
 		public static const UNDERLYING: int = 8;
 		protected static var serialId: Number = 0;
-		protected var _url: String;
 		protected var _XYRatio: Number = 0;
 		protected var _absoluteX: Number = NaN;
 		protected var _absoluteY: Number = NaN;
@@ -52,6 +50,7 @@ package org.purepdf.elements.images
 		protected var _annotation: AnnotationElement = null;
 		protected var _bpc: int = 1;
 		protected var _colorspace: int = -1;
+		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
 		protected var _deflated: Boolean = false;
 		protected var _imageMask: ImageElement;
 		protected var _indentationLeft: Number = 0;
@@ -64,19 +63,19 @@ package org.purepdf.elements.images
 		protected var _originalData: ByteArray;
 		protected var _originalType: int = ORIGINAL_NONE;
 		protected var _rawData: ByteArray;
+		protected var _scaledHeight: Number;
+		protected var _scaledWidth: Number;
 		protected var _smask: Boolean;
 		protected var _transparency: Vector.<int>;
 		protected var _type: int;
+		protected var _url: String;
 		protected var alt: String;
-		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
 		protected var dpiX: int = 0;
 		protected var dpiY: int = 0;
 		protected var initialRotation: Number = 0;
 		protected var plainHeight: Number;
 		protected var plainWidth: Number;
 		protected var rotationRadians: Number;
-		protected var _scaledHeight: Number;
-		protected var _scaledWidth: Number;
 		protected var template: Vector.<PdfTemplate> = new Vector.<PdfTemplate>( 1 );
 		private var _directReference: PdfIndirectReference;
 		private var _widthPercentage: Number = 100;
@@ -87,16 +86,6 @@ package org.purepdf.elements.images
 			_url = $url;
 			_alignment = DEFAULT;
 			rotationRadians = 0;
-		}
-
-		public function get url():String
-		{
-			return _url;
-		}
-
-		public function set url(value:String):void
-		{
-			_url = value;
 		}
 
 		public function get absoluteX(): Number
@@ -133,7 +122,7 @@ package org.purepdf.elements.images
 		{
 			return _annotation;
 		}
-		
+
 		public function set annotation( value: AnnotationElement ): void
 		{
 			_annotation = value;
@@ -149,6 +138,19 @@ package org.purepdf.elements.images
 			return _colorspace;
 		}
 
+		public function get compressionLevel(): int
+		{
+			return _compressionLevel;
+		}
+
+		public function set compressionLevel( value: int ): void
+		{
+			if ( value < PdfStream.NO_COMPRESSION || value > PdfStream.BEST_COMPRESSION )
+				_compressionLevel = PdfStream.NO_COMPRESSION;
+			else
+				_compressionLevel = value;
+		}
+
 		public function get deflated(): Boolean
 		{
 			return _deflated;
@@ -159,39 +161,9 @@ package org.purepdf.elements.images
 			_deflated = value;
 		}
 
-		public function get compressionLevel(): int
-		{
-			return _compressionLevel;
-		}
-
 		public function get directReference(): PdfIndirectReference
 		{
 			return _directReference;
-		}
-
-		/**
-		 * Get the current Image rotation in radians
-		 *
-		 * @return rotation in radians
-		 */
-		public function get imageRotation(): Number
-		{
-			var d: Number = Math.PI * 2;
-			var rot: Number = ( rotationRadians - initialRotation ) % d;
-
-			if ( rot < 0 )
-				rot += d;
-			return rot;
-		}
-
-		public function get scaledHeight(): Number
-		{
-			return _scaledHeight;
-		}
-
-		public function get scaledWidth(): Number
-		{
-			return _scaledWidth;
 		}
 
 		public function get hasAbsoluteX(): Boolean
@@ -218,6 +190,21 @@ package org.purepdf.elements.images
 				throw new Error( "the image mask is not a valid mask" );
 			_imageMask = value;
 			_smask = ( value.bpc > 1 && value.bpc <= 8 );
+		}
+
+		/**
+		 * Get the current Image rotation in radians
+		 *
+		 * @return rotation in radians
+		 */
+		public function get imageRotation(): Number
+		{
+			var d: Number = Math.PI * 2;
+			var rot: Number = ( rotationRadians - initialRotation ) % d;
+
+			if ( rot < 0 )
+				rot += d;
+			return rot;
 		}
 
 		public function get indentationLeft(): Number
@@ -249,12 +236,12 @@ package org.purepdf.elements.images
 		{
 			return _invert;
 		}
-		
+
 		public function set isinverted( value: Boolean ): void
 		{
 			_invert = value;
 		}
-				
+
 
 		public function get ismask(): Boolean
 		{
@@ -350,6 +337,93 @@ package org.purepdf.elements.images
 		}
 
 		/**
+		 * Scale the Image to an absolute width and height
+		 *
+		 * @param newWidth
+		 * 					the new image width
+		 * @param newHeight
+		 * 					the new image height
+		 */
+		public function scaleAbsolute( newWidth: Number, newHeight: Number ): void
+		{
+			plainWidth = newWidth;
+			plainHeight = newHeight;
+			var m: Vector.<Number> = matrix;
+			_scaledWidth = m[ DX ] - m[ CX ];
+			_scaledHeight = m[ DY ] - m[ CY ];
+			setWidthPercentage( 0 );
+		}
+
+		/**
+		 * Scale the image to an absolute height
+		 *
+		 * @param newHeight
+		 */
+		public function scaleAbsoluteHeight( newHeight: Number ): void
+		{
+			plainHeight = newHeight;
+			var m: Vector.<Number> = matrix;
+			_scaledWidth = m[ DX ] - m[ CX ];
+			_scaledHeight = m[ DY ] - m[ CY ];
+			setWidthPercentage( 0 );
+		}
+
+		/**
+		 * Scale the image to an absolute width
+		 *
+		 * @param newWidth
+		 */
+		public function scaleAbsoluteWidth( newWidth: Number ): void
+		{
+			plainWidth = newWidth;
+			var m: Vector.<Number> = matrix;
+			_scaledWidth = m[ DX ] - m[ CX ];
+			_scaledHeight = m[ DY ] - m[ CY ];
+			setWidthPercentage( 0 );
+		}
+
+		/**
+		 * Scale the width and the height of the Image to an absolute percentage
+		 *
+		 * @param percentX
+		 * @param percentY
+		 */
+		public function scalePercent( percentX: Number, percentY: Number ): void
+		{
+			plainWidth = ( width * percentX ) / 100;
+			plainHeight = ( height * percentY ) / 100;
+			var m: Vector.<Number> = matrix;
+			_scaledWidth = m[ DX ] - m[ CX ];
+			_scaledHeight = m[ DY ] - m[ CY ];
+			setWidthPercentage( 0 );
+		}
+
+		/**
+		 * Scales the Image to fit an absolute width and height.
+		 *
+		 * @param fitWidth
+		 * @param fitHeight
+		 */
+		public function scaleToFit( fitWidth: Number, fitHeight: Number ): void
+		{
+			scalePercent( 100, 100 );
+			var percentX: Number = ( fitWidth * 100 ) / scaledWidth;
+			var percentY: Number = ( fitHeight * 100 ) / scaledHeight;
+			scalePercent( percentX < percentY ? percentX : percentY, percentX < percentY ? percentX : percentY );
+			setWidthPercentage( 0 );
+		}
+
+		public function get scaledHeight(): Number
+		{
+			return _scaledHeight;
+		}
+
+		public function get scaledWidth(): Number
+		{
+			return _scaledWidth;
+		}
+
+		/**
 		 * Set the absolute position of the Image
 		 *
 		 * @param absX
@@ -359,14 +433,6 @@ package org.purepdf.elements.images
 		{
 			_absoluteX = absX;
 			_absoluteY = absY;
-		}
-
-		public function set compressionLevel( value: int ): void
-		{
-			if ( value < PdfStream.NO_COMPRESSION || value > PdfStream.BEST_COMPRESSION )
-				_compressionLevel = PdfStream.NO_COMPRESSION;
-			else
-				_compressionLevel = value;
 		}
 
 		public function setDpi( x: int, y: int ): void
@@ -404,6 +470,11 @@ package org.purepdf.elements.images
 			setRotation( deg / 180 * Math.PI );
 		}
 
+		public function setWidthPercentage( value: Number ): void
+		{
+			_widthPercentage = value;
+		}
+
 		public function get templateData(): PdfTemplate
 		{
 			return template[ 0 ];
@@ -424,12 +495,27 @@ package org.purepdf.elements.images
 			return _type;
 		}
 
-		public function get xyratio(): Number
+		public function get url(): String
+		{
+			return _url;
+		}
+
+		public function set url( value: String ): void
+		{
+			_url = value;
+		}
+
+		public function get widthPercentage(): Number
+		{
+			return _widthPercentage;
+		}
+
+		public function get xyRatio(): Number
 		{
 			return _XYRatio;
 		}
 
-		public function set xyratio( value: Number ): void
+		public function set xyRatio( value: Number ): void
 		{
 			_XYRatio = value;
 		}
@@ -447,9 +533,19 @@ package org.purepdf.elements.images
 		}
 
 		/**
+		 * Create an ImageElement instance from a BitmapData
+		 *
+		 */
+		public static function getBitmapDataInstance( data: BitmapData ): ImageElement
+		{
+			var bytes: ByteArray = TIFFEncoder.encode( data );
+			return ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
+		}
+
+		/**
 		 * Create a new ImageElement instance from the passed image data
 		 * Currently allowed image types are: jpeg, png, gif (and animated gif), tiff
-		 * 
+		 *
 		 */
 		public static function getInstance( buffer: ByteArray ): ImageElement
 		{
@@ -477,17 +573,19 @@ package org.purepdf.elements.images
 			{
 				return PngImage.getImage( buffer );
 			}
-			
+
 			// TIFF
-			if( ( c1 == 'M'.charCodeAt(0) && c2 == 'M'.charCodeAt(0) && c3 == 0 && c4 == 42 ) || (c1 == 'I'.charCodeAt(0) && c2 == 'I'.charCodeAt(0) && c3 == 42 && c4 == 0)) 
+			if ( ( c1 == 'M'.charCodeAt( 0 ) && c2 == 'M'.charCodeAt( 0 ) && c3 == 0 && c4 == 42 ) || ( c1 == 'I'.charCodeAt( 0 ) && c2
+				== 'I'.charCodeAt( 0 ) && c3 == 42 && c4 == 0 ) )
 			{
 			}
-			
+
 			throw new Error( "byte array is not a recognized image format" );
 			return null;
 		}
 
-		public static function getRawInstance( width: int, height: int, components: int, bpc: int, data: ByteArray, transparency: Vector.<int>=null ): ImageElement
+		public static function getRawInstance( width: int, height: int, components: int, bpc: int, data: ByteArray, transparency: Vector
+			.<int>=null ): ImageElement
 		{
 			if ( transparency != null && transparency.length != components * 2 )
 				throw new BadElementError( "transparency length must be equal to components*2" );
@@ -500,109 +598,12 @@ package org.purepdf.elements.images
 			img.transparency = transparency;
 			return img;
 		}
-		
-		/**
-		 * Create an ImageElement instance from a BitmapData
-		 * 
-		 */
-		public static function getBitmapDataInstance( data: BitmapData ): ImageElement
-		{
-			var bytes: ByteArray = TIFFEncoder.encode( data );
-			return ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
-		}
 
 		/** Creates a new serial id. */
 		protected static function getSerialId(): Number
 		{
 			++serialId;
 			return serialId;
-		}
-		
-		/**
-		 * Scale the Image to an absolute width and height
-		 * 
-		 * @param newWidth
-		 * 					the new image width
-		 * @param newHeight
-		 * 					the new image height
-		 */
-		public function scaleAbsolute( newWidth: Number, newHeight: Number ): void
-		{
-			plainWidth = newWidth;
-			plainHeight = newHeight;
-			var m: Vector.<Number> = matrix;
-			_scaledWidth = m[DX] - m[CX];
-			_scaledHeight = m[DY] - m[CY];
-			setWidthPercentage( 0 );
-		}
-		
-		/**
-		 * Scale the image to an absolute height
-		 * 
-		 * @param newHeight
-		 */
-		public function scaleAbsoluteHeight( newHeight: Number ): void
-		{
-			plainHeight = newHeight;
-			var m: Vector.<Number> = matrix;
-			_scaledWidth = m[DX] - m[CX];
-			_scaledHeight = m[DY] - m[CY];
-			setWidthPercentage( 0 );
-		}
-		
-		/**
-		 * Scale the image to an absolute width
-		 * 
-		 * @param newWidth
-		 */
-		public function scaleAbsoluteWidth( newWidth: Number ): void
-		{
-			plainWidth = newWidth;
-			var m: Vector.<Number> = matrix;
-			_scaledWidth = m[DX] - m[CX];
-			_scaledHeight = m[DY] - m[CY];
-			setWidthPercentage( 0 );
-		}
-		
-		/**
-		 * Scale the width and the height of the Image to an absolute percentage
-		 * 
-		 * @param percentX
-		 * @param percentY
-		 */
-		public function scalePercent( percentX: Number, percentY: Number ):void
-		{
-			plainWidth = ( width * percentX) / 100;
-			plainHeight = ( height * percentY) / 100;
-			var m: Vector.<Number> = matrix;
-			_scaledWidth = m[DX] - m[CX];
-			_scaledHeight = m[DY] - m[CY];
-			setWidthPercentage( 0 );
-		}
-		
-		/**
-		 * Scales the Image to fit an absolute width and height.
-		 * 
-		 * @param fitWidth
-		 * @param fitHeight
-		 */
-		public function scaleToFit( fitWidth: Number, fitHeight: Number ): void
-		{
-			scalePercent( 100, 100 );
-			var percentX: Number = (fitWidth * 100) / scaledWidth;
-			var percentY: Number = (fitHeight * 100) / scaledHeight;
-			scalePercent( percentX < percentY ? percentX : percentY, percentX < percentY ? percentX : percentY );
-			setWidthPercentage( 0 );
-		}
-		
-		public function setWidthPercentage( value: Number ): void
-		{
-			_widthPercentage = value;
-		}
-		
-		public function get widthPercentage(): Number
-		{
-			return _widthPercentage;
 		}
 	}
 }

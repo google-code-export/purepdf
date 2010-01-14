@@ -404,7 +404,7 @@ package org.purepdf.pdf.codec
 				img.imageMask = im2;
 			}
 			img.setDpi( dpiX, dpiY );
-			img.xyratio = XYRatio;
+			img.xyRatio = XYRatio;
 			img.originalType = ImageElement.ORIGINAL_PNG;
 			return img;
 		}

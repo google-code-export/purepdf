@@ -4,6 +4,14 @@ package org.purepdf.utils
 	{
 		private static const EMPTY_CHAR: Vector.<int> = Vector.<int>([ 9, 32, 10, 13 ]);
 		
+		public static function appendChars( src: String, chars: Vector.<int>, offset: int, len: int ): void
+		{
+			for( var k: int = offset; k < ( offset + len ); ++k )
+			{
+				src += String.fromCharCode( chars[k] & 0xff );
+			}
+		}
+		
 		public static function toCharArray( s: String ): Vector.<int>
 		{
 			var r: Vector.<int> = new Vector.<int>( s.length );
