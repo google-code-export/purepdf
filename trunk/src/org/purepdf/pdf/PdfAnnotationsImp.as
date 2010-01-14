@@ -6,12 +6,15 @@ package org.purepdf.pdf
 	import org.purepdf.elements.AnnotationElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.utils.pdf_core;
 
 	public class PdfAnnotationsImp extends ObjectHash
 	{
 		protected var annotations: Vector.<PdfAnnotation>;
 		protected var delayedAnnotations: Vector.<PdfAnnotation> = new Vector.<PdfAnnotation>();
 		protected var acroForm: PdfAcroForm;
+		
+		use namespace pdf_core;
 		
 		public function PdfAnnotationsImp( $writer: PdfWriter )
 		{

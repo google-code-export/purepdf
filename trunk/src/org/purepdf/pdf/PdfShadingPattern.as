@@ -1,5 +1,6 @@
 package org.purepdf.pdf 
 {
+	import org.purepdf.utils.pdf_core;
 	
 
 	public class PdfShadingPattern extends PdfDictionary
@@ -9,6 +10,8 @@ package org.purepdf.pdf
 		protected var _matrix: Vector.<Number> = Vector.<Number>([1, 0, 0, 1, 0, 0]);
 		protected var _patternName: PdfName;
 		protected var _patternReference: PdfIndirectReference;
+		
+		use namespace pdf_core;
 		
 		public function PdfShadingPattern( sh: PdfShading )
 		{

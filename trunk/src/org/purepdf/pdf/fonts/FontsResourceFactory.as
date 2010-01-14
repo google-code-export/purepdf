@@ -3,6 +3,8 @@ package org.purepdf.pdf.fonts
 	import flash.utils.ByteArray;
 	
 	import it.sephiroth.utils.HashMap;
+	
+	import org.purepdf.utils.StringUtils;
 
 	public class FontsResourceFactory
 	{
@@ -19,6 +21,29 @@ package org.purepdf.pdf.fonts
 			
 			fontsMap = new HashMap();
 			fontsMap.put( BaseFont.HELVETICA + ".afm", helvetica_afm );			
+		}
+		
+		/**
+		 * You can register a new font passing the bytearray class
+		 * of an embedded resource
+		 * 
+		 * @param name	The font name (eg. "Helvetica")
+		 */
+		public function registerFont( name: String, file: Class ): void
+		{
+			fontsMap.put( name + ".afm", file );
+		}
+		
+		/**
+		 * Return true if a font is already registered
+		 * 
+		 * @param name the font name. eg. "Helvetica"
+		 */
+		public function fontIsRegistered( name: String ): Boolean
+		{
+			if( StringUtils.endsWith( name, ".afm" ) )
+				return fontsMap.containsKey( name );
+			return fontsMap.containsKey( name + ".afm" );
 		}
 		
 		public static function getInstance(): FontsResourceFactory

@@ -54,7 +54,7 @@ package org.purepdf.pdf
 
 		override public function toString(): String
 		{
-			return "[PDFString: " + value + "]";
+			return value;
 		}
 	}
 }

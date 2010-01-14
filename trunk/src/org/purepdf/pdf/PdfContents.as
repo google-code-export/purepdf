@@ -3,6 +3,7 @@ package org.purepdf.pdf
 	import flash.utils.ByteArray;
 	
 	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.errors.BadPdfFormatError;
 
 	public class PdfContents extends PdfStream
 	{
@@ -75,7 +76,7 @@ package org.purepdf.pdf
 				
 			} catch( e: Error )
 			{
-				throw new Error(e.message);
+				throw new BadPdfFormatError(e);
 			}
 			
 			put( PdfName.LENGTH, new PdfNumber( streamBytes.length ) );

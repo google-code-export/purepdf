@@ -2,9 +2,9 @@ package org.purepdf.errors
 {
 	public class NullPointerError extends Error
 	{
-		public function NullPointerError()
+		public function NullPointerError( msg:*="")
 		{
-			super();
+			super(msg);
 		}
 	}
 }

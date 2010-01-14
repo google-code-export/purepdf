@@ -2,6 +2,8 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
+	import org.purepdf.utils.pdf_core;
+	
 
 	public class PdfPages extends ObjectHash
 	{
@@ -10,6 +12,8 @@ package org.purepdf.pdf
 		private var parents: Vector.<PdfIndirectReference> = new Vector.<PdfIndirectReference>();
 		private var leafSize: int = 10;
 		private var topParent: PdfIndirectReference;
+		
+		use namespace pdf_core;
 		
 		public function PdfPages( $writer: PdfWriter )
 		{

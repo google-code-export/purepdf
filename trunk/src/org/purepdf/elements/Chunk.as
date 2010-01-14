@@ -48,7 +48,8 @@ package org.purepdf.elements
 				return listener.add( this );
 			} catch ( de: Error )
 			{
-				return false;
+				//return false;
+				throw de;
 			}
 			return false;
 		}

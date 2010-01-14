@@ -2,6 +2,8 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
+	import org.purepdf.utils.pdf_core;
+	
 	
 
 	public class PdfFunction extends ObjectHash
@@ -9,6 +11,8 @@ package org.purepdf.pdf
 		protected var writer: PdfWriter;
 		private var _reference: PdfIndirectReference;
 		protected var dictionary: PdfDictionary;
+		
+		use namespace pdf_core;
 		
 		public function PdfFunction( $writer: PdfWriter )
 		{
