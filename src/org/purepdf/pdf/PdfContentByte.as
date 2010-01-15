@@ -13,7 +13,7 @@ package org.purepdf.pdf
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.colors.ShadingColor;
 	import org.purepdf.colors.SpotColor;
-	import org.purepdf.elements.AnnotationElement;
+	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
@@ -192,7 +192,7 @@ package org.purepdf.pdf
 
 			if ( image.layer != null )
 				endLayer();
-			var annot: AnnotationElement = image.annotation;
+			var annot: Annotation = image.annotation;
 
 			if ( annot == null )
 				return;
@@ -216,7 +216,7 @@ package org.purepdf.pdf
 				urx = Math.max( urx, r[ k ] );
 				ury = Math.max( ury, r[ k + 1 ] );
 			}
-			annot = new AnnotationElement( annot );
+			annot = new Annotation( annot );
 			annot.setDimensions( llx, lly, urx, ury );
 			var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( writer, annot, new RectangleElement( llx, lly, urx, ury ) );
 

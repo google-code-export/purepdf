@@ -3,7 +3,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.purepdf.elements.AnnotationElement;
+	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.utils.pdf_core;
@@ -57,7 +57,7 @@ package org.purepdf.pdf
 			}
 		}
 		
-		internal static function convertAnnotation( writer: PdfWriter, annot: AnnotationElement, defaultRect: RectangleElement ): PdfAnnotation
+		internal static function convertAnnotation( writer: PdfWriter, annot: Annotation, defaultRect: RectangleElement ): PdfAnnotation
 		{
 			throw new NonImplementatioError();
 		}

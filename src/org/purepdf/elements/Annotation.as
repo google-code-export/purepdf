@@ -1,9 +1,11 @@
 package org.purepdf.elements
 {
 	import it.sephiroth.utils.HashMap;
+	
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.pdf.PdfName;
 
-	public class AnnotationElement extends Element
+	public class Annotation implements IElement
 	{
 		public static const APPLICATION: String = "application";
 		public static const CONTENT: String = "content";
@@ -36,15 +38,15 @@ package org.purepdf.elements
 		protected var _urx: Number = NaN;
 		protected var _ury: Number = NaN;
 
-		public function AnnotationElement( ... rest: Array )
+		public function Annotation( ... rest: Array )
 		{
 			super();
 
 			if ( rest && rest.length > 0 )
 			{
-				if ( rest[ 0 ] is AnnotationElement )
+				if ( rest[ 0 ] is Annotation )
 				{
-					var an: AnnotationElement = AnnotationElement( rest[ 0 ] );
+					var an: Annotation = Annotation( rest[ 0 ] );
 					_annotationtype = an._annotationtype;
 					_annotationAttributes = an._annotationAttributes;
 					_llx = an.llx;
@@ -66,6 +68,42 @@ package org.purepdf.elements
 					_annotationAttributes.put( PdfName.CONTENT, rest[ 1 ] );
 				}
 			}
+		}
+		
+		public function process( listener: IElementListener ): Boolean
+		{
+			try 
+			{
+				return listener.add( this );
+			} catch ( de: DocumentError )
+			{}
+			return false;
+		}
+
+		
+		public function get isNestable(): Boolean
+		{
+			return true;
+		}
+		
+		public function get isContent(): Boolean
+		{
+			return true;
+		}
+		
+		public function toString(): String
+		{
+			return "[Annotation]";
+		}
+		
+		public function get type(): int
+		{
+			return Element.ANNOTATION;
+		}
+		
+		public function getChunks(): Vector.<Object>
+		{
+			return new Vector.<Object>();
 		}
 
 		public function get annotationtype(): int
