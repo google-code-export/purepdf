@@ -518,6 +518,13 @@ package org.purepdf.pdf
 
 			return catalog;
 		}
+		
+		protected var newBookmarks: Array;
+		
+		public function setOutlines( outlines: Array ): void
+		{
+			newBookmarks = outlines;
+		}
 
 		protected function propertyExists( prop: Object ): Boolean
 		{
@@ -526,7 +533,9 @@ package org.purepdf.pdf
 
 		protected function writeOutlines( catalog: PdfDictionary, namedAsNames: Boolean ): void
 		{
-			logger.warn( 'writeOutlines. to be implemented' );
+			if (newBookmarks == null || newBookmarks.isEmpty())
+				return;
+			throw new NonImplementatioError();
 		}
 
 		internal function add( page: PdfPage, contents: PdfContents ): PdfIndirectReference

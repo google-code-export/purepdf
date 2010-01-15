@@ -1,6 +1,8 @@
 package org.purepdf.utils.iterators
 {
 	import it.sephiroth.utils.collections.iterators.Iterator;
+	
+	import org.purepdf.errors.IndexOutOfBoundsError;
 
 	public class VectorIterator implements Iterator
 	{
@@ -11,6 +13,23 @@ package org.purepdf.utils.iterators
 		{
 			_data = data;
 			pointer = 0;
+		}
+		
+		/**
+		 * Remove the last element returned by the next()
+		 * method.
+		 * This can be called only one
+		 */
+		public function remove(): void
+		{
+			if( _data.length > pointer )
+			{
+				_data.splice( pointer, 1 );
+				pointer--;
+			} else
+			{
+				throw new IndexOutOfBoundsError();
+			}
 		}
 		
 		public function get length(): int

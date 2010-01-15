@@ -1,22 +1,31 @@
 package org.purepdf.elements
 {
 	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.purepdf.Font;
+	import org.purepdf.IIterable;
 	import org.purepdf.errors.CastTypeError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.iterators.VectorIterator;
 
-	public class Phrase implements ITextElementaryArray
+	public class Phrase implements ITextElementaryArray, IIterable
 	{
 		private static const serialVersionUID: Number = 2643594602455068231;
 		protected var _array: Vector.<Object> = new Vector.<Object>();
 		protected var _font: Font;
 		protected var _leading: Number = Number.NaN;
 
-		public function Phrase()
+		public function Phrase( phrase: Phrase=null )
 		{
 			super();
+
+			if ( phrase != null )
+			{
+				addAll( phrase );
+				_leading = phrase.leading;
+				_font = phrase.font;
+			}
 		}
 
 		/**
@@ -36,7 +45,7 @@ package org.purepdf.elements
 
 			try
 			{
-				var element: Element = Element( o );
+				var element: IElement = IElement( o );
 
 				switch ( element.type )
 				{
@@ -47,10 +56,10 @@ package org.purepdf.elements
 					case Element.PARAGRAPH:
 						var phrase: Phrase = Phrase( o );
 						var success: int = 1;
-						var e: Element;
+						var e: IElement;
 						for ( var i: Iterator = phrase.iterator(); i.hasNext();  )
 						{
-							e = Element( i.next() );
+							e = IElement( i.next() );
 
 							if ( e is Chunk )
 							{
@@ -84,6 +93,15 @@ package org.purepdf.elements
 			return false;
 		}
 
+		public function addAll( collection: IIterable ): Boolean
+		{
+			for ( var i: Iterator = collection.iterator(); i.hasNext();  )
+			{
+				add( i.next() );
+			}
+			return true;
+		}
+
 		public function get font(): Font
 		{
 			return _font;
@@ -95,12 +113,9 @@ package org.purepdf.elements
 
 			for ( var i: Iterator = new VectorIterator( _array ); i.hasNext();  )
 			{
-				var chunks: Vector.<Object> = Element( i.next() ).getChunks();
-
+				var chunks: Vector.<Object> = IElement( i.next() ).getChunks();
 				for ( var k: int = 0; k < chunks.length; ++k )
-				{
-					_array.push( chunks[ k ] );
-				}
+					tmp.push( chunks[ k ] );
 
 			}
 			return tmp;
@@ -133,6 +148,42 @@ package org.purepdf.elements
 			}
 		}
 
+		public function insert( index: int, o: Object ): void
+		{
+			if ( o == null )
+				return;
+
+			try
+			{
+				var element: IElement = IElement( o );
+
+				if ( element.type == Element.CHUNK )
+				{
+					var chunk: Chunk = Chunk( element );
+
+					if ( !font.isStandardFont )
+					{
+						chunk.font = font.difference( chunk.font );
+					}
+
+					_array.splice( index, 0, chunk );
+				}
+				else if ( element.type == Element.PHRASE || element.type == Element.ANCHOR || element.type == Element.ANNOTATION || element
+					.type == Element.TABLE || element.type == Element.YMARK || element.type == Element.MARKED )
+				{
+					_array.splice( index, 0, element );
+				}
+				else
+				{
+					throw new CastTypeError();
+				}
+			}
+			catch ( cce: CastTypeError )
+			{
+				throw new CastTypeError( "insertion of illegal element" );
+			}
+		}
+
 		public function get isContent(): Boolean
 		{
 			return true;
@@ -146,7 +197,7 @@ package org.purepdf.elements
 					return true;
 
 				case 1:
-					var element: Element = Element( _array[ 0 ] );
+					var element: IElement = IElement( _array[ 0 ] );
 					if ( element.type == Element.CHUNK && Chunk( element ).isEmpty )
 						return true;
 					return false;
@@ -161,7 +212,7 @@ package org.purepdf.elements
 			return true;
 		}
 
-		public function iterator(): VectorIterator
+		public function iterator(): Iterator
 		{
 			return new VectorIterator( _array );
 		}
@@ -180,7 +231,7 @@ package org.purepdf.elements
 			{
 				for ( var i: Iterator = iterator(); i.hasNext();  )
 				{
-					listener.add( Element( i.next() ) );
+					listener.add( IElement( i.next() ) );
 				}
 				return true;
 			}
@@ -245,6 +296,11 @@ package org.purepdf.elements
 
 			_array.push( newChunk );
 			return true;
+		}
+
+		protected function addSpecial( o: Object ): void
+		{
+			_array.push( o );
 		}
 	}
 }

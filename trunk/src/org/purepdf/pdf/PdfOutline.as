@@ -1,6 +1,12 @@
 package org.purepdf.pdf
 {
+	import org.as3commons.logging.ILogger;
+	import org.as3commons.logging.LoggerFactory;
+	import org.purepdf.Font;
+	import org.purepdf.IOutputStream;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.elements.Chunk;
+	import org.purepdf.elements.Paragraph;
 
 	public class PdfOutline extends PdfDictionary
 	{
@@ -12,16 +18,104 @@ package org.purepdf.pdf
 		private var _open: Boolean;
 		private var _color: RGBColor;
 		private var _style: int = 0;
-		private var _destination: PdfDestination;
+		protected var _destination: PdfDestination;
+		protected var _writer: PdfWriter;
+		protected var _action: PdfAction;
 		
-		protected var writer: PdfWriter;
+		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfOutline );
 		
 		public function PdfOutline( $writer: PdfWriter )
 		{
-			super( OUTLINES );
-			_open = true;
-			_parent = null;
-			writer = $writer;
+			super( $writer == null ? null : OUTLINES );
+			
+			if( $writer != null )
+			{
+				_open = true;
+				_parent = null;
+				_writer = $writer;
+			}
+		}
+		
+		override public function toPdf(writer:PdfWriter, os:IOutputStream) : void
+		{
+			if( _color != null && !_color.equals( RGBColor.BLACK ) )
+				put( PdfName.C, new PdfArray( Vector.<Number>([color.red/255, color.green/255, color.blue/255]) ) );
+			
+			var flag: int = 0;
+			if( ( _style & Font.BOLD ) != 0 )
+				flag |= 2;
+			
+			if ((_style & Font.ITALIC) != 0)
+				flag |= 1;
+			
+			if (flag != 0)
+				put(PdfName.F, new PdfNumber(flag));
+			
+			if (_parent != null)
+				put(PdfName.PARENT, _parent.indirectReference);
+			
+			if (_destination != null && _destination.hasPage )
+				put( PdfName.DEST, _destination);
+			
+			logger.warn("toPdf. Prtially implemented");
+			
+			if( _action != null)
+				put( PdfName.A, _action );
+			
+			if( _count != 0) {
+				put( PdfName.COUNT, new PdfNumber(_count));
+			}
+			super.toPdf(writer, os);
+		}
+		
+		/**
+		 * Constructs a PdfOutline
+		 */
+
+		public function get writer():PdfWriter
+		{
+			return _writer;
+		}
+
+		public function set writer(value:PdfWriter):void
+		{
+			_writer = value;
+		}
+
+		public static function create( parent: PdfOutline, destination: PdfDestination, title: Paragraph, open: Boolean ): PdfOutline
+		{
+			var p: PdfOutline = new PdfOutline( null );
+			
+			var buf: String = "";
+			var chunks: Vector.<Object> = title.getChunks();
+			
+			for( var i: int = 0; i < chunks.length; ++i )
+			{
+				var chunk: Chunk = Chunk( chunks[i] );
+				buf += chunk.content;
+			}
+			
+			p._destination = destination;
+			p.initOutline( parent, buf, open );
+			return p;
+		}
+		
+		internal function initOutline( parent: PdfOutline, title: String, open: Boolean ): void
+		{
+			_open = open;
+			_parent = parent;
+			_writer = parent.writer;
+			put( PdfName.TITLE, new PdfString( title, PdfObject.TEXT_UNICODE ) );
+			parent.addKid( this );
+			if( _destination != null && !_destination.hasPage )
+				setDestinationPage( writer.getCurrentPage() );
+		}
+		
+		public function get level(): int
+		{
+			if( parent == null )
+				return 0;
+			return parent.level + 1;
 		}
 		
 		public function get count():int

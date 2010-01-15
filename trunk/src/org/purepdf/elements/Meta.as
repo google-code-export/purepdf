@@ -1,7 +1,8 @@
 package org.purepdf.elements
 {
+	import org.purepdf.errors.DocumentError;
 
-	public class Meta extends Element
+	public class Meta implements IElement
 	{
 		private var _content: String;
 		private var _type: int;
@@ -12,6 +13,23 @@ package org.purepdf.elements
 			_type = $type;
 			_content = $content;
 		}
+		
+		public function toString(): String
+		{
+			return "[Meta: " + _content + "]";
+		}
+		
+		public function process( element: IElementListener ): Boolean
+		{
+			try
+			{
+				return element.add( this );
+			} catch( e: DocumentError )
+			{
+				return false;
+			}
+			return false;
+		}
 
 		public function append( value: String ): String
 		{
@@ -19,7 +37,7 @@ package org.purepdf.elements
 			return _content;
 		}
 
-		override public function getChunks(): Vector.<Object>
+		public function getChunks(): Vector.<Object>
 		{
 			return new Vector.<Object>();
 		}
@@ -50,17 +68,17 @@ package org.purepdf.elements
 			}
 		}
 
-		override public function get isNestable(): Boolean
+		public function get isNestable(): Boolean
 		{
 			return false;
 		}
 
-		override public function get isContent(): Boolean
+		public function get isContent(): Boolean
 		{
 			return false;
 		}
 
-		override public function get type(): int
+		public function get type(): int
 		{
 			return _type;
 		}

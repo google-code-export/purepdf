@@ -30,11 +30,16 @@ package org.purepdf.pdf
 		protected var appendMode: Boolean = false;
 		protected var catalog_version: PdfName = null;
 		protected var headerWasWritten: Boolean = false;
+		protected var extensions: PdfDictionary = null;
 		protected var header_version: String = VERSION_1_4;
 
 		public function addToCatalog( catalog: PdfDictionary ): void
 		{
-			logger.warn( 'addToCatalog. to be implemented' );
+			if( catalog_version != null )
+				catalog.put( PdfName.VERSION, catalog_version );
+			
+			if( extensions != null )
+				catalog.put( PdfName.EXTENSIONS, extensions );
 		}
 
 		public function getVersionAsByteArray( version: String ): Bytes
