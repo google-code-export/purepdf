@@ -2,8 +2,10 @@ package org.purepdf.elements.images
 {
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
+	
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.AnnotationElement;
+	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
 	import org.purepdf.errors.NonImplementatioError;
@@ -15,7 +17,7 @@ package org.purepdf.elements.images
 	import org.purepdf.pdf.codec.PngImage;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 
-	public class ImageElement extends RectangleElement
+	public class ImageElement extends RectangleElement implements IElement
 	{
 		public static const AX: int = 0;
 		public static const AY: int = 1;
@@ -186,7 +188,7 @@ package org.purepdf.elements.images
 			if ( _mask )
 				throw new Error( "an image mask cannot contain another image mask" );
 
-			if ( !value.ismask )
+			if ( !value.isMask )
 				throw new Error( "the image mask is not a valid mask" );
 			_imageMask = value;
 			_smask = ( value.bpc > 1 && value.bpc <= 8 );
@@ -217,38 +219,38 @@ package org.purepdf.elements.images
 			return _indentationRight;
 		}
 
-		public function get isimgraw(): Boolean
+		public function get isImgRaw(): Boolean
 		{
 			return _type == IMGRAW;
 		}
 
-		public function get isimgtemplate(): Boolean
+		public function get isImgTemplate(): Boolean
 		{
 			return _type == IMGTEMPLATE;
 		}
 
-		public function get isinterpolated(): Boolean
+		public function get isInterpolated(): Boolean
 		{
 			return _interpolation;
 		}
 
-		public function get isinverted(): Boolean
+		public function get isInverted(): Boolean
 		{
 			return _invert;
 		}
 
-		public function set isinverted( value: Boolean ): void
+		public function set isInverted( value: Boolean ): void
 		{
 			_invert = value;
 		}
 
 
-		public function get ismask(): Boolean
+		public function get isMask(): Boolean
 		{
 			return _mask;
 		}
 
-		public function get issmask(): Boolean
+		public function get isSmask(): Boolean
 		{
 			return _smask;
 		}
@@ -260,7 +262,7 @@ package org.purepdf.elements.images
 
 		public function makeMask(): void
 		{
-			if ( !ismaskcandidate )
+			if ( !isMaskCandidate )
 				throw new Error( "this image cannot be an image mask" );
 			_mask = true;
 		}
@@ -490,7 +492,7 @@ package org.purepdf.elements.images
 			_transparency = value;
 		}
 
-		override public function type(): int
+		override public function get type(): int
 		{
 			return _type;
 		}
@@ -520,7 +522,7 @@ package org.purepdf.elements.images
 			_XYRatio = value;
 		}
 
-		private function get ismaskcandidate(): Boolean
+		private function get isMaskCandidate(): Boolean
 		{
 			if ( _type == IMGRAW )
 			{

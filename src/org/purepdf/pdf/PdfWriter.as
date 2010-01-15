@@ -573,7 +573,7 @@ package org.purepdf.pdf
 			}
 			else
 			{
-				if ( image.isimgtemplate )
+				if ( image.isImgTemplate )
 				{
 					throw new NonImplementatioError();
 				}

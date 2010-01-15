@@ -3,7 +3,7 @@ package org.purepdf.elements
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
 
-	public class RectangleElement extends Element
+	public class RectangleElement extends Element implements IElement
 	{
 		public static const BOTTOM: int = 2;
 		public static const LEFT: int = 4;
@@ -377,7 +377,7 @@ package org.purepdf.elements
 			return buf;
 		}
 
-		override public function type(): int
+		override public function get type(): int
 		{
 			return Element.RECTANGLE;
 		}

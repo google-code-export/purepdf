@@ -70,17 +70,20 @@ package org.purepdf.elements
 		{
 			var m: Number = _font == null ? Font.DEFAULTSIZE * _multipliedLeading : font.getCalculatedLeading( _multipliedLeading );
 
-			if ( m > 0 && !hasLeading() )
+			if ( m > 0 && !hasLeading )
 				return m;
 			return leading + m;
 		}
 
-		override public function type(): int
+		override public function get type(): int
 		{
-			return PARAGRAPH;
+			return Element.PARAGRAPH;
 		}
 
-
+		/**
+		 * Create a new Paragraph from a string and an optional font.
+		 * If no font is passed, the pdf default one will be used
+		 */
 		public static function create( string: String, font: Font=null ): Paragraph
 		{
 			var p: Paragraph = new Paragraph();
