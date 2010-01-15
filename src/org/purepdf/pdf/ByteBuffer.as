@@ -1,5 +1,6 @@
 package org.purepdf.pdf
 {
+	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
 	
 	import org.purepdf.IOutputStream;
@@ -193,6 +194,8 @@ package org.purepdf.pdf
 		
 		public function append_number( value: Number ): ByteBuffer
 		{
+			if( isNaN( value ) ) throw new IllegalOperationError("value cannot be NaN");
+			
 			// TODO: check if it's better to formatDouble the passed number or use Number.toFixed
 			append_string( formatDouble( value, this ) );
 			return this;

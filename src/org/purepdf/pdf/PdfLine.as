@@ -9,17 +9,17 @@ package org.purepdf.pdf
 
 	public class PdfLine extends ObjectHash
 	{
-		protected var _alignment: int;
-		protected var _height: Number;
-		protected var _left: Number;
+		protected var _alignment: int = 0;
+		protected var _height: Number = 0;
+		protected var _left: Number = 0;
 		protected var _listSymbol: Chunk = null;
-		protected var _right: Number;
-		protected var _width: Number;
+		protected var _right: Number = 0;
+		protected var _width: Number = 0;
 		protected var isRTL: Boolean = false;
 		protected var line: Vector.<PdfChunk>;
 		protected var newlineSplit: Boolean = false;
-		protected var originalWidth: Number;
-		protected var symbolIndent: Number;
+		protected var originalWidth: Number = 0;
+		protected var symbolIndent: Number = 0;
 
 		public function PdfLine( $left: Number, $right: Number, $alignment: int, $height: Number )
 		{

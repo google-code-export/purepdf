@@ -1,11 +1,14 @@
 package org.purepdf.elements
 {
 	import it.sephiroth.utils.HashMap;
+	
 	import org.purepdf.Font;
+	import org.purepdf.pdf.PdfAction;
 	import org.purepdf.utils.StringUtils;
 
-	public class Chunk extends Element
+	public class Chunk implements IElement
 	{
+
 		public static const ACTION: String = "ACTION";
 		public static const BACKGROUND: String = "BACKGROUND";
 		public static const CHAR_SPACING: String = "CHAR_SPACING";
@@ -17,6 +20,7 @@ package org.purepdf.elements
 		public static const IMAGE: String = "IMAGE";
 		public static const LOCALDESTINATION: String = "LOCALDESTINATION";
 		public static const LOCALGOTO: String = "LOCALGOTO";
+		public static const NEWLINE: Chunk = new Chunk( "\n", new Font() );
 		public static const NEWPAGE: String = "NEWPAGE";
 		public static const OBJECT_REPLACEMENT_CHARACTER: String = "\ufffc";
 		public static const PDFANNOTATION: String = "PDFANNOTATION";
@@ -28,16 +32,17 @@ package org.purepdf.elements
 		public static const TAB: String = "TAB";
 		public static const TEXTRENDERMODE: String = "TEXTRENDERMODE";
 		public static const UNDERLINE: String = "UNDERLINE";
-		protected var _attributes: HashMap = null;
+		public static var _NEXTPAGE: Chunk;
 
+		protected var _attributes: HashMap = null;
 		protected var _content: String;
 		protected var _font: Font;
 
-		public function Chunk( content: String, font: Font )
+		public function Chunk( content: String, font: Font=null )
 		{
 			super();
 			_content = content;
-			_font = font;
+			_font = font != null ? font : new Font();
 		}
 
 		public function append( value: String ): void
@@ -49,7 +54,6 @@ package org.purepdf.elements
 		{
 			return _attributes;
 		}
-
 
 		public function set attributes( value: HashMap ): void
 		{
@@ -66,9 +70,26 @@ package org.purepdf.elements
 			return _font;
 		}
 
+		public function set font( value: Font ): void
+		{
+			_font = value;
+		}
+
+		public function getChunks(): Vector.<Object>
+		{
+			var tmp: Vector.<Object> = new Vector.<Object>();
+			tmp.push( this );
+			return tmp;
+		}
+
 		public function get hasAttributes(): Boolean
 		{
 			return _attributes != null;
+		}
+
+		public function get isContent(): Boolean
+		{
+			return true;
 		}
 
 		public function get isEmpty(): Boolean
@@ -77,7 +98,12 @@ package org.purepdf.elements
 				== null );
 		}
 
-		override public function process( listener: IElementListener ): Boolean
+		public function get isNestable(): Boolean
+		{
+			return true;
+		}
+
+		public function process( listener: IElementListener ): Boolean
 		{
 			try
 			{
@@ -98,15 +124,45 @@ package org.purepdf.elements
 			_attributes.put( name, obj );
 			return this;
 		}
+		
+		public function setLocalDestination( name: String ): Chunk
+		{
+			return setAttribute( LOCALDESTINATION, name );
+		}
+		
+		public function setLocalGoto( name: String ): Chunk
+		{
+			return setAttribute( LOCALGOTO, name );
+		}
+		
+		public function setAnchor( url: String ): Chunk
+		{
+			return setAttribute( ACTION, new PdfAction( url ) );
+		}
 
-		override public function toString(): String
+		public function setNewPage(): Chunk
+		{
+			return setAttribute( NEWPAGE, null );
+		}
+
+		public function toString(): String
 		{
 			return content;
 		}
 
-		override public function get type(): int
+		public function get type(): int
 		{
-			return CHUNK;
+			return Element.CHUNK;
+		}
+
+		public static function get NEXTPAGE(): Chunk
+		{
+			if ( _NEXTPAGE == null )
+			{
+				_NEXTPAGE = new Chunk( "" );
+				_NEXTPAGE.setNewPage();
+			}
+			return _NEXTPAGE;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package org.purepdf.elements
 {
 	import org.purepdf.Font;
+	import org.purepdf.elements.images.ImageElement;
 
 	public class Paragraph extends Phrase
 	{
@@ -16,9 +17,51 @@ package org.purepdf.elements
 		private var _extraParagraphSpace: Number = 0;
 		private var _firstLineIndent: Number = 0;
 
-		public function Paragraph()
+		public function Paragraph( phrase: Phrase = null )
 		{
-			super();
+			super( phrase );
+			
+			if (phrase is Paragraph )
+			{
+				var p: Paragraph = Paragraph(phrase);
+				_alignment = p.alignment;
+				setLeading( phrase.leading, p.multipliedLeading );
+				
+				_indentationLeft = p.indentationLeft;
+				_indentationRight = p.indentationRight;
+				_firstLineIndent = p.firstLineIndent;
+				_spacingAfter = p.spacingAfter;
+				_spacingBefore = p.spacingBefore;
+				_extraParagraphSpace = p.extraParagraphSpace;
+			}
+		}
+		
+		override public function add(o:Object) : Boolean
+		{
+			if (o is List) 
+			{
+				var list: List = List(o);
+				list.indentationLeft =  list.indentationLeft + indentationLeft;
+				list.indentationRight = indentationRight;
+				return super.add(list);
+			}
+			else if (o is ImageElement ) {
+				super.addSpecial(o);
+				return true;
+			}
+			else if (o is Paragraph) {
+				super.add(o);
+				var chunks: Vector.<Object> = getChunks();
+				if (!(chunks.length == 0)) {
+					var tmp: Chunk = Chunk(chunks[chunks.length - 1]);
+					super.add( new Chunk("\n", tmp.font) );
+				}
+				else {
+					super.add( Chunk.NEWLINE );
+				}
+				return true;
+			}
+			return super.add(o);
 		}
 
 		public function get alignment(): int
@@ -78,6 +121,12 @@ package org.purepdf.elements
 		override public function get type(): int
 		{
 			return Element.PARAGRAPH;
+		}
+		
+		public function setLeading( fixedLeading: Number, multipliedLeading: Number ): void
+		{
+			_leading = fixedLeading;
+			_multipliedLeading = multipliedLeading;
 		}
 
 		/**

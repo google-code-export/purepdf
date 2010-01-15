@@ -12,6 +12,7 @@ package org.purepdf.pdf
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.elements.Anchor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElement;
@@ -21,6 +22,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.elements.Section;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
@@ -196,11 +198,22 @@ package org.purepdf.pdf
 					if ( chunk.isAttribute( Chunk.NEWPAGE ) )
 						newPage();
 					break;
+				
+				case Element.SECTION:
+				case Element.CHAPTER:
+					_addSection( Section(element) );
+					break;
+				
+				case Element.ANCHOR:
+					_addAnchor( Anchor(element) );
+					break;
 
 				default:
 					logger.error( "PdfDocument.add. Invalid type: " + element.type );
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
+import org.purepdf.elements.Anchor;
+
 			lastElementType = element.type;
 			return true;
 		}
@@ -238,7 +251,7 @@ package org.purepdf.pdf
 			{
 				var e: ILargeElement = ( element as ILargeElement );
 
-				if ( !e.iscomplete )
+				if ( !e.isComplete )
 					e.flushContent();
 			}
 			return success;
@@ -307,17 +320,30 @@ package org.purepdf.pdf
 				_duration = -1;
 		}
 
-		public function getCatalog( pages: PdfIndirectReference ): PdfCatalog
+		internal function getCatalog( pages: PdfIndirectReference ): PdfCatalog
 		{
 			logger.warn( 'getCatalog. to be implemented' );
 			var catalog: PdfCatalog = new PdfCatalog( pages, _writer );
 
-			// version
+			// 1 outlines
+			if( rootOutline.kids.length > 0 )
+			{
+				catalog.put( PdfName.PAGEMODE, PdfName.USEOUTLINES );
+				catalog.put( PdfName.OUTLINES, rootOutline.indirectReference );
+			}
+			
+			// 2 version
 			_writer.getPdfVersion().addToCatalog( catalog );
 
-			// preferences
+			// 3 preferences
 			viewerPreferences.addToCatalog( catalog );
 
+			// 4 pagelables
+			// 5 named objects
+			// 6 actions
+			// 7 portable collections
+			// 8 acroform
+			
 			return catalog;
 		}
 
@@ -642,8 +668,7 @@ package org.purepdf.pdf
 			{
 				l = PdfLine( i.next() );
 
-				var moveTextX: Number = l.indentLeft - indentLeft + indentation.indentLeft + indentation.listIndentLeft + indentation
-					.sectionIndentLeft;
+				var moveTextX: Number = l.indentLeft - indentLeft + indentation.indentLeft + indentation.listIndentLeft + indentation.sectionIndentLeft;
 				text.moveText( moveTextX, -l.height );
 
 				if ( l.listSymbol != null )
@@ -1109,5 +1134,84 @@ package org.purepdf.pdf
 		{
 			viewerPreferences.addViewerPreference( key, value );
 		}
+		
+		// -------------
+		// Helper methods for the main method add
+		// -------------
+		
+		
+		// Element.ANCHOR
+		private function _addAnchor( anchor: Anchor ): void
+		{
+			leadingCount++;
+			var url: String = anchor.reference;
+			leading = anchor.leading;
+			if( url != null )
+				anchorAction = new PdfAction( url );
+			anchor.process( this );
+			anchorAction = null;
+			leadingCount--;
+		}
+		
+		
+		private function _addSection( section: Section ): void
+		{
+			var hasTitle: Boolean = section.notAddedYet && section.title != null;
+			
+			if( section.triggerNewPage )
+				newPage();
+			
+			if( hasTitle )
+			{
+				var fith: Number = indentTop - currentHeight;
+				var rotation: int = pageSize.rotation;
+				if( rotation == 90 || rotation == 180 )
+					fith = pageSize.height - fith;
+				
+				var destination: PdfDestination = PdfDestination.create( PdfDestination.FITH, fith );
+				while( currentOutline.level >= section.depth )
+					currentOutline = currentOutline.parent;
+				
+				var outline: PdfOutline = PdfOutline.create( currentOutline, destination, section.getBookmarkTitle(), section.bookmarkOpen );
+				currentOutline = outline;
+			}
+			
+			carriageReturn();
+			indentation.sectionIndentLeft += section.indentationLeft;
+			indentation.sectionIndentRight += section.indentationRight;
+			
+			if( section.notAddedYet )
+				if( section.type == Element.CHAPTER )
+					trace('onChapter. to be added');
+					//pageEvent.onChapter( writer, this, indentTop() - currentHeight, section.getTitle());
+				else
+					trace('onSection. to be added');
+					//pageEvent.onSection( writer, this, indentTop() - currentHeight, section.getDepth(), section.getTitle());
+			
+			if( hasTitle )
+			{
+				isSectionTitle = true;
+				add( section.title );
+				isSectionTitle = false;
+			}
+			
+			indentation.sectionIndentLeft += section.indentation;
+			section.process( this );
+			flushLines();
+			
+			
+			indentation.sectionIndentLeft -= (section.indentationLeft + section.indentation);
+			indentation.sectionIndentRight -= section.indentationRight;
+			
+			if( section.isComplete )
+				if( section.type == Element.CHAPTER )
+					trace('onChapterEnd. to be added');
+					//pageEvent.onChapterEnd(writer, this, indentTop() - currentHeight);
+				else
+					trace('onSectionEnd. to be added');
+					//pageEvent.onSectionEnd(writer, this, indentTop() - currentHeight);
+				
+		}
+		
 	}
 }

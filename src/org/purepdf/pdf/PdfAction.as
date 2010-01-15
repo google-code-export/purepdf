@@ -1,13 +1,18 @@
 package org.purepdf.pdf
 {
+
 	/**
-	 * A >PdfAction> defines an action that can be triggered from a PDF file.
+	 * A PdfAction defines an action that can be triggered
 	 */
 	public class PdfAction extends PdfDictionary
 	{
-		public function PdfAction($type:PdfName=null)
+		public function PdfAction( url: String, isMap: Boolean = false )
 		{
-			super($type);
+			put( PdfName.S, PdfName.URI );
+			put( PdfName.URI, new PdfString( url ) );
+
+			if ( isMap )
+				put( PdfName.ISMAP, PdfBoolean.PDF_TRUE );
 		}
 	}
 }

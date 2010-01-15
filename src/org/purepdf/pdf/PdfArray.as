@@ -30,6 +30,11 @@ package org.purepdf.pdf
 					add3( Vector.<int>( object ) );
 			}
 		}
+		
+		public function addFirst( object: PdfObject ): void
+		{
+			arrayList.splice( 0, 0, object );
+		}
 
 		/**
 		 * Add a PdfObject to the end of the PdfArray
