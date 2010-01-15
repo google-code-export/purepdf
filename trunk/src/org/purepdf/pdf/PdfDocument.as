@@ -29,6 +29,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
+	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
 
@@ -212,8 +213,6 @@ package org.purepdf.pdf
 					logger.error( "PdfDocument.add. Invalid type: " + element.type );
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
-import org.purepdf.elements.Anchor;
-
 			lastElementType = element.type;
 			return true;
 		}
@@ -935,6 +934,8 @@ import org.purepdf.elements.Anchor;
 			var yMarker: Number = text.yTLM;
 			var adjustMatrix: Boolean = false;
 			var tabPosition: Number = 0;
+			var subtract: Number;
+			var obj: Vector.<Object>;
 
 			var k: int;
 
@@ -946,7 +947,153 @@ import org.purepdf.elements.Anchor;
 
 				if ( chunkStrokeIdx <= lastChunkStroke )
 				{
-					throw new NonImplementatioError();
+					var width: Number = 0;
+					if( isJustified )
+					{
+						throw new NonImplementatioError();
+					} else
+					{
+						width = chunk.width;
+					}
+					
+					if( chunk.isStroked() )
+					{
+						var nextChunk: PdfChunk = line.getChunk( chunkStrokeIdx + 1);
+						if( chunk.isSeparator() )
+						{
+							throw new NonImplementatioError();						
+						}
+						
+						if( chunk.isTab() )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						if( chunk.isAttribute( Chunk.BACKGROUND ) )
+						{
+							subtract = lastBaseFactor;
+							if (nextChunk != null && nextChunk.isAttribute(Chunk.BACKGROUND))
+								subtract = 0;
+							if (nextChunk == null)
+								subtract += hangingCorrection;
+							var fontSize: Number = chunk.font.size;
+							var ascender: Number = chunk.font.font.getFontDescriptor( BaseFont.ASCENT, fontSize);
+							var descender: Number = chunk.font.font.getFontDescriptor( BaseFont.DESCENT, fontSize);
+							var bgr: Vector.<Object> = Vector.<Object>( chunk.getAttribute(Chunk.BACKGROUND) );
+							graphics.setFillColor( bgr[0] as RGBColor );
+							var extra: Vector.<Number> = Vector.<Number>(bgr[1]);
+							graphics.rectangle( xMarker - extra[0],
+								yMarker + descender - extra[1] + chunk.getTextRise(),
+								width - subtract + extra[0] + extra[2],
+								ascender - descender + extra[1] + extra[3]);
+							graphics.fill();
+							graphics.setGrayFill(0);
+						}
+						
+						if( chunk.isAttribute( Chunk.UNDERLINE ) )
+						{
+							subtract = lastBaseFactor;
+							if( nextChunk != null && nextChunk.isAttribute(Chunk.UNDERLINE))
+								subtract = 0;
+							if (nextChunk == null)
+								subtract += hangingCorrection;
+							var unders: Vector.<Vector.<Object>> = Vector.<Vector.<Object>>( chunk.getAttribute(Chunk.UNDERLINE) );
+							var scolor: RGBColor = null;
+							for( k = 0; k < unders.length; ++k )
+							{
+								obj = unders[k];
+								scolor = RGBColor(obj[0]);
+								var ps: Vector.<Number> = Vector.<Number>(obj[1]);
+								if (scolor == null)
+									scolor = color;
+								if (scolor != null)
+									graphics.setStrokeColor( scolor );
+								var fsize: Number = chunk.font.size;
+								graphics.setLineWidth( ps[0] + fsize * ps[1] );
+								var shift: Number = ps[2] + fsize * ps[3];
+								var cap2: int = ps[4];
+								if (cap2 != 0)
+									graphics.setLineCap( cap2 );
+								graphics.moveTo( xMarker, yMarker + shift );
+								graphics.lineTo( xMarker + width - subtract, yMarker + shift );
+								graphics.stroke();
+								if (scolor != null)
+									graphics.resetStroke();
+								if (cap2 != 0)
+									graphics.setLineCap( 0 );
+							}
+							graphics.setLineWidth(1);
+						}
+						
+						if( chunk.isAttribute( Chunk.ACTION ) )
+						{
+							subtract = lastBaseFactor;
+							if( nextChunk != null && nextChunk.isAttribute( Chunk.ACTION ) )
+								subtract = 0;
+							if( nextChunk == null )
+								subtract += hangingCorrection;
+							text.addAnnotation( PdfAnnotation.createAction( writer, xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size, PdfAction(chunk.getAttribute( Chunk.ACTION )) ) );
+						}
+						
+						if( chunk.isAttribute( Chunk.REMOTEGOTO ) )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						if( chunk.isAttribute( Chunk.LOCALGOTO ) )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						if( chunk.isAttribute( Chunk.LOCALDESTINATION ) )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						if( chunk.isAttribute( Chunk.GENERICTAG ) )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						if( chunk.isAttribute( Chunk.PDFANNOTATION ) )
+						{
+							throw new NonImplementatioError();
+						}
+						
+						var params: Vector.<Number> = chunk.getAttribute( Chunk.SKEW ) as Vector.<Number>;
+						var hs: Number;
+						var _hs: Object =  chunk.getAttribute(Chunk.HSCALE);
+						
+						if( _hs != null ) hs = Number( _hs );
+						
+						if( params != null || !isNaN(hs) )
+						{
+							var b: Number = 0, c: Number = 0;
+							if (params != null)
+							{
+								b = params[0];
+								c = params[1];
+							}
+							
+							if( !isNaN(hs))
+								hScale = Number(hs);
+							text.setTextMatrix( hScale, b, c, 1, xMarker, yMarker );
+						}
+						
+						if( chunk.isAttribute(Chunk.CHAR_SPACING) )
+						{
+							var cs: Number = Number( chunk.getAttribute(Chunk.CHAR_SPACING) );
+							text.setCharacterSpacing(cs);
+						}
+						
+						if( chunk.isImage() )
+						{
+							throw new NonImplementatioError();
+						}
+					}
+					
+					xMarker += width;
+					++chunkStrokeIdx;
 				}
 
 				if ( chunk.font.compareTo( currentFont ) != 0 )

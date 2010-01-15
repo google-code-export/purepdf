@@ -32,6 +32,14 @@ package org.purepdf.elements
 			return a;
 		}
 		
+		public static function create2( chunk: Chunk ): Anchor
+		{
+			var result: Anchor = new Anchor();
+			result.add( chunk );
+			result._font = chunk.font;
+			return result;
+		}
+		
 		override public function process( listener: IElementListener ): Boolean
 		{
 			try 

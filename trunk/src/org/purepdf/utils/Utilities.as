@@ -42,7 +42,7 @@ package org.purepdf.utils
 			} else 
 			{
 				var original2: Vector.<Vector.<Object>> = original.concat();
-				original.push( item );
+				original2.push( item );
 				return original2;
 			}
 		}

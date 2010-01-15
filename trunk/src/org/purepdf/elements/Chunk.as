@@ -3,6 +3,7 @@ package org.purepdf.elements
 	import it.sephiroth.utils.HashMap;
 	
 	import org.purepdf.Font;
+	import org.purepdf.colors.RGBColor;
 	import org.purepdf.pdf.PdfAction;
 	import org.purepdf.utils.StringUtils;
 
@@ -124,6 +125,33 @@ package org.purepdf.elements
 			_attributes.put( name, obj );
 			return this;
 		}
+		
+		/**
+		 * Gets the text displacement relative to the baseline
+		 */
+		public function getTextRise(): Number
+		{
+			if( _attributes != null && _attributes.containsKey( SUBSUPSCRIPT ) )
+			{
+				var f: Number = Number( _attributes.getValue(SUBSUPSCRIPT) );
+				return f;
+			}
+			return 0;
+		}
+		
+		/**
+		 * Set the color and size of the background color for this
+		 * chunk element
+		 * 
+		 */
+		public function setBackground( color: RGBColor, extraLeft: Number = 0, extraBottom: Number = 0, extraRight: Number = 0, extraTop: Number = 0 ): Chunk
+		{
+			return setAttribute( BACKGROUND, 
+				Vector.<Object>([ color,
+								Vector.<Number>([ extraLeft, extraBottom, extraRight, extraTop])
+								]));
+		}
+
 		
 		public function setLocalDestination( name: String ): Chunk
 		{

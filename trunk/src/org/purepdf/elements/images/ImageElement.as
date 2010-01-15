@@ -5,6 +5,7 @@ package org.purepdf.elements.images
 	
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
+	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
@@ -221,12 +222,12 @@ package org.purepdf.elements.images
 
 		public function get isImgRaw(): Boolean
 		{
-			return _type == IMGRAW;
+			return _type == Element.IMGRAW;
 		}
 
 		public function get isImgTemplate(): Boolean
 		{
-			return _type == IMGTEMPLATE;
+			return _type == Element.IMGTEMPLATE;
 		}
 
 		public function get isInterpolated(): Boolean
@@ -524,7 +525,7 @@ package org.purepdf.elements.images
 
 		private function get isMaskCandidate(): Boolean
 		{
-			if ( _type == IMGRAW )
+			if ( _type == Element.IMGRAW )
 			{
 				if ( _bpc > 0xFF )
 				{

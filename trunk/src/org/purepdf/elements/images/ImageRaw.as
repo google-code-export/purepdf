@@ -1,13 +1,15 @@
 package org.purepdf.elements.images
 {
 	import flash.utils.ByteArray;
+	
+	import org.purepdf.elements.Element;
 
 	public class ImageRaw extends ImageElement
 	{
 		public function ImageRaw( $width: int, $height: int, $components: int, $bpc: int, $data: ByteArray )
 		{
 			super( null );
-			_type = IMGRAW;
+			_type = Element.IMGRAW;
 			_scaledHeight = $height;
 			setTop( _scaledHeight );
 			_scaledWidth = $width;

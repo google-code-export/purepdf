@@ -28,6 +28,10 @@ package org.purepdf
 		private var _size: Number = UNDEFINED;
 		private var _style: int = UNDEFINED;
 
+		/**
+		 * 
+		 * @param $style a combination of Font style ( eg: Font.UNDERLINE | Font.BOLD )
+		 */
 		public function Font( $family: int=UNDEFINED, $size: Number=UNDEFINED, $style: int=UNDEFINED, $color: RGBColor=null, $baseFont: BaseFont
 			=null )
 		{

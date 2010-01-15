@@ -839,27 +839,12 @@ package org.purepdf.pdf
 		 * when they are stroked.<BR>
 		 *
 		 * @param	style
-		 * @see	flash.display.CapsStyle
+		 * @see	PdfContentByte
 		 */
-		public function setLineCap( value: String ): void
+		public function setLineCap( style: int ): void
 		{
-			var style: int;
-
-			switch ( value )
-			{
-				case CapsStyle.NONE:
-					style = 0;
-					break;
-				case CapsStyle.ROUND:
-					style = 1;
-					break;
-				default:
-					style = 2;
-					break;
-			}
-
 			if ( style >= 0 && style <= 2 )
-				content.append( style ).append( " J" ).append_separator();
+				content.append_int( style ).append_string( " J" ).append_separator();
 		}
 
 		/**
@@ -1203,7 +1188,7 @@ package org.purepdf.pdf
 			var cr: RGBColor = rect.borderColorRight;
 			var cl: RGBColor = rect.borderColorLeft;
 			saveState();
-			setLineCap( CapsStyle.NONE );
+			setLineCap( 0 );
 			setLineJoin( JointStyle.MITER );
 			var clw: Number = 0;
 			var cdef: Boolean = false;
@@ -1872,6 +1857,11 @@ package org.purepdf.pdf
 		{
 			if( t.type == PdfTemplate.TYPE_PATTERN )
 				throw new RuntimeError("template was expected");
+		}
+		
+		internal function addAnnotation( annot: PdfAnnotation ): void
+		{
+			writer.pdfDocument.addAnnotation( annot );
 		}
 		
 		/**

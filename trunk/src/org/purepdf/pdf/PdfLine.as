@@ -36,6 +36,12 @@ package org.purepdf.pdf
 			return new VectorIterator( Vector.<Object>( line ) );
 		}
 
+		public function getChunk( idx: int ): PdfChunk
+		{
+			if( idx < 0 || idx >= line.length )
+				return null;
+			return PdfChunk( line[idx] );
+		}
 		
 		/**
 		 * Gets the index of the last <CODE>PdfChunk</CODE> with metric attributes

@@ -2,7 +2,6 @@ package org.purepdf.pdf.fonts
 {
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -15,6 +14,7 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringUtils;
 
+	[Abstract]
 	public class BaseFont extends ObjectHash
 	{
 		public static const ASCENT: int = 1;
@@ -132,7 +132,23 @@ package org.purepdf.pdf.fonts
 			return _fontType;
 		}
 
+		[Abstract]
 		public function getFamilyFontName(): Vector.<Vector.<String>>
+		{
+			throw new NonImplementatioError();
+		}
+
+		[Abstract]
+		public function getFontDescriptor( key: int, fontSize: Number ): Number
+		{
+			throw new NonImplementatioError();
+		}
+
+		/**
+		 * Gets the kerning between two Unicode chars
+		 */
+		[Abstract]
+		public function getKerning( char1: int, char2: int ): int
 		{
 			throw new NonImplementatioError();
 		}
@@ -153,7 +169,7 @@ package org.purepdf.pdf.fonts
 			else if ( code is Number )
 				return _getWidthI( int( code ) );
 
-			throw new ArgumentError( "Alloed parameter are only int and String" );
+			throw new ArgumentError( "Allowed parameter are only int and String" );
 		}
 
 		/**
@@ -166,6 +182,37 @@ package org.purepdf.pdf.fonts
 			return getWidth( code ) * 0.001 * fontSize;
 		}
 
+		/**
+		 * Gets the width of a string in points taking kerning
+		 * into account
+		 */
+		public function getWidthPointKerned( text: String, fontSize: Number ): Number
+		{
+			var size: Number = getWidth( text ) * 0.001 * fontSize;
+
+			if ( !hasKernPairs() )
+				return size;
+
+			var len: int = text.length - 1;
+			var kern: int = 0;
+			var c: Vector.<int> = StringUtils.toCharArray( text );
+
+			for ( var k: int = 0; k < len; ++k )
+				kern += getKerning( c[ k ], c[ k + 1 ] );
+
+			return size + kern * 0.001 * fontSize;
+		}
+
+		/**
+		 * Checks if the font has any kerning pairs
+		 */
+		[Abstract]
+		public function hasKernPairs(): Boolean
+		{
+			throw new NonImplementatioError();
+		}
+
+		[Abstract]
 		protected function getRawCharBBox( c: int, name: String ): Vector.<int>
 		{
 			throw new NonImplementatioError();
@@ -175,44 +222,8 @@ package org.purepdf.pdf.fonts
 		 * Gets the width from the font according to the Unicode char c
 		 * or the name
 		 */
-		protected function getRawWidth( c: int, name: String ): int
-		{
-			throw new NonImplementatioError();
-		}
-		
-		/**
-		 * Gets the width of a string in points taking kerning
-		 * into account
-		 */
-		public function getWidthPointKerned( text: String, fontSize: Number ): Number
-		{
-			var size: Number = getWidth( text ) * 0.001 * fontSize;
-			if( !hasKernPairs() )
-				return size;
-			
-			var len: int = text.length - 1;
-			var kern: int = 0;
-			var c: Vector.<int> = StringUtils.toCharArray( text );
-			
-			for( var k: int = 0; k < len; ++k )
-				kern += getKerning(c[k], c[k + 1]);
-
-			return size + kern * 0.001 * fontSize;
-		}
-		
-		/** 
-		 * Checks if the font has any kerning pairs
-		 */    
-		public function hasKernPairs(): Boolean
-		{
-			throw new NonImplementatioError();
-		}
-		
-		/**
-		 * Gets the kerning between two Unicode chars
-		 */
 		[Abstract]
-		public function getKerning( char1: int, char2: int ): int
+		protected function getRawWidth( c: int, name: String ): int
 		{
 			throw new NonImplementatioError();
 		}
@@ -240,18 +251,20 @@ package org.purepdf.pdf.fonts
 		 * @throws IOError
 		 * @throws DocumentError;
 		 */
+		[Abstract]
 		internal function getFullFontStream(): PdfStream
 		{
-			throw new NonImplementatioError( "getFullFontStream not implemented in font class" );
+			throw new NonImplementatioError();
 		}
 
 		/**
 		 * @throws DocumentError
 		 * @throws IOError
 		 */
+		[Abstract]
 		internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
 		{
-			throw new NonImplementatioError( "Font instance does not implement the writeFont method" );
+			throw new NonImplementatioError();
 		}
 
 		private function _getWidthI( code: int ): int
@@ -311,7 +324,7 @@ package org.purepdf.pdf.fonts
 			return _builtinFonts14;
 		}
 
-		/** 
+		/**
 		 * Creates a new font. This font can be one of the 14 built in types,
 		 * a Type1 font referred to by an AFM or PFM file, a TrueType font (simple or collection) or a CJK font from the
 		 * Adobe Asian Font Pack. TrueType fonts and CJK fonts can have an optional style modifier
@@ -319,7 +332,7 @@ package org.purepdf.pdf.fonts
 		 * example would be "STSong-Light,Bold". Note that this modifiers do not work if
 		 * the font is embedded. Fonts in TrueType collections are addressed by index such as "msgothic.ttc,1".
 		 * This would get the second font (indexes start at 0), in this case "MS PGothic".
-		 * 
+		 *
 		 * @throws DocumentError
 		 * @throws IOError
 		 */
