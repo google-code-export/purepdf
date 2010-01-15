@@ -1,14 +1,9 @@
 package
 {
-	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.events.Event;
-	import flash.utils.getQualifiedClassName;
 	
-	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfContentByte;
-	import org.purepdf.pdf.PdfDocument;
-	import org.purepdf.pdf.PdfWriter;
 
 	public class LineStyles extends DefaultBasicExample
 	{
@@ -44,15 +39,15 @@ package
 			cb.stroke();
 			cb.saveState();
 			cb.setLineWidth( 8 );
-			cb.setLineCap( CapsStyle.NONE );
+			cb.setLineCap( PdfContentByte.LINE_CAP_BUTT );
 			cb.moveTo( 72, 640 );
 			cb.lineTo( 144, 640 );
 			cb.stroke();
-			cb.setLineCap( CapsStyle.ROUND );
+			cb.setLineCap( PdfContentByte.LINE_CAP_ROUND );
 			cb.moveTo( 72, 625 );
 			cb.lineTo( 144, 625 );
 			cb.stroke();
-			cb.setLineCap( CapsStyle.SQUARE );
+			cb.setLineCap( PdfContentByte.LINE_CAP_PROJECTING_SQUARE );
 			cb.moveTo( 72, 610 );
 			cb.lineTo( 144, 610 );
 			cb.stroke();
@@ -158,7 +153,7 @@ package
 			cb.lineTo( 320, 440 );
 			cb.stroke();
 			var dash2: Vector.<Number> = Vector.<Number>( [ 9, 6, 0, 6 ] );
-			cb.setLineCap( CapsStyle.ROUND );
+			cb.setLineCap( PdfContentByte.LINE_CAP_ROUND );
 			cb.setLineDash4( dash2, 0 );
 			cb.moveTo( 40, 430 );
 			cb.lineTo( 320, 430 );
