@@ -4,7 +4,7 @@ package org.purepdf.elements.images
 	import flash.utils.ByteArray;
 	
 	import org.purepdf.codecs.TIFFEncoder;
-	import org.purepdf.elements.AnnotationElement;
+	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
@@ -49,7 +49,7 @@ package org.purepdf.elements.images
 		protected var _absoluteY: Number = NaN;
 		protected var _additional: PdfDictionary;
 		protected var _alignment: int;
-		protected var _annotation: AnnotationElement = null;
+		protected var _annotation: Annotation = null;
 		protected var _bpc: int = 1;
 		protected var _colorspace: int = -1;
 		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
@@ -120,12 +120,12 @@ package org.purepdf.elements.images
 			_alignment = value;
 		}
 
-		public function get annotation(): AnnotationElement
+		public function get annotation(): Annotation
 		{
 			return _annotation;
 		}
 
-		public function set annotation( value: AnnotationElement ): void
+		public function set annotation( value: Annotation ): void
 		{
 			_annotation = value;
 		}
