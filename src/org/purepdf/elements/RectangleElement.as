@@ -2,8 +2,9 @@ package org.purepdf.elements
 {
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.errors.DocumentError;
 
-	public class RectangleElement extends Element implements IElement
+	public class RectangleElement implements IElement
 	{
 		public static const BOTTOM: int = 2;
 		public static const LEFT: int = 4;
@@ -37,6 +38,16 @@ package org.purepdf.elements
 			lly = $lly;
 			urx = $urx;
 			ury = $ury;
+		}
+		
+		public function process( listener: IElementListener ): Boolean
+		{
+			try 
+			{
+				return listener.add( this );
+			}
+			catch ( error: DocumentError ) {}
+			return false;
 		}
 
 		public function cloneNonPositionParameters( rect: RectangleElement ): void
@@ -144,7 +155,7 @@ package org.purepdf.elements
 			return lly + margin;
 		}
 
-		override public function getChunks(): Vector.<Object>
+		public function getChunks(): Vector.<Object>
 		{
 			return new Vector.<Object>();
 		}
@@ -206,7 +217,7 @@ package org.purepdf.elements
 			}
 		}
 
-		override public function get isNestable(): Boolean
+		public function get isNestable(): Boolean
 		{
 			return false;
 		}
@@ -216,7 +227,7 @@ package org.purepdf.elements
 			return _useVariableBorders;
 		}
 
-		override public function get isContent(): Boolean
+		public function get isContent(): Boolean
 		{
 			return true;
 		}
@@ -368,7 +379,7 @@ package org.purepdf.elements
 			ury = $ury;
 		}
 
-		override public function toString(): String
+		public function toString(): String
 		{
 			var buf: String = "Rectangle: ";
 			buf += width + "x";
@@ -377,7 +388,7 @@ package org.purepdf.elements
 			return buf;
 		}
 
-		override public function get type(): int
+		public function get type(): int
 		{
 			return Element.RECTANGLE;
 		}

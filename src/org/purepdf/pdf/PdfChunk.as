@@ -62,6 +62,12 @@ package org.purepdf.pdf
 		{
 			return (!attributes.isEmpty());
 		}
+		
+		internal function isSeparator(): Boolean
+		{
+			return isAttribute( Chunk.SEPARATOR );
+		}
+
 
 		public function get changeLeading(): Boolean
 		{
@@ -506,18 +512,27 @@ package org.purepdf.pdf
 
 			var obj: Vector.<Object>;
 			var unders: Vector.<Vector.<Object>>;
+			var tmp: Vector.<Object>;
+			var tmp2: Object;
 
 			if ( f.isUnderline )
 			{
-				obj = Vector.<Object>( [ null, Vector.<Number>( [ 0, 1 / 15, 0, -1 / 3, 0 ] ) ] );
-				unders = Utilities.addToArray( Vector.<Vector.<Object>>( result.attributes.getValue( Chunk.UNDERLINE ) ), obj );
+				tmp = new Vector.<Object>(2);
+				tmp[1] = Vector.<Number>( [ 0, 1 / 15, 0, -1 / 3, 0 ] );
+				obj = tmp;
+				
+				tmp2 = result.attributes.getValue( Chunk.UNDERLINE );
+				unders = Utilities.addToArray( tmp2 ? Vector.<Vector.<Object>>( tmp2 ) : null, obj );
 				result.attributes.put( Chunk.UNDERLINE, unders );
 			}
 
 			if ( f.isStrikethru )
 			{
-				obj = Vector.<Object>( [ null, Vector.<Number>( [ 0, 1 / 15, 0, 1 / 3, 0 ] ) ] );
-				unders = Utilities.addToArray( Vector.<Vector.<Object>>( result.attributes.getValue( Chunk.UNDERLINE ) ), obj );
+				tmp = new Vector.<Object>(2);
+				tmp[1] = Vector.<Number>( [ 0, 1 / 15, 0, 1 / 3, 0 ] );
+				obj = tmp;
+				tmp2 = result.attributes.getValue( Chunk.UNDERLINE );
+				unders = Utilities.addToArray( tmp2 ? Vector.<Vector.<Object>>( tmp2 ) : null, obj );
 				result.attributes.put( Chunk.UNDERLINE, unders );
 			}
 
@@ -592,6 +607,15 @@ package org.purepdf.pdf
 
 			return chunk;
 		}
+		
+		public function getTextRise(): Number
+		{
+			var t: Object = getAttribute(Chunk.SUBSUPSCRIPT);
+			if( t != null )
+				return Number(t);
+			return 0;
+		}
+
 
 		public static function get keysAttributes(): HashMap
 		{

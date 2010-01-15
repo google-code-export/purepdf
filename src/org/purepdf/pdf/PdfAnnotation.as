@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
 	import it.sephiroth.utils.HashMap;
+	
 	import org.purepdf.elements.RectangleElement;
 
 	public class PdfAnnotation extends PdfDictionary
@@ -44,7 +45,7 @@ package org.purepdf.pdf
 		protected var used: Boolean = false;
 		protected var _writer: PdfWriter;
 
-		public function PdfAnnotation( $writer: PdfWriter, rect: RectangleElement )
+		public function PdfAnnotation( $writer: PdfWriter, rect: RectangleElement = null )
 		{
 			_writer = $writer;
 
@@ -104,6 +105,18 @@ package org.purepdf.pdf
 		{
 			return _templates;
 		}
+		
+		public static function createAction( writer: PdfWriter, llx: Number, lly: Number, urx: Number, ury: Number, action: PdfAction ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = new PdfAnnotation( writer );
+			annot.put( PdfName.SUBTYPE, PdfName.LINK );
+			annot.put( PdfName.RECT, new PdfRectangle(llx, lly, urx, ury) );
+			annot.put( PdfName.A, action );
+			annot.put( PdfName.BORDER, new PdfBorderArray(0, 0, 0) );
+			annot.put( PdfName.C, new PdfColor(0x00, 0x00, 0xFF) );
+			return annot;
+		}
+
 
 		public static function createText( rect: RectangleElement, title: String, contents: String, opened: Boolean, icon: String ): PdfAnnotation
 		{

@@ -3,6 +3,7 @@ package org.purepdf.elements.images
 	import flash.errors.IOError;
 	import flash.utils.ByteArray;
 	
+	import org.purepdf.elements.Element;
 	import org.purepdf.utils.Bytes;
 
 	public class Jpeg extends ImageElement
@@ -67,7 +68,7 @@ package org.purepdf.elements.images
 		
 		private function processParameters(): void
 		{
-			_type = JPEG;
+			_type = Element.JPEG;
 			_originalType = ORIGINAL_JPEG;
 			var ins: ByteArray;
 			var errorID: String;

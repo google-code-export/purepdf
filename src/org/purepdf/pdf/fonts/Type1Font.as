@@ -1,9 +1,7 @@
 package org.purepdf.pdf.fonts
 {
 	import flash.utils.ByteArray;
-	
 	import it.sephiroth.utils.HashMap;
-	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -99,6 +97,66 @@ package org.purepdf.pdf.fonts
 			createEncoding();
 		}
 
+
+		override public function getFontDescriptor( key: int, fontSize: Number ): Number
+		{
+			switch ( key )
+			{
+				case AWT_ASCENT:
+				case ASCENT:
+					return Ascender * fontSize / 1000;
+				case CAPHEIGHT:
+					return CapHeight * fontSize / 1000;
+				case AWT_DESCENT:
+				case DESCENT:
+					return Descender * fontSize / 1000;
+				case ITALICANGLE:
+					return ItalicAngle;
+				case BBOXLLX:
+					return llx * fontSize / 1000;
+				case BBOXLLY:
+					return lly * fontSize / 1000;
+				case BBOXURX:
+					return urx * fontSize / 1000;
+				case BBOXURY:
+					return ury * fontSize / 1000;
+				case AWT_LEADING:
+					return 0;
+				case AWT_MAXADVANCE:
+					return ( urx - llx ) * fontSize / 1000;
+				case UNDERLINE_POSITION:
+					return UnderlinePosition * fontSize / 1000;
+				case UNDERLINE_THICKNESS:
+					return UnderlineThickness * fontSize / 1000;
+			}
+			return 0;
+		}
+
+		override public function getKerning( char1: int, char2: int ): int
+		{
+			var first: String = GlyphList.unicode2name( char1 );
+
+			if ( first == null )
+				return 0;
+
+			var second: String = GlyphList.unicode2name( char2 );
+
+			if ( second == null )
+				return 0;
+
+			var obj: Vector.<Object> = Vector.<Object>( KernPairs.getValue( first ) );
+
+			if ( obj == null )
+				return 0;
+
+			for ( var k: int = 0; k < obj.length; k += 2 )
+			{
+				if ( second == obj[ k ] )
+					return obj[ k + 1 ] as int;
+			}
+			return 0;
+		}
+
 		override public function hasKernPairs(): Boolean
 		{
 			return !KernPairs.isEmpty();
@@ -148,28 +206,6 @@ package org.purepdf.pdf.fonts
 					charBBoxes[ k ] = getRawCharBBox( c, name );
 				}
 			}
-		}
-		
-		override public function getKerning( char1: int, char2: int ): int
-		{
-			var first: String = GlyphList.unicode2name( char1 );
-			if (first == null)
-				return 0;
-			
-			var second: String = GlyphList.unicode2name( char2 );
-			if (second == null)
-				return 0;
-			
-			var obj: Vector.<Object> = Vector.<Object>(KernPairs.getValue(first));
-			if (obj == null)
-				return 0;
-			
-			for( var k: int = 0; k < obj.length; k += 2)
-			{
-				if( second == obj[k] )
-					return obj[k + 1] as int;
-			}
-			return 0;
 		}
 
 		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>
@@ -249,7 +285,7 @@ package org.purepdf.pdf.fonts
 				ind_font = obj.getIndirectReference();
 			}
 
-			pobj = getFontDescriptor( ind_font );
+			pobj = getFontDescriptorRef( ind_font );
 
 			if ( pobj != null )
 			{
@@ -328,7 +364,7 @@ package org.purepdf.pdf.fonts
 			return dic;
 		}
 
-		private function getFontDescriptor( fontStream: PdfIndirectReference ): PdfDictionary
+		private function getFontDescriptorRef( fontStream: PdfIndirectReference ): PdfDictionary
 		{
 			if ( builtinFont )
 				return null;

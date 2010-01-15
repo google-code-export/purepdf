@@ -1,11 +1,7 @@
 package org.purepdf.elements
 {
-	import it.sephiroth.utils.ObjectHash;
-	
-	import org.purepdf.errors.NonImplementatioError;
-
 	[Abstract]
-	public class Element extends ObjectHash implements IElement
+	public final class Element
 	{
 		public static const ALIGN_BASELINE: int = 7;
 		public static const ALIGN_BOTTOM: int = 6;
@@ -52,45 +48,5 @@ package org.purepdf.elements
 		public static const TITLE: int = 1;
 		public static const YMARK: int = 55;
 		public static const TABLE: int = 22;
-
-		public function Element()
-		{
-		}
-		
-		[Abstract]
-		public function process( listener: IElementListener ): Boolean
-		{
-			throw new NonImplementatioError();
-		}
-
-		[Abstract]
-		public function getChunks(): Vector.<Object>
-		{
-			throw new NonImplementatioError();
-		}
-
-		[Abstract]
-		public function get isNestable(): Boolean
-		{
-			throw new NonImplementatioError();
-		}
-
-		[Abstract]
-		public function get isContent(): Boolean
-		{
-			throw new NonImplementatioError();
-		}
-
-		[Abstract]
-		public function toString(): String
-		{
-			throw new NonImplementatioError();
-		}
-
-		[Abstract]
-		public function get type(): int
-		{
-			throw new NonImplementatioError();
-		}
 	}
 }
