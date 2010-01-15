@@ -139,7 +139,7 @@ package org.purepdf.pdf
 			var h: Number;
 			var w: Number;
 
-			if ( image.isimgtemplate )
+			if ( image.isImgTemplate )
 			{
 				writer.addDirectImageSimple( image );
 				var template: PdfTemplate = image.templateData;

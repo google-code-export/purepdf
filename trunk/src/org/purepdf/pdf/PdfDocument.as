@@ -2,16 +2,19 @@ package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
+	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.IObject;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	import it.sephiroth.utils.hashLib;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.IElementListener;
 	import org.purepdf.elements.ILargeElement;
 	import org.purepdf.elements.Meta;
@@ -20,6 +23,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.PageEvent;
@@ -92,12 +96,12 @@ package org.purepdf.pdf
 			addCreationDate();
 		}
 
-		public function add( element: Element ): Boolean
+		public function add( element: IElement ): Boolean
 		{
 			if ( _writer != null && _writer.isPaused() )
 				return false;
 
-			switch ( element.type() )
+			switch ( element.type )
 			{
 				case Element.PRODUCER:
 					info.addProducer();
@@ -194,11 +198,10 @@ package org.purepdf.pdf
 					break;
 
 				default:
-					logger.error( "PdfDocument.add. Invalid type: " + element.type() );
-					throw new Error( 'PdfDocument.add. Invalid type: ' + element.type() );
-					return false;
+					logger.error( "PdfDocument.add. Invalid type: " + element.type );
+					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
-			lastElementType = element.type();
+			lastElementType = element.type;
 			return true;
 		}
 
@@ -221,7 +224,7 @@ package org.purepdf.pdf
 			return add( new Meta( Element.CREATOR, creator ) );
 		}
 
-		public function addElement( element: Element ): Boolean
+		public function addElement( element: IElement ): Boolean
 		{
 			if ( closed )
 				throw new Error( "document is closed" );

@@ -60,7 +60,7 @@ package org.purepdf.elements
 			return false;
 		}
 
-		override public function type(): int
+		override public function get type(): int
 		{
 			return _type;
 		}

@@ -191,7 +191,7 @@ package org.purepdf.pdf
 		
 		override public function addImage2(image:ImageElement, width:Number, b:Number, c:Number, height:Number, x:Number, y:Number, inlineImage:Boolean) : void
 		{
-			if( _stencil && !image.ismask )
+			if( _stencil && !image.isMask )
 			{
 				checkNoColor();
 			}

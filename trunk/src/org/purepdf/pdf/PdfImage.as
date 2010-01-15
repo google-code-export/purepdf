@@ -37,32 +37,32 @@ package org.purepdf.pdf
 					//put(PdfName.OC, image.getLayer().getRef());
 			}
 
-			if ( image.ismask && ( image.bpc == 1 || image.bpc > 0xFF ))
+			if ( image.isMask && ( image.bpc == 1 || image.bpc > 0xFF ))
 				put( PdfName.IMAGEMASK, PdfBoolean.PDF_TRUE );
 
 			if ( maskRef != null )
 			{
-				if ( image.issmask )
+				if ( image.isSmask )
 					put( PdfName.SMASK, maskRef );
 				else
 					put( PdfName.MASK, maskRef );
 			}
 
-			if ( image.ismask && image.isinverted )
+			if ( image.isMask && image.isInverted )
 				put( PdfName.DECODE, new PdfLiteral( "[1 0]" ));
 
-			if ( image.isinterpolated )
+			if ( image.isInterpolated )
 				put( PdfName.INTERPOLATE, PdfBoolean.PDF_TRUE );
 			var ins: ByteArray;
 
 			// Raw Image data
-			if ( image.isimgraw )
+			if ( image.isImgRaw )
 			{
 				var k: int;
 				var colorspace: int = image.colorspace;
 				var transparency: Vector.<int> = image.transparency;
 
-				if ( transparency != null && !image.ismask && maskRef == null )
+				if ( transparency != null && !image.isMask && maskRef == null )
 				{
 					var s: String = "[";
 
@@ -79,7 +79,7 @@ package org.purepdf.pdf
 
 				if ( bpc > 0xff )
 				{
-					if ( !image.ismask )
+					if ( !image.isMask )
 						put( PdfName.COLORSPACE, PdfName.DEVICEGRAY );
 					put( PdfName.BITSPERCOMPONENT, new PdfNumber( 1 ));
 					put( PdfName.FILTER, PdfName.CCITTFAXDECODE );
@@ -109,20 +109,20 @@ package org.purepdf.pdf
 					{
 						case 1:
 							put( PdfName.COLORSPACE, PdfName.DEVICEGRAY );
-							if ( image.isinverted )
+							if ( image.isInverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0]" ));
 							break;
 						
 						case 3:
 							put( PdfName.COLORSPACE, PdfName.DEVICERGB );
-							if ( image.isinverted )
+							if ( image.isInverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0]" ));
 							break;
 						
 						case 4:
 						default:
 							put( PdfName.COLORSPACE, PdfName.DEVICECMYK );
-							if ( image.isinverted )
+							if ( image.isInverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0 1 0]" ));
 					}
 					var additional: PdfDictionary = image.additional;
@@ -130,7 +130,7 @@ package org.purepdf.pdf
 					if ( additional != null )
 						putAll( additional );
 
-					if ( image.ismask && ( image.bpc == 1 || image.bpc > 8 ))
+					if ( image.isMask && ( image.bpc == 1 || image.bpc > 8 ))
 						remove( PdfName.COLORSPACE );
 					put( PdfName.BITSPERCOMPONENT, new PdfNumber( image.bpc ));
 
@@ -159,7 +159,7 @@ package org.purepdf.pdf
 				errorID = "Byte array";
 			}
 
-			switch ( image.type())
+			switch ( image.type )
 			{
 				case Element.JPEG:
 					put( PdfName.FILTER, PdfName.DCTDECODE );
@@ -173,7 +173,7 @@ package org.purepdf.pdf
 						break;
 					default:
 						put( PdfName.COLORSPACE, PdfName.DEVICECMYK );
-						if ( image.isinverted )
+						if ( image.isInverted )
 						{
 							put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0 1 0]" ));
 						}
