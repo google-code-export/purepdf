@@ -159,6 +159,12 @@ package org.purepdf.pdf.fonts
 		{
 			return c;
 		}
+		
+		[Abstract]
+		public function setKerning( char1: int, char2: int, kern: int ): Boolean
+		{
+			throw new NonImplementatioError();
+		}
 
 		/**
 		 * Gets the width of a char in normalized 1000 units.
