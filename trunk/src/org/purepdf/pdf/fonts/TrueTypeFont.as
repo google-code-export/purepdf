@@ -8,6 +8,8 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfEncodings;
+	import org.purepdf.pdf.PdfIndirectReference;
+	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.StringUtils;
 
 	public class TrueTypeFont extends BaseFont
@@ -139,9 +141,9 @@ package org.purepdf.pdf.fonts
 					fillTables();
 					readGlyphWidths();
 					readCMaps();
-					/*readKerning();
+					readKerning();
 					readBbox();
-					GlyphWidths = null;*/
+					GlyphWidths = null;
 				}
 			}
 			finally
@@ -149,6 +151,116 @@ package org.purepdf.pdf.fonts
 				if (rf != null) {
 					if (!embedded)
 						rf = null;
+				}
+			}
+		}
+		
+		override internal function writeFont(writer:PdfWriter, ref:PdfIndirectReference, params:Vector.<Object>) : void
+		{
+			throw new NonImplementatioError();
+		}
+		
+		override public function getFamilyFontName(): Vector.<Vector.<String>>
+		{
+			return familyName;
+		}
+		
+		override protected function getRawWidth(c:int, name:String) : int
+		{
+			var metric: Vector.<int> = getMetricsTT(c);
+			if (metric == null)
+				return 0;
+			return metric[1];
+		}
+		
+		/**
+		 * 
+		 * @throws DocumentError
+		 * @throws EOFError
+		 */
+		private function readBbox(): void
+		{
+			var tableLocation: Vector.<int>;
+			tableLocation = tables.getValue("head") as Vector.<int>;
+			if (tableLocation == null)
+				throw new DocumentError( "table head does not exist in " + (fileName + style));
+			rf.position = (tableLocation[0] + TrueTypeFontSubSet.HEAD_LOCA_FORMAT_OFFSET);
+			var locaShortTable: Boolean = (rf.readUnsignedShort() == 0);
+			
+			tableLocation = tables.getValue("loca") as Vector.<int>;
+			if (tableLocation == null)
+				return;
+			
+			rf.position = tableLocation[0];
+			var k: int;
+			var entries: int;
+			var locaTable: Vector.<int>;
+
+			if (locaShortTable) {
+				entries = tableLocation[1] / 2;
+				locaTable = new Vector.<int>(entries, true);
+				for ( k = 0; k < entries; ++k)
+					locaTable[k] = rf.readUnsignedShort() * 2;
+			}
+			else {
+				entries = tableLocation[1] / 4;
+				locaTable = new Vector.<int>(entries, true);
+				for ( k = 0; k < entries; ++k)
+					locaTable[k] = rf.readInt();
+			}
+			tableLocation = tables.getValue("glyf") as Vector.<int>;
+			if (tableLocation == null)
+				throw new DocumentError( "table glyf does not exist in " + (fileName + style));
+			var tableGlyphOffset: int = tableLocation[0];
+			bboxes = new Vector.<Vector.<int>>( locaTable.length - 1, true );
+			for ( var glyph: int = 0; glyph < locaTable.length - 1; ++glyph )
+			{
+				var start: int = locaTable[glyph];
+				if (start != locaTable[glyph + 1] )
+				{
+					rf.position = tableGlyphOffset + start + 2;
+					bboxes[glyph] = Vector.<int>([
+						(rf.readShort() * 1000) / head.unitsPerEm,
+							(rf.readShort() * 1000) / head.unitsPerEm,
+							(rf.readShort() * 1000) / head.unitsPerEm,
+							(rf.readShort() * 1000) / head.unitsPerEm
+							]);
+				}
+			}
+		}
+		
+		/** 
+		 * Reads the kerning information from the 'kern' table.
+		 * @throws EOFError
+		 */
+		private function readKerning(): void
+		{
+			var table_location: Vector.<int>;
+			table_location = tables.getValue("kern") as Vector.<int>;
+			if (table_location == null)
+				return;
+			
+			rf.position = (table_location[0] + 2);
+			var nTables: int = rf.readUnsignedShort();
+			var checkpoint: int = table_location[0] + 4;
+			var length: int = 0;
+			var j: int;
+			
+			for( var k: int = 0; k < nTables; ++k) {
+				checkpoint += length;
+				rf.position = (checkpoint);
+				rf.position += 2;
+				length = rf.readUnsignedShort();
+				var coverage: int = rf.readUnsignedShort();
+				if ((coverage & 0xfff7) == 0x0001) {
+					var nPairs: int = rf.readUnsignedShort();
+					rf.position += 6;
+					for ( j = 0; j < nPairs; ++j )
+					{
+						var pair: int = rf.readInt();
+						var value: int = rf.readShort() * 1000 / head.unitsPerEm;
+						kerning.put(pair, value);
+					}
 				}
 			}
 		}
@@ -161,7 +273,239 @@ package org.purepdf.pdf.fonts
 		 */
 		private function readCMaps(): void
 		{
-			throw new NonImplementatioError();
+			var table_location: Vector.<int>;
+			table_location = tables.getValue("cmap") as Vector.<int>;
+			if (table_location == null)
+				throw new DocumentError( "table cmap does not exist in " + (fileName + style));
+			rf.position = table_location[0];
+			rf.position += 2;
+			var num_tables: int = rf.readUnsignedShort();
+			fontSpecific = false;
+			var map10: int = 0;
+			var map31: int = 0;
+			var map30: int = 0;
+			var mapExt: int = 0;
+			var k: int;
+			for( k = 0; k < num_tables; ++k )
+			{
+				var platId: int = rf.readUnsignedShort();
+				var platSpecId: int = rf.readUnsignedShort();
+				var offset: int = rf.readInt();
+				if( platId == 3 && platSpecId == 0 )
+				{
+					fontSpecific = true;
+					map30 = offset;
+				} else if (platId == 3 && platSpecId == 1)
+				{
+					map31 = offset;
+				} else if (platId == 3 && platSpecId == 10)
+				{
+					mapExt = offset;
+				}
+				
+				if (platId == 1 && platSpecId == 0)
+					map10 = offset;
+			}
+			var format: int;
+			
+			if ( map10 > 0)
+			{
+				rf.position =  (table_location[0] + map10);
+				format = rf.readUnsignedShort();
+				switch (format)
+				{
+					case 0:
+						cmap10 = readFormat0();
+						break;
+					case 4:
+						cmap10 = readFormat4();
+						break;
+					case 6:
+						cmap10 = readFormat6();
+						break;
+				}
+			}
+			
+			
+			if( map31 > 0)
+			{
+				rf.position =  (table_location[0] + map31);
+				format = rf.readUnsignedShort();
+				if (format == 4)
+					cmap31 = readFormat4();
+			}
+			
+			if (map30 > 0) 
+			{
+				rf.position =  (table_location[0] + map30);
+				format = rf.readUnsignedShort();
+				if (format == 4)
+					cmap10 = readFormat4();
+			}
+			
+			if (mapExt > 0) 
+			{
+				rf.position = (table_location[0] + mapExt);
+				format = rf.readUnsignedShort();
+			
+				switch( format )
+				{
+					case 0:
+						cmapExt = readFormat0();
+						break;
+					case 4:
+						cmapExt = readFormat4();
+						break;
+					case 6:
+						cmapExt = readFormat6();
+						break;
+					case 12:
+						cmapExt = readFormat12();
+						break;
+				}
+			}
+		}
+		
+		/**
+		 * 
+		 * @throws EOFError
+		 */
+		private function readFormat12(): HashMap
+		{
+			var h: HashMap = new HashMap();
+			rf.position += 2;
+			var table_lenght: int = rf.readInt();
+			rf.position += 4;
+			var nGroups: int = rf.readInt();
+			var startCharCode: int;
+			var endCharCode: int;
+			var startGlyphID: int;
+			var i: int;
+			var r: Vector.<int>;
+			for ( var k: int = 0; k < nGroups; k++) {
+				startCharCode = rf.readInt();
+				endCharCode = rf.readInt();
+				startGlyphID = rf.readInt();
+				for ( i = startCharCode; i <= endCharCode; i++) {
+					r = new Vector.<int>(2,true);
+					r[0] = startGlyphID;
+					r[1] = getGlyphWidth(r[0]);
+					h.put( i, r );
+					startGlyphID++;
+				}
+			}
+			return h;
+		}
+		
+		/** 
+		 * The information in the maps of the table 'cmap' is coded in several formats.
+		 * Format 6 is a trimmed table mapping. It is similar to format 0 but can have
+		 * less than 256 entries.
+		 * @throws EOFError
+		 */
+		private function readFormat6(): HashMap
+		{
+			var h: HashMap = new HashMap();
+			rf.position += 4;
+			var start_code: int = rf.readUnsignedShort();
+			var code_count: int = rf.readUnsignedShort();
+			var r: Vector.<int>;
+			for ( var k: int = 0; k < code_count; ++k) 
+			{
+				r = new Vector.<int>(2,true);
+				r[0] = rf.readUnsignedShort();
+				r[1] = getGlyphWidth(r[0]);
+				h.put((k + start_code), r);
+			}
+			return h;
+		}
+		
+		/** 
+		 * Gets width of a glyph
+		 */
+		protected function getGlyphWidth( glyph: int ): int
+		{
+			if (glyph >= GlyphWidths.length)
+				glyph = GlyphWidths.length - 1;
+			return GlyphWidths[glyph];
+		}
+		
+		/** 
+		 * The information in the maps of the table 'cmap' is coded in several formats.
+		 * Format 4 is the Microsoft standard character to glyph index mapping table.
+		 * @throws EOFError
+		 */
+		private function readFormat4(): HashMap
+		{
+			var h: HashMap = new HashMap();
+			var table_lenght: int = rf.readUnsignedShort();
+			rf.position += 2;
+			var segCount: int = rf.readUnsignedShort() / 2;
+			rf.position += 6;
+			var endCount: Vector.<int> = new Vector.<int>(segCount,true);
+			var k: int;
+			for (k = 0; k < segCount; ++k)
+				endCount[k] = rf.readUnsignedShort();
+
+			rf.position += 2;
+			var startCount: Vector.<int> = new Vector.<int>(segCount,true);
+			for (k = 0; k < segCount; ++k)
+				startCount[k] = rf.readUnsignedShort();
+			
+			var idDelta: Vector.<int> = new Vector.<int>(segCount,true);
+			for ( k = 0; k < segCount; ++k)
+				idDelta[k] = rf.readUnsignedShort();
+
+			var idRO: Vector.<int> = new Vector.<int>(segCount,true);
+			for (k = 0; k < segCount; ++k)
+				idRO[k] = rf.readUnsignedShort();
+			
+			var glyphId: Vector.<int> = new Vector.<int>(table_lenght / 2 - 8 - segCount * 4, true);
+			for ( k = 0; k < glyphId.length; ++k)
+				glyphId[k] = rf.readUnsignedShort();
+			
+			for ( k = 0; k < segCount; ++k )
+			{
+				var glyph: int;
+				var r: Vector.<int>;
+				var idx: int;
+				for ( var j: int = startCount[k]; j <= endCount[k] && j != 0xFFFF; ++j) 
+				{
+					if (idRO[k] == 0) {
+						glyph = (j + idDelta[k]) & 0xFFFF;
+					} else 
+					{
+						idx = k + idRO[k] / 2 - segCount + j - startCount[k];
+						if (idx >= glyphId.length)
+							continue;
+						glyph = (glyphId[idx] + idDelta[k]) & 0xFFFF;
+					}
+					r = new Vector.<int>(2, true);
+					r[0] = glyph;
+					r[1] = getGlyphWidth(r[0]);
+					h.put( (fontSpecific ? ((j & 0xff00) == 0xf000 ? j & 0xff : j) : j), r);
+				}
+			}
+			return h;
+		}
+		
+		/** 
+		 * The information in the maps of the table 'cmap' is coded in several formats.
+		 * Format 0 is the Apple standard character to glyph index mapping table.
+		 * @throws EOFError
+		 */
+		private function readFormat0(): HashMap
+		{
+			var h: HashMap = new HashMap();
+			rf.position += 4;
+			for( var k: int = 0; k < 256; ++k )
+			{
+				var r: Vector.<int> = new Vector.<int>(2,true);
+				r[0] = rf.readUnsignedByte();
+				r[1] = getGlyphWidth(r[0]);
+				h.put( k, r );
+			}
+			return h;
 		}
 		
 		/** 
@@ -444,6 +788,55 @@ package org.purepdf.pdf.fonts
 		protected function readUnicodeString( length: int ): String
 		{
 			return rf.readMultiByte( length, "unicode" );
+		}
+		
+		override public function setKerning( char1: int, char2: int, kern: int ): Boolean
+		{
+			var metrics: Vector.<int> = getMetricsTT(char1);
+			if (metrics == null)
+				return false;
+			var c1: int = metrics[0];
+			metrics = getMetricsTT(char2);
+			if (metrics == null)
+				return false;
+			var c2: int = metrics[0];
+			kerning.put((c1 << 16) + c2, kern);
+			return true;
+		}
+		
+		/** 
+		 * Gets the glyph index and metrics for a character.
+		 */    
+		public function getMetricsTT( c: int ): Vector.<int>
+		{
+			if (cmapExt != null)
+				return cmapExt.getValue(c) as Vector.<int>;
+			if (!fontSpecific && cmap31 != null) 
+				return cmap31.getValue(c) as Vector.<int>;
+			if (fontSpecific && cmap10 != null) 
+				return cmap10.getValue(c) as Vector.<int>;
+			if (cmap31 != null) 
+				return cmap31.getValue(c) as Vector.<int>;
+			if (cmap10 != null) 
+				return cmap10.getValue(c) as Vector.<int>;
+			return null;
+		}
+		
+		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>
+		{
+			var map: HashMap = null;
+			if (name == null || cmap31 == null)
+				map = cmap10;
+			else
+				map = cmap31;
+			
+			if (map == null)
+				return null;
+			
+			var metric: Vector.<int> = map.getValue(c) as Vector.<int>;
+			if (metric == null || bboxes == null)
+				return null;
+			return bboxes[metric[0]];
 		}
 	}
 }
