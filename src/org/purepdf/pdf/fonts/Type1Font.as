@@ -1,7 +1,9 @@
 package org.purepdf.pdf.fonts
 {
 	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.HashMap;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
@@ -70,12 +72,12 @@ package org.purepdf.pdf.fonts
 			fileName = afmFile;
 			_fontType = FONT_TYPE_T1;
 
-			if ( builtinFonts14.containsKey( afmFile ) )
+			if ( builtinFonts14.containsKey( afmFile ) || StringUtils.endsWith( afmFile, ".afm" ) )
 			{
 				embedded = false;
 				builtinFont = true;
 
-				var byte: ByteArray = FontsResourceFactory.getInstance().getFontFile( afmFile + ".afm" );
+				var byte: ByteArray = FontsResourceFactory.getInstance().getFontFile( afmFile );
 
 				if ( byte == null )
 					throw new DocumentError( afmFile + " not found in resources" );
@@ -95,6 +97,14 @@ package org.purepdf.pdf.fonts
 			if ( !StringUtils.startsWith( encoding, "#" ) )
 				PdfEncodings.convertToBytes( " ", enc );
 			createEncoding();
+		}
+		
+		override public function getFamilyFontName() : Vector.<Vector.<String>>
+		{
+			var n: Vector.<String> = Vector.<String>(["", "", "", FamilyName]);
+			var tmp: Vector.<Vector.<String>> = new Vector.<Vector.<String>>(1,true);
+			tmp[0] = n;
+			return tmp;
 		}
 
 
@@ -160,52 +170,6 @@ package org.purepdf.pdf.fonts
 		override public function hasKernPairs(): Boolean
 		{
 			return !KernPairs.isEmpty();
-		}
-
-		protected function createEncoding(): void
-		{
-			var k: int;
-
-			if ( StringUtils.startsWith( encoding, "#" ) )
-			{
-				throw new NonImplementatioError();
-			}
-			else if ( fontSpecific )
-			{
-				for ( k = 0; k < 256; ++k )
-				{
-					widths[ k ] = getRawWidth( k, null );
-					charBBoxes[ k ] = getRawCharBBox( k, null );
-				}
-			}
-			else
-			{
-				var s: String;
-				var name: String;
-				var c: int;
-				var b: Bytes = new Bytes( 1 );
-
-				for ( k = 0; k < 256; ++k )
-				{
-					b[ 0 ] = ByteBuffer.intToByte( k );
-					s = PdfEncodings.convertToString( b, encoding );
-
-					if ( s.length > 0 )
-						c = s.charCodeAt( 0 );
-					else
-						c = 63; // '?'
-
-					name = GlyphList.unicode2name( c );
-
-					if ( name == null )
-						name = notdef;
-
-					differences[ k ] = name;
-					unicodeDifferences[ k ] = c;
-					widths[ k ] = getRawWidth( c, name );
-					charBBoxes[ k ] = getRawCharBBox( c, name );
-				}
-			}
 		}
 
 		override protected function getRawCharBBox( c: int, name: String ): Vector.<int>

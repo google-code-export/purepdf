@@ -2,10 +2,12 @@ package org.purepdf.pdf.fonts
 {
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
+	
 	import org.as3commons.logging.ILogger;
 	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.ByteBuffer;
 	import org.purepdf.pdf.PdfEncodings;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfName;
@@ -34,10 +36,10 @@ package org.purepdf.pdf.fonts
 
 		public static const CHAR_RANGE_LATIN: Vector.<int> = Vector.<int>( [ 0, 0x17f, 0x2000, 0x206f, 0x20a0, 0x20cf, 0xfb00, 0xfb06 ] );
 		public static const CID_NEWLINE: String = '\U7fff';
-		public static const COURIER: String = "Courier";
-		public static const COURIER_BOLD: String = "Courier-Bold";
-		public static const COURIER_BOLDOBLIQUE: String = "Courier-BoldOblique";
-		public static const COURIER_OBLIQUE: String = "Courier-Oblique";
+		public static const COURIER: String = "Courier.afm";
+		public static const COURIER_BOLD: String = "Courier-Bold.afm";
+		public static const COURIER_BOLDOBLIQUE: String = "Courier-BoldOblique.afm";
+		public static const COURIER_OBLIQUE: String = "Courier-Oblique.afm";
 		public static const CP1250: String = "Cp1250";
 		public static const CP1252: String = "Cp1252";
 		public static const CP1257: String = "Cp1257";
@@ -50,10 +52,10 @@ package org.purepdf.pdf.fonts
 		public static const FONT_TYPE_T3: int = 5;
 		public static const FONT_TYPE_TT: int = 1;
 		public static const FONT_TYPE_TTUNI: int = 3;
-		public static const HELVETICA: String = "Helvetica";
-		public static const HELVETICA_BOLD: String = "Helvetica-Bold";
-		public static const HELVETICA_BOLDOBLIQUE: String = "Helvetica-BoldOblique";
-		public static const HELVETICA_OBLIQUE: String = "Helvetica-Oblique";
+		public static const HELVETICA: String = "Helvetica.afm";
+		public static const HELVETICA_BOLD: String = "Helvetica-Bold.afm";
+		public static const HELVETICA_BOLDOBLIQUE: String = "Helvetica-BoldOblique.afm";
+		public static const HELVETICA_OBLIQUE: String = "Helvetica-Oblique.afm";
 		public static const IDENTITY_H: String = "Identity-H";
 		public static const IDENTITY_V: String = "Identity-V";
 		public static const ITALICANGLE: int = 4;
@@ -67,15 +69,15 @@ package org.purepdf.pdf.fonts
 		public static const SUBSCRIPT_SIZE: int = 17;
 		public static const SUPERSCRIPT_OFFSET: int = 20;
 		public static const SUPERSCRIPT_SIZE: int = 19;
-		public static const SYMBOL: String = "Symbol";
-		public static const TIMES_BOLD: String = "Times-Bold";
-		public static const TIMES_BOLDITALIC: String = "Times-BoldItalic";
-		public static const TIMES_ITALIC: String = "Times-Italic";
-		public static const TIMES_ROMAN: String = "Times-Roman";
+		public static const SYMBOL: String = "Symbol.afm";
+		public static const TIMES_BOLD: String = "Times-Bold.afm";
+		public static const TIMES_BOLDITALIC: String = "Times-BoldItalic.afm";
+		public static const TIMES_ITALIC: String = "Times-Italic.afm";
+		public static const TIMES_ROMAN: String = "Times-Roman.afm";
 		public static const UNDERLINE_POSITION: int = 13;
 		public static const UNDERLINE_THICKNESS: int = 14;
 		public static const WINANSI: String = "Cp1252";
-		public static const ZAPFDINGBATS: String = "ZapfDingbats";
+		public static const ZAPFDINGBATS: String = "ZapfDingbats.afm";
 		public static const notdef: String = ".notdef";
 		protected static var _builtinFonts14: HashMap;
 		protected static var fontCache: HashMap = new HashMap();
@@ -371,7 +373,15 @@ package org.purepdf.pdf.fonts
 			else if ( StringUtils.endsWith( nameBase, ".ttf" ) || StringUtils.endsWith( nameBase, ".otf" ) || nameBase.toLowerCase()
 				.indexOf( ".ttc," ) > 0 )
 			{
-				throw new NonImplementatioError();
+				if( encoding == IDENTITY_H || encoding == IDENTITY_V)
+				{
+					throw new NonImplementatioError();
+				} else {
+					fontBuilt = new TrueTypeFont(name, encoding, embedded, ttfAfm, false, forceRead);
+					fontBuilt.fastWinansi = encoding == CP1252;
+				}
+					
+					
 				/*if ( encoding == IDENTITY_H || encoding == IDENTITY_V )
 				   fontBuilt = new TrueTypeFontUnicode( name, encoding, embedded, ttfAfm, forceRead );
 				   else
@@ -397,6 +407,55 @@ package org.purepdf.pdf.fonts
 			}
 			return fontBuilt;
 		}
+		
+		
+		
+		protected function createEncoding(): void
+		{
+			var k: int;
+			
+			if ( StringUtils.startsWith( encoding, "#" ) )
+			{
+				throw new NonImplementatioError();
+			}
+			else if ( fontSpecific )
+			{
+				for ( k = 0; k < 256; ++k )
+				{
+					widths[ k ] = getRawWidth( k, null );
+					charBBoxes[ k ] = getRawCharBBox( k, null );
+				}
+			}
+			else
+			{
+				var s: String;
+				var name: String;
+				var c: int;
+				var b: Bytes = new Bytes( 1 );
+				
+				for ( k = 0; k < 256; ++k )
+				{
+					b[ 0 ] = ByteBuffer.intToByte( k );
+					s = PdfEncodings.convertToString( b, encoding );
+					
+					if ( s.length > 0 )
+						c = s.charCodeAt( 0 );
+					else
+						c = 63; // '?'
+					
+					name = GlyphList.unicode2name( c );
+					
+					if ( name == null )
+						name = notdef;
+					
+					differences[ k ] = name;
+					unicodeDifferences[ k ] = c;
+					widths[ k ] = getRawWidth( c, name );
+					charBBoxes[ k ] = getRawCharBBox( c, name );
+				}
+			}
+		}
+
 
 		/**
 		 * Gets the fontname without the modifiers Bold, Italic or BoldItalic.
