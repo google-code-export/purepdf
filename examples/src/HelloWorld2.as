@@ -10,19 +10,9 @@ package
 	
 	public class HelloWorld2 extends DefaultBasicExample
 	{
-		
-		[Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]
-		private var helveticaB: Class;
-		
-		[Embed(source="assets/fonts/Helvetica-Oblique.afm", mimeType="application/octet-stream")]
-		private var helveticaO: Class;
-		
 		public function HelloWorld2()
 		{
 			super(["This example shows how to add a simple text to the document","using a new registered font"]);
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, helveticaO );
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -37,6 +27,16 @@ package
 			
 			font = new Font( Font.HELVETICA, 18, Font.ITALIC );
 			document.addElement( Paragraph.create("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+
+			font = new Font( Font.TIMES_ROMAN, 18, Font.BOLDITALIC );
+			document.addElement( Paragraph.create("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+
+			font = new Font( Font.COURIER, 18, Font.NORMAL );
+			document.addElement( Paragraph.create("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+
+			font = new Font( Font.ZAPFDINGBATS, 18, Font.NORMAL );
+			document.addElement( Paragraph.create("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+
 			
 			document.close();
 			save();

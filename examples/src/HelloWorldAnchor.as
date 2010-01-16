@@ -24,9 +24,9 @@ package
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, _font1 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE, _font2 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, _font3 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD + ".afm", _font1 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE + ".afm", _font2 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE + ".afm", _font3 );
 			
 			createDocument("Hello World Anchor");
 			document.open();
