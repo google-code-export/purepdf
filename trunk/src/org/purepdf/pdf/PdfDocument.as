@@ -99,6 +99,12 @@ package org.purepdf.pdf
 			addCreationDate();
 		}
 
+		/**
+		 * Don't use this directly if you are 100% sure what
+		 * you're doing. Use addElement() instead
+		 *  
+		 * @see addElement()
+		 */
 		public function add( element: IElement ): Boolean
 		{
 			if ( _writer != null && _writer.isPaused() )

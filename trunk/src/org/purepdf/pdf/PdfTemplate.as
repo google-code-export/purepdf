@@ -170,8 +170,7 @@ package org.purepdf.pdf
 			
 
 		/**
-		 * Creates a new template.
-		 * <P>
+		 * Creates a new template<br />
 		 * Creates a new template that is nothing more than a form XObject
 		 *
 		 * @param writer the PdfWriter to use

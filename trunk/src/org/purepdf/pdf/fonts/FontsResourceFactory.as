@@ -82,9 +82,9 @@ package org.purepdf.pdf.fonts
 		}
 
 		/**
-		 * You can register a new font passing the bytearray class
-		 * of an embedded resource
-		 * Example<p>
+		 * <p>You can register a new font passing the bytearray class
+		 * of an embedded resource</p>
+		 * <p>Example
 		 * <code>
 		 * [Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]<br>
 		 * private var helveticaB: Class;<br>
@@ -96,6 +96,7 @@ package org.purepdf.pdf.fonts
 		 *	document.addElement( Paragraph.create("Hello world", font) );<br>
 		 * }<br>
 		 * </code>
+		 * </p>
 		 * 
 		 * @param name	The font name (eg. "Helvetica")
 		 */
