@@ -1,5 +1,6 @@
 package org.purepdf.utils
 {
+	import flash.errors.EOFError;
 	import flash.utils.ByteArray;
 
 	public class ByteArrayUtils
@@ -22,6 +23,20 @@ package org.purepdf.utils
 			var b: Bytes = new Bytes();
 			b.buffer = buffer;
 			return b.toVector();
+		}
+		
+		public static function readChar( buffer: ByteArray ): int
+		{
+			var ch1: int = read( buffer );
+			var ch2: int = read( buffer );
+			if ((ch1 | ch2) < 0)
+				throw new EOFError();
+			return ((ch1 << 8) + ch2);
+		}
+		
+		protected static function read( buffer: ByteArray ): int
+		{
+			return buffer.readByte() & 0xFF;
 		}
 	}
 }

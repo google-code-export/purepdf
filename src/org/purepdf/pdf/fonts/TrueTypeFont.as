@@ -3,11 +3,9 @@ package org.purepdf.pdf.fonts
 	import flash.errors.EOFError;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
-	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.collections.iterators.Iterator;
-	
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfArray;
@@ -20,12 +18,15 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.pdf.PdfObject;
 	import org.purepdf.pdf.PdfRectangle;
 	import org.purepdf.pdf.PdfWriter;
+	import org.purepdf.utils.ByteArrayUtils;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.pdf_core;
 
 	public class TrueTypeFont extends BaseFont
 	{
+
+		use namespace pdf_core;
 		private static const codePages: Vector.<String> = Vector.<String>( [ "1252 Latin 1", "1250 Latin 2: Eastern Europe", "1251 Cyrillic", "1253 Greek", "1254 Turkish", "1255 Hebrew", "1256 Arabic", "1257 Windows Baltic", "1258 Vietnamese", null, null, null, null, null, null, null, "874 Thai", "932 JIS/Japan", "936 Chinese: Simplified chars--PRC and Singapore", "949 Korean Wansung", "950 Chinese: Traditional chars--Taiwan and Hong Kong", "1361 Korean Johab", null, null, null, null, null, null, null, "Macintosh Character Set (US Roman)", "OEM Character Set", "Symbol Character Set", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "869 IBM Greek", "866 MS-DOS Russian", "865 MS-DOS Nordic", "864 Arabic", "863 MS-DOS Canadian French", "862 Hebrew", "861 MS-DOS Icelandic", "860 MS-DOS Portuguese", "857 IBM Turkish", "855 IBM Cyrillic; primarily Russian", "852 Latin 2", "775 MS-DOS Baltic", "737 Greek; former 437 G", "708 Arabic; ASMO 708", "850 WE/Latin 1", "437 US" ] );
 		protected var GlyphWidths: Vector.<int>;
 		protected var allNameEntries: Vector.<Vector.<String>>;
@@ -55,8 +56,6 @@ package org.purepdf.pdf.fonts
 		protected var ttcIndex: String;
 		protected var underlinePosition: int = 0;
 		protected var underlineThickness: int = 0;
-		
-		use namespace pdf_core;
 
 		/** Creates a new TrueType font.
 		 * @param enc the encoding to be applied to this font
@@ -106,6 +105,62 @@ package org.purepdf.pdf.fonts
 			return familyName;
 		}
 
+
+		/** Gets the font parameter identified by <CODE>key</CODE>. Valid values
+		 * for <CODE>key</CODE> are <CODE>ASCENT</CODE>, <CODE>CAPHEIGHT</CODE>, <CODE>DESCENT</CODE>
+		 * and <CODE>ITALICANGLE</CODE>.
+		 * @param key the parameter to be extracted
+		 * @param fontSize the font size in points
+		 * @return the parameter in points
+		 */
+		override public function getFontDescriptor( key: int, fontSize: Number ): Number
+		{
+			switch ( key )
+			{
+				case ASCENT:
+					return os_2.sTypoAscender * fontSize / head.unitsPerEm;
+				case CAPHEIGHT:
+					return os_2.sCapHeight * fontSize / head.unitsPerEm;
+				case DESCENT:
+					return os_2.sTypoDescender * fontSize / head.unitsPerEm;
+				case ITALICANGLE:
+					return italicAngle;
+				case BBOXLLX:
+					return fontSize * head.xMin / head.unitsPerEm;
+				case BBOXLLY:
+					return fontSize * head.yMin / head.unitsPerEm;
+				case BBOXURX:
+					return fontSize * head.xMax / head.unitsPerEm;
+				case BBOXURY:
+					return fontSize * head.yMax / head.unitsPerEm;
+				case AWT_ASCENT:
+					return fontSize * hhea.Ascender / head.unitsPerEm;
+				case AWT_DESCENT:
+					return fontSize * hhea.Descender / head.unitsPerEm;
+				case AWT_LEADING:
+					return fontSize * hhea.LineGap / head.unitsPerEm;
+				case AWT_MAXADVANCE:
+					return fontSize * hhea.advanceWidthMax / head.unitsPerEm;
+				case UNDERLINE_POSITION:
+					return ( underlinePosition - underlineThickness / 2 ) * fontSize / head.unitsPerEm;
+				case UNDERLINE_THICKNESS:
+					return underlineThickness * fontSize / head.unitsPerEm;
+				case STRIKETHROUGH_POSITION:
+					return os_2.yStrikeoutPosition * fontSize / head.unitsPerEm;
+				case STRIKETHROUGH_THICKNESS:
+					return os_2.yStrikeoutSize * fontSize / head.unitsPerEm;
+				case SUBSCRIPT_SIZE:
+					return os_2.ySubscriptYSize * fontSize / head.unitsPerEm;
+				case SUBSCRIPT_OFFSET:
+					return -os_2.ySubscriptYOffset * fontSize / head.unitsPerEm;
+				case SUPERSCRIPT_SIZE:
+					return os_2.ySuperscriptYSize * fontSize / head.unitsPerEm;
+				case SUPERSCRIPT_OFFSET:
+					return os_2.ySuperscriptYOffset * fontSize / head.unitsPerEm;
+			}
+			return 0;
+		}
+
 		/**
 		 * Gets the glyph index and metrics for a character.
 		 */
@@ -149,61 +204,203 @@ package org.purepdf.pdf.fonts
 			kerning_size++;
 			return true;
 		}
-		
-		
-		/** Gets the font parameter identified by <CODE>key</CODE>. Valid values
-		 * for <CODE>key</CODE> are <CODE>ASCENT</CODE>, <CODE>CAPHEIGHT</CODE>, <CODE>DESCENT</CODE>
-		 * and <CODE>ITALICANGLE</CODE>.
-		 * @param key the parameter to be extracted
-		 * @param fontSize the font size in points
-		 * @return the parameter in points
-		 */    
-		override public function getFontDescriptor( key: int, fontSize: Number ): Number
+
+		protected function addRangeUni( longTag: HashMap, includeMetrics: Boolean, subsetp: Boolean ): void
 		{
-			switch( key )
+			if ( !subsetp && ( subsetRanges != null || directoryOffset > 0 ) )
 			{
-				case ASCENT:
-					return os_2.sTypoAscender * fontSize / head.unitsPerEm;
-				case CAPHEIGHT:
-					return os_2.sCapHeight * fontSize / head.unitsPerEm;
-				case DESCENT:
-					return os_2.sTypoDescender * fontSize / head.unitsPerEm;
-				case ITALICANGLE:
-					return italicAngle;
-				case BBOXLLX:
-					return fontSize * head.xMin / head.unitsPerEm;
-				case BBOXLLY:
-					return fontSize * head.yMin / head.unitsPerEm;
-				case BBOXURX:
-					return fontSize * head.xMax / head.unitsPerEm;
-				case BBOXURY:
-					return fontSize * head.yMax / head.unitsPerEm;
-				case AWT_ASCENT:
-					return fontSize * hhea.Ascender / head.unitsPerEm;
-				case AWT_DESCENT:
-					return fontSize * hhea.Descender / head.unitsPerEm;
-				case AWT_LEADING:
-					return fontSize * hhea.LineGap / head.unitsPerEm;
-				case AWT_MAXADVANCE:
-					return fontSize * hhea.advanceWidthMax / head.unitsPerEm;
-				case UNDERLINE_POSITION:
-					return (underlinePosition - underlineThickness / 2) * fontSize / head.unitsPerEm;
-				case UNDERLINE_THICKNESS:
-					return underlineThickness * fontSize / head.unitsPerEm;
-				case STRIKETHROUGH_POSITION:
-					return os_2.yStrikeoutPosition * fontSize / head.unitsPerEm;
-				case STRIKETHROUGH_THICKNESS:
-					return os_2.yStrikeoutSize * fontSize / head.unitsPerEm;
-				case SUBSCRIPT_SIZE:
-					return os_2.ySubscriptYSize * fontSize / head.unitsPerEm;
-				case SUBSCRIPT_OFFSET:
-					return -os_2.ySubscriptYOffset * fontSize / head.unitsPerEm;
-				case SUPERSCRIPT_SIZE:
-					return os_2.ySuperscriptYSize * fontSize / head.unitsPerEm;
-				case SUPERSCRIPT_OFFSET:
-					return os_2.ySuperscriptYOffset * fontSize / head.unitsPerEm;
+				var rg: Vector.<int> = ( subsetRanges == null && directoryOffset > 0 ) ? Vector.<int>( [ 0, 0xffff ] ) : compactRanges( subsetRanges );
+				var usemap: HashMap;
+
+				if ( !fontSpecific && cmap31 != null )
+					usemap = cmap31;
+				else if ( fontSpecific && cmap10 != null )
+					usemap = cmap10;
+				else if ( cmap31 != null )
+					usemap = cmap31;
+				else
+					usemap = cmap10;
+
+				var v: Vector.<int>;
+				var gi: int;
+				var c: int;
+				var k: int;
+
+				for ( var it: Iterator = usemap.entrySet().iterator(); it.hasNext();  )
+				{
+					var e: Entry = Entry( it.next() );
+					v = e.getValue() as Vector.<int>;
+					gi = v[ 0 ];
+
+					if ( longTag.containsKey( gi ) )
+						continue;
+
+					c = int( e.getKey() );
+					var skip: Boolean = true;
+
+					for ( k = 0; k < rg.length; k += 2 )
+					{
+						if ( c >= rg[ k ] && c <= rg[ k + 1 ] )
+						{
+							skip = false;
+							break;
+						}
+					}
+
+					if ( !skip )
+						longTag.put( gi, includeMetrics ? Vector.<int>( [ v[ 0 ], v[ 1 ], c ] ) : null );
+				}
 			}
-			return 0;
+		}
+
+		/**
+		 * Generates the font dictionary for this font.
+		 * @return the PdfDictionary containing the font dictionary
+		 */
+		protected function getFontBaseType( fontDescriptor: PdfIndirectReference, subsetPrefix: String, firstChar: int, lastChar: int
+			, shortTag: Vector.<int> ): PdfDictionary
+		{
+			var dic: PdfDictionary = new PdfDictionary( PdfName.FONT );
+			var k: int;
+
+			if ( cff )
+			{
+				dic.put( PdfName.SUBTYPE, PdfName.TYPE1 );
+				dic.put( PdfName.BASEFONT, new PdfName( fontName + style ) );
+			}
+			else
+			{
+				dic.put( PdfName.SUBTYPE, PdfName.TRUETYPE );
+				dic.put( PdfName.BASEFONT, new PdfName( subsetPrefix + fontName + style ) );
+			}
+			dic.put( PdfName.BASEFONT, new PdfName( subsetPrefix + fontName + style ) );
+
+			if ( !fontSpecific )
+			{
+				for ( k = firstChar; k <= lastChar; ++k )
+				{
+					if ( !differences[ k ] == notdef )
+					{
+						firstChar = k;
+						break;
+					}
+				}
+
+				if ( encoding == "Cp1252" || encoding == "MacRoman" )
+					dic.put( PdfName.ENCODING, encoding == "Cp1252" ? PdfName.WIN_ANSI_ENCODING : PdfName.MAC_ROMAN_ENCODING );
+				else
+				{
+					var enc: PdfDictionary = new PdfDictionary( PdfName.ENCODING );
+					var dif: PdfArray = new PdfArray();
+					var gap: Boolean = true;
+
+					for ( k = firstChar; k <= lastChar; ++k )
+					{
+						if ( shortTag[ k ] != 0 )
+						{
+							if ( gap )
+							{
+								dif.add( new PdfNumber( k ) );
+								gap = false;
+							}
+							dif.add( new PdfName( differences[ k ] ) );
+						}
+						else
+							gap = true;
+					}
+					enc.put( PdfName.DIFFERENCES, dif );
+					dic.put( PdfName.ENCODING, enc );
+				}
+			}
+			dic.put( PdfName.FIRSTCHAR, new PdfNumber( firstChar ) );
+			dic.put( PdfName.LASTCHAR, new PdfNumber( lastChar ) );
+			var wd: PdfArray = new PdfArray();
+
+			for ( k = firstChar; k <= lastChar; ++k )
+			{
+				if ( shortTag[ k ] == 0 )
+					wd.add( new PdfNumber( 0 ) );
+				else
+					wd.add( new PdfNumber( widths[ k ] ) );
+			}
+			dic.put( PdfName.WIDTHS, wd );
+
+			if ( fontDescriptor != null )
+				dic.put( PdfName.FONTDESCRIPTOR, fontDescriptor );
+			return dic;
+		}
+
+		/**
+		 * Generates the font descriptor for this font.
+		 */
+		protected function getFontDescriptorRef( fontStream: PdfIndirectReference, subsetPrefix: String, cidset: PdfIndirectReference ): PdfDictionary
+		{
+			var dic: PdfDictionary = new PdfDictionary( PdfName.FONTDESCRIPTOR );
+			dic.put( PdfName.ASCENT, new PdfNumber( os_2.sTypoAscender * 1000 / head.unitsPerEm ) );
+			dic.put( PdfName.CAPHEIGHT, new PdfNumber( os_2.sCapHeight * 1000 / head.unitsPerEm ) );
+			dic.put( PdfName.DESCENT, new PdfNumber( os_2.sTypoDescender * 1000 / head.unitsPerEm ) );
+			dic.put( PdfName.FONTBBOX, new PdfRectangle( head.xMin * 1000 / head.unitsPerEm, head.yMin * 1000 / head.unitsPerEm, head
+				.xMax * 1000 / head.unitsPerEm, head.yMax * 1000 / head.unitsPerEm ) );
+
+			if ( cidset != null )
+				dic.put( PdfName.CIDSET, cidset );
+
+			if ( cff )
+			{
+				if ( StringUtils.startsWith( encoding, "Identity-" ) )
+					dic.put( PdfName.FONTNAME, new PdfName( subsetPrefix + fontName + "-" + encoding ) );
+				else
+					dic.put( PdfName.FONTNAME, new PdfName( subsetPrefix + fontName + style ) );
+			}
+			else
+				dic.put( PdfName.FONTNAME, new PdfName( subsetPrefix + fontName + style ) );
+			dic.put( PdfName.ITALICANGLE, new PdfNumber( italicAngle ) );
+			dic.put( PdfName.STEMV, new PdfNumber( 80 ) );
+
+			if ( fontStream != null )
+			{
+				if ( cff )
+					dic.put( PdfName.FONTFILE3, fontStream );
+				else
+					dic.put( PdfName.FONTFILE2, fontStream );
+			}
+			var flags: int = 0;
+
+			if ( isFixedPitch )
+				flags |= 1;
+			flags |= fontSpecific ? 4 : 32;
+
+			if ( ( head.macStyle & 2 ) != 0 )
+				flags |= 64;
+
+			if ( ( head.macStyle & 1 ) != 0 )
+				flags |= 262144;
+			dic.put( PdfName.FLAGS, new PdfNumber( flags ) );
+
+			return dic;
+		}
+
+		/**
+		 *
+		 * @throws EOFError
+		 */
+		protected function getFullFont(): Bytes
+		{
+			var rf2: ByteArray;
+
+			try
+			{
+				rf2 = new ByteArray();
+				rf2.writeBytes( rf, 0, rf.length );
+				rf2.position = 0;
+				var b: Bytes = new Bytes( rf2.length );
+				rf2.readBytes( b.buffer, 0, b.length );
+				return b;
+			}
+			finally
+			{
+			}
+			return null;
 		}
 
 		/**
@@ -242,6 +439,24 @@ package org.purepdf.pdf.fonts
 			if ( metric == null )
 				return 0;
 			return metric[ 1 ];
+		}
+
+		protected function readCffFont(): Bytes
+		{
+			var rf2: ByteArray = new ByteArray();
+			rf2.writeBytes( rf, 0, rf.length );
+
+			var b: Bytes = new Bytes( cffLength );
+
+			try
+			{
+				rf2.position = cffOffset;
+				rf2.readBytes( b.buffer, 0, b.length );
+			}
+			finally
+			{
+			}
+			return b;
 		}
 
 		/**
@@ -284,228 +499,106 @@ package org.purepdf.pdf.fonts
 		{
 			var buf: String = "";
 			length /= 2;
-			for( var k: int = 0; k < length; ++k )
+
+			for ( var k: int = 0; k < length; ++k )
 			{
-				buf += String.fromCharCode( readChar() );
+				buf += String.fromCharCode( ByteArrayUtils.readChar( rf ) );
 			}
 			return buf;
-		}
-		
-		[Deprecated]
-		protected function readChar(): int
-		{
-			var ch1: int = read();
-			var ch2: int = read();
-			if ((ch1 | ch2) < 0)
-				throw new EOFError();
-			return ((ch1 << 8) + ch2);
-		}
-		
-		[Deprecated]
-		protected function read(): int
-		{
-			return rf.readByte() & 0xFF;
 		}
 
 		override internal function writeFont( writer: PdfWriter, ref: PdfIndirectReference, params: Vector.<Object> ): void
 		{
-			var firstChar: int = int( params[0] );
-			var lastChar: int = int( params[1] );
-			var shortTag: Vector.<int> = Vector.<int>( params[2] );
-			var subsetp: Boolean = ( params[3] as Boolean ) && subset;
+			var firstChar: int = int( params[ 0 ] );
+			var lastChar: int = int( params[ 1 ] );
+			var shortTag: Vector.<int> = Vector.<int>( params[ 2 ] );
+			var subsetp: Boolean = ( params[ 3 ] as Boolean ) && subset;
 			var k: int;
-			
-			if (!subsetp) {
+
+			if ( !subsetp )
+			{
 				firstChar = 0;
 				lastChar = shortTag.length - 1;
-				for ( k = 0; k < shortTag.length; ++k)
-					shortTag[k] = 1;
+
+				for ( k = 0; k < shortTag.length; ++k )
+					shortTag[ k ] = 1;
 			}
 			var ind_font: PdfIndirectReference = null;
 			var pobj: PdfObject = null;
 			var obj: PdfIndirectObject = null;
 			var subsetPrefix: String = "";
-			
-			if( embedded )
+
+			if ( embedded )
 			{
-				if( cff )
+				if ( cff )
 				{
-					pobj = StreamFont.create2( readCffFont(), "Type1C", compressionLevel);
+					pobj = StreamFont.create2( readCffFont(), "Type1C", compressionLevel );
 					obj = writer.addToBody( pobj );
 					ind_font = obj.getIndirectReference();
-				} else 
+				}
+				else
 				{
-					if( subsetp )
+					if ( subsetp )
 						subsetPrefix = createSubsetPrefix();
 					var glyphs: HashMap = new HashMap();
-					for( k = firstChar; k <= lastChar; ++k )
+
+					for ( k = firstChar; k <= lastChar; ++k )
 					{
-						if( shortTag[k] != 0 )
+						if ( shortTag[ k ] != 0 )
 						{
 							var metrics: Vector.<int> = null;
-							if (specialMap != null)
+
+							if ( specialMap != null )
 							{
-								var cd: Vector.<int> = GlyphList.name2unicode( differences[k] );
-								if (cd != null)
-									metrics = getMetricsTT( cd[0] );
-							} else 
+								var cd: Vector.<int> = GlyphList.name2unicode( differences[ k ] );
+
+								if ( cd != null )
+									metrics = getMetricsTT( cd[ 0 ] );
+							}
+							else
 							{
-								if( fontSpecific )
+								if ( fontSpecific )
 									metrics = getMetricsTT( k );
 								else
-									metrics = getMetricsTT( unicodeDifferences[k] );
+									metrics = getMetricsTT( unicodeDifferences[ k ] );
 							}
-							if( metrics != null )
-								glyphs.put( metrics[0], null );
+
+							if ( metrics != null )
+								glyphs.put( metrics[ 0 ], null );
 						}
 					}
-					
+
 					addRangeUni( glyphs, false, subsetp );
 					var b: Bytes = null;
+
 					if ( subsetp || directoryOffset != 0 || subsetRanges != null )
 					{
 						var sb: TrueTypeFontSubSet = new TrueTypeFontSubSet( fileName, rf, glyphs, directoryOffset, true, !subsetp );
 						b = sb.process();
-					} else 
+					}
+					else
 					{
 						throw new NonImplementatioError();
 						b = getFullFont();
 					}
-					
-					var lengths: Vector.<int> = Vector.<int>([b.length]);
+
+					var lengths: Vector.<int> = Vector.<int>( [ b.length ] );
 					pobj = StreamFont.create( b, lengths, compressionLevel );
 					obj = writer.addToBody( pobj );
 					ind_font = obj.getIndirectReference();
 				}
 			}
-			
+
 			pobj = getFontDescriptorRef( ind_font, subsetPrefix, null );
-			if( pobj != null )
+
+			if ( pobj != null )
 			{
 				obj = writer.addToBody( pobj );
 				ind_font = obj.getIndirectReference();
 			}
-			
+
 			pobj = getFontBaseType( ind_font, subsetPrefix, firstChar, lastChar, shortTag );
 			writer.addToBody1( pobj, ref );
-		}
-		
-		/**
-		 * 
-		 * @throws EOFError
-		 */
-		protected function getFullFont(): Bytes
-		{
-			var rf2: ByteArray;
-			try
-			{
-				rf2 = new ByteArray();
-				rf2.writeBytes( rf, 0, rf.length );
-				rf2.position = 0;
-				var b: Bytes = new Bytes(rf2.length);
-				rf2.readBytes( b.buffer, 0, b.length );
-				return b;
-			} finally {}
-			return null;
-		}
-		
-		protected function addRangeUni( longTag: HashMap, includeMetrics: Boolean, subsetp: Boolean ): void
-		{
-			if( !subsetp && (subsetRanges != null || directoryOffset > 0)) {
-				var rg: Vector.<int> = (subsetRanges == null && directoryOffset > 0) ? Vector.<int>([0, 0xffff]) : compactRanges(subsetRanges);
-				var usemap: HashMap;
-				if (!fontSpecific && cmap31 != null) 
-					usemap = cmap31;
-				else if (fontSpecific && cmap10 != null) 
-					usemap = cmap10;
-				else if (cmap31 != null) 
-					usemap = cmap31;
-				else 
-					usemap = cmap10;
-				
-				var v: Vector.<int>;
-				var gi: int;
-				var c: int;
-				var k: int;
-				
-				for ( var it: Iterator = usemap.entrySet().iterator(); it.hasNext();) {
-					var e: Entry = Entry(it.next());
-					v = e.getValue() as Vector.<int>;
-					gi = v[0];
-					if( longTag.containsKey(gi) )
-						continue;
-					
-					c = int(e.getKey());
-					var skip: Boolean = true;
-					for( k = 0; k < rg.length; k += 2) {
-						if (c >= rg[k] && c <= rg[k + 1]) {
-							skip = false;
-							break;
-						}
-					}
-					if (!skip)
-						longTag.put(gi, includeMetrics ? Vector.<int>([v[0], v[1], c]) : null);
-				}
-			}
-		}
-		
-		protected static function compactRanges( ranges: Vector.<Vector.<int>> ): Vector.<int>
-		{
-			var simp: Vector.<Vector.<int>> = new Vector.<Vector.<int>>();
-			
-			var k: int;
-			var k1: int;
-			var k2: int;
-			var r: Vector.<int>;
-			var j: int;
-			var r1: Vector.<int>;
-			var r2: Vector.<int>;
-			var s: Vector.<int>;
-			
-			for ( k = 0; k < ranges.length; ++k )
-			{
-				r = ranges[k];
-				for( j = 0; j < r.length; j += 2 )
-				{
-					simp.push( Vector.<int>([ Math.max(0, Math.min(r[j], r[j + 1])), Math.min(0xffff, Math.max(r[j], r[j + 1]))]));
-				}
-			}
-			for( k1 = 0; k1 < simp.length - 1; ++k1 )
-			{
-				for ( k2 = k1 + 1; k2 < simp.length; ++k2 )
-				{
-					r1 = simp[k1];
-					r2 = simp[k2];
-					if ((r1[0] >= r2[0] && r1[0] <= r2[1]) || (r1[1] >= r2[0] && r1[0] <= r2[1])) {
-						r1[0] = Math.min(r1[0], r2[0]);
-						r1[1] = Math.max(r1[1], r2[1]);
-						simp.splice( k2, 1 );
-						--k2;
-					}
-				}
-			}
-			s = new Vector.<int>(simp.length * 2, true);
-			for( k = 0; k < simp.length; ++k )
-			{
-				r = simp[k];
-				s[k * 2] = r[0];
-				s[k * 2 + 1] = r[1];
-			}
-			return s;
-		}
-		
-		protected function readCffFont(): Bytes
-		{
-			var rf2: ByteArray = new ByteArray();
-			rf2.writeBytes( rf, 0, rf.length );
-			
-			var b: Bytes = new Bytes( cffLength );
-			try 
-			{
-				rf2.position = cffOffset;
-				rf2.readBytes( b.buffer, 0, b.length );
-			} finally {} 
-			return b;
 		}
 
 
@@ -520,111 +613,6 @@ package org.purepdf.pdf.fonts
 				cffOffset = table_location[ 0 ];
 				cffLength = table_location[ 1 ];
 			}
-		}
-		
-		/** 
-		 * Generates the font dictionary for this font.
-		 * @return the PdfDictionary containing the font dictionary
-		 */
-		protected function getFontBaseType( fontDescriptor: PdfIndirectReference, subsetPrefix: String, firstChar: int, lastChar: int, shortTag: Vector.<int> ): PdfDictionary
-		{
-			var dic: PdfDictionary = new PdfDictionary(PdfName.FONT);
-			var k: int;
-			if (cff) {
-				dic.put(PdfName.SUBTYPE, PdfName.TYPE1);
-				dic.put(PdfName.BASEFONT, new PdfName(fontName + style));
-			}
-			else {
-				dic.put(PdfName.SUBTYPE, PdfName.TRUETYPE);
-				dic.put(PdfName.BASEFONT, new PdfName(subsetPrefix + fontName + style));
-			}
-			dic.put(PdfName.BASEFONT, new PdfName(subsetPrefix + fontName + style));
-			if (!fontSpecific) {
-				for ( k = firstChar; k <= lastChar; ++k ){
-					if (!differences[k] == notdef ) {
-						firstChar = k;
-						break;
-					}
-				}
-				if ( encoding == "Cp1252" || encoding == "MacRoman" )
-					dic.put(PdfName.ENCODING, encoding == "Cp1252" ? PdfName.WIN_ANSI_ENCODING : PdfName.MAC_ROMAN_ENCODING);
-				else {
-					var enc: PdfDictionary = new PdfDictionary(PdfName.ENCODING);
-					var dif: PdfArray = new PdfArray();
-					var gap: Boolean = true;                
-					for (k = firstChar; k <= lastChar; ++k) {
-						if (shortTag[k] != 0) {
-							if (gap) {
-								dif.add(new PdfNumber(k));
-								gap = false;
-							}
-							dif.add(new PdfName(differences[k]));
-						}
-						else
-							gap = true;
-					}
-					enc.put(PdfName.DIFFERENCES, dif);
-					dic.put(PdfName.ENCODING, enc);
-				}
-			}
-			dic.put(PdfName.FIRSTCHAR, new PdfNumber(firstChar));
-			dic.put(PdfName.LASTCHAR, new PdfNumber(lastChar));
-			var wd: PdfArray = new PdfArray();
-			for (k = firstChar; k <= lastChar; ++k) {
-				if (shortTag[k] == 0)
-					wd.add(new PdfNumber(0));
-				else
-					wd.add(new PdfNumber(widths[k]));
-			}
-			dic.put(PdfName.WIDTHS, wd);
-			if (fontDescriptor != null)
-				dic.put(PdfName.FONTDESCRIPTOR, fontDescriptor);
-			return dic;
-		}
-		
-		/** 
-		 * Generates the font descriptor for this font.
-		 */
-		protected function getFontDescriptorRef( fontStream: PdfIndirectReference, subsetPrefix: String, cidset: PdfIndirectReference ): PdfDictionary
-		{
-			var dic: PdfDictionary = new PdfDictionary( PdfName.FONTDESCRIPTOR );
-			dic.put( PdfName.ASCENT, new PdfNumber(os_2.sTypoAscender * 1000 / head.unitsPerEm));
-			dic.put( PdfName.CAPHEIGHT, new PdfNumber(os_2.sCapHeight * 1000 / head.unitsPerEm));
-			dic.put( PdfName.DESCENT, new PdfNumber(os_2.sTypoDescender * 1000 / head.unitsPerEm));
-			dic.put( PdfName.FONTBBOX, new PdfRectangle(
-				head.xMin * 1000 / head.unitsPerEm,
-				head.yMin * 1000 / head.unitsPerEm,
-				head.xMax * 1000 / head.unitsPerEm,
-				head.yMax * 1000 / head.unitsPerEm));
-			if (cidset != null)
-				dic.put(PdfName.CIDSET, cidset);
-			if (cff) {
-				if ( StringUtils.startsWith( encoding, "Identity-") )
-					dic.put(PdfName.FONTNAME, new PdfName(subsetPrefix + fontName+"-"+encoding));
-				else
-					dic.put(PdfName.FONTNAME, new PdfName(subsetPrefix + fontName + style));
-			}
-			else
-				dic.put(PdfName.FONTNAME, new PdfName(subsetPrefix + fontName + style));
-			dic.put(PdfName.ITALICANGLE, new PdfNumber(italicAngle));
-			dic.put(PdfName.STEMV, new PdfNumber(80));
-			if (fontStream != null) {
-				if (cff)
-					dic.put(PdfName.FONTFILE3, fontStream);
-				else
-					dic.put(PdfName.FONTFILE2, fontStream);
-			}
-			var flags: int = 0;
-			if (isFixedPitch)
-				flags |= 1;
-			flags |= fontSpecific ? 4 : 32;
-			if ((head.macStyle & 2) != 0)
-				flags |= 64;
-			if ((head.macStyle & 1) != 0)
-				flags |= 262144;
-			dic.put(PdfName.FLAGS, new PdfNumber(flags));
-			
-			return dic;
 		}
 
 		/**
@@ -1302,6 +1290,57 @@ package org.purepdf.pdf.fonts
 					}
 				}
 			}
+		}
+
+		protected static function compactRanges( ranges: Vector.<Vector.<int>> ): Vector.<int>
+		{
+			var simp: Vector.<Vector.<int>> = new Vector.<Vector.<int>>();
+
+			var k: int;
+			var k1: int;
+			var k2: int;
+			var r: Vector.<int>;
+			var j: int;
+			var r1: Vector.<int>;
+			var r2: Vector.<int>;
+			var s: Vector.<int>;
+
+			for ( k = 0; k < ranges.length; ++k )
+			{
+				r = ranges[ k ];
+
+				for ( j = 0; j < r.length; j += 2 )
+				{
+					simp.push( Vector.<int>( [ Math.max( 0, Math.min( r[ j ], r[ j + 1 ] ) ), Math.min( 0xffff, Math.max( r[ j ], r[ j
+						+ 1 ] ) ) ] ) );
+				}
+			}
+
+			for ( k1 = 0; k1 < simp.length - 1; ++k1 )
+			{
+				for ( k2 = k1 + 1; k2 < simp.length; ++k2 )
+				{
+					r1 = simp[ k1 ];
+					r2 = simp[ k2 ];
+
+					if ( ( r1[ 0 ] >= r2[ 0 ] && r1[ 0 ] <= r2[ 1 ] ) || ( r1[ 1 ] >= r2[ 0 ] && r1[ 0 ] <= r2[ 1 ] ) )
+					{
+						r1[ 0 ] = Math.min( r1[ 0 ], r2[ 0 ] );
+						r1[ 1 ] = Math.max( r1[ 1 ], r2[ 1 ] );
+						simp.splice( k2, 1 );
+						--k2;
+					}
+				}
+			}
+			s = new Vector.<int>( simp.length * 2, true );
+
+			for ( k = 0; k < simp.length; ++k )
+			{
+				r = simp[ k ];
+				s[ k * 2 ] = r[ 0 ];
+				s[ k * 2 + 1 ] = r[ 1 ];
+			}
+			return s;
 		}
 
 		/**
