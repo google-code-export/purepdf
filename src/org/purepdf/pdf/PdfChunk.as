@@ -441,7 +441,70 @@ package org.purepdf.pdf
 
 		internal function truncate( width: Number ): PdfChunk
 		{
-			throw new NonImplementatioError();
+			var pc: PdfChunk;
+
+			if ( _image != null )
+			{
+				if ( _image.scaledWidth > width )
+				{
+					pc = PdfChunk.createFromString( "", this );
+					value = "";
+					attributes.remove( Chunk.IMAGE );
+					_image = null;
+					_font = PdfFont.getDefaultFont();
+					return pc;
+				}
+				else
+					return null;
+			}
+
+			var currentPosition: int = 0;
+			var currentWidth: Number = 0;
+			var returnValue: String;
+
+			if ( width < font.width )
+			{
+				returnValue = value.substring( 1 );
+				value = value.substring( 0, 1 );
+				pc = PdfChunk.createFromString( returnValue, this );
+				return pc;
+			}
+
+			var length: int = value.length;
+			var surrogate: Boolean = false;
+			var character: int;
+
+			while ( currentPosition < length )
+			{
+				surrogate = Utilities.isSurrogatePair2( value, currentPosition );
+
+				if ( surrogate )
+					currentWidth += getCharWidth( Utilities.convertToUtf32_2( value, currentPosition ) );
+				else
+					currentWidth += getCharWidth( value.charCodeAt( currentPosition ) );
+
+				if ( currentWidth > width )
+					break;
+
+				if ( surrogate )
+					currentPosition++;
+				currentPosition++;
+			}
+
+			if ( currentPosition == length )
+				return null;
+
+			if ( currentPosition == 0 )
+			{
+				currentPosition = 1;
+
+				if ( surrogate )
+					++currentPosition;
+			}
+			returnValue = value.substring( currentPosition );
+			value = value.substring( 0, currentPosition );
+			pc = PdfChunk.createFromString( returnValue, this );
+			return pc;
 		}
 
 		internal function get width(): Number

@@ -96,7 +96,7 @@ package org.purepdf.pdf.fonts
 
 		protected var specialMap: Object;
 		protected var subset: Boolean = true;
-		protected var subsetRanges: Array;
+		protected var subsetRanges: Vector.<Vector.<int>>;
 		protected var unicodeDifferences: Vector.<int> = new Vector.<int>( 256 );
 		protected var widths: Vector.<int> = new Vector.<int>( 256 );
 
@@ -108,7 +108,7 @@ package org.purepdf.pdf.fonts
 		public function addSubsetTange( range: Vector.<int> ): void
 		{
 			if ( subsetRanges == null )
-				subsetRanges = new Array();
+				subsetRanges = new Vector.<Vector.<int>>();
 			subsetRanges.push( range );
 		}
 
@@ -460,6 +460,17 @@ package org.purepdf.pdf.fonts
 					charBBoxes[ k ] = getRawCharBBox( c, name );
 				}
 			}
+		}
+		
+		/** Creates a unique subset prefix to be added to the font name when the font is embedded and subset.
+		 * @return the subset prefix
+		 */
+		public static function createSubsetPrefix(): String
+		{
+			var s: String = "";
+			for( var k: int = 0; k < 6; ++k )
+				s += String.fromCharCode( int( Math.random() * 26 ) + 65 );
+			return s + "+";
 		}
 
 
