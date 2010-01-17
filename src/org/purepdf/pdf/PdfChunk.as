@@ -278,12 +278,10 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Splits this <CODE>PdfChunk</CODE> if it's too long for the given width.
-		 * <P>
-		 * Returns <VAR>null</VAR> if the <CODE>PdfChunk</CODE> wasn't truncated.
-		 *
-		 * @param width
-		 *            a given width
+		 * Splits this PdfChunk if it's too long for the given width.
+		 * <p> Returns <VAR>null</VAR> if the <CODE>PdfChunk</CODE> wasn't truncated.
+		 * </p>
+		 * @param width	a given width
 		 * @return the <CODE>PdfChunk</CODE> that doesn't fit into the width.
 		 */
 

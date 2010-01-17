@@ -754,9 +754,9 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Sets the color space to <B>DeviceCMYK</B> (or the <B>DefaultCMYK</B> color space),
-		 * and sets the color to use for stroking paths.</P>
-		 * Each value must be between 0 and 1.
+		 * <p>Sets the color space to <B>DeviceCMYK</B> (or the <B>DefaultCMYK</B> color space),
+		 * and sets the color to use for stroking paths.</p>
+		 * <p>Each value must be between 0 and 1.</p>
 		 *
 		 * @param   cyan
 		 * @param   magenta
@@ -833,11 +833,9 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the <VAR>Line cap style</VAR>.
-		 * <P>
-		 * The <VAR>line cap style</VAR> specifies the shape to be used at the end of open subpaths
-		 * when they are stroked.<BR>
-		 *
+		 * <p>Changes the <VAR>Line cap style</VAR></p>
+		 * <p>The line cap style specifies the shape to be used at the end of open subpaths
+		 * when they are stroked.</p>
 		 * @param	style
 		 * @see	PdfContentByte
 		 */
@@ -856,8 +854,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the value of the line dash pattern.
-		 * <P>
+		 * Changes the value of the line dash pattern.<br />
 		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
 		 *
 		 * @param       phase       the value of the phase
@@ -871,8 +868,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the value of the <VAR>line dash pattern</VAR>.
-		 * <P>
+		 * Changes the value of the line dash pattern<br />
 		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
 		 *
 		 * @param       phase       the value of the phase
@@ -887,12 +883,11 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the value of the <VAR>line dash pattern</VAR>.
-		 * <P>
+		 * Changes the value of the line dash pattern<br />
 		 * The line dash pattern controls the pattern of dashes and gaps used to stroke paths.
 		 * It is specified by an array and a phase. The array specifies the length
 		 * of the alternating dashes and gaps. The phase specifies the distance into the dash
-		 * pattern to start the dash.<BR>
+		 * pattern to start the dash
 		 *
 		 * @param       array       length of the alternating dashes and gaps
 		 * @param       phase       the value of the phase
@@ -913,11 +908,10 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the Line join style.
-		 * <P>
-		 * The line join style specifies the shape to be used at the corners of paths
-		 * that are stroked.<BR>
-		 * Allowed values are JointStyle.MITER (Miter joins), JointStyle.ROUND (Round joins) and JointStyle.BEVEL (Bevel joins).<BR>
+		 * <p>Changes the Line join style</p>
+		 * <p>The line join style specifies the shape to be used at the corners of paths
+		 * that are stroked.</p>
+		 * <p>Allowed values are JointStyle.MITER (Miter joins), JointStyle.ROUND (Round joins) and JointStyle.BEVEL (Bevel joins).</p>
 		 *
 		 * @param joint
 		 * @see	flash.diplay.JointStyle
@@ -1045,8 +1039,7 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Changes the current color for filling paths
-		 * <P>
+		 * Changes the current color for filling paths<br />
 		 * Sets the color space to DeviceRGB
 		 *
 		 * @param red

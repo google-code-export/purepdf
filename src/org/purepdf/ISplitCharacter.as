@@ -5,8 +5,7 @@ package org.purepdf
 	public interface ISplitCharacter
 	{
 		/**
-		 * Returns true if the character can split a line<p>
-		 * The default implementation is:
+		 * Returns true if the character can split a line
 		 */
 		function isSplitCharacter( start: int, current: int, end: int, cc: Vector.<int>, ck: Vector.<PdfChunk> ): Boolean;
 	}
