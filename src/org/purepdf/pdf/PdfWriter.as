@@ -16,6 +16,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.fonts.BaseFont;
@@ -85,6 +86,7 @@ package org.purepdf.pdf
 		protected var root: PdfPages;
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
+		protected var _userunit: Number = 0;
 		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
 
 		private var logger: ILogger = LoggerFactory.getClassLogger( PdfWriter );
@@ -103,6 +105,24 @@ package org.purepdf.pdf
 			directContentUnder = new PdfContentByte( this );
 		}
 
+		internal function get userunit():Number
+		{
+			return _userunit;
+		}
+
+		internal function set userunit(value:Number):void
+		{
+			if ( value < 1 || value > 75000 )
+				throw new DocumentError( "userunit should must be a value between 1 and 75000" );
+			_userunit = value;
+			setAtLeastPdfVersion( PdfVersion.VERSION_1_6 );
+		}
+
+		internal function setAtLeastPdfVersion( version: String ): void
+		{
+			pdf_version.setAtLeastPdfVersion( version );
+		}
+		
 		/**
 		 * Returns the compression level used for streams written by this writer.
 		 * @return the compression level (0 = best speed, 9 = best compression, -1 is default)

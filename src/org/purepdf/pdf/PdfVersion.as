@@ -104,5 +104,13 @@ package org.purepdf.pdf
 			if ( catalog_version == null || catalog_version.compareTo( value ) < 0 )
 				this.catalog_version = value;
 		}
+		
+		internal function setAtLeastPdfVersion( version: String ): void
+		{
+			if( version.charCodeAt(0) > header_version.charCodeAt(0) )
+			{
+				setPdfVersion( version );
+			}
+		}
 	}
 }
