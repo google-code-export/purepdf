@@ -19,17 +19,21 @@ package org.purepdf.utils
 			return isSurrogateHigh(text[idx]) && isSurrogateLow(text[idx + 1]);	
 		}
 		
-		/**
-		 * Returns the code point of a UTF32 character corresponding with
-		 * a high and a low surrogate value.
-		 * @param highSurrogate	the high surrogate value
-		 * @param lowSurrogate	the low surrogate value
-		 * @return	a code point value
-		 * @since	2.1.2
-		 */
+		public static function isSurrogatePair2( text: String, idx: int ): Boolean
+		{
+			if (idx < 0 || idx > text.length - 2)
+				return false;
+			return isSurrogateHigh( text.charCodeAt(idx)) && isSurrogateLow( text.charCodeAt(idx + 1) );
+		}
+		
 		public static function convertToUtf32( highSurrogate: int, lowSurrogate: int ): int
 		{
 			return (((highSurrogate - 0xd800) * 0x400) + (lowSurrogate - 0xdc00)) + 0x10000;
+		}
+		
+		public static function convertToUtf32_2( text: String, idx: int ): int
+		{
+			return (((text.charCodeAt(idx) - 0xd800) * 0x400) + (text.charCodeAt(idx + 1) - 0xdc00)) + 0x10000;
 		}
 		
 		public static function addToArray( original: Vector.<Vector.<Object>>, item: Vector.<Object> ): Vector.<Vector.<Object>>

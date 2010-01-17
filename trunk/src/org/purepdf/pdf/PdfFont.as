@@ -63,6 +63,11 @@ package org.purepdf.pdf
 				return font.getWidthPoint( char, _size ) * _hScale;
 			return _image.scaledWidth;
 		}
+		
+		public function get width(): Number
+		{
+			return getWidth();
+		}
 
 		public function set image( value: ImageElement ): void
 		{
@@ -81,7 +86,7 @@ package org.purepdf.pdf
 			_hScale = value;
 		}
 
-		private static function getDefaultFont(): PdfFont
+		internal static function getDefaultFont(): PdfFont
 		{
 			var bf: BaseFont = BaseFont.createFont( BaseFont.HELVETICA, BaseFont.WINANSI, false );
 			return new PdfFont( bf, 12 );
