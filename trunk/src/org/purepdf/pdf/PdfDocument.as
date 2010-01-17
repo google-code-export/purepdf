@@ -457,7 +457,12 @@ package org.purepdf.pdf
 				page.put( PdfName.DUR, new PdfNumber( _duration ) );
 				_duration = 0;
 			}
+			
+			// 5 we check if the userunit is defined
+			if( writer.userunit > 0 )
+				page.put( PdfName.USERUNIT, new PdfNumber( writer.userunit ) );
 
+			// 6
 			if ( annotationsImp.hasUnusedAnnotations() )
 			{
 				var array: PdfArray = annotationsImp.rotateAnnotations( _writer, _pageSize );
@@ -556,6 +561,26 @@ package org.purepdf.pdf
 			_writer.setPdfVersion( value );
 		}
 
+		
+		/**
+		 * <p>Use this method to set the user unit</p>
+		 * <p>A UserUnit is a value that defines the default user space unit</p>
+		 * <p>The minimum UserUnit is 1 (1 unit = 1/72 inch).</p>
+		 * <p>The maximum UserUnit is 75,000.</p>
+		 * <p>Remember that you need to set the pdf version to 1.6</p>
+		 * @throws DocumentError
+		 * @since 1.6
+		 */
+		public function set userunit( value: Number ): void
+		{
+			writer.userunit = value;
+		}
+		
+		public function get userunit(): Number
+		{
+			return writer.userunit;
+		}
+		
 		/**
 		 * Set the view preferences for this document
 		 *
