@@ -31,6 +31,7 @@ package
 			class_list.push( HelloWorldAnchor );
 			class_list.push( HelloWorldBookmark );
 			class_list.push( HelloWorldTTF );
+			class_list.push( HelloWorldMaximum );
 			class_list.push( ImageTypes );
 			class_list.push( Layers );
 			class_list.push( LineStyles );
