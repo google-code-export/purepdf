@@ -60,5 +60,25 @@ package org.purepdf.pdf
 		{
 			return formKids;
 		}
+		
+		public static function shallowDuplicate( annot: PdfAnnotation ): PdfAnnotation
+		{
+			var dup: PdfAnnotation;
+			if ( annot.isForm ) {
+				dup = new PdfFormField( annot.writer, null );
+				var dupField: PdfFormField = PdfFormField(dup);
+				var srcField: PdfFormField = PdfFormField(annot);
+				dupField.formParent = srcField.parent;
+				dupField.formKids = srcField.kids;
+			} else
+			{
+				dup = new PdfAnnotation( annot.writer, null );
+			}
+			dup.merge(annot);
+			dup.form = annot.form;
+			dup.annotation = annot.annotation;
+			dup.setTemplates( annot.templates );
+			return dup;
+		}
 	}
 }

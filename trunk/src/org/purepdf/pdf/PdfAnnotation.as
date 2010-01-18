@@ -38,9 +38,9 @@ package org.purepdf.pdf
 		public static const MARKUP_STRIKEOUT: int = 2;
 		public static const MARKUP_UNDERLINE: int = 1;
 		protected var _placeInPage: int = -1;
-		protected var _templates: HashMap;
-		protected var annotation: Boolean = true;
-		protected var form: Boolean = false;
+		internal var _templates: HashMap;
+		internal var annotation: Boolean = true;
+		internal var form: Boolean = false;
 		protected var reference: PdfIndirectReference;
 		protected var used: Boolean = false;
 		protected var _writer: PdfWriter;
@@ -104,6 +104,11 @@ package org.purepdf.pdf
 		public function get templates(): HashMap
 		{
 			return _templates;
+		}
+		
+		internal function setTemplates( value: HashMap ): void
+		{
+			_templates = value;
 		}
 		
 		public static function createAction( writer: PdfWriter, llx: Number, lly: Number, urx: Number, ury: Number, action: PdfAction ): PdfAnnotation

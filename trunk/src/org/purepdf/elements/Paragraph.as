@@ -203,6 +203,18 @@ package org.purepdf.elements
 			_leading = fixedLeading;
 			_multipliedLeading = multipliedLeading;
 		}
+		
+		/**
+		 * Create a new paragraph from a starting Chunk
+		 */
+		public static function create2( leading: Number, chunk: Chunk ): Paragraph
+		{
+			var p: Paragraph = new Paragraph();
+			p.leading = leading;
+			p.push( chunk );
+			p.font = chunk.font;
+			return p;
+		}
 
 		/**
 		 * Create a new Paragraph from a string and an optional font.
