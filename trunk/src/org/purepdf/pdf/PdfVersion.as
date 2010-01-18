@@ -2,8 +2,6 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfVersion extends ObjectHash
@@ -26,7 +24,6 @@ package org.purepdf.pdf
 		
 		public static const HEADER: Vector.<Bytes> = Vector.<Bytes>( [ PdfWriter.getISOBytes( "\n" ), PdfWriter.getISOBytes( "%PDF-" ), PdfWriter
 			.getISOBytes( "\n%\u00e2\u00e3\u00cf\u00d3\n" ) ] );
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfVersion );
 		protected var appendMode: Boolean = false;
 		protected var catalog_version: PdfName = null;
 		protected var headerWasWritten: Boolean = false;

@@ -8,8 +8,6 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.colors.SpotColor;
@@ -88,8 +86,6 @@ package org.purepdf.pdf
 		protected var xmpMetadata: Bytes = null;
 		protected var _userunit: Number = 0;
 		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
-
-		private var logger: ILogger = LoggerFactory.getClassLogger( PdfWriter );
 
 		public function PdfWriter( instance: SingletonCheck, output: ByteArray, pagesize: RectangleElement )
 		{
@@ -347,7 +343,7 @@ package org.purepdf.pdf
 
 		protected function addSharedObjectsToBody(): void
 		{
-			logger.warn( 'addSharedObjectsToBody. partially implemented' );
+			trace( 'PdfWriter.addSharedObjectsToBody. partially implemented' );
 
 			var it: Iterator;
 			var objs: Vector.<Object>;
@@ -534,7 +530,7 @@ package org.purepdf.pdf
 				catalog.put( PdfName.OCPROPERTIES, OCProperties );
 			}
 
-			logger.warn( 'getCatalog. to be implemented' );
+			trace( 'PdfWriter.getCatalog. to be implemented' );
 
 			return catalog;
 		}
@@ -684,7 +680,7 @@ package org.purepdf.pdf
 
 		internal function addLocalDestinations( dest: PdfDestination ): void
 		{
-			logger.warn( "addLocalDestinations not implemented" );
+			trace( "PdfWriter.addLocalDestinations not implemented" );
 		}
 
 		pdf_core function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>
@@ -872,7 +868,7 @@ package org.purepdf.pdf
 
 				if ( xmpMetadata != null )
 				{
-					logger.warn( 'implement this' );
+					trace( 'PdfWriter.close. implement this' );
 				}
 
 				/*
@@ -897,7 +893,7 @@ package org.purepdf.pdf
 
 				if ( crypto != null )
 				{
-					logger.warn( 'implement this' );
+					trace( 'PdfWriter.close. implement this' );
 				}
 				else
 				{

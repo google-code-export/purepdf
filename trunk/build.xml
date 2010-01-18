@@ -1,32 +1,63 @@
 
 <project name="purePDF" default="compile" basedir=".">
-	<property file="build.properties">
-	</property>
+	<property file="build.properties" />
+	<property name="FLEX_HOME" value="${flex_sdk_home}"/>
+	<taskdef resource="flexTasks.tasks" classpath="${flex_sdk_home}/ant/lib/flexTasks.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
-	<target name="compile">
-		<exec executable="${flex_sdk_home}/bin/compc" dir="${basedir}" failonerror="true">
-			<arg line="-include-sources=src" />
-			<arg line="-compiler.library-path+=libs/as3commons-logging-1.1.swc" />
-			<arg line="-compiler.library-path+=libs/as3corelib.swc" />
-			<arg line="-compiler.library-path+=libs/float.swc" />
-			<arg line="-compiler.library-path+=libs/FZlib.swc" />
-			<arg line="-compiler.library-path+=libs/HashMap.swc" />
-			<arg line="-output=${output_dir}/${output_filename}" />
-			<arg line="-keep-as3-metadata+=Abstract" />
-			<arg line="-creator='Alessandro Crugnola'" />
-			<arg line="-as3" />
-			<arg line="-target-player=10" />
-		</exec>
+	<target name="compile" depends="clean">
+		<echo>Compiling ${font_output_filename}</echo>
+		<compc 
+			output="${output_dir}/${font_output_filename}" 
+			locale="en_US"
+			include-classes="org.purepdf.pdf.fonts.BuiltinFonts">
+			<source-path path-element="src" />
+		</compc>
+		
+		<echo>Compiling ${output_filename}</echo>
+		
+		<move file="src/org/purepdf/pdf/fonts/BuiltinFonts.as" tofile="BuiltinFonts.moved"/>
+		<trycatch reference="exception_ref" >
+			<try>
+				<compc
+					output="${output_dir}/${output_filename}"
+					locale="en_US" failonerror="false">
+					<source-path path-element="src"></source-path>
+					<include-sources dir="src" includes="*">
+					</include-sources>
+					<optimize>true</optimize>
+					<warnings>false</warnings>
+					<target-player>10.0.0</target-player>
+					<keep-as3-metadata>Abstract</keep-as3-metadata>
+		            <metadata>
+		                <creator>Alessandro Crugnola</creator>
+		                <language>EN</language>
+		            </metadata>
+					<compiler.library-path dir="libs" append="true"><include name="*.swc" /></compiler.library-path>
+					<compiler.library-path dir="${output_dir}" append="true"><include name="${font_output_filename}" /></compiler.library-path>
+					<as3>true</as3>
+				</compc>
+			</try>
+			<catch>
+	            <property name="exception" refid="exception_ref" />
+	            <property name="message" value="Error in trycatch block:${line.separator}${exception}" />
+	            <echo message="${message}" />
+	            <fail message="${message}" />
+			</catch>
+			<finally>		
+				<move file="BuiltinFonts.moved" tofile="src/org/purepdf/pdf/fonts/BuiltinFonts.as"/>
+			</finally>
+		</trycatch>
 	</target>
 
 	<target name="asdoc">
 		<exec executable="${flex_sdk_home}/bin/asdoc" dir="${basedir}" failonerror="true">
 			<arg line="-doc-sources=src" />
-			<arg line="-compiler.library-path+=libs/as3commons-logging-1.1.swc" />
 			<arg line="-compiler.library-path+=libs/as3corelib.swc" />
 			<arg line="-compiler.library-path+=libs/float.swc" />
 			<arg line="-compiler.library-path+=libs/FZlib.swc" />
 			<arg line="-compiler.library-path+=libs/HashMap.swc" />
+			<arg line="-compiler.library-path+=${output_dir}/${font_output_filename}" />
 		</exec>
 	</target>
 

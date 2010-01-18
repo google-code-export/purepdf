@@ -19,12 +19,14 @@ package org.purepdf.pdf.fonts
 		private static function init_names2unicode(): void
 		{
 			var byte: ByteArray = new n2u() as ByteArray;
+			byte.uncompress();
 			_names2unicode = byte.readObject();
 		}
 		
 		private static function init_unicode2names(): void
 		{
 			var byte: ByteArray = new u2n() as ByteArray;
+			byte.uncompress();
 			_unicode2names = byte.readObject();
 		}
 		

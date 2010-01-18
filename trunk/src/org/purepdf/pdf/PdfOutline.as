@@ -1,7 +1,5 @@
 package org.purepdf.pdf
 {
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.Font;
 	import org.purepdf.IOutputStream;
 	import org.purepdf.colors.RGBColor;
@@ -21,8 +19,6 @@ package org.purepdf.pdf
 		protected var _destination: PdfDestination;
 		protected var _writer: PdfWriter;
 		protected var _action: PdfAction;
-		
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfOutline );
 		
 		public function PdfOutline( $writer: PdfWriter )
 		{
@@ -57,7 +53,7 @@ package org.purepdf.pdf
 			if (_destination != null && _destination.hasPage )
 				put( PdfName.DEST, _destination);
 			
-			logger.warn("toPdf. Prtially implemented");
+			trace("PdfOutline.toPdf. Prtially implemented");
 			
 			if( _action != null)
 				put( PdfName.A, _action );

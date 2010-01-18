@@ -3,8 +3,6 @@ package org.purepdf.pdf.fonts
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.ByteBuffer;
@@ -82,7 +80,6 @@ package org.purepdf.pdf.fonts
 		protected static var _builtinFonts14: HashMap;
 		protected static var fontCache: HashMap = new HashMap();
 
-		private static var logger: ILogger = LoggerFactory.getClassLogger( BaseFont );
 		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
 		protected var _encoding: String;
 		protected var _fontType: int;
@@ -347,7 +344,7 @@ package org.purepdf.pdf.fonts
 		public static function createFont( name: String, encoding: String, embedded: Boolean=NOT_EMBEDDED, cached: Boolean=CACHED, ttfAfm: Vector
 			.<int>=null, pfb: Vector.<int>=null, noThrow: Boolean=false, forceRead: Boolean=false ): BaseFont
 		{
-			logger.warn( "BaseFont.createFont. To be implemented" );
+			trace( "BaseFont.createFont. To be implemented" );
 
 			var nameBase: String = getBaseName( name );
 			encoding = normalizeEncoding( encoding );

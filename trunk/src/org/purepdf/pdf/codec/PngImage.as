@@ -3,8 +3,6 @@ package org.purepdf.pdf.codec
 	import flash.errors.IOError;
 	import flash.utils.ByteArray;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.elements.images.ImageRaw;
 	import org.purepdf.errors.NonImplementatioError;
@@ -44,7 +42,6 @@ package org.purepdf.pdf.codec
 		private static const PNG_FILTER_UP: int = 2;
 		private static const TRANSFERSIZE: int = 4096;
 		private static const intents: Vector.<PdfName> = Vector.<PdfName>( [ PdfName.PERCEPTUAL, PdfName.RELATIVECOLORIMETRIC, PdfName.SATURATION, PdfName.ABSOLUTECOLORIMETRIC ] );
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PngImage );
 		private var XYRatio: Number;
 		private var additional: PdfDictionary = new PdfDictionary();
 		private var bitDepth: int;
@@ -185,7 +182,7 @@ package org.purepdf.pdf.codec
 				}
 				catch ( e: Error )
 				{
-					logger.error( e.getStackTrace() );
+					trace( e.getStackTrace() );
 				}
 
 				switch ( filter )
