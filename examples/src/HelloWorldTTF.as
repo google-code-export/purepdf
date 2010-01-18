@@ -3,9 +3,9 @@ package
 	import flash.events.Event;
 	
 	import org.purepdf.Font;
-	import org.purepdf.elements.Chunk;
-	import org.purepdf.elements.Paragraph;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.elements.*;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorldTTF extends DefaultBasicExample
@@ -25,6 +25,7 @@ package
 			// register the 2 fonts
 			FontsResourceFactory.getInstance().registerFont("CarolinaLTStd.otf", cls1);
 			FontsResourceFactory.getInstance().registerFont("Herculanum.ttf", cls2);
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World Embedded fonts");
 			document.open();

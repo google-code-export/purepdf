@@ -4,6 +4,9 @@ package
 	
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.pdf.PdfVersion;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorldMaximum extends DefaultBasicExample
 	{
@@ -15,6 +18,8 @@ package
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World maximum");
 			document.open();

@@ -3,6 +3,9 @@ package
 	import flash.events.Event;
 	
 	import org.purepdf.elements.Paragraph;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorld extends DefaultBasicExample
 	{
@@ -14,6 +17,8 @@ package
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument( "Hello World" );
 			document.open();

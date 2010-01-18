@@ -5,6 +5,8 @@ package
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.PdfTemplate;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorld5 extends DefaultBasicExample
 	{
@@ -16,6 +18,8 @@ package
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("HelloWorld5");
 			document.open();

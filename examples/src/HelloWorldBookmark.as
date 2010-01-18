@@ -5,6 +5,9 @@ package
 	import org.purepdf.elements.Chapter;
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Section;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorldBookmark extends DefaultBasicExample
 	{
@@ -16,6 +19,8 @@ package
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World Bookmars");
 			document.open();
