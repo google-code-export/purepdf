@@ -47,6 +47,8 @@ package
 			class_list.push( HelloSplitCharacter );
 			class_list.push( HelloWorldGoto );
 			class_list.push( AnnotatedChunk );
+			class_list.push( ChunkSkew );
+			class_list.push( ChunkHorizontalScale );
 			
 			total_number = class_list.length;
 		}
