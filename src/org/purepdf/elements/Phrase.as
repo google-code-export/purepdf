@@ -26,6 +26,12 @@ package org.purepdf.elements
 				_font = phrase.font;
 			}
 		}
+		
+		internal function push( o: Object ): Boolean
+		{
+			_array.push( o );
+			return true;
+		}
 
 		/**
 		 * Adds a Chunk, Ancor or another Phrase
@@ -104,6 +110,11 @@ package org.purepdf.elements
 		public function get font(): Font
 		{
 			return _font;
+		}
+		
+		public function set font( value: Font ): void
+		{
+			_font = value;
 		}
 
 		public function getChunks(): Vector.<Object>
@@ -222,6 +233,11 @@ package org.purepdf.elements
 				return _font.getCalculatedLeading( 1.5 );
 
 			return _leading;
+		}
+		
+		public function set leading( value: Number ): void
+		{
+			_leading = value;
 		}
 
 		public function process( listener: IElementListener ): Boolean

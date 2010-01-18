@@ -1100,7 +1100,7 @@ package org.purepdf.pdf
 						
 						if( chunk.isAttribute( Chunk.PDFANNOTATION ) )
 						{
-							throw new NonImplementatioError();
+							_writeLineToContent_PdfAnnotation( lastBaseFactor, chunk, nextChunk, text, hangingCorrection, xMarker, yMarker, width );
 						}
 						
 						var params: Vector.<Number> = chunk.getAttribute( Chunk.SKEW ) as Vector.<Number>;
@@ -1386,6 +1386,26 @@ package org.purepdf.pdf
 				action = obj[0] as PdfAction;
 			}
 			return action;
+		}
+		
+		// --------------------
+		// Helper for writeLineToContent
+		// --------------------
+		
+		private function _writeLineToContent_PdfAnnotation( lastBaseFactor: Number, chunk: PdfChunk, nextChunk: PdfChunk, text: PdfContentByte, hangingCorrection: Number, xMarker: Number, yMarker: Number, width: Number ): void
+		{
+			var subtract: Number = lastBaseFactor;
+			if (nextChunk != null && nextChunk.isAttribute(Chunk.PDFANNOTATION))
+				subtract = 0;
+			if (nextChunk == null)
+				subtract += hangingCorrection;
+			var fontSize: Number = chunk.font.size;
+			var ascender: Number = chunk.font.font.getFontDescriptor(BaseFont.ASCENT, fontSize);
+			var descender: Number = chunk.font.font.getFontDescriptor(BaseFont.DESCENT, fontSize);
+			var annot: PdfAnnotation = PdfFormField.shallowDuplicate( PdfAnnotation( chunk.getAttribute(Chunk.PDFANNOTATION) ) );
+			
+			annot.put( PdfName.RECT, new PdfRectangle(xMarker, yMarker + descender, xMarker + width - subtract, yMarker + ascender));
+			text.addAnnotation( annot );
 		}
 		
 		// -------------
