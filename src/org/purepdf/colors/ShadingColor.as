@@ -6,7 +6,6 @@ package org.purepdf.colors
 
 	public class ShadingColor extends ExtendedColor
 	{
-		public static const serialVersionUID: Number = 4817929454941328671;
 		private var _shadingPattern: PdfShadingPattern;
 		
 		public function ShadingColor( pattern: PdfShadingPattern )

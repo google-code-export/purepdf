@@ -11,7 +11,6 @@ package org.purepdf.elements
 
 	public class Phrase implements ITextElementaryArray, IIterable
 	{
-		private static const serialVersionUID: Number = 2643594602455068231;
 		protected var _array: Vector.<Object> = new Vector.<Object>();
 		protected var _font: Font;
 		protected var _leading: Number = Number.NaN;

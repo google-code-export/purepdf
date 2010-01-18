@@ -14,7 +14,6 @@ package org.purepdf.elements
 	{
 		public static const NUMBERSTYLE_DOTTED: int = 0;
 		public static const NUMBERSTYLE_DOTTED_WITHOUT_FINAL_DOT: int = 1;
-		private static const serialVersionUID: Number = 3324172577544748043;
 		protected var _title: Paragraph;
 		protected var _bookmarkTitle: String;
 		protected var _numberDepth: int = 0;

@@ -4,7 +4,6 @@ package org.purepdf.colors
 
 	public class GrayColor extends ExtendedColor
 	{
-		private static const serialVersionUID: Number = -6571835680819282746;
 		private var _gray: Number;
 
 		/**
