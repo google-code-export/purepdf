@@ -1,6 +1,6 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.errors.NonImplementatioError;
+	
 
 	public class PdfDestination extends PdfArray
 	{
@@ -34,6 +34,21 @@ package org.purepdf.pdf
 		public function get hasPage(): Boolean
 		{
 			return _status;
+		}
+		
+		static public function create2( type: int, left: Number, top: Number, zoom: Number ): PdfDestination
+		{
+			var dest: PdfDestination = new PdfDestination( PdfName.XYZ );
+			if (left < 0)
+				dest.add( PdfNull.PDFNULL );
+			else
+				dest.add( new PdfNumber(left) );
+			if (top < 0)
+				dest.add(PdfNull.PDFNULL);
+			else
+				dest.add(new PdfNumber(top));
+			dest.add(new PdfNumber(zoom));
+			return dest;
 		}
 		
 		public static function create( type: int, parameter: Number ): PdfDestination

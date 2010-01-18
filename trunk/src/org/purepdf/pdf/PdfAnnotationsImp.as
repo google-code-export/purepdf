@@ -34,6 +34,11 @@ package org.purepdf.pdf
 			}
 		}
 		
+		public function addPlainAnnotation( annot: PdfAnnotation ): void
+		{
+			annotations.push( annot );
+		}
+		
 		public function hasUnusedAnnotations(): Boolean
 		{
 			return !( annotations.length == 0 );

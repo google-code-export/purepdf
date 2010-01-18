@@ -65,7 +65,6 @@ package org.purepdf.pdf
 		protected var leadingCount: int = 0;
 		protected var line: PdfLine = null;
 		protected var lines: Vector.<PdfLine> = new Vector.<PdfLine>();
-		protected var localDestinations: *;
 		protected var marginBottom: Number = 36.0;
 		protected var marginLeft: Number = 36.0;
 		protected var marginMirroring: Boolean = false;
@@ -1070,12 +1069,22 @@ package org.purepdf.pdf
 						
 						if( chunk.isAttribute( Chunk.LOCALGOTO ) )
 						{
-							throw new NonImplementatioError();
+							subtract = lastBaseFactor;
+							if( nextChunk != null && nextChunk.isAttribute( Chunk.LOCALGOTO ) )
+								subtract = 0;
+							if (nextChunk == null)
+								subtract += hangingCorrection;
+							localGoto( String(chunk.getAttribute(Chunk.LOCALGOTO)), xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size);
 						}
 						
 						if( chunk.isAttribute( Chunk.LOCALDESTINATION ) )
 						{
-							throw new NonImplementatioError();
+							subtract = lastBaseFactor;
+							if (nextChunk != null && nextChunk.isAttribute(Chunk.LOCALDESTINATION))
+								subtract = 0;
+							if (nextChunk == null)
+								subtract += hangingCorrection;
+							localDestination( String( chunk.getAttribute(Chunk.LOCALDESTINATION) ), PdfDestination.create2( PdfDestination.XYZ, xMarker, yMarker + chunk.font.size, 0));
 						}
 						
 						if( chunk.isAttribute( Chunk.GENERICTAG ) )
@@ -1310,6 +1319,69 @@ package org.purepdf.pdf
 			viewerPreferences.addViewerPreference( key, value );
 		}
 		
+		/**
+		 * Implements a link to other part of the document. The jump will
+		 * be made to a local destination with the same name, that must exist.
+		 * @param name the name for this link
+		 * @param llx the lower left x corner of the activation area
+		 * @param lly the lower left y corner of the activation area
+		 * @param urx the upper right x corner of the activation area
+		 * @param ury the upper right y corner of the activation area
+		 */
+		internal function localGoto( name: String, llx: Number, lly: Number, urx: Number, ury: Number ): void
+		{
+			var action: PdfAction = getLocalGotoAction( name );
+			annotationsImp.addPlainAnnotation( PdfAnnotation.createAction( writer, llx, lly, urx, ury, action ) );
+		}
+
+		/**
+		 * The local destination to where a local goto with the same
+		 * name will jump to.
+		 * @param name the name of this local destination
+		 * @param destination the <CODE>PdfDestination</CODE> with the jump coordinates
+		 * @return <CODE>true</CODE> if the local destination was added,
+		 * <CODE>false</CODE> if a local destination with the same name
+		 * already existed
+		 */
+		internal function localDestination( name: String, destination: PdfDestination ): Boolean
+		{
+			var obj: Vector.<Object> = localDestinations.getValue( name ) as Vector.<Object>;
+
+			if ( obj == null )
+				obj = new Vector.<Object>( 3, true );
+
+			if ( obj[ 2 ] != null )
+				return false;
+			obj[ 2 ] = destination;
+			localDestinations.put( name, obj );
+
+			if ( !destination.hasPage )
+				destination.addPage( writer.getCurrentPage() );
+			return true;
+		}
+		
+		protected var localDestinations: HashMap = new HashMap();
+		
+		private function getLocalGotoAction( name: String ): PdfAction
+		{
+			var action: PdfAction;
+			var obj: Vector.<Object> = localDestinations.getValue(name) as Vector.<Object>;
+			if (obj == null)
+				obj = new Vector.<Object>(3, true);
+			if (obj[0] == null) {
+				if (obj[1] == null) {
+					obj[1] = writer.getPdfIndirectReference();
+				}
+				action = PdfAction.create2( obj[1] as PdfIndirectReference );
+				obj[0] = action;
+				localDestinations.put(name, obj);
+			} else 
+			{
+				action = obj[0] as PdfAction;
+			}
+			return action;
+		}
+		
 		// -------------
 		// Helper methods for the main method add
 		// -------------
@@ -1322,7 +1394,7 @@ package org.purepdf.pdf
 			var url: String = anchor.reference;
 			leading = anchor.leading;
 			if( url != null )
-				anchorAction = new PdfAction( url );
+				anchorAction = PdfAction.create( url );
 			anchor.process( this );
 			anchorAction = null;
 			leadingCount--;
