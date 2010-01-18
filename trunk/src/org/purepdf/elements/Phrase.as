@@ -24,6 +24,8 @@ package org.purepdf.elements
 				addAll( phrase );
 				_leading = phrase.leading;
 				_font = phrase.font;
+			} else {
+				_leading = 16;
 			}
 		}
 		

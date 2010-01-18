@@ -969,7 +969,6 @@ package org.purepdf.pdf
 			var tabPosition: Number = 0;
 			var subtract: Number;
 			var obj: Vector.<Object>;
-
 			var k: int;
 
 			for ( var j: Iterator = line.iterator(); j.hasNext();  )
@@ -1104,12 +1103,9 @@ package org.purepdf.pdf
 						}
 						
 						var params: Vector.<Number> = chunk.getAttribute( Chunk.SKEW ) as Vector.<Number>;
-						var hs: Number;
-						var _hs: Object =  chunk.getAttribute(Chunk.HSCALE);
+						var hs: Object =  chunk.getAttribute(Chunk.HSCALE);
 						
-						if( _hs != null ) hs = Number( _hs );
-						
-						if( params != null || !isNaN(hs) )
+						if( params != null || hs != null )
 						{
 							var b: Number = 0, c: Number = 0;
 							if (params != null)
@@ -1118,8 +1114,8 @@ package org.purepdf.pdf
 								c = params[1];
 							}
 							
-							if( !isNaN(hs))
-								hScale = Number(hs);
+							if( hs != null )
+								hScale = Number( hs );
 							text.setTextMatrix( hScale, b, c, 1, xMarker, yMarker );
 						}
 						
@@ -1209,7 +1205,7 @@ package org.purepdf.pdf
 				if ( chunk.isAttribute( Chunk.SKEW ) || chunk.isAttribute( Chunk.HSCALE ) )
 				{
 					adjustMatrix = true;
-					text.setTextMatrix( xMarker, yMarker );
+					text.setTextMatrix( 1, 0, 0, 1, xMarker, yMarker );
 				}
 
 				if ( chunk.isAttribute( Chunk.CHAR_SPACING ) )
