@@ -23,6 +23,15 @@ package
 			class_list.push( ClippingPath );
 			class_list.push( DrawingPaths );
 			class_list.push( GraphicState );
+			class_list.push( ImageTypes );
+			class_list.push( Layers );
+			class_list.push( LineStyles );
+			class_list.push( Patterns );
+			class_list.push( SeparationColors );
+			class_list.push( ShadingPatterns );
+			class_list.push( SimpleAnnotation );
+			class_list.push( SlideShow );
+			class_list.push( ViewerExample );
 			class_list.push( HelloWorld );
 			class_list.push( HelloWorld2 );
 			class_list.push( HelloWorld3 );
@@ -33,15 +42,7 @@ package
 			class_list.push( HelloWorldBookmark );
 			class_list.push( HelloWorldTTF );
 			class_list.push( HelloWorldMaximum );
-			class_list.push( ImageTypes );
-			class_list.push( Layers );
-			class_list.push( LineStyles );
-			class_list.push( Patterns );
-			class_list.push( SeparationColors );
-			class_list.push( ShadingPatterns );
-			class_list.push( SimpleAnnotation );
-			class_list.push( SlideShow );
-			class_list.push( ViewerExample );
+			class_list.push( HelloWorldChapterAutoNumber );
 			
 			total_number = class_list.length;
 		}

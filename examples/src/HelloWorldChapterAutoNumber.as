@@ -5,11 +5,11 @@ package
 	import org.purepdf.elements.*;
 	import org.purepdf.pdf.fonts.*;
 
-	public class HelloWorldBookmark extends DefaultBasicExample
+	public class HelloWorldChapterAutoNumber extends DefaultBasicExample
 	{
-		public function HelloWorldBookmark(d_list:Array=null)
+		public function HelloWorldChapterAutoNumber(d_list:Array=null)
 		{
-			super(["This example will show how to create chapters","and assign bookmarks to them"]);
+			super(d_list);
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -26,19 +26,22 @@ package
 			p.setAlignment( ElementTags.ALIGN_RIGHT );
 			
 			var s: Section;
-			var c: Chapter;
+			var c: ChapterAutoNumber;
 			
-			c = new Chapter("Chapter One", 1 );
-			s = c.addSection("Chapter 1.1");
+			c = new ChapterAutoNumber("Chapter One");
+			c.bookmarkTitle = "First one";
+			c.bookmarkOpen = false;
+			
+			s = c.addSection("Chapter");
 			s.indentationLeft = 20;
 			s.add( p );
 			document.addElement(c);
 			
-			c = new Chapter("Chapter Two", 2 );
-			s = c.addSection("Chapter 2.1");
+			c = new ChapterAutoNumber("Chapter Two");
+			s = c.addSection("Nested Chapter");
 			s.indentationLeft = 20;
 			s.add( p );
-			s = c.addSection("Chapter 2.2");
+			s = c.addSection("Nested Chapter");
 			s.indentationLeft = 20;
 			s.add( p );
 			
