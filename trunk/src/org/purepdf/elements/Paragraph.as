@@ -5,8 +5,6 @@ package org.purepdf.elements
 
 	public class Paragraph extends Phrase
 	{
-		private static const serialVersionUID: Number = 7852314969733375514;
-
 		protected var _alignment: int = Element.ALIGN_UNDEFINED;
 		protected var _indentationLeft: Number = 0;
 		protected var _indentationRight: Number = 0;
@@ -68,30 +66,97 @@ package org.purepdf.elements
 		{
 			return _alignment;
 		}
+		
+		/**
+		 * @see #setAlignment()
+		 */
+		public function set alignment( value: int ): void
+		{
+			_alignment = value;
+		}
+		
+		/**
+		 * Set the paragraph alignment
+		 * 
+		 * @see org.purepdf.elements.ElementTags#ALIGN_CENTER
+		 * @see org.purepdf.elements.ElementTags#ALIGN_RIGHT
+		 * @see org.purepdf.elements.ElementTags#ALIGN_JUSTIFIED
+		 * @see org.purepdf.elements.ElementTags#ALIGN_JUSTIFIED_ALL
+		 */
+		public function setAlignment( value: String ): void
+		{
+			value = value.toLowerCase();
+			if( ElementTags.ALIGN_CENTER.toLowerCase() == value ) {
+				_alignment = Element.ALIGN_CENTER;
+				return;
+			}
+			if ( ElementTags.ALIGN_RIGHT.toLowerCase() == value ) {
+				_alignment = Element.ALIGN_RIGHT;
+				return;
+			}
+			if ( ElementTags.ALIGN_JUSTIFIED.toLowerCase() == value ) {
+				_alignment = Element.ALIGN_JUSTIFIED;
+				return;
+			}
+			if ( ElementTags.ALIGN_JUSTIFIED_ALL.toLowerCase() == value ) {
+				_alignment = Element.ALIGN_JUSTIFIED_ALL;
+				return;
+			}
+			_alignment = Element.ALIGN_LEFT;
+		}
 
 		public function get extraParagraphSpace(): Number
 		{
 			return _extraParagraphSpace;
+		}
+		
+		public function set extraParagraphSpace( value: Number ): void
+		{
+			_extraParagraphSpace = value;
 		}
 
 		public function get firstLineIndent(): Number
 		{
 			return _firstLineIndent;
 		}
+		
+		public function set firstLineIndent( value: Number ): void
+		{
+			_firstLineIndent = value;
+		}
 
 		public function get indentationLeft(): Number
 		{
 			return _indentationLeft;
+		}
+		
+		public function set indentationLeft( value: Number ): void
+		{
+			_indentationLeft = value;
 		}
 
 		public function get indentationRight(): Number
 		{
 			return _indentationRight;
 		}
+		
+		public function set indentationRight( value: Number ): void
+		{
+			_indentationRight = value;
+		}
 
 		public function get keeptogether(): Boolean
 		{
 			return _keeptogether;
+		}
+		
+		/**
+		 * Indicates that the paragraph has to be 
+		 * kept together on one page.
+		 */
+		public function set keeptogether( value: Boolean ): void
+		{
+			_keeptogether = value;
 		}
 
 		public function get multipliedLeading(): Number
@@ -102,6 +167,16 @@ package org.purepdf.elements
 		public function get spacingAfter(): Number
 		{
 			return _spacingAfter;
+		}
+		
+		public function set spacingAfter( value: Number ): void
+		{
+			_spacingAfter = value;
+		}
+		
+		public function set spacingBefore( value: Number ): void
+		{
+			_spacingBefore = value;
 		}
 
 		public function get spacingBefore(): Number

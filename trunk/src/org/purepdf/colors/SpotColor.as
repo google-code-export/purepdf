@@ -7,7 +7,6 @@ package org.purepdf.colors
 
 	public class SpotColor extends ExtendedColor
 	{
-		private static const serialVersionUID: Number = -6257004582113248079;
 		private var _spot: PdfSpotColor;
 		private var _tint: Number;
 

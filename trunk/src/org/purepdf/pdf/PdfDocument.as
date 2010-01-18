@@ -11,6 +11,7 @@ package org.purepdf.pdf
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Anchor;
+	import org.purepdf.elements.ChapterAutoNumber;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElement;
@@ -86,6 +87,7 @@ package org.purepdf.pdf
 		protected var textEmptySize: int;
 		protected var thisBoxSize: HashMap = new HashMap();
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
+		protected var chapternumber: int = 0;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -245,6 +247,10 @@ package org.purepdf.pdf
 
 			if ( !opened && element.isContent )
 				throw new Error( "document is not opened" );
+			
+			if( element is ChapterAutoNumber )
+				chapternumber = ChapterAutoNumber(element).setAutomaticNumber( chapternumber );
+			
 			var success: Boolean = false;
 			success = add( element );
 

@@ -3,11 +3,18 @@ package org.purepdf.elements
 
 	public class Chapter extends Section
 	{
-		private static const serialVersionUID: Number = 1791000695779357361;
 
-		public function Chapter( $title: String, $number: int )
+		/**
+		 * Create a new Chapter object
+		 * 
+		 * @param $title	String or Paragraph allowed
+		 * @param $number	chapter number
+		 * 
+		 * @see org.purepdf.elements.Paragraph
+		 */
+		public function Chapter( $title: Object, $number: int )
 		{
-			super( Paragraph.create( $title ), 1 );
+			super( $title is String ? Paragraph.create( String( $title ) ) : Paragraph( $title ), 1 );
 			_numbers = new Vector.<Number>();
 			_numbers.push( $number );
 			_triggerNewPage = true;
