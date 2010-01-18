@@ -43,6 +43,10 @@ package
 			class_list.push( HelloWorldTTF );
 			class_list.push( HelloWorldMaximum );
 			class_list.push( HelloWorldChapterAutoNumber );
+			class_list.push( HelloChunk );
+			class_list.push( HelloSplitCharacter );
+			class_list.push( HelloWorldGoto );
+			class_list.push( AnnotatedChunk );
 			
 			total_number = class_list.length;
 		}

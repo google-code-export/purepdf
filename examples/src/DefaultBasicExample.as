@@ -133,7 +133,7 @@ package
 			description( description_list );
 		}
 
-		protected function createDocument( subject: String, rect: RectangleElement=null ): void
+		protected function createDocument( subject: String=null, rect: RectangleElement=null ): void
 		{
 			buffer = new ByteArray();
 
@@ -145,7 +145,8 @@ package
 			document.addAuthor( "Alessandro Crugnola" );
 			document.addTitle( getQualifiedClassName( this ) );
 			document.addCreator( "http://purepdf.org" );
-			document.addSubject( subject );
+			if( subject ) 
+				document.addSubject( subject );
 			document.addKeywords( "itext,purepdf" );
 			document.setViewerPreferences( PdfViewPreferences.FitWindow );
 		}
