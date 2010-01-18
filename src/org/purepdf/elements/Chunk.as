@@ -5,6 +5,7 @@ package org.purepdf.elements
 	import org.purepdf.Font;
 	import org.purepdf.ISplitCharacter;
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.pdf.PdfAction;
 	import org.purepdf.pdf.PdfAnnotation;
 	import org.purepdf.utils.StringUtils;
@@ -85,6 +86,32 @@ package org.purepdf.elements
 			tmp.push( this );
 			return tmp;
 		}
+		
+		public function getImage(): ImageElement
+		{
+			if( _attributes == null )
+				return null;
+			
+			var obj: Vector.<Object> = _attributes.getValue(Chunk.IMAGE) as Vector.<Object>;
+			if (obj == null)
+				return null;
+			else {
+				return ImageElement( obj[0] );
+			}
+		}
+		
+		/**
+		 * Gets the width of the Chunk in points.
+		 * 
+		 * @return a width in points
+		 */
+		public function getWidthPoint(): Number
+		{
+			if( getImage() != null )
+				return getImage().scaledWidth;
+			
+			return font.getCalculatedBaseFont( true ).getWidthPoint(_content, font.getCalculatedSize()) * getHorizontalScaling();
+		}
 
 		/**
 		 * Gets the text displacement relative to the baseline
@@ -156,6 +183,18 @@ package org.purepdf.elements
 		{
 			return setAttribute( PDFANNOTATION, annotation );
 		}
+		
+		/**
+		 * Skews the text to simulate italic and other effects
+		 * @param alpha	the first angle in degrees
+		 * @param beta	the second angle in degrees
+		 */
+		public function setSkew( alpha: Number, beta: Number ): Chunk
+		{
+			alpha = Math.tan(alpha * Math.PI / 180);
+			beta = Math.tan(beta * Math.PI / 180);
+			return setAttribute(SKEW, Vector.<Number>([ alpha, beta ]) );
+		}
 
 		/**
 		 * Set the color and size of the background color for this
@@ -187,6 +226,26 @@ package org.purepdf.elements
 		public function setTextRise( rise: Number ): Chunk
 		{
 			return setAttribute( SUBSUPSCRIPT, rise );
+		}
+		
+		/**
+		 * Sets the text horizontal scaling. A value of 1 is normal and a value of
+		 * 0.5f shrinks the text to half it's width.
+		 * 
+		 */
+		public function setHorizontalScaling( scale: Number ): Chunk
+		{
+			return setAttribute( HSCALE, scale );
+		}
+		
+		public function getHorizontalScaling(): Number 
+		{
+			if( _attributes == null )
+				return 1;
+			var f: Object = _attributes.getValue(HSCALE);
+			if (f == null)
+				return 1;
+			return Number(f);
 		}
 
 		/**

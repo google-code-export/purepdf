@@ -620,13 +620,8 @@ package org.purepdf.pdf
 			result._font.image = result._image;
 
 			var tmp_hs: Object = result.attributes.getValue( Chunk.HSCALE );
-			var hs: Number;
-
 			if ( tmp_hs != null )
-				hs = Number( hs );
-
-			if ( !isNaN( hs ) )
-				result._font.horizontalScaling = hs;
+				result._font.horizontalScaling = Number( tmp_hs );
 
 			result.encoding = result._font.font.encoding;
 			result.splitCharacter = result.noStroke.getValue( Chunk.SPLITCHARACTER ) as ISplitCharacter;
