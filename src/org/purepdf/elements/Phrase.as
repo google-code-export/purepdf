@@ -9,6 +9,23 @@ package org.purepdf.elements
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.iterators.VectorIterator;
 
+	/**
+	 * A Phrase contains a series of Chunks.
+	 * A Phrase has a main Font, but some chunks
+	 * within the phrase can have different Font than the main phrase font.
+	 * All the Chunks in a Phrase have the same leading.<br />
+	 * Example:
+	 * <pre>
+	 * // When no parameters are passed, the default leading = 16
+	 * var phrase1: Phrase = Phrase.fromText("this is a phrase");
+	 * var phrase2: Phrase = Phrase.fromText("this is a phrase", new Font( Font.HELVETICA, 12, Font.BOLD ), 20 );
+	 * </pre>
+	 *
+	 * @see		Element
+	 * @see		Chunk
+	 * @see		Paragraph
+	 * @see		Anchor
+	 */
 	public class Phrase implements ITextElementaryArray, IIterable
 	{
 		protected var _array: Vector.<Object> = new Vector.<Object>();
@@ -27,6 +44,17 @@ package org.purepdf.elements
 			} else {
 				_leading = 16;
 			}
+		}
+		
+		/**
+		 * Create a new phrase from a string text, an optional font and leading
+		 * @return Phrase	the created Phrase
+		 */
+		public static function fromText( text: String, font: Font = null, leading: Number = Number.NaN ): Phrase
+		{
+			var p: Phrase = new Phrase();
+			p.init( leading, text, font );
+			return p;
 		}
 		
 		internal function push( o: Object ): Boolean
@@ -147,17 +175,15 @@ package org.purepdf.elements
 			return true;
 		}
 
-		public function init( leading: Number, string: String, font: Font=null ): void
+		public function init( $leading: Number, $string: String, $font: Font=null ): void
 		{
-			if ( font == null )
-				font = new Font();
-			this._leading = leading;
-			this._font = font;
+			if ( $font == null )
+				_font = new Font();
+			_leading = $leading;
+			_font = $font;
 
-			if ( string != null && string.length > 0 )
-			{
-				_array.push( new Chunk( string, font ) );
-			}
+			if ( $string != null && $string.length > 0 )
+				_array.push( new Chunk( $string, $font ) );
 		}
 
 		public function insert( index: int, o: Object ): void
