@@ -29,7 +29,7 @@ package
 			font.style = Font.UNDERLINE;
 			font.color = RGBColor.BLUE;
 			
-			var paragraph: Paragraph = Paragraph.create("Quick brown ", defaultFont );
+			var paragraph: Paragraph = Paragraph.fromText("Quick brown ", defaultFont );
 			var anchor: Anchor = Anchor.create("fox", font );
 			anchor.reference = "#fox";
 			paragraph.add( anchor );

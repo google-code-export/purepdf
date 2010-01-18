@@ -27,7 +27,7 @@ package
 			document.setPdfVersion( PdfVersion.VERSION_1_6 );
 			document.userunit = 75000;
 			
-			document.addElement( Paragraph.create("Hello World") );
+			document.addElement( Paragraph.fromText("Hello World") );
 			
 			document.close();
 			save();
