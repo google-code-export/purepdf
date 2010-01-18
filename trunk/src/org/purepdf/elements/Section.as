@@ -112,7 +112,7 @@ package org.purepdf.elements
 			if( _bookmarkTitle == null )
 				return _title;
 			else
-				return Paragraph.create( _bookmarkTitle );
+				return Paragraph.fromText( _bookmarkTitle );
 		}
 
 		public function set bookmarkTitle(value:String):void
@@ -387,22 +387,22 @@ package org.purepdf.elements
 		
 		public function addSection5( indentation: Number, title: String, numberDepth: int ): Section
 		{
-			return addSection2( indentation, Paragraph.create( title ), numberDepth );
+			return addSection2( indentation, Paragraph.fromText( title ), numberDepth );
 		}
 		
 		public function addSection6( title: String, numberDepth: int ): Section
 		{
-			return addSection4( Paragraph.create( title ), numberDepth );
+			return addSection4( Paragraph.fromText( title ), numberDepth );
 		}
 		
 		public function addSection7( indentation: Number, title: String ): Section
 		{
-			return addSection3( indentation, Paragraph.create( title ) );
+			return addSection3( indentation, Paragraph.fromText( title ) );
 		}
 
 		public function addSection( title: String ): Section
 		{
-			return addSection1( Paragraph.create( title ) );
+			return addSection1( Paragraph.fromText( title ) );
 		}
 		
 		public function addSection1( title: Paragraph ): Section

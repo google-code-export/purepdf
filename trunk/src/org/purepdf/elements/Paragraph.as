@@ -3,6 +3,30 @@ package org.purepdf.elements
 	import org.purepdf.Font;
 	import org.purepdf.elements.images.ImageElement;
 
+	/**
+	 * A Paragraph contains a series of Chunks and/or Phrases.
+	 * A Paragraph has the same qualities of a Phrase, but also
+	 * some additional layout-parameters:
+	 * <ul>
+	 * <li>the indentation</li>
+	 * <li>the alignment of the text</li>
+	 * </ul>
+	 * <br />
+	 * 
+	 * Example:
+	 * <pre>
+	 * var p1: Paragraph = Paragraph.fromText("This is a paragraph");
+	 * 
+	 * FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+	 * var p2: Paragraph = Paragraph.fromText("This is a paragraph", new Font( Font.HELVETICA, 12, Font.NORMAL ) );
+	 * </pre>
+	 *
+	 * @see		org.purepdf.elements.IElement
+	 * @see		Phrase
+	 * @see		org.purepdf.Font
+	 * @see		org.purepdf.pdf.fonts.BuiltinFonts
+	 * @see		org.purepdf.pdf.fonts.FontsResourceFactory
+	 */
 	public class Paragraph extends Phrase
 	{
 		protected var _alignment: int = Element.ALIGN_UNDEFINED;
@@ -15,6 +39,7 @@ package org.purepdf.elements
 		private var _extraParagraphSpace: Number = 0;
 		private var _firstLineIndent: Number = 0;
 
+		
 		public function Paragraph( phrase: Phrase = null )
 		{
 			super( phrase );
@@ -205,9 +230,9 @@ package org.purepdf.elements
 		}
 		
 		/**
-		 * Create a new paragraph from a starting Chunk
+		 * Create a new paragraph from a starting Chunk and leading
 		 */
-		public static function create2( leading: Number, chunk: Chunk ): Paragraph
+		public static function fromChunk( chunk: Chunk, leading: Number ): Paragraph
 		{
 			var p: Paragraph = new Paragraph();
 			p.leading = leading;
@@ -220,10 +245,10 @@ package org.purepdf.elements
 		 * Create a new Paragraph from a string and an optional font.
 		 * If no font is passed, the pdf default one will be used
 		 */
-		public static function create( string: String, font: Font=null ): Paragraph
+		public static function fromText( string: String, font: Font=null ): Paragraph
 		{
 			var p: Paragraph = new Paragraph();
-			p.init( Number.NaN, string, font != null ? font : new Font() );
+			p.init( Number.NaN, string, font );
 			return p;
 		}
 	}

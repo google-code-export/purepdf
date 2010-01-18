@@ -14,7 +14,7 @@ package org.purepdf.elements
 		 */
 		public function Chapter( $title: Object, $number: int )
 		{
-			super( $title is String ? Paragraph.create( String( $title ) ) : Paragraph( $title ), 1 );
+			super( $title is String ? Paragraph.fromText( String( $title ) ) : Paragraph( $title ), 1 );
 			_numbers = new Vector.<Number>();
 			_numbers.push( $number );
 			_triggerNewPage = true;
