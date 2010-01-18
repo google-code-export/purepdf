@@ -6,13 +6,27 @@ package org.purepdf.pdf
 	 */
 	public class PdfAction extends PdfDictionary
 	{
-		public function PdfAction( url: String, isMap: Boolean = false )
+		public function PdfAction()
 		{
-			put( PdfName.S, PdfName.URI );
-			put( PdfName.URI, new PdfString( url ) );
+		}
+		
+		public static function create( url: String, isMap: Boolean = false ): PdfAction
+		{
+			var action: PdfAction = new PdfAction();
+			action.put( PdfName.S, PdfName.URI );
+			action.put( PdfName.URI, new PdfString( url ) );
 
 			if ( isMap )
-				put( PdfName.ISMAP, PdfBoolean.PDF_TRUE );
+				action.put( PdfName.ISMAP, PdfBoolean.PDF_TRUE );
+			return action;
+		}
+		
+		public static function create2( destination: PdfIndirectReference ): PdfAction
+		{
+			var action: PdfAction = new PdfAction();
+			action.put( PdfName.S, PdfName.GOTO );
+			action.put( PdfName.D, destination );
+			return action;
 		}
 	}
 }

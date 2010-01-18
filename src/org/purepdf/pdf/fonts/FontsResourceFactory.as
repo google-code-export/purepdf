@@ -65,8 +65,10 @@ package org.purepdf.pdf.fonts
 		 * </code>
 		 * </p>
 		 * 
+		 * <p>You can use the built-in fonts embedded into the separate BuiltinFonts class</p>
+		 * 
 		 * @param name	The font name (eg. "Helvetica")
-		 * @see BuiltinFont
+		 * @see org.purepdf.pdf.fonts.BuiltinFont
 		 */
 		public function registerFont( name: String, file: Class ): void
 		{

@@ -678,9 +678,23 @@ package org.purepdf.pdf
 			return name;
 		}
 
-		internal function addLocalDestinations( dest: PdfDestination ): void
+		internal function addLocalDestinations( dest: HashMap ): void
 		{
-			trace( "PdfWriter.addLocalDestinations not implemented" );
+			for ( var i: Iterator = dest.entrySet().iterator(); i.hasNext();  )
+			{
+				var entry: Entry = Entry( i.next() );
+				var name: String = String( entry.getKey() );
+				var obj: Vector.<Object> = Vector.<Object>( entry.getValue() );
+				var destination: PdfDestination = obj[ 2 ] as PdfDestination;
+
+				if ( obj[ 1 ] == null )
+					obj[ 1 ] = getPdfIndirectReference();
+
+				if ( destination == null )
+					addToBody1( new PdfString( "invalid_" + name ), PdfIndirectReference( obj[ 1 ] ) );
+				else
+					addToBody1( destination, PdfIndirectReference( obj[ 1 ] ) );
+			}
 		}
 
 		pdf_core function addSimpleExtGState( gstate: PdfDictionary ): Vector.<PdfObject>

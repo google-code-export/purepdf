@@ -165,7 +165,7 @@ package org.purepdf.elements
 		
 		public function setAnchor( url: String ): Chunk
 		{
-			return setAttribute( ACTION, new PdfAction( url ) );
+			return setAttribute( ACTION, PdfAction.create( url ) );
 		}
 
 		public function setNewPage(): Chunk
