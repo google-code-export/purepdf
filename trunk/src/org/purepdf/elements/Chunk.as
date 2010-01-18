@@ -6,6 +6,7 @@ package org.purepdf.elements
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.pdf.PdfAction;
 	import org.purepdf.utils.StringUtils;
+	import org.purepdf.utils.Utilities;
 
 	public class Chunk implements IElement
 	{
@@ -137,6 +138,36 @@ package org.purepdf.elements
 				return f;
 			}
 			return 0;
+		}
+		
+		public function setTextRise( rise: Number ): Chunk
+		{
+			return setAttribute( SUBSUPSCRIPT, rise);
+		}
+
+		/**
+		 * @param color	the color of the line. null to use text color
+		 * @param thickness	the weight of the line
+		 * @param thicknessMul	thickness multiplication factor with the font size
+		 * @param yPosition	absolute y position relative to the baseline
+		 * @param yPositionMul	position multiplication factor with the font size
+		 * @param cap	the end line cap. Allowed values are
+		 *            PdfContentByte.LINE_CAP_BUTT, PdfContentByte.LINE_CAP_ROUND
+		 *            and PdfContentByte.LINE_CAP_PROJECTING_SQUARE
+		 *
+		 * @see org.purepdf.pdf.PdfContentByte#LINE_CAP_BUTT
+		 * @see org.purepdf.pdf.PdfContentByte#LINE_CAP_ROUND
+		 * @see org.purepdf.pdf.PdfContentByte#LINE_CAP_PROJECTING_SQUARE
+		 */
+		public function setUnderline( color: RGBColor=null, thickness: Number=1, thicknessMul: Number=0, yPosition: Number=0, yPositionMul: Number
+			=0, cap: int=0 ): Chunk
+		{
+			if ( _attributes == null )
+				_attributes = new HashMap();
+			var obj: Vector.<Object> = Vector.<Object>( [ color, Vector.<Number>( [ thickness, thicknessMul, yPosition, yPositionMul, cap ] ) ] );
+			var unders: Vector.<Vector.<Object>> = Utilities.addToArray( attributes.getValue( UNDERLINE ) as Vector.<Vector.<Object>>
+				, obj );
+			return setAttribute( UNDERLINE, unders );
 		}
 		
 		/**

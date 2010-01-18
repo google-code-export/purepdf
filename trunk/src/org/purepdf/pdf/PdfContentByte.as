@@ -842,7 +842,10 @@ package org.purepdf.pdf
 		public function setLineCap( style: int ): void
 		{
 			if ( style >= 0 && style <= 2 )
-				content.append_int( style ).append_string( " J" ).append_separator();
+			{
+				content.append_number( style );
+				content.append_string( " J" ).append_separator();
+			}
 		}
 
 		/**
