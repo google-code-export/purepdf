@@ -2,8 +2,6 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.IOutputStream;
 	import org.purepdf.utils.Bytes;
 
@@ -19,8 +17,6 @@ package org.purepdf.pdf
 		
 		private var object: PdfObject;
 		private var writer: PdfWriter;
-		
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfIndirectObject );
 		
 		/**
 		 * Constructs a <CODE>PdfIndirectObject</CODE>.
@@ -43,7 +39,7 @@ package org.purepdf.pdf
 			
 			if (crypto != null)
 			{
-				logger.warn( 'implement this' );
+				trace( 'PdfIndirectObject. implement this' );
 			}
 		}
 		

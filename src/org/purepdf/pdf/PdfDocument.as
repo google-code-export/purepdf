@@ -8,8 +8,6 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	import it.sephiroth.utils.hashLib;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Anchor;
@@ -42,7 +40,6 @@ package org.purepdf.pdf
 	{
 		internal static var compress: Boolean = false;
 
-		private static var logger: ILogger = LoggerFactory.getClassLogger( PdfDocument );
 		protected var _duration: int = -1;
 		protected var _hashCode: int;
 		protected var _pageResources: PageResources;
@@ -216,7 +213,7 @@ package org.purepdf.pdf
 					break;
 
 				default:
-					logger.error( "PdfDocument.add. Invalid type: " + element.type );
+					trace( "PdfDocument.add. Invalid type: " + element.type );
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
 			lastElementType = element.type;
@@ -327,7 +324,7 @@ package org.purepdf.pdf
 
 		internal function getCatalog( pages: PdfIndirectReference ): PdfCatalog
 		{
-			logger.warn( 'getCatalog. to be implemented' );
+			trace( 'PdfDocument.getCatalog. to be implemented' );
 			var catalog: PdfCatalog = new PdfCatalog( pages, _writer );
 
 			// 1 outlines

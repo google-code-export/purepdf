@@ -4,12 +4,9 @@ package org.purepdf.pdf.fonts
 	
 	import it.sephiroth.utils.HashMap;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.io.LineReader;
-	import org.purepdf.pdf.ByteBuffer;
 	import org.purepdf.pdf.PdfArray;
 	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfEncodings;
@@ -21,7 +18,6 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.pdf.PdfRectangle;
 	import org.purepdf.pdf.PdfStream;
 	import org.purepdf.pdf.PdfWriter;
-	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringTokenizer;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.pdf_core;
@@ -32,7 +28,6 @@ package org.purepdf.pdf.fonts
 		use namespace pdf_core;
 		private static const PFB_TYPES: Vector.<int> = Vector.<int>( [ 1, 2, 1 ] );
 
-		private static var logger: ILogger = LoggerFactory.getClassLogger( Type1Font );
 		protected var pfb: Vector.<int>;
 		private var Ascender: int = 800;
 		private var CapHeight: int = 700;

@@ -3,8 +3,6 @@ package org.purepdf.pdf.codec
 	import flash.errors.IOError;
 	import flash.utils.ByteArray;
 	
-	import org.as3commons.logging.ILogger;
-	import org.as3commons.logging.LoggerFactory;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.elements.images.ImageRaw;
 	import org.purepdf.errors.ConversionError;
@@ -24,7 +22,6 @@ package org.purepdf.pdf.codec
 	{
 		protected static const SHORT_MASK: int = 0x7fff;
 		protected static const MaxStackSize: int = 4096;
-		protected static var logger: ILogger = LoggerFactory.getClassLogger( GifImage );
 		protected var bgColor: int;
 		protected var bgIndex: int;
 		protected var block: Bytes = new Bytes( 256 );
@@ -278,7 +275,6 @@ package org.purepdf.pdf.codec
 
 		protected function readBlock(): int
 		{
-			//logger.debug("readBlock");
 			blockSize = input.readUnsignedByte();
 
 			if ( blockSize <= 0 )
