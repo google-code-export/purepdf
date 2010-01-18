@@ -29,6 +29,7 @@ package
 			class_list.push( HelloWorld4 );
 			class_list.push( HelloWorld5 );
 			class_list.push( HelloWorldAnchor );
+			class_list.push( HelloWorldInternalAnchor );
 			class_list.push( HelloWorldBookmark );
 			class_list.push( HelloWorldTTF );
 			class_list.push( HelloWorldMaximum );
