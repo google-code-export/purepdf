@@ -4,10 +4,10 @@ package org.purepdf.events
 	
 	public class PageEvent extends Event
 	{
-		public static const OPEN_DOCUMENT: String = 'openDocument';
-		public static const START_PAGE: String = 'startPage';
-		public static const END_PAGE: String = 'endPage';
-		public static const CLOSE_DOCUMENT: String = 'closeDocument';
+		public static const DOCUMENT_OPEN: String = 	'documentStart';
+		public static const PAGE_START: String = 		'pageStart';
+		public static const PAGE_END: String = 			'pageEnd';
+		public static const DOCUMENT_CLOSE: String = 	'documentClose';
 		
 		public function PageEvent( type: String, bubbles: Boolean = false, cancelable: Boolean = false )
 		{
