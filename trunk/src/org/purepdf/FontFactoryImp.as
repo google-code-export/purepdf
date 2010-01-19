@@ -7,6 +7,7 @@ package org.purepdf
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.factories.FontFactory;
 	
 	public class FontFactoryImp implements IFontProvider
 	{

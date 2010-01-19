@@ -1,7 +1,9 @@
-package org.purepdf
+package org.purepdf.factories
 {
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.Font;
+	import org.purepdf.FontFactoryImp;
 
 	public final class FontFactory
 	{
