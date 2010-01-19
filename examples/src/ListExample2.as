@@ -1,0 +1,118 @@
+package
+{
+	import flash.events.Event;
+	
+	import org.purepdf.elements.Chunk;
+	import org.purepdf.elements.GreekList;
+	import org.purepdf.elements.ListItem;
+	import org.purepdf.elements.Phrase;
+	import org.purepdf.elements.RomanList;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
+
+	public class ListExample2 extends DefaultBasicExample
+	{
+		public function ListExample2(d_list:Array=null)
+		{
+			super(["Create ordered list using roman, greek","and zapfdingbats list bullet styles"]);
+		}
+		
+		override protected function execute(event:Event=null) : void
+		{
+			super.execute();
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.SYMBOL, BuiltinFonts.SYMBOL );
+			
+			createDocument();
+			document.open();
+			
+			var phrase: Phrase = new Phrase("Here's a new list", null );
+			document.addElement( phrase );
+			
+			var romanlist: RomanList;
+			romanlist = new RomanList( 20 );
+			romanlist.lowercase = true;
+			romanlist.add(new ListItem("first line"));
+			romanlist.add(new ListItem("second line"));
+			romanlist.add(new ListItem("third line"));
+			romanlist.add(new ListItem("fourth line"));
+			romanlist.add(new ListItem("fifth line"));
+			document.addElement(romanlist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			
+			romanlist = new RomanList( 20 );
+			romanlist.lowercase = false;
+			romanlist.add(new ListItem("first line"));
+			romanlist.add(new ListItem("second line"));
+			romanlist.add(new ListItem("third line"));
+			romanlist.add(new ListItem("fourth line"));
+			romanlist.add(new ListItem("fifth line"));			
+			document.addElement(romanlist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			
+			
+			var greeklist: GreekList;
+			greeklist = new GreekList(20);
+			greeklist.lowercase = true;
+			greeklist.add(new ListItem("first line"));
+			greeklist.add(new ListItem("second line"));
+			greeklist.add(new ListItem("third line"));
+			greeklist.add(new ListItem("fourth line"));
+			greeklist.add(new ListItem("fifth line"));
+			document.addElement(greeklist);
+			document.addElement(Chunk.NEWLINE);
+			
+			document.addElement(phrase);
+			greeklist = new GreekList(20);
+			greeklist.lowercase = false;
+			greeklist.add(new ListItem("first line"));
+			greeklist.add(new ListItem("second line"));
+			greeklist.add(new ListItem("third line"));
+			greeklist.add(new ListItem("fourth line"));
+			greeklist.add(new ListItem("fifth line"));
+			document.addElement(greeklist);
+			
+			/*
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			var zapfdingbatslist: ZapfDingbatsList;
+			zapfdingbatslist = new ZapfDingbatsList(42, 15);
+			zapfdingbatslist.add(new ListItem("the lazy dog"));
+			zapfdingbatslist.add(new ListItem("the lazy cat"));
+			document.addElement(zapfdingbatslist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			
+			var zapfdingbatsnumberlist: ZapfDingbatsNumberList;
+			zapfdingbatsnumberlist = new ZapfDingbatsNumberList(0, 15);
+			zapfdingbatsnumberlist.add(new ListItem("the lazy dog"));
+			zapfdingbatsnumberlist.add(new ListItem("the lazy cat"));
+			document.addElement(zapfdingbatsnumberlist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			zapfdingbatsnumberlist = new ZapfDingbatsNumberList(1, 15);
+			zapfdingbatsnumberlist.add(new ListItem("the lazy dog"));
+			zapfdingbatsnumberlist.add(new ListItem("the lazy cat"));
+			document.addElement(zapfdingbatsnumberlist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			zapfdingbatsnumberlist = new ZapfDingbatsNumberList(2, 15);
+			zapfdingbatsnumberlist.add(new ListItem("the lazy dog"));
+			zapfdingbatsnumberlist.add(new ListItem("the lazy cat"));
+			document.addElement(zapfdingbatsnumberlist);
+			document.addElement(Chunk.NEWLINE);
+			document.addElement(phrase);
+			zapfdingbatsnumberlist = new ZapfDingbatsNumberList(3, 15);
+			zapfdingbatsnumberlist.add(new ListItem("the lazy dog"));
+			zapfdingbatsnumberlist.add(new ListItem("the lazy cat"));
+			document.addElement(zapfdingbatsnumberlist);
+			*/
+			document.close();
+			save();
+		}
+	}
+}
