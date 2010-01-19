@@ -5,9 +5,10 @@ package org.purepdf
 	import it.sephiroth.utils.HashMap;
 	
 	import org.purepdf.colors.RGBColor;
+	import org.purepdf.errors.ConversionError;
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.factories.FontFactory;
 	
 	public class FontFactoryImp implements IFontProvider
 	{
@@ -19,62 +20,61 @@ package org.purepdf
 		public function FontFactoryImp()
 		{
 			// register all true type fonts
-			trueTypeFonts[ FontFactory.COURIER.toLowerCase() ] = FontFactory.COURIER;
-			trueTypeFonts[ FontFactory.COURIER_BOLD.toLowerCase() ] = FontFactory.COURIER_BOLD;
-			trueTypeFonts[ FontFactory.COURIER_BOLDOBLIQUE.toLowerCase() ] = FontFactory.COURIER_BOLDOBLIQUE;
-			trueTypeFonts[ FontFactory.COURIER_OBLIQUE.toLowerCase() ] = FontFactory.COURIER_OBLIQUE;
-			trueTypeFonts[ FontFactory.HELVETICA.toLowerCase() ] = FontFactory.HELVETICA;
-			trueTypeFonts[ FontFactory.HELVETICA_BOLD.toLowerCase() ] = FontFactory.HELVETICA_BOLD;
-			trueTypeFonts[ FontFactory.HELVETICA_BOLDOBLIQUE.toLowerCase() ] = FontFactory.HELVETICA_BOLDOBLIQUE;
-			trueTypeFonts[ FontFactory.HELVETICA_OBLIQUE.toLowerCase() ] = FontFactory.HELVETICA_OBLIQUE;
-			trueTypeFonts[ FontFactory.SYMBOL.toLowerCase() ] = FontFactory.SYMBOL;
-			trueTypeFonts[ FontFactory.TIMES.toLowerCase() ] = FontFactory.TIMES;
-			trueTypeFonts[ FontFactory.TIMES_BOLD.toLowerCase() ] = FontFactory.TIMES_BOLD;
-			trueTypeFonts[ FontFactory.TIMES_BOLDITALIC.toLowerCase() ] = FontFactory.TIMES_BOLDITALIC;
-			trueTypeFonts[ FontFactory.TIMES_ITALIC.toLowerCase() ] = FontFactory.TIMES_ITALIC;
-			trueTypeFonts[ FontFactory.TIMES_ROMAN.toLowerCase() ] = FontFactory.TIMES_ROMAN;
-			trueTypeFonts[ FontFactory.ZAPFDINGBATS.toLowerCase() ] = FontFactory.ZAPFDINGBATS;
+			trueTypeFonts[ BaseFont.COURIER.toLowerCase() ] = BaseFont.COURIER;
+			trueTypeFonts[ BaseFont.COURIER_BOLD.toLowerCase() ] = BaseFont.COURIER_BOLD;
+			trueTypeFonts[ BaseFont.COURIER_BOLDOBLIQUE.toLowerCase() ] = BaseFont.COURIER_BOLDOBLIQUE;
+			trueTypeFonts[ BaseFont.COURIER_OBLIQUE.toLowerCase() ] = BaseFont.COURIER_OBLIQUE;
+			trueTypeFonts[ BaseFont.HELVETICA.toLowerCase() ] = BaseFont.HELVETICA;
+			trueTypeFonts[ BaseFont.HELVETICA_BOLD.toLowerCase() ] = BaseFont.HELVETICA_BOLD;
+			trueTypeFonts[ BaseFont.HELVETICA_BOLDOBLIQUE.toLowerCase() ] = BaseFont.HELVETICA_BOLDOBLIQUE;
+			trueTypeFonts[ BaseFont.HELVETICA_OBLIQUE.toLowerCase() ] = BaseFont.HELVETICA_OBLIQUE;
+			trueTypeFonts[ BaseFont.SYMBOL.toLowerCase() ] = BaseFont.SYMBOL;
+			trueTypeFonts[ BaseFont.TIMES_BOLD.toLowerCase() ] = BaseFont.TIMES_BOLD;
+			trueTypeFonts[ BaseFont.TIMES_BOLDITALIC.toLowerCase() ] = BaseFont.TIMES_BOLDITALIC;
+			trueTypeFonts[ BaseFont.TIMES_ITALIC.toLowerCase() ] = BaseFont.TIMES_ITALIC;
+			trueTypeFonts[ BaseFont.TIMES_ROMAN.toLowerCase() ] = BaseFont.TIMES_ROMAN;
+			trueTypeFonts[ BaseFont.ZAPFDINGBATS.toLowerCase() ] = BaseFont.ZAPFDINGBATS;
 			
 			// courier
 			var tmp: Vector.<String> = new Vector.<String>();
-			tmp.push( FontFactory.COURIER );
-			tmp.push( FontFactory.COURIER_BOLD );
-			tmp.push( FontFactory.COURIER_BOLDOBLIQUE );
-			tmp.push( FontFactory.COURIER_OBLIQUE );
-			fontFamilies.put( FontFactory.COURIER.toLowerCase(), tmp );
+			tmp.push( BaseFont.COURIER );
+			tmp.push( BaseFont.COURIER_BOLD );
+			tmp.push( BaseFont.COURIER_BOLDOBLIQUE );
+			tmp.push( BaseFont.COURIER_OBLIQUE );
+			fontFamilies.put( BaseFont.COURIER.toLowerCase(), tmp );
 			
 			// helvetica
 			tmp = new Vector.<String>();
-			tmp.push( FontFactory.HELVETICA );
-			tmp.push( FontFactory.HELVETICA_BOLD );
-			tmp.push( FontFactory.HELVETICA_BOLDOBLIQUE );
-			tmp.push( FontFactory.HELVETICA_OBLIQUE );
-			fontFamilies.put( FontFactory.HELVETICA.toLowerCase(), tmp );
+			tmp.push( BaseFont.HELVETICA );
+			tmp.push( BaseFont.HELVETICA_BOLD );
+			tmp.push( BaseFont.HELVETICA_BOLDOBLIQUE );
+			tmp.push( BaseFont.HELVETICA_OBLIQUE );
+			fontFamilies.put( BaseFont.HELVETICA.toLowerCase(), tmp );
 			
 			// times
 			tmp = new Vector.<String>();
-			tmp.push( FontFactory.TIMES );
-			tmp.push( FontFactory.TIMES_BOLD );
-			tmp.push( FontFactory.TIMES_BOLDITALIC );
-			tmp.push( FontFactory.TIMES_ITALIC );
-			tmp.push( FontFactory.TIMES_ROMAN );
-			fontFamilies.put( FontFactory.TIMES.toLowerCase(), tmp );
+			tmp.push( BaseFont.TIMES_BOLD );
+			tmp.push( BaseFont.TIMES_BOLDITALIC );
+			tmp.push( BaseFont.TIMES_ITALIC );
+			tmp.push( BaseFont.TIMES_ROMAN );
+			fontFamilies.put( "times", tmp );
+			fontFamilies.put( BaseFont.TIMES_ROMAN.toLowerCase(), tmp );
 			
 			// symbol
 			tmp = new Vector.<String>();
-			tmp.push( FontFactory.SYMBOL );
-			fontFamilies.put( FontFactory.SYMBOL, tmp );
+			tmp.push( BaseFont.SYMBOL );
+			fontFamilies.put( BaseFont.SYMBOL.toLowerCase(), tmp );
 			
 			// z
 			tmp = new Vector.<String>();
-			tmp.push( FontFactory.ZAPFDINGBATS );
-			fontFamilies.put( FontFactory.ZAPFDINGBATS.toLowerCase(), tmp );
+			tmp.push( BaseFont.ZAPFDINGBATS );
+			fontFamilies.put( BaseFont.ZAPFDINGBATS.toLowerCase(), tmp );
 			
 		}
 		
 		public function isRegistered(fontname:String):Boolean
 		{
-			return false;
+			return trueTypeFonts.containsKey( fontname.toLowerCase() );
 		}
 		
 		public function getFont(fontname:String, encoding:String, embedded:Boolean, size:Number, style:int, color:RGBColor):Font
@@ -117,9 +117,28 @@ package org.purepdf
 			
 			var basefont: BaseFont = null;
 			
-			throw new NonImplementatioError();
-			
-			return null;
+			try {
+				try {
+					// the font is a type 1 font or CJK font
+					basefont = BaseFont.createFont( fontname, encoding, embedded, cached, null, null, true );
+				}
+				catch(de: DocumentError) {
+				}
+				
+				if (basefont == null) {
+					fontname = trueTypeFonts.getProperty(fontname.toLowerCase());
+					if (fontname == null) return new Font(Font.UNDEFINED, size, style, color);
+					basefont = BaseFont.createFont(fontname, encoding, embedded, cached, null, null);
+				}
+			}
+			catch( de: DocumentError) {
+				throw new ConversionError(de);
+			}
+			catch( npe: Error ) {
+				// null was entered as fontname and/or encoding
+				return new Font(Font.UNDEFINED, size, style, color);
+			}
+			return new Font( Font.UNDEFINED, size, style, color, basefont );
 		}
 	}
 }
