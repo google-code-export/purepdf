@@ -33,7 +33,7 @@ package org.purepdf.elements
 		
 		public function Section( $title: Paragraph, $depth: int = 1 )
 		{
-			_title = $title ? $title : new Paragraph();
+			_title = $title ? $title : new Paragraph( null );
 			_numberDepth = $depth;
 		}
 		
@@ -112,7 +112,7 @@ package org.purepdf.elements
 			if( _bookmarkTitle == null )
 				return _title;
 			else
-				return Paragraph.fromText( _bookmarkTitle );
+				return new Paragraph( _bookmarkTitle );
 		}
 
 		public function set bookmarkTitle(value:String):void
@@ -149,7 +149,7 @@ package org.purepdf.elements
 			if( numberStyle == NUMBERSTYLE_DOTTED_WITHOUT_FINAL_DOT )
 				buf = buf.substr( 0, buf.length - 3 ) + buf.substr( buf.length - 1 );
 			
-			var result: Paragraph = new Paragraph( title );
+			var result: Paragraph = Paragraph.fromPhrase( title );
 			result.insert( 0, new Chunk( buf, title.font ) );
 			return result;
 		}
@@ -387,22 +387,22 @@ package org.purepdf.elements
 		
 		public function addSection5( indentation: Number, title: String, numberDepth: int ): Section
 		{
-			return addSection2( indentation, Paragraph.fromText( title ), numberDepth );
+			return addSection2( indentation, new Paragraph( title ), numberDepth );
 		}
 		
 		public function addSection6( title: String, numberDepth: int ): Section
 		{
-			return addSection4( Paragraph.fromText( title ), numberDepth );
+			return addSection4( new Paragraph( title ), numberDepth );
 		}
 		
 		public function addSection7( indentation: Number, title: String ): Section
 		{
-			return addSection3( indentation, Paragraph.fromText( title ) );
+			return addSection3( indentation, new Paragraph( title ) );
 		}
 
 		public function addSection( title: String ): Section
 		{
-			return addSection1( Paragraph.fromText( title ) );
+			return addSection1( new Paragraph( title ) );
 		}
 		
 		public function addSection1( title: Paragraph ): Section

@@ -9,32 +9,52 @@ package org.purepdf.elements
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.iterators.VectorIterator;
 
+	/**
+	 * An Anchor can be a reference or a destination of a reference.<br />
+	 * Example:<br />
+	 * <pre>
+	 * var anchor: Anchor = new Anchor("this is a link");
+	 * anchor.name = "LINK";
+	 * anchor.reference = "http://code.google.com/p/purepdf";
+	 * </pre>
+	 *
+	 * @see		IElement
+	 * @see		Phrase
+	 */
 	public class Anchor extends Phrase
 	{
 		protected var _name: String = null;
 		protected var _reference: String = null;
 
-		public function Anchor( phrase: Phrase = null )
+		public function Anchor( $text: String, $font: Font = null )
 		{
-			super( phrase );
+			super( $text, $font, $text == null ? Phrase.DEFAULT_LEADING : Number.NaN );
+		}
+		
+		/**
+		 * Create a new Anchor from a starting Phrase or Anchor
+		 * 
+		 * @param phrase	the starting Phrase or Anchor
+		 * @return Anchor
+		 * 
+		 * @see Phrase
+		 */
+		public static function fromPhrase( phrase: Phrase = null ): Anchor
+		{
+			var result: Anchor = new Anchor( null );
+			result.initFromPhrase( phrase );
 			if (phrase is Anchor)
 			{
-				var a: Anchor = Anchor(phrase);
-				_name = a.name;
-				_reference = a.reference;
+				var a: Anchor = Anchor( phrase );
+				result._name = a.name;
+				result._reference = a.reference;
 			}
+			return result;
 		}
 		
-		public static function create( title: String, font: Font = null ): Anchor
+		public static function fromChunk( chunk: Chunk ): Anchor
 		{
-			var a: Anchor = new Anchor();
-			a.init( Number.NaN, title, font != null ? font : new Font() );
-			return a;
-		}
-		
-		public static function create2( chunk: Chunk ): Anchor
-		{
-			var result: Anchor = new Anchor();
+			var result: Anchor = new Anchor( null );
 			result.add( chunk );
 			result._font = chunk.font;
 			return result;

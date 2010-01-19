@@ -19,7 +19,7 @@ package org.purepdf.pdf.fonts
 		 * Do not use constructor to initialize this class but <code>getInstance</code>
 		 * should be used
 		 * 
-		 * @see getInstance()
+		 * @see FontsResourceFactory#getInstance()
 		 */
 		public function FontsResourceFactory( lock: Lock )
 		{
@@ -32,7 +32,7 @@ package org.purepdf.pdf.fonts
 		/**
 		 * Return true if a font is already registered
 		 * @param name the font name. eg. "Helvetica"
-		 * @see registerFont()
+		 * @see #registerFont()
 		 */
 		public function fontIsRegistered( name: String ): Boolean
 		{
@@ -52,23 +52,25 @@ package org.purepdf.pdf.fonts
 		 * <p>You can register a new font passing the bytearray class
 		 * of an embedded resource</p>
 		 * <p>Example
-		 * <code>
-		 * [Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]<br>
-		 * private var helveticaB: Class;<br>
-		 * <br>
-		 * public function main()<br>
-		 * {<br>
-		 * 	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );<br>
-		 *	var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );<br>
-		 *	document.addElement( Paragraph.create("Hello world", font) );<br>
-		 * }<br>
-		 * </code>
+		 * <pre>
+		 * [Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]
+		 * private var helveticaB: Class;
+		 * public function main()
+		 * {
+		 *	// this will register a custom, user defined font
+		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );
+		 *	// register a new font, using one of the builtin fonts
+		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+		 *	var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );
+		 *	document.addElement( new Paragraph("Hello world", font) );
+		 * }
+		 * </pre>
 		 * </p>
 		 * 
 		 * <p>You can use the built-in fonts embedded into the separate BuiltinFonts class</p>
 		 * 
 		 * @param name	The font name (eg. "Helvetica")
-		 * @see org.purepdf.pdf.fonts.BuiltinFont
+		 * @see BuiltinFonts
 		 */
 		public function registerFont( name: String, file: Class ): void
 		{
@@ -78,9 +80,9 @@ package org.purepdf.pdf.fonts
 		/**
 		 * Return the singleton of FontsResourceFactory
 		 * 
-		 * @see registerFont()
-		 * @see fontIsRegistered()
-		 * @see getFontFile()
+		 * @see #registerFont()
+		 * @see #fontIsRegistered()
+		 * @see #getFontFile()
 		 */
 		public static function getInstance(): FontsResourceFactory
 		{

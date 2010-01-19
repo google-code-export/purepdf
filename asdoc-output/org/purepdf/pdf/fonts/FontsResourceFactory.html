@@ -29,12 +29,14 @@
 		 
 		 [Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]
 		 private var helveticaB: Class;
-		 
 		 public function main()
 		 {
+		 	// this will register a custom, user defined font
 		 	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );
+		 	// register a new font, using one of the builtin fonts
+		 	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 		 var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );
-		 document.addElement( Paragraph.create("Hello world", font) );
+		 document.addElement( new Paragraph("Hello world", font) );
 		 }
 		 
 		 
@@ -47,30 +49,32 @@
 		 Do not use constructor to initialize this class but <code>getInstance</code>
 		 should be used
 		 
-		 </p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">lock</span>:Lock</code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso">getInstance()</div></div><a name="methodDetail"></a><div class="detailSectionHeader">Method Detail</div><a name="fontIsRegistered()"></a><a name="fontIsRegistered(String)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">fontIsRegistered</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td></tr></table><div class="detailBody"><code> public function fontIsRegistered(name:String):Boolean</code><p></p><p></p><p>
+		 </p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">lock</span>:Lock</code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso"><a href="FontsResourceFactory.html#getInstance()" target="">FontsResourceFactory.getInstance()</a></div></div><a name="methodDetail"></a><div class="detailSectionHeader">Method Detail</div><a name="fontIsRegistered()"></a><a name="fontIsRegistered(String)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">fontIsRegistered</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td></tr></table><div class="detailBody"><code> public function fontIsRegistered(name:String):Boolean</code><p></p><p></p><p>
 		 Return true if a font is already registered
 		 </p><p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">name</span>:String</code> &mdash; the font name. eg. "Helvetica"
-		 </td></tr></table></p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code>Boolean</code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso">registerFont()</div></div><a name="getFontFile()"></a><a name="getFontFile(String)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">getFontFile</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public function getFontFile(filename:String):ByteArray</code><p></p><p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">filename</span>:String</code></td></tr></table></p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code>ByteArray</code></td></tr></table></div><a name="getInstance()"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">getInstance</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public static function getInstance():<a href="../../../../org/purepdf/pdf/fonts/FontsResourceFactory.html">FontsResourceFactory</a></code><p></p><p></p><p>
+		 </td></tr></table></p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code>Boolean</code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso"><a href="FontsResourceFactory.html#registerFont()" target="">registerFont()</a></div></div><a name="getFontFile()"></a><a name="getFontFile(String)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">getFontFile</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public function getFontFile(filename:String):ByteArray</code><p></p><p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">filename</span>:String</code></td></tr></table></p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code>ByteArray</code></td></tr></table></div><a name="getInstance()"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">getInstance</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public static function getInstance():<a href="../../../../org/purepdf/pdf/fonts/FontsResourceFactory.html">FontsResourceFactory</a></code><p></p><p></p><p>
 		 Return the singleton of FontsResourceFactory
 		 
-		 </p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code><a href="../../../../org/purepdf/pdf/fonts/FontsResourceFactory.html">FontsResourceFactory</a></code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso">registerFont()<br/>fontIsRegistered()<br/>getFontFile()</div></div><a name="registerFont()"></a><a name="registerFont(String,Class)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">registerFont</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public function registerFont(name:String, file:Class):void</code><p></p><p></p><p>
+		 </p><p></p><span class="label">Returns</span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20"></td><td><code><a href="../../../../org/purepdf/pdf/fonts/FontsResourceFactory.html">FontsResourceFactory</a></code></td></tr></table><p><span class="label">See also</span></p><div class="seeAlso"><a href="FontsResourceFactory.html#registerFont()" target="">registerFont()</a><br/><a href="FontsResourceFactory.html#fontIsRegistered()" target="">fontIsRegistered()</a><br/><a href="FontsResourceFactory.html#getFontFile()" target="">getFontFile()</a></div></div><a name="registerFont()"></a><a name="registerFont(String,Class)"></a><table class="detailHeader" cellpadding="0" cellspacing="0"><tr><td class="detailHeaderName">registerFont</td><td class="detailHeaderParens">()</td><td class="detailHeaderType">method</td><td class="detailHeaderRule">&nbsp;</td></tr></table><div class="detailBody"><code> public function registerFont(name:String, file:Class):void</code><p></p><p></p><p>
 		 <p>You can register a new font passing the bytearray class
 		 of an embedded resource</p>
 		 <p>Example
-		 <code>
+		 <pre>
 		 [Embed(source="assets/fonts/Helvetica-Bold.afm", mimeType="application/octet-stream")]
 		 private var helveticaB: Class;
-		 
 		 public function main()
 		 {
+		 	// this will register a custom, user defined font
 		 	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );
+		 	// register a new font, using one of the builtin fonts
+		 	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 		 var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );
-		 document.addElement( Paragraph.create("Hello world", font) );
+		 document.addElement( new Paragraph("Hello world", font) );
 		 }
-		 </code>
+		 </pre>
 		 </p>
 		 
 		 <p>You can use the built-in fonts embedded into the separate BuiltinFonts class</p>
 		 
 		 </p><p><span class="label"> Parameters </span><table cellpadding="0" cellspacing="0" border="0"><tr><td width="20px"></td><td><code><span class="label">name</span>:String</code> &mdash; The font name (eg. "Helvetica")
-		 </td></tr><tr><td class="paramSpacer">&nbsp;</td></tr><tr><td width="20px"></td><td><code><span class="label">file</span>:Class</code></td></tr></table></p><p><span class="label">See also</span></p><div class="seeAlso">org.purepdf.pdf.fonts.BuiltinFont</div></div><br/><br/><hr><br/><p></p><center class="copyright"><footer></footer><br/>Mon Jan 18 2010, 02:04 PM +01:00  </center></div></body></html><!--<br/>Mon Jan 18 2010, 02:04 PM +01:00  -->
+		 </td></tr><tr><td class="paramSpacer">&nbsp;</td></tr><tr><td width="20px"></td><td><code><span class="label">file</span>:Class</code></td></tr></table></p><p><span class="label">See also</span></p><div class="seeAlso"><a href="BuiltinFonts.html" target="">BuiltinFonts</a></div></div><br/><br/><hr><br/><p></p><center class="copyright"><footer></footer><br/>Tue Jan 19 2010, 10:43 AM +01:00  </center></div></body></html><!--<br/>Tue Jan 19 2010, 10:43 AM +01:00  -->

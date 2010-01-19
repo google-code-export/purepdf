@@ -10,11 +10,11 @@ package org.purepdf.elements
 		 * @param $title	String or Paragraph allowed
 		 * @param $number	chapter number
 		 * 
-		 * @see org.purepdf.elements.Paragraph
+		 * @see Paragraph
 		 */
 		public function Chapter( $title: Object, $number: int )
 		{
-			super( $title is String ? Paragraph.fromText( String( $title ) ) : Paragraph( $title ), 1 );
+			super( $title is String ? new Paragraph( String($title) ) : Paragraph( $title ), 1 );
 			_numbers = new Vector.<Number>();
 			_numbers.push( $number );
 			_triggerNewPage = true;

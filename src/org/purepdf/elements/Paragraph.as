@@ -15,10 +15,10 @@ package org.purepdf.elements
 	 * 
 	 * Example:
 	 * <pre>
-	 * var p1: Paragraph = Paragraph.fromText("This is a paragraph");
+	 * var p1: Paragraph = new Paragraph("This is a paragraph");
 	 * 
 	 * FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-	 * var p2: Paragraph = Paragraph.fromText("This is a paragraph", new Font( Font.HELVETICA, 12, Font.NORMAL ) );
+	 * var p2: Paragraph = new Paragraph("This is a paragraph", new Font( Font.HELVETICA, 12, Font.NORMAL ) );
 	 * </pre>
 	 *
 	 * @see		org.purepdf.elements.IElement
@@ -39,24 +39,47 @@ package org.purepdf.elements
 		private var _extraParagraphSpace: Number = 0;
 		private var _firstLineIndent: Number = 0;
 
-		
-		public function Paragraph( phrase: Phrase = null )
+		public function Paragraph( text: String, font: Font = null )
 		{
-			super( phrase );
+			super( text, font );
+		}
+		
+		/**
+		 * Creates a new Paragraph from a starting Phrase/Paragraph
+		 * 
+		 * @return Paragraph
+		 * @see Phrase
+		 */
+		public static function fromPhrase( phrase: Phrase = null ): Paragraph
+		{
+			var result: Paragraph = new Paragraph( null );
+			result.initFromPhrase( phrase );
 			
-			if (phrase is Paragraph )
+			if( phrase is Paragraph )
 			{
-				var p: Paragraph = Paragraph(phrase);
-				_alignment = p.alignment;
-				setLeading( phrase.leading, p.multipliedLeading );
-				
-				_indentationLeft = p.indentationLeft;
-				_indentationRight = p.indentationRight;
-				_firstLineIndent = p.firstLineIndent;
-				_spacingAfter = p.spacingAfter;
-				_spacingBefore = p.spacingBefore;
-				_extraParagraphSpace = p.extraParagraphSpace;
+				var p: Paragraph = Paragraph( phrase );
+				result._alignment = p.alignment;
+				result.setLeading( phrase.leading, p.multipliedLeading );
+				result._indentationLeft = p.indentationLeft;
+				result._indentationRight = p.indentationRight;
+				result._firstLineIndent = p.firstLineIndent;
+				result._spacingAfter = p.spacingAfter;
+				result._spacingBefore = p.spacingBefore;
+				result._extraParagraphSpace = p.extraParagraphSpace;
 			}
+			return result;
+		}
+		
+		/**
+		 * Create a new paragraph from a starting Chunk and leading
+		 */
+		public static function fromChunk( chunk: Chunk, leading: Number ): Paragraph
+		{
+			var p: Paragraph = new Paragraph( null, null );
+			p.leading = leading;
+			p.push( chunk );
+			p.font = chunk.font;
+			return p;
 		}
 		
 		override public function add(o:Object) : Boolean
@@ -227,29 +250,6 @@ package org.purepdf.elements
 		{
 			_leading = fixedLeading;
 			_multipliedLeading = multipliedLeading;
-		}
-		
-		/**
-		 * Create a new paragraph from a starting Chunk and leading
-		 */
-		public static function fromChunk( chunk: Chunk, leading: Number ): Paragraph
-		{
-			var p: Paragraph = new Paragraph();
-			p.leading = leading;
-			p.push( chunk );
-			p.font = chunk.font;
-			return p;
-		}
-
-		/**
-		 * Create a new Paragraph from a string and an optional font.
-		 * If no font is passed, the pdf default one will be used
-		 */
-		public static function fromText( string: String, font: Font=null ): Paragraph
-		{
-			var p: Paragraph = new Paragraph();
-			p.init( Number.NaN, string, font );
-			return p;
 		}
 	}
 }

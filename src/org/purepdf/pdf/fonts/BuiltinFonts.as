@@ -1,5 +1,11 @@
 package org.purepdf.pdf.fonts
 {
+	/**
+	 * This class contains all the pdf builtin fonts you can use for writing text.
+	 * Use the FontsResourceFactory to register a new font.
+	 * 
+	 * @see FontsResourceFactory#registerFont()
+	 */
 	public final class BuiltinFonts
 	{
 		[Embed( source="Courier.afm", mimeType="application/octet-stream" )]
