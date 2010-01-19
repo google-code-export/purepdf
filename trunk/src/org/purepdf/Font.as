@@ -123,12 +123,8 @@ package org.purepdf
 		}
 
 		/**
-		 * Replaces the attributes that are equal to <VAR>null</VAR> with the
+		 * Replaces the attributes that are equal to null with the
 		 * attributes of a given font.
-		 *
-		 * @param font
-		 *            the font of a bigger element class
-		 * @return a <CODE>Font</CODE>
 		 */
 		public function difference( font: Font ): Font
 		{
@@ -206,15 +202,15 @@ package org.purepdf
 			switch ( family )
 			{
 				case Font.COURIER:
-					return FontFactory.COURIER;
+					return BaseFont.COURIER;
 				case Font.HELVETICA:
-					return FontFactory.HELVETICA;
+					return BaseFont.HELVETICA;
 				case Font.TIMES_ROMAN:
-					return FontFactory.TIMES_ROMAN;
+					return BaseFont.TIMES_ROMAN;
 				case Font.SYMBOL:
-					return FontFactory.SYMBOL;
+					return BaseFont.SYMBOL;
 				case Font.ZAPFDINGBATS:
-					return FontFactory.ZAPFDINGBATS;
+					return BaseFont.ZAPFDINGBATS;
 				default:
 					if ( baseFont != null )
 					{
@@ -430,19 +426,19 @@ package org.purepdf
 		{
 			family = family.toLowerCase();
 
-			if ( family == FontFactory.COURIER.toLowerCase() )
+			if ( family == BaseFont.COURIER.toLowerCase() )
 				return COURIER;
 
-			if ( family == FontFactory.HELVETICA.toLowerCase() )
+			if ( family == BaseFont.HELVETICA.toLowerCase() )
 				return HELVETICA;
 
-			if ( family == FontFactory.SYMBOL.toLowerCase() )
+			if ( family == BaseFont.SYMBOL.toLowerCase() )
 				return SYMBOL;
 
-			if ( family == FontFactory.TIMES.toLowerCase() )
+			if ( family == "times" || family == BaseFont.TIMES_ROMAN.toLowerCase() )
 				return TIMES_ROMAN;
 
-			if ( family == FontFactory.ZAPFDINGBATS.toLowerCase() )
+			if ( family == BaseFont.ZAPFDINGBATS.toLowerCase() )
 				return ZAPFDINGBATS;
 
 			return UNDEFINED;
