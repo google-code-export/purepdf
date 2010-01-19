@@ -160,6 +160,18 @@ package org.purepdf.elements
 			}
 			return false;
 		}
+		
+		/**
+		 * Sets the generic tag Chunk.
+		 * The text for this tag can be retrieved with ChunkEvent.
+		 * 
+		 * @see org.purepdf.events.ChunkEvent
+		 */
+		
+		public function setGenericTag( text: String ): Chunk
+		{
+			return setAttribute( GENERICTAG, text );
+		}
 
 		public function setAnchor( url: String ): Chunk
 		{

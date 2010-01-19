@@ -27,16 +27,33 @@ package org.purepdf.pdf
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.events.ChapterEvent;
+	import org.purepdf.events.ChunkEvent;
 	import org.purepdf.events.PageEvent;
+	import org.purepdf.events.SectionEvent;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
 
-	[Event( name="closeDocument", type="org.purepdf.events.PageEvent" )]
-	[Event( name="endPage", type="org.purepdf.events.PageEvent" )]
-	[Event( name="startPage", type="org.purepdf.events.PageEvent" )]
-	[Event( name="openDocument", type="org.purepdf.events.PageEvent" )]
+	[Event( name="documentClose",	type="org.purepdf.events.PageEvent" )]
+	[Event( name="pageEnd", 		type="org.purepdf.events.PageEvent" )]
+	[Event( name="pageStart", 		type="org.purepdf.events.PageEvent" )]
+	[Event( name="documentOpen", 	type="org.purepdf.events.PageEvent" )]
+	[Event( name="chapterStart", 	type="org.purepdf.events.ChapterEvent" )]
+	[Event( name="chapterEnd", 		type="org.purepdf.events.ChapterEvent" )]
+	[Event( name="sectionStart", 	type="org.purepdf.events.SectionEvent" )]
+	[Event( name="sectionEnd", 		type="org.purepdf.events.SectionEvent" )]
+	[Event( name="paragraphStart", 	type="org.purepdf.events.ParagraphEvent" )]
+	[Event( name="paragraphEnd", 	type="org.purepdf.events.ParagraphEvent" )]
+	[Event( name="genericTag", 		type="org.purepdf.events.ChunkEvent" )]
 
+	/**
+	 * 
+	 * @see org.purepdf.events.SectionEvent
+	 * @see org.purepdf.events.ChapterEvent
+	 * @see org.purepdf.events.ParagraphEvent
+	 * @see org.purepdf.events.PageEvent
+	 */
 	public class PdfDocument extends EventDispatcher implements IObject, IElementListener
 	{
 		internal static var compress: Boolean = false;
@@ -301,7 +318,7 @@ package org.purepdf.pdf
 			{
 				throw new RuntimeError( "not all annotation could be added to the document" );
 			}
-			dispatchEvent( new PageEvent( PageEvent.CLOSE_DOCUMENT ) );
+			dispatchEvent( new PageEvent( PageEvent.DOCUMENT_CLOSE ) );
 
 			writer.addLocalDestinations( localDestinations );
 			calculateOutlineCount();
@@ -362,6 +379,11 @@ package org.purepdf.pdf
 		public function getDirectContent(): PdfContentByte
 		{
 			return _writer.getDirectContent();
+		}
+		
+		public function getDirectContentUnder(): PdfContentByte
+		{
+			return _writer.getDirectContentUnder();
 		}
 
 		public function getInfo(): PdfInfo
@@ -424,7 +446,7 @@ package org.purepdf.pdf
 			{
 				throw new Error( "Document is not opened" );
 			}
-			dispatchEvent( new PageEvent( PageEvent.END_PAGE ) );
+			dispatchEvent( new PageEvent( PageEvent.PAGE_END ) );
 
 			flushLines();
 
@@ -785,8 +807,8 @@ package org.purepdf.pdf
 			carriageReturn();
 
 			if ( firstPageEvent )
-				dispatchEvent( new PageEvent( PageEvent.OPEN_DOCUMENT ) );
-			dispatchEvent( new PageEvent( PageEvent.START_PAGE ) );
+				dispatchEvent( new PageEvent( PageEvent.DOCUMENT_OPEN ) );
+			dispatchEvent( new PageEvent( PageEvent.PAGE_START ) );
 			firstPageEvent = false;
 		}
 
@@ -1094,7 +1116,7 @@ package org.purepdf.pdf
 						
 						if( chunk.isAttribute( Chunk.GENERICTAG ) )
 						{
-							throw new NonImplementatioError();
+							_writeLineToContent_GenericTag( lastBaseFactor, chunk, nextChunk, hangingCorrection, xMarker, yMarker, width );
 						}
 						
 						if( chunk.isAttribute( Chunk.PDFANNOTATION ) )
@@ -1388,6 +1410,18 @@ package org.purepdf.pdf
 		// Helper for writeLineToContent
 		// --------------------
 		
+		private function _writeLineToContent_GenericTag( lastBaseFactor: Number, chunk: PdfChunk, nextChunk: PdfChunk, hangingCorrection: Number, xMarker: Number, yMarker: Number, width: Number ): void
+		{
+			var subtract: Number = lastBaseFactor;
+			if( nextChunk != null && nextChunk.isAttribute( Chunk.GENERICTAG ) )
+				subtract = 0;
+			if( nextChunk == null )
+				subtract += hangingCorrection;
+			var rect: RectangleElement = new RectangleElement( xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size );
+
+			dispatchEvent( new ChunkEvent( ChunkEvent.GENERIC_TAG, rect, String(chunk.getAttribute( Chunk.GENERICTAG )) ) );
+		}
+		
 		private function _writeLineToContent_PdfAnnotation( lastBaseFactor: Number, chunk: PdfChunk, nextChunk: PdfChunk, text: PdfContentByte, hangingCorrection: Number, xMarker: Number, yMarker: Number, width: Number ): void
 		{
 			var subtract: Number = lastBaseFactor;
@@ -1451,11 +1485,9 @@ package org.purepdf.pdf
 			
 			if( section.notAddedYet )
 				if( section.type == Element.CHAPTER )
-					trace('onChapter. to be added');
-					//pageEvent.onChapter( writer, this, indentTop() - currentHeight, section.getTitle());
+					dispatchEvent( new ChapterEvent( ChapterEvent.CHAPTER_START, indentTop - currentHeight, section.title ) );
 				else
-					trace('onSection. to be added');
-					//pageEvent.onSection( writer, this, indentTop() - currentHeight, section.getDepth(), section.getTitle());
+					dispatchEvent( new SectionEvent( SectionEvent.SECTION_START, indentTop - currentHeight, section.depth, section.title ) );
 			
 			if( hasTitle )
 			{
@@ -1474,13 +1506,9 @@ package org.purepdf.pdf
 			
 			if( section.isComplete )
 				if( section.type == Element.CHAPTER )
-					trace('onChapterEnd. to be added');
-					//pageEvent.onChapterEnd(writer, this, indentTop() - currentHeight);
+					dispatchEvent( new ChapterEvent( ChapterEvent.CHAPTER_END, indentTop - currentHeight, null ) );
 				else
-					trace('onSectionEnd. to be added');
-					//pageEvent.onSectionEnd(writer, this, indentTop() - currentHeight);
-				
+					dispatchEvent( new SectionEvent( SectionEvent.SECTION_END, indentTop - currentHeight, section.depth, null ) );
 		}
-		
 	}
 }
