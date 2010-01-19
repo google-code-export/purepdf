@@ -1,6 +1,5 @@
 package org.purepdf.pdf
 {
-	import flash.display.CapsStyle;
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
 	
@@ -57,14 +56,29 @@ package org.purepdf.pdf
 		protected var separator: int = '\n'.charCodeAt( 0 );
 		protected var state: GraphicState = new GraphicState();
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
-		protected var writer: PdfWriter;
+		protected var _writer: PdfWriter;
 		
 		use namespace pdf_core;
 
 		public function PdfContentByte( $writer: PdfWriter )
 		{
-			writer = $writer;
-			pdf = writer.pdfDocument;
+			_writer = $writer;
+			pdf = _writer.pdfDocument;
+		}
+		
+		public function get writer():PdfWriter
+		{
+			return _writer;
+		}
+		
+		public function set writer( value: PdfWriter ): void
+		{
+			_writer = value;
+		}
+
+		public function duplicate(): PdfContentByte
+		{
+			return new PdfContentByte( _writer );
 		}
 
 		/**
@@ -141,7 +155,7 @@ package org.purepdf.pdf
 
 			if ( image.isImgTemplate )
 			{
-				writer.addDirectImageSimple( image );
+				_writer.addDirectImageSimple( image );
 				var template: PdfTemplate = image.templateData;
 				w = template.width;
 				h = template.height;
@@ -171,11 +185,11 @@ package org.purepdf.pdf
 
 					if ( maskImage != null )
 					{
-						name = writer.addDirectImageSimple( maskImage );
-						prs.addXObject( name, writer.getImageReference( name ) );
+						name = _writer.addDirectImageSimple( maskImage );
+						prs.addXObject( name, _writer.getImageReference( name ) );
 					}
-					name = writer.addDirectImageSimple( image );
-					name = prs.addXObject( name, writer.getImageReference( name ) );
+					name = _writer.addDirectImageSimple( image );
+					name = prs.addXObject( name, _writer.getImageReference( name ) );
 					content.append_char( ' ' ).append_bytes( name.getBytes() ).append( " Do Q" ).append_separator();
 				}
 			}
@@ -218,7 +232,7 @@ package org.purepdf.pdf
 			}
 			annot = new Annotation( annot );
 			annot.setDimensions( llx, lly, urx, ury );
-			var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( writer, annot, new RectangleElement( llx, lly, urx, ury ) );
+			var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( _writer, annot, new RectangleElement( llx, lly, urx, ury ) );
 
 			if ( an == null )
 				return;
@@ -319,7 +333,7 @@ package org.purepdf.pdf
 		
 		private function beginLayer2( layer: IPdfOCG ): void
 		{
-			var name: PdfName = writer.addSimpleProperty( layer, layer.ref )[0] as PdfName;
+			var name: PdfName = _writer.addSimpleProperty( layer, layer.ref )[0] as PdfName;
 			var prs: PageResources = pageResources;
 			name = prs.addProperty( name, layer.ref );
 			content.append_string("/OC ").append_bytes(name.getBytes()).append_string(" BDC").append_separator();
@@ -429,12 +443,12 @@ package org.purepdf.pdf
 			if ( xstep == 0.0 || ystep == 0.0 )
 				throw new RuntimeError( "xstep or ystep can not be zero" );
 
-			var painter: PdfPatternPainter = new PdfPatternPainter( writer );
+			var painter: PdfPatternPainter = new PdfPatternPainter( _writer );
 			painter.width = width;
 			painter.height = height;
 			painter.xstep = xstep;
 			painter.ystep = ystep;
-			writer.addSimplePattern( painter );
+			_writer.addSimplePattern( painter );
 			return painter;
 		}
 
@@ -457,12 +471,12 @@ package org.purepdf.pdf
 			if ( xstep == 0.0 || ystep == 0.0 )
 				throw new RuntimeError( "xstep or ystep can not be zero" );
 
-			var painter: PdfPatternPainter = new PdfPatternPainter( writer, color );
+			var painter: PdfPatternPainter = new PdfPatternPainter( _writer, color );
 			painter.width = width;
 			painter.height = height;
 			painter.xstep = xstep;
 			painter.ystep = ystep;
-			writer.addSimplePattern( painter );
+			_writer.addSimplePattern( painter );
 			return painter;
 		}
 
@@ -602,6 +616,11 @@ package org.purepdf.pdf
 			return pdf.pageResources;
 		}
 		
+		public function get pdfDocument(): PdfDocument
+		{
+			return pdf;
+		}
+		
 		/**
 		 * Get the x position of the text line matrix.
 		 */
@@ -626,7 +645,7 @@ package org.purepdf.pdf
 		 */
 		public function paintShading( value: PdfShading ): void
 		{
-			writer.addSimpleShading( value );
+			_writer.addSimpleShading( value );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addShading( value.shadingName, value.shadingReference );
 			content.append_bytes( name.getBytes() ).append_string( " sh" ).append_separator();
@@ -816,7 +835,7 @@ package org.purepdf.pdf
 		 */
 		public function setGState( gstate: PdfGState ): void
 		{
-			var obj: Vector.<PdfObject> = writer.addSimpleExtGState( gstate );
+			var obj: Vector.<PdfObject> = _writer.addSimpleExtGState( gstate );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addExtGState( PdfName( obj[ 0 ] ), PdfIndirectReference( obj[ 1 ] ) );
 			content.append_bytes( name.getBytes() ).append( " gs" ).append_separator();
@@ -1331,7 +1350,7 @@ package org.purepdf.pdf
 
 		protected function checkWriter(): void
 		{
-			assertTrue( writer != null, "The writer is null" );
+			assertTrue( _writer != null, "The writer is null" );
 		}
 
 		/**
@@ -1533,7 +1552,7 @@ package org.purepdf.pdf
 		{
 			checkWriter();
 			var psr: PageResources = pageResources;
-			var name: PdfName = writer.addSimplePattern( p );
+			var name: PdfName = _writer.addSimplePattern( p );
 			name = psr.addPattern( name, p.indirectReference );
 			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
 				.append_string( fill ? " scn" : " SCN" ).append_separator();
@@ -1542,9 +1561,9 @@ package org.purepdf.pdf
 		private function setPattern3( p: PdfPatternPainter, color: RGBColor, tint: Number, fill: Boolean ): void
 		{
 			var psr: PageResources = pageResources;
-			var name: PdfName = writer.addSimplePattern( p );
+			var name: PdfName = _writer.addSimplePattern( p );
 			name = psr.addPattern( name, p.indirectReference );
-			var cDetail: ColorDetails = writer.addSimplePatternColorSpace( color );
+			var cDetail: ColorDetails = _writer.addSimplePatternColorSpace( color );
 			var cName: PdfName = psr.addColor( cDetail.colorName, cDetail.indirectReference );
 			content.append_bytes( cName.getBytes() ).append_string( fill ? " cs" : " CS" ).append_separator();
 			outputColorNumbers( color, tint );
@@ -1553,7 +1572,7 @@ package org.purepdf.pdf
 
 		private function setShadingFillOrStroke( shading: PdfShadingPattern, fill: Boolean ): void
 		{
-			writer.addSimpleShadingPattern( shading );
+			_writer.addSimpleShadingPattern( shading );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addPattern( shading.patternName, shading.patternReference );
 			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
@@ -1567,7 +1586,7 @@ package org.purepdf.pdf
 		private function setSpotColor( sp: PdfSpotColor, tint: Number, fill: Boolean ): void
 		{
 			checkWriter();
-			state.colorDetails = writer.addSimpleSpotColor( sp );
+			state.colorDetails = _writer.addSimpleSpotColor( sp );
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.colorDetails.colorName;
 			name = prs.addColor( name, state.colorDetails.indirectReference );
@@ -1585,7 +1604,7 @@ package org.purepdf.pdf
 			if( size < 0.0001 && size > -0.0001 )
 				throw new ArgumentError( "font size too small");
 			state.size = size;
-			state.fontDetails = writer.addSimpleFont( bf );
+			state.fontDetails = _writer.addSimpleFont( bf );
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.fontDetails.fontName;
 			name = prs.addFont( name, state.fontDetails.indirectReference );
@@ -1806,10 +1825,10 @@ package org.purepdf.pdf
 		public function createTemplate( width: Number, height: Number, forcedName: PdfName  = null ): PdfTemplate
 		{
 			checkWriter();
-			var template: PdfTemplate = new PdfTemplate( writer );
+			var template: PdfTemplate = new PdfTemplate( _writer );
 			template.width = width;
 			template.height = height;
-			writer.addDirectTemplateSimple( template, forcedName );
+			_writer.addDirectTemplateSimple( template, forcedName );
 			return template;
 		}
 		
@@ -1830,7 +1849,7 @@ package org.purepdf.pdf
 		{
 			checkWriter();
 			checkNoPattern( template );
-			var name: PdfName = writer.addDirectTemplateSimple( template, null );
+			var name: PdfName = _writer.addDirectTemplateSimple( template, null );
 			var prs: PageResources = pageResources;
 			name = prs.addXObject( name, template.indirectReference );
 			content.append_string("q ");
@@ -1855,9 +1874,16 @@ package org.purepdf.pdf
 				throw new RuntimeError("template was expected");
 		}
 		
-		internal function addAnnotation( annot: PdfAnnotation ): void
+		pdf_core function addAnnotation( annot: PdfAnnotation ): void
 		{
-			writer.pdfDocument.addAnnotation( annot );
+			_writer.pdfDocument.addAnnotation( annot );
+		}
+		
+		pdf_core function addContent( other: PdfContentByte ): void
+		{
+			if( other.writer != null && _writer != other.writer )
+				throw new RuntimeError();
+			content.append_bytebuffer( other.content );
 		}
 		
 		/**

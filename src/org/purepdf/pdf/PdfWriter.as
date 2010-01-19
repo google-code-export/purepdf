@@ -29,6 +29,12 @@ package org.purepdf.pdf
 	{
 
 		use namespace pdf_core;
+		
+		public static const RUN_DIRECTION_DEFAULT: int = 0;
+		public static const RUN_DIRECTION_NO_BIDI: int = 1;
+		public static const RUN_DIRECTION_LTR: int = 2;
+		public static const RUN_DIRECTION_RTL: int = 3;
+		
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
@@ -40,6 +46,7 @@ package org.purepdf.pdf
 		protected var OCGRadioGroup: PdfArray = new PdfArray();
 		protected var OCProperties: PdfOCProperties;
 		protected var _rgbTransparencyBlending: Boolean;
+		protected var runDirection: int = RUN_DIRECTION_NO_BIDI;
 
 		protected var body: PdfBody;
 		protected var colorNumber: int = 1;

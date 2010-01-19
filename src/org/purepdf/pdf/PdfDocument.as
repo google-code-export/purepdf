@@ -8,6 +8,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	import it.sephiroth.utils.hashLib;
 	
+	import org.purepdf.ColumnText;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Anchor;
@@ -17,6 +18,8 @@ package org.purepdf.pdf
 	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.IElementListener;
 	import org.purepdf.elements.ILargeElement;
+	import org.purepdf.elements.List;
+	import org.purepdf.elements.ListItem;
 	import org.purepdf.elements.Meta;
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
@@ -57,6 +60,7 @@ package org.purepdf.pdf
 	public class PdfDocument extends EventDispatcher implements IObject, IElementListener
 	{
 		internal static var compress: Boolean = false;
+		use namespace pdf_core;
 
 		protected var _duration: int = -1;
 		protected var _hashCode: int;
@@ -206,7 +210,7 @@ package org.purepdf.pdf
 					if ( line == null )
 						carriageReturn();
 
-					var chunk: PdfChunk = PdfChunk.createFromChunk( Chunk( element ), anchorAction );
+					var chunk: PdfChunk = PdfChunk.fromChunk( Chunk( element ), anchorAction );
 					var overflow: PdfChunk;
 
 					while ( ( overflow = line.add( chunk ) ) != null )
@@ -219,6 +223,14 @@ package org.purepdf.pdf
 
 					if ( chunk.isAttribute( Chunk.NEWPAGE ) )
 						newPage();
+					break;
+				
+				case Element.LIST:
+					_addList( List( element ) );
+					break;
+				
+				case Element.LISTITEM:
+					_addListItem( ListItem( element ) );
 					break;
 				
 				case Element.SECTION:
@@ -727,8 +739,8 @@ package org.purepdf.pdf
 
 				if ( l.listSymbol != null )
 				{
-					throw new NonImplementatioError();
-						//ColumnText.showTextAligned(graphics, Element.ALIGN_LEFT, new Phrase(l.listSymbol()), text.getXTLM() - l.listIndent(), text.getYTLM(), 0);
+					//throw new NonImplementatioError();
+					ColumnText.showTextAligned( graphics, Element.ALIGN_LEFT, Phrase.fromChunk( l.listSymbol ), text.xTLM - l.listIndent, text.yTLM, 0 );
 				}
 
 				currentValues[ 0 ] = currentFont;
@@ -913,7 +925,7 @@ package org.purepdf.pdf
 			for ( k = 0; k < size; ++k )
 			{
 				var kid: PdfOutline = PdfOutline( kids[ k ] );
-				writer.pdf_core::addToBody1( kid, kid.indirectReference );
+				writer.addToBody1( kid, kid.indirectReference );
 			}
 		}
 
@@ -952,7 +964,7 @@ package org.purepdf.pdf
 		 * @throws DocumentError
 		 * @throws Error
 		 */
-		internal function writeLineToContent( line: PdfLine, text: PdfContentByte, graphics: PdfContentByte, currentValues: Vector.<Object>
+		pdf_core function writeLineToContent( line: PdfLine, text: PdfContentByte, graphics: PdfContentByte, currentValues: Vector.<Object>
 			, ratio: Number ): void
 		{
 			var currentFont: PdfFont = PdfFont( currentValues[ 0 ] );
@@ -970,7 +982,7 @@ package org.purepdf.pdf
 
 			numberOfSpaces = line.numberOfSpaces
 			lineLen = line.lengthUtf32;
-			isJustified = line.hasToBeJustified() && ( numberOfSpaces != 0 || lineLen > 1 );
+			isJustified = line.hasToBeJustified && ( numberOfSpaces != 0 || lineLen > 1 );
 			var separatorCount: int = line.separatorCount;
 
 			if ( separatorCount > 0 )
@@ -1241,7 +1253,7 @@ package org.purepdf.pdf
 				text.setWordSpacing( 0 );
 				text.setCharacterSpacing( 0 );
 
-				if ( line.isNewlineSplit() )
+				if ( line.isNewlineSplit )
 					lastBaseFactor = 0;
 			}
 
@@ -1257,7 +1269,7 @@ package org.purepdf.pdf
 				return;
 
 			outlineTree( rootOutline );
-			writer.pdf_core::addToBody1( rootOutline, rootOutline.indirectReference );
+			writer.addToBody1( rootOutline, rootOutline.indirectReference );
 		}
 
 		private function addImage( image: ImageElement ): void
@@ -1456,6 +1468,44 @@ package org.purepdf.pdf
 			leadingCount--;
 		}
 		
+		private function _addListItem( item: ListItem ): void
+		{
+			leadingCount++;
+			addSpacing( item.spacingBefore, leading, item.font );
+			
+			alignment = item.alignment;
+			indentation.listIndentLeft += item.indentationLeft;
+			indentation.indentRight += item.indentationRight;
+			leading = item.totalLeading;
+			carriageReturn();
+			
+			line.listItem = item;
+			item.process(this);
+			
+			addSpacing( item.spacingAfter, item.totalLeading, item.font );
+			
+			if( line.hasToBeJustified )
+				line.resetAlignment();
+			
+			
+			carriageReturn();
+			indentation.listIndentLeft -= item.indentationLeft;
+			indentation.indentRight -= item.indentationRight;
+			leadingCount--;
+		}
+		
+		private function _addList( list: List ): void
+		{
+			if( list.alignindent )
+				list.normalizeIndentation();
+			
+			indentation.listIndentLeft += list.indentationLeft;
+			indentation.indentRight += list.indentationRight;
+			list.process( this );
+			indentation.listIndentLeft -= list.indentationLeft;
+			indentation.indentRight -= list.indentationRight;
+			carriageReturn();
+		}
 		
 		private function _addSection( section: Section ): void
 		{

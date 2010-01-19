@@ -5,7 +5,10 @@ package org.purepdf.pdf
 	
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.ListItem;
+	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.iterators.VectorIterator;
+	import org.purepdf.utils.pdf_core;
 
 	public class PdfLine extends ObjectHash
 	{
@@ -15,20 +18,55 @@ package org.purepdf.pdf
 		protected var _listSymbol: Chunk = null;
 		protected var _right: Number = 0;
 		protected var _width: Number = 0;
-		protected var isRTL: Boolean = false;
+		protected var _isRTL: Boolean = false;
 		protected var line: Vector.<PdfChunk>;
-		protected var newlineSplit: Boolean = false;
-		protected var originalWidth: Number = 0;
+		protected var _newlineSplit: Boolean = false;
+		protected var _originalWidth: Number = 0;
 		protected var symbolIndent: Number = 0;
 
 		public function PdfLine( $left: Number, $right: Number, $alignment: int, $height: Number )
 		{
 			_left = $left;
 			_width = $right - $left;
-			originalWidth = _width;
+			_originalWidth = _width;
 			_alignment = $alignment;
 			_height = $height;
 			line = new Vector.<PdfChunk>();
+		}
+		
+		/**
+		 * Creates a PdfLine object.
+		 * @param left				the left offset
+		 * @param originalWidth		the original width of the line
+		 * @param remainingWidth	bigger than 0 if the line isn't completely filled
+		 * @param alignment			the alignment of the line
+		 * @param newlineSplit		was the line splitted (or does the paragraph end with this line)
+		 * @param line				an array of PdfChunk objects
+		 * @param isRTL				do you have to read the line from Right to Left?
+		 */
+
+		public function get isRTL():Boolean
+		{
+			return _isRTL;
+		}
+
+		public function get originalWidth():Number
+		{
+			return _originalWidth;
+		}
+
+		public static function create( left: Number, originalWidth: Number, remainingWidth: Number, alignment: int, newlineSplit: Boolean
+			, line: Vector.<PdfChunk>, isRTL: Boolean ): PdfLine
+		{
+			var r: PdfLine = new PdfLine( 0, 0, 0, 0 );
+			r._left = left;
+			r._originalWidth = originalWidth;
+			r._width = remainingWidth;
+			r._alignment = alignment;
+			r.line = line;
+			r._newlineSplit = newlineSplit;
+			r._isRTL = isRTL;
+			return r;
 		}
 		
 		public function iterator(): Iterator
@@ -41,6 +79,39 @@ package org.purepdf.pdf
 			if( idx < 0 || idx >= line.length )
 				return null;
 			return PdfChunk( line[idx] );
+		}
+		
+		public function get ascender(): Number
+		{
+			var result: Number = 0;
+			for( var k: int = 0; k < line.length; ++k )
+			{
+				var ck: PdfChunk = line[k] as PdfChunk;
+				if( ck.isImage() )
+					result = Math.max( result, ck.image.scaledHeight + ck.imageOffsetY );
+				else {
+					var font: PdfFont = ck.font;
+					result = Math.max( result, font.font.getFontDescriptor( BaseFont.ASCENT, font.size ));
+				}
+			}
+			return result;
+		}
+		
+		public function get descender(): Number
+		{
+			var result: Number = 0;
+			
+			for( var k: int = 0; k < line.length; ++k )
+			{
+				var ck: PdfChunk = line[k] as PdfChunk;
+				if( ck.isImage() )
+					result = Math.min(result, ck.imageOffsetY );
+				else {
+					var font: PdfFont = ck.font;
+					result = Math.min( result, font.font.getFontDescriptor(BaseFont.DESCENT, font.size ) );
+				}
+			}
+			return result;
 		}
 		
 		/**
@@ -64,9 +135,15 @@ package org.purepdf.pdf
 		}
 
 
-		public function hasToBeJustified(): Boolean
+		public function get hasToBeJustified(): Boolean
 		{
 			return ( ( _alignment == Element.ALIGN_JUSTIFIED || _alignment == Element.ALIGN_JUSTIFIED_ALL ) && _width != 0 );
+		}
+		
+		public function resetAlignment(): void
+		{
+			if( _alignment == Element.ALIGN_JUSTIFIED )
+				_alignment = Element.ALIGN_LEFT;
 		}
 
 		public function get height(): Number
@@ -74,9 +151,9 @@ package org.purepdf.pdf
 			return _height;
 		}
 
-		public function isNewlineSplit(): Boolean
+		public function get isNewlineSplit(): Boolean
 		{
-			return newlineSplit && ( alignment != Element.ALIGN_JUSTIFIED_ALL );
+			return _newlineSplit && ( alignment != Element.ALIGN_JUSTIFIED_ALL );
 		}
 
 		public function get left(): Number
@@ -85,6 +162,11 @@ package org.purepdf.pdf
 		}
 
 
+		public function get listIndent(): Number
+		{
+			return symbolIndent;
+		}
+		
 		/**
 		 * Returns the length of a line in UTF32 characters
 		 */
@@ -102,6 +184,12 @@ package org.purepdf.pdf
 		public function get listSymbol(): Chunk
 		{
 			return _listSymbol;
+		}
+		
+		public function set listItem( value: ListItem ): void
+		{
+			_listSymbol = value.listSymbol;
+			symbolIndent = value.indentationLeft;
 		}
 
 		public function get right(): Number
@@ -123,6 +211,26 @@ package org.purepdf.pdf
 
 			return tmp;
 		}
+		
+		/**
+		 * Gets the difference between the "normal" leading and the maximum
+		 * size (for instance when there are images in the chunk).
+		 */
+		public function getMaxSize(): Vector.<Number>
+		{
+			var normal_leading: Number = 0;
+			var image_leading: Number = -10000;
+			var chunk: PdfChunk;
+			for( var k: int = 0; k < line.length; ++k )
+			{
+				chunk = line[k];
+				if( !chunk.isImage() )
+					normal_leading = Math.max( chunk.font.size, normal_leading );
+				else
+					image_leading = Math.max( chunk.image.scaledHeight + chunk.imageOffsetY, image_leading );
+			}
+			return Vector.<Number>([normal_leading, image_leading]);
+		}
 
 		public function get widthLeft(): Number
 		{
@@ -138,7 +246,7 @@ package org.purepdf.pdf
 
 			// we split the chunk to be added
 			var overflow: PdfChunk = chunk.split( _width );
-			newlineSplit = ( chunk.isNewlineSplit() || overflow == null );
+			_newlineSplit = ( chunk.isNewlineSplit() || overflow == null );
 
 			if ( chunk.isTab() )
 			{
@@ -150,7 +258,7 @@ package org.purepdf.pdf
 					return chunk;
 
 				_width = originalWidth - tabPosition;
-				chunk.adjustLeft( _left );
+				chunk.pdf_core::adjustLeft( _left );
 				addToLine( chunk );
 			}
 			else if ( chunk.length > 0 || chunk.isImage() )
@@ -191,32 +299,9 @@ package org.purepdf.pdf
 			_width -= extra;
 		}
 
-		/**
-		 * Gets the number of separators in the line.
-		 */
-		internal function getSeparatorCount(): int
+		pdf_core function get indentLeft(): Number
 		{
-			var s: int = 0;
-			var ck: PdfChunk;
-
-			for ( var i: Iterator = new VectorIterator( Vector.<Object>( line ) ); i.hasNext();  )
-			{
-				ck = PdfChunk( i.next() );
-
-				if ( ck.isTab() )
-					return 0;
-
-				if ( ck.isHorizontalSeparator() )
-				{
-					s++;
-				}
-			}
-			return s;
-		}
-
-		internal function get indentLeft(): Number
-		{
-			if ( isRTL )
+			if ( _isRTL )
 			{
 				switch ( alignment )
 				{
@@ -228,7 +313,7 @@ package org.purepdf.pdf
 						return _left;
 				}
 			}
-			else if ( getSeparatorCount() == 0 )
+			else if ( separatorCount == 0 )
 			{
 				switch ( alignment )
 				{
@@ -253,7 +338,6 @@ package org.purepdf.pdf
 
 			return nSpaces;
 		}
-
 
 		/**
 		 * Gets the number of separators in the line

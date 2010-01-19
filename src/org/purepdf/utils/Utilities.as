@@ -36,6 +36,11 @@ package org.purepdf.utils
 			return (((text.charCodeAt(idx) - 0xd800) * 0x400) + (text.charCodeAt(idx + 1) - 0xdc00)) + 0x10000;
 		}
 		
+		public static function convertToUtf32_3( text: Vector.<int>, idx: int ): int
+		{
+			return (((text[idx] - 0xd800) * 0x400) + (text[idx + 1] - 0xdc00)) + 0x10000;
+		}
+		
 		public static function addToArray( original: Vector.<Vector.<Object>>, item: Vector.<Object> ): Vector.<Vector.<Object>>
 		{
 			if( original == null )

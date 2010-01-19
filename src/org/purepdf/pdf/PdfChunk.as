@@ -16,6 +16,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.interfaces.IHyphenationEvent;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.Utilities;
+	import org.purepdf.utils.pdf_core;
 
 	public class PdfChunk extends ObjectHash
 	{
@@ -42,28 +43,33 @@ package org.purepdf.pdf
 		{
 		}
 		
+		public function isExtSplitCharacter( start: int, current: int, end: int, cc: Vector.<int>, ck: Vector.<PdfChunk> ): Boolean
+		{
+			return splitCharacter.isSplitCharacter( start, current, end, cc, ck );
+		}
+		
 		/**
 		 * Returns the color of this <CODE>Chunk</CODE>.
 		 * 
 		 * @return a <CODE>Color</CODE>
 		 */
 		
-		internal function get color(): RGBColor
+		public function get color(): RGBColor
 		{
 			return noStroke.getValue( Chunk.COLOR ) as RGBColor;
 		}
 		
-		internal function get font(): PdfFont
+		public function get font(): PdfFont
 		{
 			return _font;
 		}
 		
-		internal function isStroked(): Boolean
+		public function isStroked(): Boolean
 		{
 			return (!attributes.isEmpty());
 		}
 		
-		internal function isSeparator(): Boolean
+		public function isSeparator(): Boolean
 		{
 			return isAttribute( Chunk.SEPARATOR );
 		}
@@ -74,7 +80,7 @@ package org.purepdf.pdf
 			return _changeLeading;
 		}
 		
-		internal function get lengthUtf32(): int
+		public function get lengthUtf32(): int
 		{
 			if( !BaseFont.IDENTITY_H == encoding )
 				return value.length;
@@ -227,7 +233,7 @@ package org.purepdf.pdf
 			return start;
 		}
 
-		internal function adjustLeft( newValue: Number ): void
+		pdf_core function adjustLeft( newValue: Number ): void
 		{
 			var o: Vector.<Object> = attributes.getValue( Chunk.TAB ) as Vector.<Object>;
 
@@ -235,14 +241,14 @@ package org.purepdf.pdf
 				attributes.put( Chunk.TAB, Vector.<Object>( [ o[ 0 ], o[ 1 ], o[ 2 ], newValue ] ) );
 		}
 
-		internal function getAttribute( name: String ): Object
+		public function getAttribute( name: String ): Object
 		{
 			if ( attributes.containsKey( name ) )
 				return attributes.getValue( name );
 			return noStroke.getValue( name );
 		}
 
-		internal function getCharWidth( c: int ): Number
+		public function getCharWidth( c: int ): Number
 		{
 			if ( noPrint( c ) )
 				return 0;
@@ -255,14 +261,14 @@ package org.purepdf.pdf
 			return _font.getWidth( c );
 		}
 
-		internal function isAttribute( name: String ): Boolean
+		public function isAttribute( name: String ): Boolean
 		{
 			if ( attributes.containsKey( name ) )
 				return true;
 			return noStroke.containsKey( name );
 		}
 
-		internal function isHorizontalSeparator(): Boolean
+		public function isHorizontalSeparator(): Boolean
 		{
 			if ( isAttribute( Chunk.SEPARATOR ) )
 			{
@@ -272,7 +278,7 @@ package org.purepdf.pdf
 			return false;
 		}
 
-		internal function get length(): int
+		public function get length(): int
 		{
 			return value.length;
 		}
@@ -324,7 +330,7 @@ package org.purepdf.pdf
 						if ( value.length < 1 )
 							value = "\u0001";
 
-						pc = PdfChunk.createFromString( returnValue, this );
+						pc = PdfChunk.fromString( returnValue, this );
 						return pc;
 					}
 
@@ -364,7 +370,7 @@ package org.purepdf.pdf
 						if ( value.length < 1 )
 							value = " ";
 
-						pc = PdfChunk.createFromString( returnValue, this );
+						pc = PdfChunk.fromString( returnValue, this );
 						return pc;
 					}
 
@@ -404,7 +410,7 @@ package org.purepdf.pdf
 			{
 				returnValue = value;
 				value = "";
-				pc = PdfChunk.createFromString( returnValue, this );
+				pc = PdfChunk.fromString( returnValue, this );
 				return pc;
 			}
 
@@ -425,7 +431,7 @@ package org.purepdf.pdf
 					{
 						returnValue = post + value.substring( wordIdx );
 						value = StringUtils.trim( value.substring( 0, lastSpace ) + pre );
-						pc = PdfChunk.createFromString( returnValue, this );
+						pc = PdfChunk.fromString( returnValue, this );
 						return pc;
 					}
 				}
@@ -433,7 +439,7 @@ package org.purepdf.pdf
 
 			returnValue = value.substring( splitPosition );
 			value = StringUtils.trim( value.substring( 0, splitPosition ) );
-			pc = PdfChunk.createFromString( returnValue, this );
+			pc = PdfChunk.fromString( returnValue, this );
 			return pc;
 		}
 
@@ -445,7 +451,7 @@ package org.purepdf.pdf
 			{
 				if ( _image.scaledWidth > width )
 				{
-					pc = PdfChunk.createFromString( "", this );
+					pc = PdfChunk.fromString( "", this );
 					value = "";
 					attributes.remove( Chunk.IMAGE );
 					_image = null;
@@ -464,7 +470,7 @@ package org.purepdf.pdf
 			{
 				returnValue = value.substring( 1 );
 				value = value.substring( 0, 1 );
-				pc = PdfChunk.createFromString( returnValue, this );
+				pc = PdfChunk.fromString( returnValue, this );
 				return pc;
 			}
 
@@ -501,11 +507,11 @@ package org.purepdf.pdf
 			}
 			returnValue = value.substring( currentPosition );
 			value = value.substring( 0, currentPosition );
-			pc = PdfChunk.createFromString( returnValue, this );
+			pc = PdfChunk.fromString( returnValue, this );
 			return pc;
 		}
 
-		internal function get width(): Number
+		public function get width(): Number
 		{
 			if ( isAttribute( Chunk.CHAR_SPACING ) )
 			{
@@ -515,7 +521,7 @@ package org.purepdf.pdf
 			return _font.getWidth( value );
 		}
 
-		public static function createFromChunk( chunk: Chunk, action: PdfAction ): PdfChunk
+		public static function fromChunk( chunk: Chunk, action: PdfAction ): PdfChunk
 		{
 			var result: PdfChunk = new PdfChunk();
 
@@ -632,7 +638,7 @@ package org.purepdf.pdf
 			return result;
 		}
 
-		public static function createFromString( string: String, other: PdfChunk ): PdfChunk
+		public static function fromString( string: String, other: PdfChunk ): PdfChunk
 		{
 			var chunk: PdfChunk = new PdfChunk();
 			thisChunk[ 0 ] = chunk;
