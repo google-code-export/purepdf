@@ -17,8 +17,8 @@ package org.purepdf.elements
 	 * Example:
 	 * <pre>
 	 * // When no parameters are passed, the default leading = 16
-	 * var phrase1: Phrase = Phrase.fromText("this is a phrase");
-	 * var phrase2: Phrase = Phrase.fromText("this is a phrase", new Font( Font.HELVETICA, 12, Font.BOLD ), 20 );
+	 * var phrase1: Phrase = new Phrase("this is a phrase");
+	 * var phrase2: Phrase = new Phrase("this is a phrase", new Font( Font.HELVETICA, 12, Font.BOLD ), 20 );
 	 * </pre>
 	 *
 	 * @see		Element
@@ -28,34 +28,39 @@ package org.purepdf.elements
 	 */
 	public class Phrase implements ITextElementaryArray, IIterable
 	{
+		public static const DEFAULT_LEADING: int = 16;
+		
 		protected var _array: Vector.<Object> = new Vector.<Object>();
 		protected var _font: Font;
 		protected var _leading: Number = Number.NaN;
 
-		public function Phrase( phrase: Phrase=null )
+		public function Phrase( $text: String, $font: Font, $leading: Number = Number.NaN )
 		{
-			super();
-
+			if( ( $text == null || $text.length == 0 ) && $font == null && isNaN( $leading ) )
+			{
+				_leading = DEFAULT_LEADING;
+				_font = new Font();
+			} else 
+			{
+				_leading = $leading;
+				_font = $font == null ? new Font() : $font;
+				if( $text != null && $text.length > 0 )
+					_array.push( new Chunk( $text, $font ) );
+			}
+		}
+		
+		public function initFromPhrase( phrase: Phrase ): void
+		{
 			if ( phrase != null )
 			{
 				addAll( phrase );
 				_leading = phrase.leading;
 				_font = phrase.font;
 			} else {
-				_leading = 16;
+				_leading = DEFAULT_LEADING;
 			}
 		}
 		
-		/**
-		 * Create a new phrase from a string text, an optional font and leading
-		 * @return Phrase	the created Phrase
-		 */
-		public static function fromText( text: String, font: Font = null, leading: Number = Number.NaN ): Phrase
-		{
-			var p: Phrase = new Phrase();
-			p.init( leading, text, font );
-			return p;
-		}
 		
 		internal function push( o: Object ): Boolean
 		{
@@ -173,17 +178,6 @@ package org.purepdf.elements
 				return false;
 			}
 			return true;
-		}
-
-		public function init( $leading: Number, $string: String, $font: Font=null ): void
-		{
-			if ( $font == null )
-				_font = new Font();
-			_leading = $leading;
-			_font = $font;
-
-			if ( $string != null && $string.length > 0 )
-				_array.push( new Chunk( $string, $font ) );
 		}
 
 		public function insert( index: int, o: Object ): void
