@@ -2,6 +2,7 @@ package org.purepdf
 {
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.lang.Character;
 	import org.purepdf.pdf.PdfChunk;
 	import org.purepdf.pdf.PdfLine;
 	import org.purepdf.pdf.PdfWriter;
@@ -212,10 +213,10 @@ package org.purepdf
 				
 				splitChar = ck.isExtSplitCharacter( oldCurrentChar, currentChar, totalTextLength, text, detailChunks );
 				
-				if( splitChar /* && Character.isWhitespace( uniC )*/ )
+				if( splitChar && Character.isWhitespace( uniC ) )
 				{
-					throw new NonImplementatioError();
-					//lastSplit = currentChar;
+					//throw new NonImplementatioError();
+					lastSplit = currentChar;
 				}
 				
 				if( width - charWidth < 0 )

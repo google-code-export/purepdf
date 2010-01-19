@@ -4,6 +4,7 @@ package org.purepdf
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.html.Markup;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.factories.FontFactory;
 
 	public class Font implements IComparable
 	{
