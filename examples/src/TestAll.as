@@ -50,6 +50,7 @@ package
 			class_list.push( ChunkSkew );
 			class_list.push( ChunkHorizontalScale );
 			class_list.push( GenericTag );
+			class_list.push( ListExample1 );
 			
 			total_number = class_list.length;
 		}
