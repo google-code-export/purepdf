@@ -7,6 +7,7 @@ package
 	import org.purepdf.elements.Anchor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorldAnchor extends DefaultBasicExample
@@ -24,39 +25,40 @@ package
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD + ".afm", _font1 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE + ".afm", _font2 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE + ".afm", _font3 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, _font1 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE, _font2 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, _font3 );
 			
 			createDocument("Hello World Anchor");
 			document.open();
 			
 			var font: Font = new Font( Font.HELVETICA, 18, -1, RGBColor.BLACK );
-			var link: Anchor = Anchor.create("http://code.google.com/p/pdfcore", font );
+			var link: Anchor = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			
 			font.style = Font.UNDERLINE;
 			font.color = RGBColor.BLUE;
-			link = Anchor.create("http://code.google.com/p/pdfcore", font );
+			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			
 			font.style = Font.UNDERLINE | Font.STRIKETHRU;
 			font.color = RGBColor.RED;
-			link = Anchor.create("http://code.google.com/p/pdfcore", font );
+			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			
 			font.style = Font.UNDERLINE | Font.STRIKETHRU | Font.BOLD;
 			font.color = RGBColor.YELLOW;
-			link = Anchor.create("http://code.google.com/p/pdfcore", font );
+			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			
 			font.style = Font.UNDERLINE | Font.ITALIC;
 			font.color = RGBColor.MAGENTA;
-			link = Anchor.create("http://code.google.com/p/pdfcore", font );
+			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			
@@ -66,7 +68,7 @@ package
 			var chunk: Chunk = new Chunk( "http://code.google.com/p/purepdf", font );
 			chunk.setBackground( RGBColor.DARK_GRAY, 5, 5, 5, 5 );
 			
-			link = Anchor.create2( chunk );
+			link = Anchor.fromChunk( chunk );
 			link.reference = "http://code.google.com/p/purepdf";
 			document.addElement( link );
 			

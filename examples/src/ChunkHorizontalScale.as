@@ -26,7 +26,7 @@ package
 			
 			var c: Chunk = new Chunk("quick brown fox jumps over the lazy dog");
 			var w: Number = c.getWidthPoint();
-			var p: Paragraph = Paragraph.fromText("The width of the chunk: '");
+			var p: Paragraph = new Paragraph("The width of the chunk: '");
 			p.add(c);
 			p.add("' is ");
 			p.add( w.toString() );

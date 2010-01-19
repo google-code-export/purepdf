@@ -26,7 +26,7 @@ package
 			document.open();
 			
 			var chunk: Chunk;
-			var p: Paragraph = new Paragraph();
+			var p: Paragraph = new Paragraph( null );
 			
 			chunk = new Chunk("1. Test chunk skew" );
 			chunk.setSkew( 15, -30 );
@@ -42,11 +42,11 @@ package
 			
 			document.addElement( p );
 			
-			p = new Paragraph();
+			p = new Paragraph( null );
 			document.addElement(Chunk.NEWLINE);
 			document.addElement(Chunk.NEWLINE);
 			document.addElement(Chunk.NEWLINE);
-			p = new Paragraph();
+			p = new Paragraph( null );
 			chunk = new Chunk("4. Test chunk skew");
 			chunk.setSkew(45, 0);
 			p.add(chunk);
@@ -60,7 +60,7 @@ package
 			document.addElement(Chunk.NEWLINE);
 			document.addElement(Chunk.NEWLINE);
 			document.addElement(Chunk.NEWLINE);
-			p = new Paragraph();
+			p = new Paragraph( null );
 			chunk = new Chunk("7. Test chunk skew");
 			chunk.setSkew(0, 25);
 			p.add(chunk);

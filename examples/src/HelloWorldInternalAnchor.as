@@ -29,13 +29,13 @@ package
 			font.style = Font.UNDERLINE;
 			font.color = RGBColor.BLUE;
 			
-			var paragraph: Paragraph = Paragraph.fromText("Quick brown ", defaultFont );
-			var anchor: Anchor = Anchor.create("fox", font );
+			var paragraph: Paragraph = new Paragraph("Quick brown ", defaultFont );
+			var anchor: Anchor = new Anchor("fox", font );
 			anchor.reference = "#fox";
 			paragraph.add( anchor );
 			paragraph.add(" jumps over the lazy ");
 			
-			anchor = Anchor.create("dog", font );
+			anchor = new Anchor("dog", font );
 			anchor.reference = "#dog";
 			paragraph.add( anchor );
 			paragraph.add(".");
@@ -43,12 +43,12 @@ package
 			document.addElement( paragraph );
 			document.newPage();
 			
-			anchor = Anchor.create("This is the FOX anchor", defaultFont );
+			anchor = new Anchor("This is the FOX anchor", defaultFont );
 			anchor.name = "fox";
 			document.addElement( anchor );
 			document.newPage();
 			
-			anchor = Anchor.create("This is the DOG anchor", defaultFont );
+			anchor = new Anchor("This is the DOG anchor", defaultFont );
 			anchor.name = "dog";
 			document.addElement( anchor );
 			

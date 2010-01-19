@@ -29,7 +29,7 @@ package
 			var axial: PdfShading = PdfShading.simpleAxial( writer, 0, 0, 297, 420, RGBColor.MAGENTA, RGBColor.YELLOW );
 			cb.paintShading(axial);
 			
-			var radial: PdfShading = PdfShading.simpleRadial( writer, 100, 300, 30, 140, 200, 100, new RGBColor(0, 247, 201), new RGBColor(245, 55, 144), false, false);
+			var radial: PdfShading = PdfShading.simpleRadial( writer, 100, 300, 60, 140, 200, 100, new RGBColor(0, 247, 201), new RGBColor(245, 55, 144), false, false);
 			cb.paintShading(radial);
 			document.newPage();
 			

@@ -29,19 +29,19 @@ package
 			document.open();
 			
 			var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );
-			document.addElement( Paragraph.fromText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+			document.addElement( new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
 			
 			font = new Font( Font.HELVETICA, 18, Font.ITALIC );
-			document.addElement( Paragraph.fromText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+			document.addElement( new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
 
 			font = new Font( Font.TIMES_ROMAN, 18, Font.BOLDITALIC );
-			document.addElement( Paragraph.fromText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+			document.addElement( new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
 
 			font = new Font( Font.COURIER, 18, Font.NORMAL );
-			document.addElement( Paragraph.fromText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+			document.addElement( new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
 
 			font = new Font( Font.ZAPFDINGBATS, 18, Font.NORMAL );
-			document.addElement( Paragraph.fromText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
+			document.addElement( new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lectus lorem. ", font) );
 
 			
 			document.close();
