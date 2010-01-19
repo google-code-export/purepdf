@@ -140,7 +140,7 @@ package org.purepdf.pdf
 			return new PdfFormXObject( this, compressionLevel );
 		}
 		
-		public function duplicate(): PdfContentByte
+		override public function duplicate(): PdfContentByte
 		{
 			var tpl: PdfTemplate = new PdfTemplate();
 			tpl.writer = writer;

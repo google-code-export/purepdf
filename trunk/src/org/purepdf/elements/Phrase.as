@@ -340,5 +340,13 @@ package org.purepdf.elements
 		{
 			_array.push( o );
 		}
+		
+		public static function fromChunk( chunk: Chunk ): Phrase
+		{
+			var result: Phrase = new Phrase( null, null );
+			result._array.push( chunk );
+			result._font = chunk.font;
+			return result;
+		}
 	}
 }
