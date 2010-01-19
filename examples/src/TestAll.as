@@ -49,6 +49,7 @@ package
 			class_list.push( AnnotatedChunk );
 			class_list.push( ChunkSkew );
 			class_list.push( ChunkHorizontalScale );
+			class_list.push( GenericTag );
 			
 			total_number = class_list.length;
 		}

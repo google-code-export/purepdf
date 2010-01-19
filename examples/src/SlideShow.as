@@ -35,7 +35,7 @@ package
 			var rect: RectangleElement = new RectangleElement( 0, 0, 144, 115 );
 			
 			createDocument("SlideShow Example", rect );
-			document.addEventListener( PageEvent.START_PAGE, onStartPage );
+			document.addEventListener( PageEvent.PAGE_START, onStartPage );
 			document.setPdfVersion( PdfVersion.VERSION_1_5 );
 			
 			document.open();
