@@ -73,7 +73,7 @@ package org.purepdf.elements
 		/**
 		 * Create a new paragraph from a starting Chunk and leading
 		 */
-		public static function fromChunk( chunk: Chunk, leading: Number ): Paragraph
+		public static function fromChunk( chunk: Chunk, leading: Number = Number.NaN ): Paragraph
 		{
 			var p: Paragraph = new Paragraph( null, null );
 			p.leading = leading;
