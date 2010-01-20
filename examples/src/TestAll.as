@@ -55,6 +55,7 @@ package
 			class_list.push( ParagraphExample );
 			class_list.push( PhraseExample );
 			class_list.push( TextRender );
+			class_list.push( FlyerExample );
 			
 			total_number = class_list.length;
 		}
