@@ -36,7 +36,7 @@ package
 			var dog: Chunk = new Chunk( "the lazy dog." );
 			dog.setGenericTag( "ellipse" );
 			p.add( dog );
-			document.addElement( p );
+			document.add( p );
 			
 			document.close();
 			save();

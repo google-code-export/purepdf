@@ -40,17 +40,17 @@ package
 			paragraph.add( anchor );
 			paragraph.add(".");
 			
-			document.addElement( paragraph );
+			document.add( paragraph );
 			document.newPage();
 			
 			anchor = new Anchor("This is the FOX anchor", defaultFont );
 			anchor.name = "fox";
-			document.addElement( anchor );
+			document.add( anchor );
 			document.newPage();
 			
 			anchor = new Anchor("This is the DOG anchor", defaultFont );
 			anchor.name = "dog";
-			document.addElement( anchor );
+			document.add( anchor );
 			
 			document.close();
 			save();

@@ -35,7 +35,7 @@ package
 			s = c.addSection("Chapter");
 			s.indentationLeft = 20;
 			s.add( p );
-			document.addElement(c);
+			document.add(c);
 			
 			c = new ChapterAutoNumber("Chapter Two");
 			s = c.addSection("Nested Chapter");
@@ -45,7 +45,7 @@ package
 			s.indentationLeft = 20;
 			s.add( p );
 			
-			document.addElement(c);
+			document.add(c);
 			
 			document.close();
 			save();

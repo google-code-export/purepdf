@@ -34,36 +34,36 @@ package
 			var bf: BaseFont = BaseFont.createFont("CarolinaLTStd.otf", BaseFont.CP1252, BaseFont.EMBEDDED );
 			var font: Font = new Font( -1, 18, -1, null, bf );
 			
-			document.addElement( new Paragraph("Font: " + bf.getFamilyFontName().join(","), font ) );
-			document.addElement( Chunk.NEWLINE );
-			document.addElement( new Paragraph("Encoding: " + bf.encoding, font ) );
-			document.addElement( Chunk.NEWLINE );
+			document.add( new Paragraph("Font: " + bf.getFamilyFontName().join(","), font ) );
+			document.add( Chunk.NEWLINE );
+			document.add( new Paragraph("Encoding: " + bf.encoding, font ) );
+			document.add( Chunk.NEWLINE );
 			
-			document.addElement( new Paragraph("qwertyuiopasdfghjklzxcvbnm", font ) );
-			document.addElement( new Paragraph("QWERTYUIOPASDFGHJKLZXCVBNM", font ) );
-			document.addElement( new Paragraph("1234567890", font ) );
-			document.addElement( new Paragraph("!\"£$%&/()=", font ) );
-			document.addElement( new Paragraph("|\\?^'ìè+é*òàùç°§,.-;:_<>", font ) );
-			document.addElement( new Paragraph("@#¶][", font ) );
+			document.add( new Paragraph("qwertyuiopasdfghjklzxcvbnm", font ) );
+			document.add( new Paragraph("QWERTYUIOPASDFGHJKLZXCVBNM", font ) );
+			document.add( new Paragraph("1234567890", font ) );
+			document.add( new Paragraph("!\"£$%&/()=", font ) );
+			document.add( new Paragraph("|\\?^'ìè+é*òàùç°§,.-;:_<>", font ) );
+			document.add( new Paragraph("@#¶][", font ) );
 			
-			document.addElement( Chunk.NEWLINE );
-			document.addElement( Chunk.NEWLINE );
+			document.add( Chunk.NEWLINE );
+			document.add( Chunk.NEWLINE );
 			
 			// Second Font
 			bf = BaseFont.createFont("Herculanum.ttf", BaseFont.CP1252, BaseFont.EMBEDDED );
 			font = new Font( -1, 18, -1, null, bf );
 			
-			document.addElement( new Paragraph("Font: " + bf.getFamilyFontName().join(","), font ) );
-			document.addElement( Chunk.NEWLINE );
-			document.addElement( new Paragraph("Encoding: " + bf.encoding, font ) );
-			document.addElement( Chunk.NEWLINE );
+			document.add( new Paragraph("Font: " + bf.getFamilyFontName().join(","), font ) );
+			document.add( Chunk.NEWLINE );
+			document.add( new Paragraph("Encoding: " + bf.encoding, font ) );
+			document.add( Chunk.NEWLINE );
 			
-			document.addElement( new Paragraph("qwertyuiopasdfghjklzxcvbnm", font ) );
-			document.addElement( new Paragraph("QWERTYUIOPASDFGHJKLZXCVBNM", font ) );
-			document.addElement( new Paragraph("1234567890", font ) );
-			document.addElement( new Paragraph("!\"£$%&/()=", font ) );
-			document.addElement( new Paragraph("|\\?^'ìè+é*òàùç°§,.-;:_<>", font ) );
-			document.addElement( new Paragraph("@#¶][", font ) );
+			document.add( new Paragraph("qwertyuiopasdfghjklzxcvbnm", font ) );
+			document.add( new Paragraph("QWERTYUIOPASDFGHJKLZXCVBNM", font ) );
+			document.add( new Paragraph("1234567890", font ) );
+			document.add( new Paragraph("!\"£$%&/()=", font ) );
+			document.add( new Paragraph("|\\?^'ìè+é*òàùç°§,.-;:_<>", font ) );
+			document.add( new Paragraph("@#¶][", font ) );
 			
 			
 			

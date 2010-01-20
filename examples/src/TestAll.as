@@ -52,6 +52,8 @@ package
 			class_list.push( GenericTag );
 			class_list.push( ListExample1 );
 			class_list.push( ListExample2 );
+			class_list.push( ParagraphExample );
+			class_list.push( PhraseExample );
 			
 			total_number = class_list.length;
 		}

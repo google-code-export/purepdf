@@ -31,20 +31,20 @@ package
 			var text: String = "This is the link that explains the sentence 'Quick brown fox jumps over the lazy dog: ";
 			var url: String = "http://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog";
 			
-			document.addElement( new Paragraph("Default split character", font ) );
+			document.add( new Paragraph("Default split character", font ) );
 			p = Paragraph.fromChunk( new Chunk( text, font ), 24 );
 			urlChunk = new Chunk( url, font );
 			p.add( urlChunk );
-			document.addElement( p );
+			document.add( p );
 			
-			document.addElement( Chunk.NEWLINE );
+			document.add( Chunk.NEWLINE );
 			
-			document.addElement( new Paragraph("Space and forward slash are split characters" ) );
+			document.add( new Paragraph("Space and forward slash are split characters" ) );
 			p = Paragraph.fromChunk( new Chunk( text, font ), 24 );
 			urlChunk = new Chunk( url, font );
 			urlChunk.setSplitCharacter( new TestSplit() );
 			p.add( urlChunk );
-			document.addElement( p );
+			document.add( p );
 			
 			document.close();
 			save();

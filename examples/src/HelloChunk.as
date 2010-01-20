@@ -36,9 +36,9 @@ package
 			dog.setTextRise(-8);
 			
 			dog.setUnderline( RGBColor.BLACK, 3, 0, -13, 0, PdfContentByte.LINE_CAP_ROUND );
-			document.addElement(fox);
-			document.addElement(jumps);
-			document.addElement(dog);
+			document.add(fox);
+			document.add(jumps);
+			document.add(dog);
 			
 			document.close();
 			save();

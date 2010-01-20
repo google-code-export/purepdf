@@ -30,7 +30,7 @@ package
 			
 			var chunk: Chunk = new Chunk("http://www.google.com", font );
 			chunk.setAction( PdfAction.create("http://www.google.com") );
-			document.addElement(chunk);
+			document.add(chunk);
 			
 			document.close();
 			save();

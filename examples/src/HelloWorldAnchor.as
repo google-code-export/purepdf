@@ -36,31 +36,31 @@ package
 			var font: Font = new Font( Font.HELVETICA, 18, -1, RGBColor.BLACK );
 			var link: Anchor = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			font.style = Font.UNDERLINE;
 			font.color = RGBColor.BLUE;
 			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			font.style = Font.UNDERLINE | Font.STRIKETHRU;
 			font.color = RGBColor.RED;
 			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			font.style = Font.UNDERLINE | Font.STRIKETHRU | Font.BOLD;
 			font.color = RGBColor.YELLOW;
 			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			font.style = Font.UNDERLINE | Font.ITALIC;
 			font.color = RGBColor.MAGENTA;
 			link = new Anchor("http://code.google.com/p/pdfcore", font );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			font.style = Font.BOLDITALIC;
 			font.color = RGBColor.GRAY;
@@ -70,7 +70,7 @@ package
 			
 			link = Anchor.fromChunk( chunk );
 			link.reference = "http://code.google.com/p/purepdf";
-			document.addElement( link );
+			document.add( link );
 			
 			
 			document.close();

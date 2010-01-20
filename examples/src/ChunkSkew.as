@@ -40,12 +40,12 @@ package
 			chunk.setSkew( -30, 15 );
 			p.add( chunk );
 			
-			document.addElement( p );
+			document.add( p );
 			
 			p = new Paragraph( null );
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
 			p = new Paragraph( null );
 			chunk = new Chunk("4. Test chunk skew");
 			chunk.setSkew(45, 0);
@@ -55,11 +55,11 @@ package
 			chunk = new Chunk("6. Test chunk skew");
 			chunk.setSkew(-45, 0);
 			p.add(chunk);
-			document.addElement(p);
+			document.add(p);
 			
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
+			document.add(Chunk.NEWLINE);
 			p = new Paragraph( null );
 			chunk = new Chunk("7. Test chunk skew");
 			chunk.setSkew(0, 25);
@@ -69,7 +69,7 @@ package
 			chunk = new Chunk("9. Test chunk skew");
 			chunk.setSkew(0, -25);
 			p.add(chunk);
-			document.addElement(p);
+			document.add(p);
 			
 			document.close();
 			save();

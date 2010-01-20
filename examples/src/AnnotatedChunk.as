@@ -30,7 +30,7 @@ package
 			var chunk: Chunk = new Chunk("Test chunk annotation", font );
 			chunk.setAnnotation( PdfAnnotation.createText( new RectangleElement( 200, 150, 300, 350 ), "Hello Annotation", "Some fake contents inside...", true, "Comment" ) );
 			
-			document.addElement( chunk );
+			document.add( chunk );
 			
 			document.close();
 			save();

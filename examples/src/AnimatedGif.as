@@ -40,7 +40,7 @@ package
 			
 			for( var k: int = 0; k < image.framesCount; k++ )
 			{
-				document.addElement( image.getImage( k+1 ) );
+				document.add( image.getImage( k+1 ) );
 			}
 			
 			document.close();

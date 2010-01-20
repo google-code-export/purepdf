@@ -36,12 +36,12 @@ package
 			p.add((w / 72 * 2.54).toString());
 			p.add(" cm");
 			
-			document.addElement(p);
-			document.addElement(c);
-			document.addElement(Chunk.NEWLINE);
+			document.add(p);
+			document.add(c);
+			document.add(Chunk.NEWLINE);
 			c.setHorizontalScaling(0.5);
-			document.addElement(c);
-			document.addElement(c);
+			document.add(c);
+			document.add(c);
 			
 			document.close();
 			save();

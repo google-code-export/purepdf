@@ -77,7 +77,7 @@ package
 			var bytes: ByteArray = new JPGEncoder(90).encode( bmp );
 			var image: ImageElement = ImageElement.getInstance( bytes );
 			image.scalePercent( 50, 50 );
-			document.addElement( image );
+			document.add( image );
 			
 			// close and save the document
 			document.close();

@@ -29,7 +29,7 @@ package
 			document.open();
 			
 			var phrase: Phrase = new Phrase("Here's a new list", null );
-			document.addElement( phrase );
+			document.add( phrase );
 			
 			var romanlist: RomanList;
 			romanlist = new RomanList( 20 );
@@ -39,9 +39,9 @@ package
 			romanlist.add(new ListItem("third line"));
 			romanlist.add(new ListItem("fourth line"));
 			romanlist.add(new ListItem("fifth line"));
-			document.addElement(romanlist);
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(phrase);
+			document.add(romanlist);
+			document.add(Chunk.NEWLINE);
+			document.add(phrase);
 			
 			romanlist = new RomanList( 20 );
 			romanlist.lowercase = false;
@@ -50,9 +50,9 @@ package
 			romanlist.add(new ListItem("third line"));
 			romanlist.add(new ListItem("fourth line"));
 			romanlist.add(new ListItem("fifth line"));			
-			document.addElement(romanlist);
-			document.addElement(Chunk.NEWLINE);
-			document.addElement(phrase);
+			document.add(romanlist);
+			document.add(Chunk.NEWLINE);
+			document.add(phrase);
 			
 			
 			var greeklist: GreekList;
@@ -63,10 +63,10 @@ package
 			greeklist.add(new ListItem("third line"));
 			greeklist.add(new ListItem("fourth line"));
 			greeklist.add(new ListItem("fifth line"));
-			document.addElement(greeklist);
-			document.addElement(Chunk.NEWLINE);
+			document.add(greeklist);
+			document.add(Chunk.NEWLINE);
 			
-			document.addElement(phrase);
+			document.add(phrase);
 			greeklist = new GreekList(20);
 			greeklist.lowercase = false;
 			greeklist.add(new ListItem("first line"));
@@ -74,7 +74,7 @@ package
 			greeklist.add(new ListItem("third line"));
 			greeklist.add(new ListItem("fourth line"));
 			greeklist.add(new ListItem("fifth line"));
-			document.addElement(greeklist);
+			document.add(greeklist);
 			
 			/*
 			document.addElement(Chunk.NEWLINE);

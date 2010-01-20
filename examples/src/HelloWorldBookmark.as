@@ -32,7 +32,7 @@ package
 			s = c.addSection("Chapter 1.1");
 			s.indentationLeft = 20;
 			s.add( p );
-			document.addElement(c);
+			document.add(c);
 			
 			c = new Chapter("Chapter Two", 2 );
 			s = c.addSection("Chapter 2.1");
@@ -42,7 +42,7 @@ package
 			s.indentationLeft = 20;
 			s.add( p );
 			
-			document.addElement(c);
+			document.add(c);
 			
 			document.close();
 			save();

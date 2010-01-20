@@ -46,7 +46,7 @@ package
 			{
 				var img: ImageElement = GifImage( image ).getImage( a + 1 );
 				img.setAbsolutePosition( 0, 0 );
-				document.addElement( img );
+				document.add( img );
 				document.newPage();
 			}
 			

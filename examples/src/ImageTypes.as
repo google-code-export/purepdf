@@ -61,16 +61,16 @@ package
 			image1.setBorderWidth( 5 );
 			image1.setBorderSides( RectangleElement.LEFT | RectangleElement.TOP | RectangleElement.RIGHT | RectangleElement.BOTTOM );
 			image1.setBorderColor( new RGBColor( 255, 255, 255 ) );
-			document.addElement( image1 );
+			document.add( image1 );
 			
 			// test image scaling
 			image1.scaleToFit( 50, 50 );
 			image1.alignment = ImageElement.LEFT;
-			document.addElement( image1 );
+			document.add( image1 );
 			
 			image1.scalePercent( 100, 100 );
 			image1.scaleAbsolute( 100, 100 );
-			document.addElement( image1 );
+			document.add( image1 );
 			
 			// ---------------
 			// PNG image
@@ -78,18 +78,18 @@ package
 			bytes = PNGEncoder.encode( ( new cls2() as Bitmap ).bitmapData );
 			var image: ImageElement = ImageElement.getInstance( bytes );
 			image.alignment = ImageElement.MIDDLE;
-			document.addElement( image );
+			document.add( image );
 			
 			image.scaleToFit( 300, 300 );
 			image.alignment = ImageElement.LEFT;
-			document.addElement( image );
+			document.add( image );
 			
 			// ---------------
 			// GIF Image
 			// ---------------
 			bytes = new cls3() as ByteArray;
 			image = ImageElement.getInstance( bytes );
-			document.addElement( image );
+			document.add( image );
 			
 			
 			// ---------------
@@ -113,7 +113,7 @@ package
 			image.setAbsolutePosition( 100, 200 );
 			image.setRotation( Math.PI / 4 );
 			
-			document.addElement( image );
+			document.add( image );
 			
 			
 			// close and save the document
