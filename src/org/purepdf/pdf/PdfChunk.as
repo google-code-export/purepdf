@@ -293,11 +293,23 @@ package org.purepdf.pdf
 
 		internal function split( width: Number ): PdfChunk
 		{
+			var pc: PdfChunk;
 			newlineSplit = false;
 
 			if ( _image != null )
 			{
-				throw new NonImplementatioError( "image not supported here" );
+				if( image.scaledWidth > width )
+				{
+					pc = PdfChunk.fromString( Chunk.OBJECT_REPLACEMENT_CHARACTER, this );
+					value = "";
+					attributes = new HashMap();
+					_image = null;
+					_font = PdfFont.getDefaultFont();
+					return pc;
+				} else
+				{
+					return null;
+				}
 			}
 			var hyphenationEvent: IHyphenationEvent = noStroke.getValue( Chunk.HYPHENATION ) as IHyphenationEvent;
 			var currentPosition: int = 0;
@@ -312,8 +324,7 @@ package org.purepdf.pdf
 			var surrogate: Boolean = false;
 
 			var returnValue: String;
-			var pc: PdfChunk;
-
+			
 			if ( ft.fontType == BaseFont.FONT_TYPE_CJK && ft.getUnicodeEquivalent( 32 ) != 32 )
 			{
 				while ( currentPosition < length )

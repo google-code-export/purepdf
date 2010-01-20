@@ -50,6 +50,15 @@ package org.purepdf.elements
 			_font = font != null ? font : new Font();
 		}
 		
+		public static function fromImage( image: ImageElement, offsetX: Number, offsetY: Number ): Chunk 
+		{
+			var result: Chunk = new Chunk( OBJECT_REPLACEMENT_CHARACTER, new Font() );
+			var copyImage: ImageElement = image;// = Image.getInstance( image );
+			copyImage.setAbsolutePosition( Number.NaN, Number.NaN );
+			result.setAttribute( IMAGE, Vector.<Object>([ copyImage, offsetX, offsetY, false ]) );
+			return result;
+		}
+		
 		public function append( value: String ): void
 		{
 			_content += value;

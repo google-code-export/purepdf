@@ -1192,7 +1192,13 @@ package org.purepdf.pdf
 						
 						if( chunk.isImage() )
 						{
-							throw new NonImplementatioError();
+							var image: ImageElement = chunk.image;
+							var matrix: Vector.<Number> = image.matrix;
+							matrix[ImageElement.CX] = xMarker + chunk.imageOffsetX - matrix[ImageElement.CX];
+							matrix[ImageElement.CY] = yMarker + chunk.imageOffsetY - matrix[ImageElement.CY];
+							
+							graphics.addImage3( image, matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+							text.moveText( xMarker + lastBaseFactor + image.scaledWidth - text.xTLM, 0 );
 						}
 					}
 					

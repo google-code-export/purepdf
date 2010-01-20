@@ -160,8 +160,7 @@ package org.purepdf.pdf
 				w = template.width;
 				h = template.height;
 				
-				throw new NonImplementatioError();
-				//addTemplate( template, a / w, b / w, c / h, d / h, e, f );
+				addTemplate( template, width / w, b / w, c / h, height / h, x, y );
 			}
 			else
 			{
