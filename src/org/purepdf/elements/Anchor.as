@@ -79,7 +79,7 @@ package org.purepdf.elements
 					if( localDestination )
 						chunk.setLocalGoto( _reference.substring(1) );
 					
-					listener.add( chunk );
+					listener.addElement( chunk );
 				}
 				return true;
 			}

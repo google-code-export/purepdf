@@ -41,7 +41,7 @@ package org.purepdf.elements
 				for ( var i: Iterator = Section(_element).iterator(); i.hasNext(); )
 				{
 					element = IElement(i.next());
-					listener.add( element );
+					listener.addElement( element );
 				}
 				return true;
 			}
