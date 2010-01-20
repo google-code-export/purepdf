@@ -56,6 +56,7 @@ package
 			class_list.push( PhraseExample );
 			class_list.push( TextRender );
 			class_list.push( FlyerExample );
+			class_list.push( BarCodes );
 			
 			total_number = class_list.length;
 		}
