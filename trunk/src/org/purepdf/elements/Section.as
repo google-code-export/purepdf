@@ -294,7 +294,7 @@ package org.purepdf.elements
 				for ( var i: Iterator = iterator(); i.hasNext(); )
 				{
 					element = IElement(i.next());
-					listener.add( element );
+					listener.addElement( element );
 				}
 				return true;
 			}

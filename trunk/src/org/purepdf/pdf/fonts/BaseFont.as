@@ -164,7 +164,8 @@ package org.purepdf.pdf.fonts
 		}
 
 		/**
-		 * Gets the width of a char in normalized 1000 units.
+		 * Gets the width of a char in normalized 1000 units
+		 * Possible input parameters are: String,int
 		 * @param code. Allowed values are int, String
 		 */
 		public function getWidth( code: Object ): int

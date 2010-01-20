@@ -253,7 +253,7 @@ package org.purepdf
 			switch ( family )
 			{
 				case COURIER:
-					switch ( style & BOLDITALIC )
+					switch ( s & BOLDITALIC )
 				{
 					case BOLD:
 						fontName = BaseFont.COURIER_BOLD;

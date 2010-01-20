@@ -44,7 +44,7 @@ package org.purepdf.elements
 		{
 			try 
 			{
-				return listener.add( this );
+				return listener.addElement( this );
 			}
 			catch ( error: DocumentError ) {}
 			return false;

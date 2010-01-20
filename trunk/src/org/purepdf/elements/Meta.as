@@ -23,7 +23,7 @@ package org.purepdf.elements
 		{
 			try
 			{
-				return element.add( this );
+				return element.addElement( this );
 			} catch( e: DocumentError )
 			{
 				return false;

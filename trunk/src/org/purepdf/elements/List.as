@@ -158,7 +158,7 @@ package org.purepdf.elements
 			try
 			{
 				for( var k: int = 0; k < list.length; ++k )
-					listener.add( list[k] );
+					listener.addElement( list[k] );
 				return true;
 			} catch( e: DocumentError )
 			{

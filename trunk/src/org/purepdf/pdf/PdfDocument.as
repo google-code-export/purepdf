@@ -60,6 +60,7 @@ package org.purepdf.pdf
 	public class PdfDocument extends EventDispatcher implements IObject, IElementListener
 	{
 		internal static var compress: Boolean = false;
+		internal static const hangingPunctuation: String = ".,;:'";
 		use namespace pdf_core;
 
 		protected var _duration: int = -1;
@@ -120,11 +121,11 @@ package org.purepdf.pdf
 
 		/**
 		 * Don't use this directly if you are 100% sure what
-		 * you're doing. Use addElement() instead
+		 * you're doing. Use add() instead
 		 *  
 		 * @see addElement()
 		 */
-		public function add( element: IElement ): Boolean
+		public function addElement( element: IElement ): Boolean
 		{
 			if ( _writer != null && _writer.isPaused() )
 				return false;
@@ -261,15 +262,21 @@ package org.purepdf.pdf
 
 		public function addAuthor( value: String ): Boolean
 		{
-			return add( new Meta( Element.AUTHOR, value ) );
+			return addElement( new Meta( Element.AUTHOR, value ) );
 		}
 
 		public function addCreator( creator: String ): Boolean
 		{
-			return add( new Meta( Element.CREATOR, creator ) );
+			return addElement( new Meta( Element.CREATOR, creator ) );
 		}
 
-		public function addElement( element: IElement ): Boolean
+		/**
+		 * Add a new element to the current pdf document
+		 *
+		 * @return true if the element was succesfully added to the documnet
+		 * @see org.purepdf.elements.IElement
+		 */
+		public function add( element: IElement ): Boolean
 		{
 			if ( closed )
 				throw new Error( "document is closed" );
@@ -281,7 +288,7 @@ package org.purepdf.pdf
 				chapternumber = ChapterAutoNumber(element).setAutomaticNumber( chapternumber );
 			
 			var success: Boolean = false;
-			success = add( element );
+			success = addElement( element );
 
 			if ( element is ILargeElement )
 			{
@@ -295,17 +302,17 @@ package org.purepdf.pdf
 
 		public function addKeywords( keywords: String ): Boolean
 		{
-			return add( new Meta( Element.KEYWORDS, keywords ) );
+			return addElement( new Meta( Element.KEYWORDS, keywords ) );
 		}
 
 		public function addSubject( subject: String ): Boolean
 		{
-			return add( new Meta( Element.SUBJECT, subject ) );
+			return addElement( new Meta( Element.SUBJECT, subject ) );
 		}
 
 		public function addTitle( title: String ): Boolean
 		{
-			return add( new Meta( Element.TITLE, title ) );
+			return addElement( new Meta( Element.TITLE, title ) );
 		}
 
 		public function bottom( margin: Number=0 ): Number
@@ -795,7 +802,7 @@ package org.purepdf.pdf
 
 			if ( _pageSize.backgroundColor != null || _pageSize.hasBorders() || _pageSize.borderColor != null )
 			{
-				add( _pageSize );
+				addElement( _pageSize );
 			}
 			var oldleading: Number = leading;
 			var oldAlignment: int = alignment;
@@ -806,7 +813,7 @@ package org.purepdf.pdf
 			{
 				if ( imageWait != null )
 				{
-					add( imageWait );
+					addElement( imageWait );
 					imageWait = null;
 				}
 			}
@@ -870,12 +877,12 @@ package org.purepdf.pdf
 
 		internal function addCreationDate(): Boolean
 		{
-			return add( new Meta( Element.CREATIONDATE, PdfInfo.getCreationDate() ) );
+			return addElement( new Meta( Element.CREATIONDATE, PdfInfo.getCreationDate() ) );
 		}
 
 		internal function addProducer(): Boolean
 		{
-			return add( new Meta( Element.PRODUCER, PdfWriter.VERSION ) );
+			return addElement( new Meta( Element.PRODUCER, PdfWriter.VERSION ) );
 		}
 
 		internal function addWriter( w: PdfWriter ): void
@@ -991,7 +998,31 @@ package org.purepdf.pdf
 			}
 			else if ( isJustified )
 			{
-				throw new NonImplementatioError( "line justification not et implemented" );
+				if( line.isNewlineSplit && line.widthLeft >= ( lastBaseFactor * ( ratio * numberOfSpaces + lineLen - 1) ) )
+				{
+					if( line.isRTL )
+						text.moveText( line.widthLeft - lastBaseFactor * (ratio * numberOfSpaces + lineLen - 1), 0);
+					
+					baseWordSpacing = ratio * lastBaseFactor;
+					baseCharacterSpacing = lastBaseFactor;
+				} else {
+					width = line.widthLeft;
+					var last: PdfChunk = line.getChunk(line.size() - 1);
+					if (last != null) {
+						var s: String = last.toString();
+						var cs1: String;
+						if( s.length > 0 && hangingPunctuation.indexOf( (cs1 = s.charAt( s.length - 1 ) ) ) >= 0)
+						{
+							var oldWidth: Number = width;
+							width += last.font.getWidth(cs1) * 0.4;
+							hangingCorrection = width - oldWidth;
+						}
+					}
+					var baseFactor: Number = width / (ratio * numberOfSpaces + lineLen - 1);
+					baseWordSpacing = ratio * baseFactor;
+					baseCharacterSpacing = baseFactor;
+					lastBaseFactor = baseFactor;
+				}
 			}
 
 			var lastChunkStroke: int = line.lastStrokeChunk;
@@ -1542,7 +1573,7 @@ package org.purepdf.pdf
 			if( hasTitle )
 			{
 				isSectionTitle = true;
-				add( section.title );
+				addElement( section.title );
 				isSectionTitle = false;
 			}
 			
