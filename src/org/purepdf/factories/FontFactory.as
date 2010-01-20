@@ -3,7 +3,6 @@ package org.purepdf.factories
 	import org.purepdf.Font;
 	import org.purepdf.FontFactoryImp;
 	import org.purepdf.colors.RGBColor;
-	import org.purepdf.pdf.fonts.BaseFont;
 
 	public final class FontFactory
 	{
