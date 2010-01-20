@@ -1873,12 +1873,12 @@ package org.purepdf.pdf
 				throw new RuntimeError("template was expected");
 		}
 		
-		pdf_core function addAnnotation( annot: PdfAnnotation ): void
+		public function addAnnotation( annot: PdfAnnotation ): void
 		{
 			_writer.pdfDocument.addAnnotation( annot );
 		}
 		
-		pdf_core function addContent( other: PdfContentByte ): void
+		public function addContent( other: PdfContentByte ): void
 		{
 			if( other.writer != null && _writer != other.writer )
 				throw new RuntimeError();
