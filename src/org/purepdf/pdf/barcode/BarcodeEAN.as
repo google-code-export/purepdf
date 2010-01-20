@@ -108,6 +108,54 @@ package org.purepdf.pdf.barcode
 			}
 		}
 		
+		public static function getBarsEAN8( _code: String ): Vector.<int>
+		{
+			var code: Vector.<int> = new Vector.<int>( _code.length, true );
+			var k: int;
+			var c: int;
+			var stripes: Vector.<int>;
+			
+			for( k = 0; k < code.length; ++k )
+				code[k] = _code.charCodeAt(k) - 48;
+			
+			var bars: Vector.<int> = new Vector.<int>(TOTALBARS_EAN8, true);
+			var pb: int = 0;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			
+			for( k = 0; k < 4; ++k )
+			{
+				c = code[k];
+				stripes = BARS[c];
+				bars[pb++] = stripes[0];
+				bars[pb++] = stripes[1];
+				bars[pb++] = stripes[2];
+				bars[pb++] = stripes[3];
+			}
+			
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			
+			for( k = 4; k < 8; ++k )
+			{
+				c = code[k];
+				stripes = BARS[c];
+				bars[pb++] = stripes[0];
+				bars[pb++] = stripes[1];
+				bars[pb++] = stripes[2];
+				bars[pb++] = stripes[3];
+			}
+			
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			return bars;
+		}
+		
 		public static function getBarsEAN13( _code: String ): Vector.<int>
 		{
 			var code: Vector.<int> = new Vector.<int>( _code.length, true);
@@ -161,6 +209,132 @@ package org.purepdf.pdf.barcode
 			bars[pb++] = 1;
 			return bars;
 		}
+		
+		public static function getBarsUPCE( _code: String ): Vector.<int>
+		{
+			var code: Vector.<int> = new Vector.<int>( _code.length, true );
+			var k: int;
+			var c: int;
+			var stripes: Vector.<int>;
+			
+			for( k = 0; k < code.length; ++k )
+				code[k] = _code.charCodeAt(k) - 48;
+			
+			var bars: Vector.<int> = new Vector.<int>( TOTALBARS_UPCE, true );
+			var flip: Boolean = (code[0] != 0);
+			var pb: int = 0;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			
+			var sequence: Vector.<int> = PARITYE[code[code.length - 1]];
+			
+			for( k = 1; k < code.length - 1; ++k )
+			{
+				c = code[k];
+				stripes = BARS[c];
+				if( sequence[k - 1] == (flip ? EVEN : ODD) )
+				{
+					bars[pb++] = stripes[0];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[3];
+				} else {
+					bars[pb++] = stripes[3];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[0];
+				}
+			}
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			return bars;
+		}
+		
+		public static function getBarsSupplemental2( _code: String ): Vector.<int>
+		{
+			var code: Vector.<int> = new Vector.<int>( 2, true );
+			var k: int;
+			var c: int;
+			var stripes: Vector.<int>;
+			
+			for( k = 0; k < code.length; ++k )
+				code[k] = _code.charCodeAt(k) - 48;
+			var bars: Vector.<int> = new Vector.<int>(TOTALBARS_SUPP2, true);
+			var pb: int = 0;
+			var parity: int = (code[0] * 10 + code[1]) % 4;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 2;
+			var sequence: Vector.<int> = PARITY2[parity];
+			for( k = 0; k < sequence.length; ++k )
+			{
+				if (k == 1) {
+					bars[pb++] = 1;
+					bars[pb++] = 1;
+				}
+				c = code[k];
+				stripes = BARS[c];
+				if (sequence[k] == ODD) {
+					bars[pb++] = stripes[0];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[3];
+				}
+				else {
+					bars[pb++] = stripes[3];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[0];
+				}
+			}
+			return bars;
+		} 
+		
+		public static function getBarsSupplemental5( _code: String ): Vector.<int>
+		{
+			var code: Vector.<int> = new Vector.<int>( 5, true );
+			var k: int;
+			var c: int;
+			var stripes: Vector.<int>;
+			
+			for( k = 0; k < code.length; ++k )
+				code[k] = _code.charCodeAt(k) - 48;
+			
+			var bars: Vector.<int> = new Vector.<int>( TOTALBARS_SUPP5, true );
+			var pb: int = 0;
+			var parity: int = (((code[0] + code[2] + code[4]) * 3) + ((code[1] + code[3]) * 9)) % 10;
+			bars[pb++] = 1;
+			bars[pb++] = 1;
+			bars[pb++] = 2;
+			var sequence: Vector.<int> = PARITY5[parity];
+			for( k = 0; k < sequence.length; ++k )
+			{
+				if (k != 0) {
+					bars[pb++] = 1;
+					bars[pb++] = 1;
+				}
+				c = code[k];
+				stripes = BARS[c];
+				if (sequence[k] == ODD) {
+					bars[pb++] = stripes[0];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[3];
+				}
+				else {
+					bars[pb++] = stripes[3];
+					bars[pb++] = stripes[2];
+					bars[pb++] = stripes[1];
+					bars[pb++] = stripes[0];
+				}
+			}
+			return bars;
+		}   
 
 		override public function getBarcodeSize(): RectangleElement
 		{
@@ -246,27 +420,22 @@ package org.purepdf.pdf.barcode
 					guard = GUARD_EAN13;
 					break;
 				case EAN8:
-					throw new NonImplementatioError();
-					//bars = getBarsEAN8(code);
+					bars = getBarsEAN8(code);
 					guard = GUARD_EAN8;
 					break;
 				case UPCA:
-					throw new NonImplementatioError();
-					//bars = getBarsEAN13("0" + code);
+					bars = getBarsEAN13("0" + code);
 					guard = GUARD_UPCA;
 					break;
 				case UPCE:
-					throw new NonImplementatioError();
-					//bars = getBarsUPCE(code);
+					bars = getBarsUPCE(code);
 					guard = GUARD_UPCE;
 					break;
 				case SUPP2:
-					throw new NonImplementatioError();
-					//bars = getBarsSupplemental2(code);
+					bars = getBarsSupplemental2(code);
 					break;
 				case SUPP5:
-					throw new NonImplementatioError();
-					//bars = getBarsSupplemental5(code);
+					bars = getBarsSupplemental5(code);
 					break;
 			}
 			
