@@ -13,6 +13,7 @@ package org.purepdf.pdf
 	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.elements.images.ImageWMF;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
@@ -607,7 +608,10 @@ package org.purepdf.pdf
 			{
 				if ( image.isImgTemplate )
 				{
-					throw new NonImplementatioError();
+					name = new PdfName("img" + images.size() );
+					if(image is ImageWMF ) {
+						throw new NonImplementatioError("ImageWMF not yet supported");
+					}
 				}
 				else
 				{

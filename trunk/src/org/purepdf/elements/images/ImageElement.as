@@ -482,6 +482,11 @@ package org.purepdf.elements.images
 		{
 			return template[ 0 ];
 		}
+		
+		public function set templateData( value: PdfTemplate ): void
+		{
+			template[0] = value;
+		}
 
 		public function get transparency(): Vector.<int>
 		{
@@ -543,6 +548,11 @@ package org.purepdf.elements.images
 		{
 			var bytes: ByteArray = TIFFEncoder.encode( data );
 			return ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
+		}
+		
+		public static function getTemplateInstance( template: PdfTemplate ): ImageElement
+		{
+			return new ImageTemplate( template );
 		}
 
 		/**
