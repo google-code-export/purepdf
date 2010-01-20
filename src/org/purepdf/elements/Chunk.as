@@ -172,6 +172,26 @@ package org.purepdf.elements
 		{
 			return setAttribute( GENERICTAG, text );
 		}
+		
+		/**
+		 * Sets the text rendering mode. It can outline text, simulate bold and make
+		 * text invisible.
+		 * 
+		 * @param mode	It can be PdfContentByte.TEXT_RENDER_MODE_FILL,
+		 *            PdfContentByte.TEXT_RENDER_MODE_STROKE,
+		 *            PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE
+		 *            and PdfContentByte.TEXT_RENDER_MODE_INVISIBLE
+		 *            .
+		 * @param strokeWidth
+		 *            the stroke line width for the modes PdfContentByte.TEXT_RENDER_MODE_STROKE
+		 *            and PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE
+		 * 
+		 * @see org.purepdf.pdf.PdfContentByte
+		 */
+		public function setTextRenderMode( mode: int, strokeWidth: Number, strokeColor: RGBColor ): Chunk
+		{
+			return setAttribute( TEXTRENDERMODE, Vector.<Object>([ mode, strokeWidth, strokeColor]) );
+		}
 
 		public function setAnchor( url: String ): Chunk
 		{

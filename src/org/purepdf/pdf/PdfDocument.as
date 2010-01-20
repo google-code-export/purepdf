@@ -1213,9 +1213,22 @@ package org.purepdf.pdf
 				var strokeColor: RGBColor = null;
 				var fr: Object = ( chunk.getAttribute( Chunk.SUBSUPSCRIPT ) );
 
-				if ( textRender != null )
+				if( textRender != null )
 				{
-					throw new NonImplementatioError( "textrenderer not yet supported" );
+					tr = int(textRender[0]) & 3;
+					if( tr != PdfContentByte.TEXT_RENDER_MODE_FILL )
+						text.setTextRenderingMode( tr );
+					if( tr == PdfContentByte.TEXT_RENDER_MODE_STROKE || tr == PdfContentByte.TEXT_RENDER_MODE_FILL_STROKE )
+					{
+						strokeWidth = Number(textRender[1]);
+						if (strokeWidth != 1)
+							text.setLineWidth( strokeWidth );
+						strokeColor = textRender[2] as RGBColor;
+						if( strokeColor == null )
+							strokeColor = color;
+						if( strokeColor != null )
+							text.setStrokeColor( strokeColor );
+					}
 				}
 
 				if ( fr != null )
