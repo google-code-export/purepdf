@@ -54,6 +54,7 @@ package
 			class_list.push( ListExample2 );
 			class_list.push( ParagraphExample );
 			class_list.push( PhraseExample );
+			class_list.push( TextRender );
 			
 			total_number = class_list.length;
 		}
