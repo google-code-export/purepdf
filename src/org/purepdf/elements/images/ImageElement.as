@@ -79,9 +79,12 @@ package org.purepdf.elements.images
 		protected var plainHeight: Number;
 		protected var plainWidth: Number;
 		protected var rotationRadians: Number;
+		protected var _spacingAfter: Number = 0;
+		protected var _spacingBefore: Number = 0;
 		protected var template: Vector.<PdfTemplate> = new Vector.<PdfTemplate>( 1 );
 		private var _directReference: PdfIndirectReference;
 		private var _widthPercentage: Number = 100;
+		
 
 		public function ImageElement( $url: String )
 		{
@@ -89,6 +92,26 @@ package org.purepdf.elements.images
 			_url = $url;
 			_alignment = DEFAULT;
 			rotationRadians = 0;
+		}
+
+		public function get spacingBefore():Number
+		{
+			return _spacingBefore;
+		}
+
+		public function set spacingBefore(value:Number):void
+		{
+			_spacingBefore = value;
+		}
+
+		public function get spacingAfter():Number
+		{
+			return _spacingAfter;
+		}
+
+		public function set spacingAfter(value:Number):void
+		{
+			_spacingAfter = value;
 		}
 
 		public function get absoluteX(): Number

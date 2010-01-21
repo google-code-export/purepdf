@@ -1,11 +1,14 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.ColumnText;
+	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.errors.ConversionError;
+	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 
 	public class PdfPCell extends RectangleElement
@@ -30,8 +33,53 @@ package org.purepdf.pdf
 		public function PdfPCell()
 		{
 			super( 0, 0, 0, 0 );
+			_borderWidth = 0.5;
+			_border = BOX;
+			_column.setLeading(0, 1);			
 		}
 		
+		public function get runDirection(): int
+		{
+			return _column.runDirection;
+		}
+		
+		public function set runDirection( value: int ): void
+		{
+			_column.runDirection = value;
+		}
+		
+		public function get column():ColumnText
+		{
+			return _column;
+		}
+		
+		public function set column( value: ColumnText ): void
+		{
+			_column = value;
+		}
+
+		public function get useDescender():Boolean
+		{
+			return _useDescender;
+		}
+
+		public function set useDescender(value:Boolean):void
+		{
+			_useDescender = value;
+		}
+
+		public function get image():ImageElement
+		{
+			return _image;
+		}
+
+		public function set image(value:ImageElement):void
+		{
+			_column.setText( null );
+			_table = null;
+			_image = value;
+		}
+
 		public function get rightIndent(): Number
 		{
 			return _column.rightIndent;
@@ -86,8 +134,18 @@ package org.purepdf.pdf
 			if (_table != null) {
 				_table.setExtendLastRow(verticalAlignment == Element.ALIGN_TOP);
 				_column.addElement(table);
-				_table.setWidthPercentage(100);
+				_table.widthPercentage = 100;
 			}
+		}
+		
+		public function set rotation( value: int ): void
+		{
+			value %= 360;
+			if (value < 0)
+				value += 360;
+			if ((value % 90) != 0)
+				throw new ArgumentError("rotation must be a multiple of 90");
+			_rotation = value;
 		}
 
 		public function get noWrap():Boolean
@@ -194,10 +252,10 @@ package org.purepdf.pdf
 			_paddingBottom = value;
 		}
 
-		public function getEffectivePaddingBottom(): Number
+		public function get effectivePaddingBottom(): Number
 		{
-			if (isUseBorderPadding()) {
-				var border: Number = getBorderWidthBottom()/(isUseVariableBorders() ? 1 : 2 );
+			if ( useBorderPadding ) {
+				var border: Number = borderWidthBottom/(isUseVariableBorders() ? 1 : 2 );
 				return _paddingBottom + border;
 			}
 			return _paddingBottom;
@@ -215,8 +273,8 @@ package org.purepdf.pdf
 
 		public function get effectivePaddingTop(): Number
 		{
-			if (isUseBorderPadding()) {
-				var border: Number = getBorderWidthTop()/(isUseVariableBorders()? 1 : 2 );
+			if ( useBorderPadding ) {
+				var border: Number = borderWidthTop / (isUseVariableBorders()? 1 : 2 );
 				return _paddingTop + border;
 			}
 			return _paddingTop;
@@ -234,9 +292,9 @@ package org.purepdf.pdf
 
 		public function get effectivePaddingLeft(): Number
 		{
-			if( isUseBorderPadding() )
+			if( useBorderPadding )
 			{
-				var border: Number = getBorderWidthLeft() / (isUseVariableBorders() ? 1 : 2 );
+				var border: Number = borderWidthLeft / (isUseVariableBorders() ? 1 : 2 );
 				return _paddingLeft + border;
 			}
 			return _paddingLeft;
@@ -244,8 +302,8 @@ package org.purepdf.pdf
 		
 		public function get effectivePaddingRight(): Number
 		{
-			if (isUseBorderPadding()) {
-				var border: Number = getBorderWidthRight() / (isUseVariableBorders() ? 1 : 2 );
+			if ( useBorderPadding ) {
+				var border: Number = borderWidthRight / (isUseVariableBorders() ? 1 : 2 );
 				return _paddingRight + border;
 			}
 			return _paddingRight;
@@ -304,15 +362,150 @@ package org.purepdf.pdf
 			}
 			_column.addElement(element);
 		}
+		
+		/**
+		 * Consumes part of the content of the cell
+		 */
+		internal function consumeHeight( height: Number ): void
+		{
+			var rightLimit: Number = getRight() - effectivePaddingRight;
+			var leftLimit: Number = getLeft() + effectivePaddingLeft;
+			var bry: Number = height - effectivePaddingTop - effectivePaddingBottom;
+			if (rotation != 90 && rotation != 270) {
+				column.setSimpleColumn(leftLimit, bry + 0.001,	rightLimit, 0);
+			}
+			else {
+				column.setSimpleColumn(0, leftLimit, bry + 0.001, rightLimit);
+			}
+			try {
+				column.go(true);
+			} catch ( e: DocumentError )
+			{
+				// do nothing
+				trace('error', e );
+			}
+		}
 
+
+		
+		/**
+		 * Returns the height of the cell
+		 * 
+		 * @throws ConversionError
+		 */
+		public function get maxHeight(): Number
+		{
+			var pivoted: Boolean = (rotation == 90 || rotation == 270);
+			var img: ImageElement = image;
+			if (img != null) {
+				img.scalePercent(100,100);
+				var refWidth: Number = pivoted ? img.scaledHeight : img.scaledWidth;
+				var scale: Number = ( getRight() - effectivePaddingRight - effectivePaddingLeft - getLeft()) / refWidth;
+				img.scalePercent(scale * 100, scale * 100 );
+				var refHeight: Number = pivoted ? img.scaledWidth : img.scaledHeight;
+				setBottom(getTop() - effectivePaddingTop - effectivePaddingBottom - refHeight);
+			} else 
+			{
+				if (pivoted && hasFixedHeight )
+					setBottom(getTop() - fixedHeight);
+				else {
+					var ct: ColumnText = ColumnText.duplicate( column );
+					var right: Number, top: Number, left: Number, bottom: Number;
+					if (pivoted) {
+						right = PdfPRow.RIGHT_LIMIT;
+						top = getRight() - effectivePaddingRight;
+						left = 0;
+						bottom = getLeft() + effectivePaddingLeft;
+					}
+					else {
+						right = noWrap ? PdfPRow.RIGHT_LIMIT : getRight() - effectivePaddingRight;
+						top = getTop() - effectivePaddingTop;
+						left = getLeft() + effectivePaddingLeft;
+						bottom = hasFixedHeight ? top + effectivePaddingBottom - fixedHeight : PdfPRow.BOTTOM_LIMIT;
+					}
+					PdfPRow.setColumn(ct, left, bottom, right, top);
+					try {
+						ct.go(true);
+					} catch ( e: DocumentError ) {
+						throw new ConversionError(e);
+					}
+					if (pivoted)
+						setBottom(getTop() - effectivePaddingTop - effectivePaddingBottom - ct.filledWidth );
+					else {
+						var yLine: Number = ct.yLine;
+						if ( useDescender )
+							yLine += ct.descender;
+						setBottom(yLine - effectivePaddingBottom );
+					}
+				}
+			}
+			var height: Number = height;
+			if (height < fixedHeight)
+				height = fixedHeight;
+			else if (height < minimumHeight )
+				height = minimumHeight;
+			return height;
+		}
+		
 		static public function fromCell( cell: PdfPCell ): PdfPCell
 		{
-			throw new NonImplementatioError();
+			var c: PdfPCell = new PdfPCell();
+			c.llx = cell.llx;
+			c.lly = cell.lly;
+			c.urx = cell.urx;
+			c.ury = cell.ury;
+			c.cloneNonPositionParameters( cell );
+			c._verticalAlignment = cell._verticalAlignment;
+			c._paddingLeft = cell._paddingLeft;
+			c._paddingRight = cell._paddingRight;
+			c._paddingTop = cell._paddingTop;
+			c._paddingBottom = cell._paddingBottom;
+			c._phrase = cell._phrase;
+			c._fixedHeight = cell._fixedHeight;
+			c._minimumHeight = cell._minimumHeight;
+			c._noWrap = cell._noWrap;
+			c._colspan = cell._colspan;
+			c._rowspan = cell._rowspan;
+			
+			if( cell._table != null )
+				c._table = new PdfPTable( cell._table );
+			// TODO: we should clone the image
+			c._image = cell._image;
+			//cellEvent = cell.cellEvent;
+			c._useDescender = cell._useDescender;
+			c._column = ColumnText.duplicate(cell._column);
+			c._useBorderPadding = cell._useBorderPadding;
+			c._rotation = cell._rotation;
+			return c;
 		}
 
 		static public function fromPhrase( phrase: Phrase ): PdfPCell
 		{
-			throw new NonImplementatioError();
+			var c: PdfPCell = new PdfPCell();
+			c._phrase = phrase;
+			c._column.addText( c._phrase );
+			c._column.setLeading( 0, 1 );
+			return c;
+		}
+		
+		static public function fromImage( image: ImageElement, fit: Boolean = false ): PdfPCell
+		{
+			var c: PdfPCell = new PdfPCell();
+			c._borderWidth = 0.5;
+			c._border = BOX;
+			
+			if (fit) {
+				c._image = image;
+				c._column.setLeading(0, 1);
+				c.padding = c._borderWidth / 2;
+			}
+			else {
+				c._phrase = Phrase.fromChunk( Chunk.fromImage( image, 0, 0 ) );
+				c._column.addText( c._phrase );
+				c._column.setLeading(0, 1);
+				c.padding = 0;
+			}
+			return c;
 		}
 	}
 }

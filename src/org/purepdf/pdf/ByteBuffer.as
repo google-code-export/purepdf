@@ -52,9 +52,18 @@ package org.purepdf.pdf
 			return buf.buffer;
 		}
 		
-		public function size(): int
+		public function get size(): int
 		{
 			return count;
+		}
+		
+		public function set size( value: int ): void
+		{
+			if( value > count || value < 0 )
+			{
+				throw IllegalOperationError("the new size must be positive and <= the current size");
+			}
+			count = value;
 		}
 		
 		public function toString(): String

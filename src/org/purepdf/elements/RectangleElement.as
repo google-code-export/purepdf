@@ -12,6 +12,7 @@ package org.purepdf.elements
 		public static const RIGHT: int = 8;
 		public static const TOP: int = 1;
 		public static const ALL: int = TOP | BOTTOM | LEFT | RIGHT;
+		public static const BOX: int = TOP + BOTTOM + LEFT + RIGHT;
 		public static const UNDEFINED: int = -1;
 		protected var _backgroundColor: RGBColor = null;
 		protected var _border: int = UNDEFINED;
@@ -91,10 +92,20 @@ package org.purepdf.elements
 		{
 			return _border;
 		}
+		
+		public function set border( value: int ): void
+		{
+			_border = value;
+		}
 
 		public function get borderColor(): RGBColor
 		{
 			return _borderColor;
+		}
+		
+		public function set borderColor( value: RGBColor ): void
+		{
+			_borderColor = value;
 		}
 
 		public function get borderColorBottom(): RGBColor
@@ -128,6 +139,11 @@ package org.purepdf.elements
 		public function get borderWidth(): Number
 		{
 			return _borderWidth;
+		}
+		
+		public function set borderWidth( value: Number ): void
+		{
+			_borderWidth = value;
 		}
 
 		public function get borderWidthBottom(): Number
@@ -281,32 +297,27 @@ package org.purepdf.elements
 			return rect;
 		}
 
-		public function setBackgroundColor( value: RGBColor ): void
+		public function set backgroundColor( value: RGBColor ): void
 		{
 			_backgroundColor = value;
 		}
 
-		public function setBorderColor( value: RGBColor ): void
-		{
-			_borderColor = value;
-		}
-
-		public function setBorderColorLeft( value: RGBColor ): void
+		public function set borderColorLeft( value: RGBColor ): void
 		{
 			_borderColorLeft = value;
 		}
 
-		public function setBorderColorRight( value: RGBColor ): void
+		public function set borderColorRight( value: RGBColor ): void
 		{
 			_borderColorRight = value;
 		}
 
-		public function setBorderColorTop( value: RGBColor ): void
+		public function set borderColorTop( value: RGBColor ): void
 		{
 			_borderColorTop = value;
 		}
 		
-		public function setBorderColorBottom( value: RGBColor ): void
+		public function set borderColorBottom( value: RGBColor ): void
 		{
 			_borderColorBottom = value;
 		}
@@ -315,40 +326,36 @@ package org.purepdf.elements
 		 * Enables/Disables the border on the specified sides.
 		 * The border is specified as an integer bitwise combination of
 		 * the constants: <CODE>LEFT, RIGHT, TOP, BOTTOM, ALL</CODE>.
-		 *
-		 * @see #enableBorderSide(int)
-		 * @see #disableBorderSide(int)
-		 * @param border	the new value
+		 * <p>Example:</p>
+		 * <pre>rect.borderSides = RectangleElement.LEFT | RectangleElement.TOP;</pre>  
+		 * 
+		 * @see #enableBorderSide
+		 * @see #disableBorderSide
 		 */
-		public function setBorderSides( borderType: int ): void
+		public function set borderSides( borderType: int ): void
 		{
 			_border = borderType;
 		}
 
-		public function setBorderWidth( value: Number ): void
-		{
-			_borderWidth = value;
-		}
-
-		public function setBorderWidthBottom( value: Number ): void
+		public function set borderWidthBottom( value: Number ): void
 		{
 			_borderWidthBottom = value;
 			updateBorderBasedOnWidth( _borderWidthBottom, BOTTOM );
 		}
 
-		public function setBorderWidthLeft( value: Number ): void
+		public function set borderWidthLeft( value: Number ): void
 		{
 			_borderWidthLeft = value;
 			updateBorderBasedOnWidth( _borderWidthLeft, LEFT );
 		}
 
-		public function setBorderWidthRight( value: Number ): void
+		public function set borderWidthRight( value: Number ): void
 		{
 			_borderWidthRight = value;
 			updateBorderBasedOnWidth( _borderWidthRight, RIGHT );
 		}
 
-		public function setBorderWidthTop( value: Number ): void
+		public function set borderWidthTop( value: Number ): void
 		{
 			_borderWidthTop = value;
 			updateBorderBasedOnWidth( _borderWidthTop, TOP );

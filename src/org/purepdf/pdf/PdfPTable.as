@@ -8,6 +8,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.utils.pdf_core;
 
 	/**
 	 * This is a table that can be put at an absolute position but can also
@@ -19,606 +20,275 @@ package org.purepdf.pdf
 		public static const BASECANVAS: int = 0;
 		public static const LINECANVAS: int = 2;
 		public static const TEXTCANVAS: int = 3;
-		
-		protected var absoluteWidths: Vector.<Number>;
-		protected var complete: Boolean = true;
+		protected var _complete: Boolean = true;
+		protected var _defaultCell: PdfPCell = PdfPCell.fromPhrase( null );
+		protected var _headerRows: int = 0;
+		protected var _rows: Vector.<PdfPRow> = new Vector.<PdfPRow>();
+		protected var _runDirection: int = PdfWriter.RUN_DIRECTION_DEFAULT;
+		protected var _spacingAfter: Number = 0;
+		protected var _spacingBefore: Number = 0;
+		protected var _totalHeight: Number = 0;
+		protected var _totalWidth: Number = 0;
+		protected var _widthPercentage: Number = 80;
+		protected var _absoluteWidths: Vector.<Number>;
 		protected var currentRow: Vector.<PdfPCell>;
 		protected var currentRowIdx: int = 0;
-		protected var defaultCell: PdfPCell = PdfPCell.fromPhrase( null );
-		protected var _headerRows: int;
 		protected var isColspan: Boolean = false;
 		protected var relativeWidths: Vector.<Number>;
 		protected var rowCompleted: Boolean = true;
-		protected var rows: Vector.<PdfPRow> = new Vector.<PdfPRow>();
-		protected var runDirection: int = PdfWriter.RUN_DIRECTION_DEFAULT;
-		protected var spacingAfter: Number;
-		protected var spacingBefore: Number;
-		protected var totalHeight: Number = 0;
-		protected var totalWidth: Number = 0;
-		protected var widthPercentage: Number = 80;
+		private var _footerRows: int = 0;
+		private var _headersInEvent: Boolean;
+		private var _horizontalAlignment: int = Element.ALIGN_CENTER;
+		private var _keepTogether: Boolean;
+		private var _lockedWidth: Boolean = false;
+		private var _skipFirstHeader: Boolean = false;
+		private var _skipLastFooter: Boolean = false;
+		private var _splitLate: Boolean = true;
+		private var _splitRows: Boolean = true;
 		private var extendLastRow: Vector.<Boolean> = Vector.<Boolean>( [false, false] );
-		private var footerRows: int;
-		private var headersInEvent: Boolean;
-		private var horizontalAlignment: int = Element.ALIGN_CENTER;
-		private var keepTogether: Boolean;
-		private var lockedWidth: Boolean = false;
-		private var skipFirstHeader: Boolean = false;
-		private var skipLastFooter: Boolean = false;
-		private var splitLate: Boolean = true;
-		private var splitRows: Boolean = true;
 
-		public function PdfPTable( obj: Object )
+		public function PdfPTable( obj: Object = null )
 		{
-			if( obj is Number )
-				initFromInt( int(obj) );
-		}
-		
-		/**
-		 * 
-		 * @throws DocumentError
-		 */
-		public function setNumberWidths( $relativeWidths: Vector.<Number> ): void
-		{
-			if (relativeWidths.length != getNumberOfColumns())
-				throw new DocumentError("wrong number of columns");
-			
-			relativeWidths = $relativeWidths.concat();
-			absoluteWidths = new Vector.<Number>(relativeWidths.length, true);
-			totalHeight = 0;
-			calculateWidths();
-			calculateHeights(true);
-		}
-		
-		public function setTotalWidth( value: Number ): void
-		{
-			if ( totalWidth == value )
-				return;
-			
-			totalWidth = value;
-			totalHeight = 0;
-			calculateWidths();
-			calculateHeights(true);
-		}
-		
-		/**
-		 * @throws DocumentError
-		 */
-		public function setTotalWidths( value: Vector.<Number> ): void
-		{
-			if( value.length != getNumberOfColumns())
-				throw new DocumentError("wrong number of columns");
-			totalWidth = 0;
-			
-			for (var k: int = 0; k < value.length; ++k)
-				totalWidth += value[k];
-			setNumberWidths(value);
-		}
-		
-		/**
-		 * @throws DocumentError
-		 */
-		public function setWidthPercentageAndSize( columnWidth: Vector.<Number>, pageSize: RectangleElement ): void
-		{
-			if( columnWidth.length != getNumberOfColumns() )
-				throw new DocumentError("wrong number of columns");
-			var totalWidth: Number = 0;
-			for (var k: int = 0; k < columnWidth.length; ++k)
-				totalWidth += columnWidth[k];
-			widthPercentage = totalWidth / (pageSize.getRight() - pageSize.getLeft()) * 100;
-			setNumberWidths(columnWidth);
-		}
-		
-		public function getTotalWidth(): Number {
-			return totalWidth;
-		}
-		
-		public function calculateHeights( firsttime: Boolean ): Number
-		{
-			if (totalWidth <= 0)
-				return 0;
-			totalHeight = 0;
-			for (var k: int = 0; k < rows.length; ++k) {
-				totalHeight += getRowHeight1(k, firsttime);
+			if ( obj != null )
+			{
+				if ( obj is Number )
+					initFromInt( int( obj ) );
+				else if ( obj is PdfPTable )
+					initFromTable( PdfPTable( obj ) );
+				else
+					throw new TypeError( "possible elements are: PdfpTable, int" );
 			}
-			return totalHeight;
 		}
-		
-		public function calculateHeightsFast(): void
+
+		public function set RunDirection( value: int ): void
 		{
-			calculateHeights(false);
+			switch ( value )
+			{
+				case PdfWriter.RUN_DIRECTION_DEFAULT:
+				case PdfWriter.RUN_DIRECTION_NO_BIDI:
+				case PdfWriter.RUN_DIRECTION_LTR:
+				case PdfWriter.RUN_DIRECTION_RTL:
+					_runDirection = value;
+					break;
+				default:
+					throw new RuntimeError( "invalid run direction" );
+			}
 		}
-		
-		public function getDefaultCell(): PdfPCell
-		{
-			return defaultCell;
-		}
-		
-		public function addStringCell( text: String ): void
-		{
-			addPhraseCell( new Phrase( text, null ) );
-		}
-		
-		public function addTableCell( table: PdfPTable ): void {
-			defaultCell.setTable(table);
-			addCell(defaultCell);
-			defaultCell.setTable(null);
-		}
-		
-		public function addImageCell( image: ImageElement ): void {
-			defaultCell.setImage(image);
-			addCell(defaultCell);
-			defaultCell.setImage(null);
-		}
-		
-		public function addPhraseCell( phrase: Phrase ): void {
-			defaultCell.setPhrase(phrase);
-			addCell(defaultCell);
-			defaultCell.setPhrase(null);
-		}
-		
+
 		public function addCell( cell: PdfPCell ): void
 		{
 			rowCompleted = false;
-			var ncell: PdfPCell = PdfPCell.fromCell(cell);
-			
-			var colspan: int = ncell.getColspan();
-			colspan = Math.max(colspan, 1);
-			colspan = Math.min(colspan, currentRow.length - currentRowIdx);
-			ncell.setColspan(colspan);
-			
-			if (colspan != 1)
+			var ncell: PdfPCell = PdfPCell.fromCell( cell );
+			var colspan: int = ncell.colspan;
+			colspan = Math.max( colspan, 1 );
+			colspan = Math.min( colspan, currentRow.length - currentRowIdx );
+			ncell.colspan = colspan;
+
+			if ( colspan != 1 )
 				isColspan = true;
-			var rdir: int = ncell.getRunDirection();
-			if (rdir == PdfWriter.RUN_DIRECTION_DEFAULT)
-				ncell.setRunDirection(runDirection);
-			
+			var rdir: int = ncell.runDirection;
+
+			if ( rdir == PdfWriter.RUN_DIRECTION_DEFAULT )
+				ncell.runDirection = runDirection;
 			skipColsWithRowspanAbove();
-			
-			var  cellAdded: Boolean = false;
-			if (currentRowIdx < currentRow.length) {  
+			var cellAdded: Boolean = false;
+
+			if ( currentRowIdx < currentRow.length )
+			{
 				currentRow[currentRowIdx] = ncell;
 				currentRowIdx += colspan;
 				cellAdded = true;
 			}
-			
 			skipColsWithRowspanAbove();
-			
-			if (currentRowIdx >= currentRow.length) {
-				var numCols: int = getNumberOfColumns();
-				if (runDirection == PdfWriter.RUN_DIRECTION_RTL) {
-					var rtlRow: Vector.<PdfPCell> = new Vector.<PdfPCell>(numCols, true);
+
+			if ( currentRowIdx >= currentRow.length )
+			{
+				var numCols: int = columnsCount;
+
+				if ( runDirection == PdfWriter.RUN_DIRECTION_RTL )
+				{
+					var rtlRow: Vector.<PdfPCell> = new Vector.<PdfPCell>( numCols, true );
 					var rev: int = currentRow.length;
-					for (var k: int = 0; k < currentRow.length; ++k) {
+
+					for ( var k: int = 0; k < currentRow.length; ++k )
+					{
 						var rcell: PdfPCell = currentRow[k];
-						var cspan: int = rcell.getColspan();
+						var cspan: int = rcell.colspan;
 						rev -= cspan;
 						rtlRow[rev] = rcell;
 						k += cspan - 1;
 					}
 					currentRow = rtlRow;
 				}
-				var row: PdfPRow = PdfPRow.fromCell( currentRow );
-				if (totalWidth > 0) {
-					row.setWidths(absoluteWidths);
-					totalHeight += row.getMaxHeights();
+				var row: PdfPRow = PdfPRow.fromCells( currentRow );
+
+				if ( _totalWidth > 0 )
+				{
+					row.setWidths( _absoluteWidths );
+					_totalHeight += row.maxHeights;
 				}
-				rows.push(row);
+				_rows.push( row );
 				currentRow = new Vector.<PdfPCell>( numCols, true );
 				currentRowIdx = 0;
 				rowCompleted = true;
 			}
-			
-			if (!cellAdded) {
+
+			if ( !cellAdded )
+			{
 				currentRow[currentRowIdx] = ncell;
 				currentRowIdx += colspan;
 			}
 		}
-		
-		public function writeSelectedRows( rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvases: Vector.<PdfContentByte> ): Number
+
+		public function addImageCell( image: ImageElement ): void
 		{
-			return writeSelectedRows1( 0, -1, rowStart, rowEnd, xPos, yPos, canvases );
+			_defaultCell.image = image;
+			addCell( _defaultCell );
+			_defaultCell.image = null;
 		}
-		
-		/**
-		 * @throws RuntimeError
-		 */
-		public function writeSelectedRows1( colStart: int, colEnd: int, rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvases: Vector.<PdfContentByte> ): Number
+
+		public function addPhraseCell( phrase: Phrase ): void
 		{
-			if (totalWidth <= 0)
-				throw new RuntimeError("the table width must be greater than zero");
-			
-			var totalRows: int = rows.length;
-			if (rowStart < 0)
-				rowStart = 0;
-			if (rowEnd < 0)
-				rowEnd = totalRows;
-			else
-				rowEnd = Math.min(rowEnd, totalRows);
-			if (rowStart >= rowEnd)
-				return yPos;
-			
-			var totalCols: int = getNumberOfColumns();
-			if (colStart < 0)
-				colStart = 0;
-			else
-				colStart = Math.min(colStart, totalCols);
-			if (colEnd < 0)
-				colEnd = totalCols;
-			else
-				colEnd = Math.min(colEnd, totalCols);
-			
-			var yPosStart: Number = yPos;
-			var k: int;
-			var row: PdfPRow;
-			
-			for ( k = rowStart; k < rowEnd; ++k) {
-				row = rows[k];
-				if (row != null) {
-					row.writeCells(colStart, colEnd, xPos, yPos, canvases);
-					yPos -= row.getMaxHeights();
-				}
-			}
-			
-			/*
-			if (tableEvent != null && colStart == 0 && colEnd == totalCols) {
-				var heights: Vector.<Number> = new Vector.<Number>(rowEnd - rowStart + 1, true);
-				heights[0] = yPosStart;
-				for ( k = rowStart; k < rowEnd; ++k) {
-					row = rows[k];
-					var hr: Number = 0;
-					if (row != null)
-						hr = row.getMaxHeights();
-					heights[k - rowStart + 1] = heights[k - rowStart] - hr;
-				}
-				tableEvent.tableLayout(this, getEventWidths(xPos, rowStart, rowEnd, headersInEvent), heights, headersInEvent ? headerRows : 0, rowStart, canvases);
-			}*/
-			
-			return yPos;
+			_defaultCell.phrase = phrase;
+			addCell( _defaultCell );
+			_defaultCell.phrase = null;
 		}
-		
-		public function writeSelectedRows2( rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvas: PdfContentByte ): Number
+
+		public function addStringCell( text: String ): void
 		{
-			return writeSelectedRows3( 0, -1, rowStart, rowEnd, xPos, yPos, canvas );
+			addPhraseCell( new Phrase( text, null ) );
 		}
-		
-		public function writeSelectedRows3( colStart: int, colEnd: int, rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvas: PdfContentByte ): Number
+
+		public function addTableCell( table: PdfPTable ): void
 		{
-			var totalCols: int = getNumberOfColumns();
-			if (colStart < 0)
-				colStart = 0;
-			else
-				colStart = Math.min(colStart, totalCols);
-			
-			if (colEnd < 0)
-				colEnd = totalCols;
-			else
-				colEnd = Math.min(colEnd, totalCols);
-			
-			var clip: Boolean = (colStart != 0 || colEnd != totalCols);
-			
-			if (clip) {
-				var w: Number = 0;
-				for (var k: int = colStart; k < colEnd; ++k)
-					w += absoluteWidths[k];
-				canvas.saveState();
-				var lx: Number = (colStart == 0) ? 10000 : 0;
-				var rx: Number = (colEnd == totalCols) ? 10000 : 0;
-				canvas.rectangle(xPos - lx, -10000, w + lx + rx, PdfPRow.RIGHT_LIMIT);
-				canvas.clip();
-				canvas.newPath();
-			}
-			
-			var canvases: Vector.<PdfContentByte> = beginWritingRows(canvas);
-			var y: Number = writeSelectedRows1( colStart, colEnd, rowStart, rowEnd, xPos, yPos, canvases );
-			endWritingRows( canvases );
-			
-			if (clip)
-				canvas.restoreState();
-			
-			return y;
+			_defaultCell.table = table;
+			addCell( _defaultCell );
+			_defaultCell.table = null;
 		}
-		
-		public static function beginWritingRows( canvas: PdfContentByte ): Vector.<PdfContentByte>
+
+		public function calculateHeights( firsttime: Boolean ): Number
 		{
-			return Vector.<PdfContentByte>([
-				canvas,
-				canvas.duplicate(),
-				canvas.duplicate(),
-				canvas.duplicate(),
-			]);
-		}
-		
-		public static function endWritingRows( canvases: Vector.<PdfContentByte> ): void
-		{
-			var canvas: PdfContentByte = canvases[BASECANVAS];
-			canvas.saveState();
-			canvas.addContent(canvases[BACKGROUNDCANVAS]);
-			canvas.restoreState();
-			canvas.saveState();
-			canvas.setLineCap(2);
-			canvas.resetStroke();
-			canvas.addContent(canvases[LINECANVAS]);
-			canvas.restoreState();
-			canvas.addContent(canvases[TEXTCANVAS]);
-		}
-		
-		public function get size(): int
-		{
-			return rows.length;
-		}
-		
-		public function getTotalHeight(): Number
-		{
-			return totalHeight;
-		}
-		
-		public function getRowHeight( idx: int ): Number
-		{
-			return getRowHeight1(idx, false);
-		}
-		
-		public function getRowHeight1( idx: int, firsttime: Boolean ): Number
-		{
-			if (totalWidth <= 0 || idx < 0 || idx >= rows.length )
+			if ( _totalWidth <= 0 )
 				return 0;
-			var row: PdfPRow = rows[idx];
-			if (row == null)
-				return 0;
-			if (firsttime)
-				row.setWidths(absoluteWidths);
-			var height: Number = row.getMaxHeights();
-			var cell: PdfPCell;
-			var tmprow: PdfPRow;
-			for (var i: int = 0; i < relativeWidths.length; i++) 
+			_totalHeight = 0;
+
+			for ( var k: int = 0; k < _rows.length; ++k )
 			{
-				if(!rowSpanAbove(idx, i))
-					continue;
-				var rs: int = 1;
-				while (rowSpanAbove(idx - rs, i)) {
-					rs++;
-				}
-				tmprow = rows[(idx - rs)];
-				cell = tmprow.getCells()[i];
-				var tmp: Number = 0;
-				if (cell.getRowspan() == rs + 1) {
-					tmp = cell.getMaxHeight();
-					while (rs > 0) {
-						tmp -= getRowHeight(idx - rs);
-						rs--;
-					}
-				}
-				if (tmp > height)
-					height = tmp;
+				_totalHeight += getRowHeight1( k, firsttime );
 			}
-			row.setMaxHeights(height);
-			return height;
-		}
-		
-		public function getRowspanHeight( rowIndex: int, cellIndex: int ): Number
-		{
-			if (totalWidth <= 0 || rowIndex < 0 || rowIndex >= rows.length )
-				return 0;
-			var row: PdfPRow = rows[rowIndex];
-			if (row == null || cellIndex >= row.getCells().length)
-				return 0;
-			var cell: PdfPCell = row.getCells()[cellIndex];
-			if (cell == null)
-				return 0;
-			var rowspanHeight: Number = 0;
-			for (var j: int = 0; j < cell.getRowspan(); j++) {
-				rowspanHeight += getRowHeight(rowIndex + j);
-			}
-			return rowspanHeight;
-		}
-		
-		public function getHeaderHeight(): Number
-		{
-			var total: Number = 0;
-			var s: int = Math.min(rows.length, headerRows);
-			for ( var k: int = 0; k < s; ++k) {
-				var row: PdfPRow = rows[k];
-				if (row != null)
-					total += row.getMaxHeights();
-			}
-			return total;
-		}
-		
-		public function getFooterHeight(): Number
-		{
-			var total: Number = 0;
-			var start: int = Math.max(0, headerRows - footerRows);
-			var s: int = Math.min(rows.length, headerRows);
-			for (var k: int = start; k < s; ++k) {
-				var row: PdfPRow = rows[k];
-				if (row != null)
-					total += row.getMaxHeights();
-			}
-			return total;
-		}
-		
-		public function deleteRow( rowNumber: int ): Boolean {
-			if (rowNumber < 0 || rowNumber >= rows.length )
-				return false;
-			if (totalWidth > 0) {
-				var row: PdfPRow = rows[rowNumber];
-				if (row != null)
-					totalHeight -= row.getMaxHeights();
-			}
-			rows.splice(rowNumber, 1);
-			if (rowNumber < headerRows) {
-				--headerRows;
-				if (rowNumber >= (headerRows - footerRows))
-					--footerRows;
-			}
-			return true;
-		}
-		
-		public function deleteLastRow(): Boolean
-		{
-			return deleteRow(rows.length - 1);
-		}
-		
-		public function deleteBodyRows(): void
-		{
-			var rows2: Vector.<PdfPRow> = new Vector.<PdfPRow>();
-			for (var k: int = 0; k < headerRows; ++k)
-				rows2.push(rows[k]);
-			rows = rows2;
-			totalHeight = 0;
-			if (totalWidth > 0)
-				totalHeight = getHeaderHeight();
-		}
-		
-		private function skipColsWithRowspanAbove(): void
-		{
-			var direction: int = 1;
-			if (runDirection == PdfWriter.RUN_DIRECTION_RTL )
-				direction = -1;
-			while (rowSpanAbove(rows.length, currentRowIdx))
-				currentRowIdx += direction;
+			return _totalHeight;
 		}
 
-		private function rowSpanAbove( currRow: int, currCol: int ): Boolean
+		public function calculateHeightsFast(): void
 		{
-			if ( ( currCol >= getNumberOfColumns() ) || ( currCol < 0 ) || ( currRow == 0 ) )
-				return false;
-			var col: int;
-			var row: int = currRow - 1;
-			var aboveRow: PdfPRow = rows[row];
-
-			if ( aboveRow == null )
-				return false;
-			var aboveCell: PdfPCell = aboveRow.getCells()[currCol] as PdfPCell;
-
-			while ( ( aboveCell == null ) && ( row > 0 ) )
-			{
-				aboveRow = rows[--row];
-
-				if ( aboveRow == null )
-					return false;
-				aboveCell = aboveRow.getCells()[currCol] as PdfPCell;
-			}
-			var distance: int = currRow - row;
-
-			if ( aboveCell == null )
-			{
-				col = currCol - 1;
-				aboveCell = aboveRow.getCells()[col] as PdfPCell;
-
-				while ( ( aboveCell == null ) && ( row > 0 ) )
-					aboveCell = aboveRow.getCells()[--col] as PdfPCell;
-				return aboveCell != null && aboveCell.getRowspan() > distance;
-			}
-
-			if ( ( aboveCell.getRowspan() == 1 ) && ( distance > 1 ) )
-			{
-				col = currCol - 1;
-				aboveRow = rows[row + 1];
-				distance--;
-				aboveCell = aboveRow.getCells()[col] as PdfPCell;
-
-				while ( ( aboveCell == null ) && ( col > 0 ) )
-					aboveCell = aboveRow.getCells()[--col] as PdfPCell;
-			}
-			return aboveCell != null && aboveCell.getRowspan() > distance;
-		}
-		
-		/**
-		 * @throws DocumentError
-		 */
-		public function setIntWidths( relativeWidths: Vector.<int> ): void
-		{
-			var tb: Vector.<Number> = new Vector.<Number>(relativeWidths.length, true);
-			for( var k: int = 0; k < relativeWidths.length; ++k)
-				tb[k] = relativeWidths[k];
-			setNumberWidths(tb);
-		}
-		
-		public function get headerRows():int
-		{
-			return _headerRows;
-		}
-		
-		public function set headerRows( value: int ): void
-		{
-			_headerRows = Math.max( value, 0 );
-		}
-		
-		public static function shallowCopy( table: PdfPTable ): PdfPTable
-		{
-			var nt: PdfPTable = new PdfPTable( null );
-			nt.copyFormat( table );
-			return nt;
-		}
-		
-		protected function copyFormat( sourceTable: PdfPTable ): void
-		{
-			relativeWidths = sourceTable.relativeWidths.concat();
-			relativeWidths.length = getNumberOfColumns();
-
-			absoluteWidths = sourceTable.absoluteWidths.concat();
-			absoluteWidths.length = getNumberOfColumns();
-			
-			totalWidth = sourceTable.totalWidth;
-			totalHeight = sourceTable.totalHeight;
-			currentRowIdx = 0;
-			runDirection = sourceTable.runDirection;
-			defaultCell = PdfPCell.fromCell(sourceTable.defaultCell);
-			currentRow = new Vector.<PdfPCell>(sourceTable.currentRow.length, true);
-			isColspan = sourceTable.isColspan;
-			splitRows = sourceTable.splitRows;
-			spacingAfter = sourceTable.spacingAfter;
-			spacingBefore = sourceTable.spacingBefore;
-			headerRows = sourceTable.headerRows;
-			footerRows = sourceTable.footerRows;
-			lockedWidth = sourceTable.lockedWidth;
-			extendLastRow = sourceTable.extendLastRow;
-			headersInEvent = sourceTable.headersInEvent;
-			widthPercentage = sourceTable.widthPercentage;
-			splitLate = sourceTable.splitLate;
-			skipFirstHeader = sourceTable.skipFirstHeader;
-			skipLastFooter = sourceTable.skipLastFooter;
-			horizontalAlignment = sourceTable.horizontalAlignment;
-			keepTogether = sourceTable.keepTogether;
-			complete = sourceTable.complete;
+			calculateHeights( false );
 		}
 
-
-		private function initFromInt( numColumns: int ): void
-		{
-			if( numColumns <= 0 )
-				throw new ArgumentError( "the number of columns must be greater than zero" );
-			relativeWidths = new Vector.<Number>(numColumns, true);
-			for ( var k: int = 0; k < numColumns; ++k )
-				relativeWidths[k] = 1;
-			
-			absoluteWidths = new Vector.<Number>( relativeWidths.length, true );
-			calculateWidths();
-			currentRow = new Vector.<PdfPCell>(absoluteWidths.length, true);
-			keepTogether = false;
-		}
-		
-		protected function calculateWidths(): void
-		{
-			if( totalWidth <= 0 )
-				return;
-			var total: Number = 0;
-			var k: int;
-			var numCols = getNumberOfColumns();
-			for (k = 0; k < numCols; ++k)
-				total += relativeWidths[k];
-			for ( k = 0; k < numCols; ++k)
-				absoluteWidths[k] = totalWidth * relativeWidths[k] / total;
-		}
-		
-		public function getNumberOfColumns(): int
+		public function get columnsCount(): int
 		{
 			return relativeWidths.length;
 		}
-		
-		public function getHeaderRows(): int
+
+		public function get complete(): Boolean
 		{
-			return headerRows;
+			return _complete;
+		}
+
+		public function set complete( value: Boolean ): void
+		{
+			_complete = value;
+		}
+
+		public function completeRow(): void
+		{
+			while ( !rowCompleted )
+			{
+				addCell( _defaultCell );
+			}
+		}
+
+		public function get defaultCell(): PdfPCell
+		{
+			return _defaultCell;
+		}
+
+		public function deleteBodyRows(): void
+		{
+			var rows2: Vector.<PdfPRow> = new Vector.<PdfPRow>();
+
+			for ( var k: int = 0; k < headerRows; ++k )
+				rows2.push( _rows[k] );
+			_rows = rows2;
+			_totalHeight = 0;
+
+			if ( _totalWidth > 0 )
+				_totalHeight = headerHeight;
+		}
+
+		public function deleteLastRow(): Boolean
+		{
+			return deleteRow( _rows.length - 1 );
+		}
+
+		public function deleteRow( rowNumber: int ): Boolean
+		{
+			if ( rowNumber < 0 || rowNumber >= _rows.length )
+				return false;
+
+			if ( _totalWidth > 0 )
+			{
+				var row: PdfPRow = _rows[rowNumber];
+
+				if ( row != null )
+					_totalHeight -= row.maxHeights;
+			}
+			_rows.splice( rowNumber, 1 );
+
+			if ( rowNumber < headerRows )
+			{
+				--headerRows;
+
+				if ( rowNumber >= ( headerRows - _footerRows ) )
+					--_footerRows;
+			}
+			return true;
+		}
+
+		public function flushContent(): void
+		{
+			deleteBodyRows();
+			skipFirstHeader = true;
+		}
+
+		public function get footerHeight(): Number
+		{
+			var total: Number = 0;
+			var start: int = Math.max( 0, headerRows - _footerRows );
+			var s: int = Math.min( _rows.length, headerRows );
+
+			for ( var k: int = start; k < s; ++k )
+			{
+				var row: PdfPRow = _rows[k];
+
+				if ( row != null )
+					total += row.maxHeights;
+			}
+			return total;
+		}
+
+		public function get footerRows(): int
+		{
+			return _footerRows;
+		}
+
+		public function set footerRows( value: int ): void
+		{
+			_footerRows = Math.max( value, 0 );
+		}
+
+		public function get absoluteWidths(): Vector.<Number>
+		{
+			return _absoluteWidths;
 		}
 
 		public function getChunks(): Vector.<Object>
@@ -626,9 +296,202 @@ package org.purepdf.pdf
 			return new Vector.<Object>();
 		}
 
+		public function getRow( idx: int ): PdfPRow
+		{
+			return _rows[idx];
+		}
+
+		public function getRowHeight( idx: int ): Number
+		{
+			return getRowHeight1( idx, false );
+		}
+
+		public function getRowHeight1( idx: int, firsttime: Boolean ): Number
+		{
+			if ( _totalWidth <= 0 || idx < 0 || idx >= _rows.length )
+				return 0;
+			var row: PdfPRow = _rows[idx];
+
+			if ( row == null )
+				return 0;
+
+			if ( firsttime )
+				row.setWidths( _absoluteWidths );
+			var height: Number = row.maxHeights;
+			var cell: PdfPCell;
+			var tmprow: PdfPRow;
+
+			for ( var i: int = 0; i < relativeWidths.length; i++ )
+			{
+				if ( !rowSpanAbove( idx, i ) )
+					continue;
+				var rs: int = 1;
+
+				while ( rowSpanAbove( idx - rs, i ) )
+				{
+					rs++;
+				}
+				tmprow = _rows[( idx - rs )];
+				cell = tmprow.cells[i];
+				var tmp: Number = 0;
+
+				if ( cell.rowspan == rs + 1 )
+				{
+					tmp = cell.maxHeight;
+
+					while ( rs > 0 )
+					{
+						tmp -= getRowHeight( idx - rs );
+						rs--;
+					}
+				}
+
+				if ( tmp > height )
+					height = tmp;
+			}
+			row.maxHeights = height;
+			return height;
+		}
+
+		public function getRows( start: int, end: int ): Vector.<PdfPRow>
+		{
+			var list: Vector.<PdfPRow> = new Vector.<PdfPRow>();
+
+			if ( start < 0 || end > size )
+			{
+				return list;
+			}
+			var firstRow: PdfPRow = adjustCellsInRow( start, end );
+			var colIndex: int = 0;
+			var cell: PdfPCell;
+
+			while ( colIndex < columnsCount )
+			{
+				var rowIndex: int = start;
+
+				while ( rowSpanAbove( rowIndex--, colIndex ) )
+				{
+					var row: PdfPRow = _rows[rowIndex];
+
+					if ( row != null )
+					{
+						var replaceCell: PdfPCell = row.cells[colIndex];
+
+						if ( replaceCell != null )
+						{
+							firstRow.cells[colIndex] = PdfPCell.fromCell( replaceCell );
+							var extra: Number = 0;
+							var stop: int = Math.min( rowIndex + replaceCell.rowspan, end );
+
+							for ( var j: int = start + 1; j < stop; j++ )
+							{
+								extra += getRowHeight( j );
+							}
+							firstRow.setExtraHeight( colIndex, extra );
+							var diff: Number = getRowspanHeight( rowIndex, colIndex ) - getRowHeight( start ) - extra;
+							firstRow.cells[colIndex].consumeHeight( diff );
+						}
+					}
+				}
+				cell = firstRow.cells[colIndex];
+
+				if ( cell == null )
+					colIndex++;
+				else
+					colIndex += cell.colspan;
+			}
+			list.push( firstRow );
+
+			for ( var i: int = start + 1; i < end; i++ )
+			{
+				list.push( adjustCellsInRow( i, end ) );
+			}
+			return list;
+		}
+
+		public function getRowspanHeight( rowIndex: int, cellIndex: int ): Number
+		{
+			if ( _totalWidth <= 0 || rowIndex < 0 || rowIndex >= _rows.length )
+				return 0;
+			var row: PdfPRow = _rows[rowIndex];
+
+			if ( row == null || cellIndex >= row.cells.length )
+				return 0;
+			var cell: PdfPCell = row.cells[cellIndex];
+
+			if ( cell == null )
+				return 0;
+			var rowspanHeight: Number = 0;
+
+			for ( var j: int = 0; j < cell.rowspan; j++ )
+			{
+				rowspanHeight += getRowHeight( rowIndex + j );
+			}
+			return rowspanHeight;
+		}
+
+		public function get headerHeight(): Number
+		{
+			var total: Number = 0;
+			var s: int = Math.min( _rows.length, headerRows );
+
+			for ( var k: int = 0; k < s; ++k )
+			{
+				var row: PdfPRow = _rows[k];
+
+				if ( row != null )
+					total += row.maxHeights;
+			}
+			return total;
+		}
+
+		public function get headerRows(): int
+		{
+			return _headerRows;
+		}
+
+		public function set headerRows( value: int ): void
+		{
+			_headerRows = Math.max( value, 0 );
+		}
+
+		public function get headersInEvent(): Boolean
+		{
+			return _headersInEvent;
+		}
+
+		public function set headersInEvent( value: Boolean ): void
+		{
+			_headersInEvent = value;
+		}
+
+		public function get horizontalAlignment(): int
+		{
+			return _horizontalAlignment;
+		}
+
+		public function set horizontalAlignment( value: int ): void
+		{
+			_horizontalAlignment = value;
+		}
+
 		public function get isContent(): Boolean
 		{
 			return true;
+		}
+
+		public function isExtendLastRow(): Boolean
+		{
+			return extendLastRow[0];
+		}
+
+		public function isExtendLastRow1( newPageFollows: Boolean ): Boolean
+		{
+			if ( newPageFollows )
+			{
+				return extendLastRow[0];
+			}
+			return extendLastRow[1];
 		}
 
 		public function get isNestable(): Boolean
@@ -636,314 +499,566 @@ package org.purepdf.pdf
 			return true;
 		}
 
+		public function get keepTogether(): Boolean
+		{
+			return _keepTogether;
+		}
+
+		public function set keepTogether( value: Boolean ): void
+		{
+			_keepTogether = value;
+		}
+
+		public function get lockedWidth(): Boolean
+		{
+			return _lockedWidth;
+		}
+
+		public function set lockedWidth( value: Boolean ): void
+		{
+			_lockedWidth = value;
+		}
+
 		public function process( listener: IElementListener ): Boolean
 		{
 			try
 			{
 				return listener.addElement( this );
-			} catch( e: DocumentError ){}
+			} catch ( e: DocumentError )
+			{
+			}
 			return false;
 		}
-		
-		public function getWidthPercentage(): Number
+
+		public function get rows(): Vector.<PdfPRow>
 		{
-			return widthPercentage;
-		}
-		
-		public function setWidthPercentage( value: Number ): void
-		{
-			widthPercentage = value;
-		}
-		
-		public function getHorizontalAlignment(): int
-		{
-			return horizontalAlignment;
-		}
-		
-		public function setHorizontalAlignment( value: int ): void
-		{
-			horizontalAlignment = value;
+			return _rows;
 		}
 
-		public function getRow( idx: int ): PdfPRow
+		public function get runDirection(): int
 		{
-			return rows[idx];
+			return _runDirection;
 		}
 
-		public function getRows( start: int, end: int ): Vector.<PdfPRow>
-		{
-			var list: Vector.<PdfPRow> = new Vector.<PdfPRow>();
-			if (start < 0 || end > size ) {
-				return list;
-			}
-			var firstRow: PdfPRow = adjustCellsInRow(start, end);
-			var colIndex: int = 0;
-			var cell: PdfPCell;
-			while (colIndex < getNumberOfColumns()) {
-				var rowIndex: int = start;
-				while (rowSpanAbove(rowIndex--, colIndex)) {
-					var row: PdfPRow = rows[rowIndex];
-					if (row != null)
-					{
-						var replaceCell: PdfPCell = row.getCells()[colIndex];
-						if (replaceCell != null) {
-							firstRow.getCells()[colIndex] = PdfPCell.fromCell(replaceCell);
-							var extra: Number = 0;
-							var stop: int = Math.min(rowIndex + replaceCell.getRowspan(), end);
-							for (var j: int = start + 1; j < stop; j++) {
-								extra += getRowHeight(j);
-							}
-							firstRow.setExtraHeight(colIndex, extra);
-							var diff: Number = getRowspanHeight(rowIndex, colIndex) - getRowHeight(start) - extra;
-							firstRow.getCells()[colIndex].consumeHeight(diff);
-						}
-					}
-				}
-				cell = firstRow.getCells()[colIndex];
-				if (cell == null)
-					colIndex++;
-				else
-					colIndex += cell.getColspan();
-			}
-			list.push(firstRow);
-			for (var i: int = start + 1; i < end; i++) {
-				list.push(adjustCellsInRow(i, end));
-			}
-			return list;
-		}
-		
-		protected function adjustCellsInRow( start: int, end: int ): PdfPRow
-		{
-			var row: PdfPRow = PdfPRow.fromRow( rows[start] );
-			row.initExtraHeights();
-			var k: int;
-			var cell: PdfPCell;
-			var cells: Vector.<PdfPCell> = row.getCells();
-			for (var i: int = 0; i < cells.length; i++) {
-				cell = cells[i];
-				if (cell == null || cell.getRowspan() == 1)
-					continue;
-				var stop: int = Math.min(end, start + cell.getRowspan());
-				var extra: Number = 0;
-				for ( k = start + 1; k < stop; k++) {
-					extra += getRowHeight(k);
-				}
-				row.setExtraHeight(i, extra);
-			}
-			return row;
-		}
-		
-		public function getAbsoluteWidths(): Vector.<Number>
-		{
-			return absoluteWidths;
-		}
-		
-		private function getEventWidths( xPos: Number, firstRow: int, lastRow: int, includeHeaders: Boolean ): Vector.<Vector.<Number>>
-		{
-			if (includeHeaders) 
-			{
-				firstRow = Math.max(firstRow, headerRows);
-				lastRow = Math.max(lastRow, headerRows);
-			}
-			
-			var k: int;
-			var row: PdfPRow;
-			var widths: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>( (includeHeaders ? headerRows : 0) + lastRow - firstRow, true );
-			if (isColspan) {
-				var n: int = 0;
-				if (includeHeaders) {
-					for ( k = 0; k < headerRows; ++k) {
-						row = rows[k];
-						if (row == null)
-							++n;
-						else
-							widths[n++] = row.getEventWidth(xPos);
-					}
-				}
-				for (; firstRow < lastRow; ++firstRow) {
-					row = rows[firstRow];
-					if (row == null)
-						++n;
-					else
-						widths[n++] = row.getEventWidth(xPos);
-				}
-			}
-			else {
-				var numCols: int = getNumberOfColumns();
-				var width: Vector.<Number> = new Vector.<Number>( numCols + 1, true );
-				width[0] = xPos;
-				for (k = 0; k < numCols; ++k)
-					width[k + 1] = width[k] + absoluteWidths[k];
-				for (k = 0; k < widths.length; ++k)
-					widths[k] = width;
-			}
-			return widths;
-		}
-		
-		public function isSkipFirstHeader(): Boolean
-		{
-			return skipFirstHeader;
-		}
-		
-		public function isSkipLastFooter(): Boolean
-		{
-			return skipLastFooter;
-		}
-		
-		public function setSkipFirstHeader( value: Boolean ): void
-		{
-			skipFirstHeader = value;
-		}
-		
-		public function setSkipLastFooter( value: Boolean ): void
-		{
-			skipLastFooter = value;
-		}
-		
-		public function setRunDirection( value: int ): void
-		{
-			switch (runDirection) {
-				case PdfWriter.RUN_DIRECTION_DEFAULT:
-				case PdfWriter.RUN_DIRECTION_NO_BIDI:
-				case PdfWriter.RUN_DIRECTION_LTR:
-				case PdfWriter.RUN_DIRECTION_RTL:
-					runDirection = value;
-					break;
-				default:
-					throw new RuntimeError("invalid run direction");
-			}
-		}
-		
-		public function getRunDirection(): int
-		{
-			return runDirection;
-		}
-		
-		public function isLockedWidth(): Boolean {
-			return lockedWidth;
-		}
-		
-		public function setLockedWidth( value: Boolean ): void
-		{
-			lockedWidth = value;
-		}
-		
-		public function isSplitRows(): Boolean
-		{
-			return splitRows;
-		}
-		
-		public function setSplitRows( value: Boolean ): void 
-		{
-			splitRows = value;
-		}
-		
-		public function setSpacingBefore( value: Number ): void
-		{
-			spacingBefore = value;
-		}
-		
-		public function setSpacingAfter( value: Number ): void
-		{
-			spacingAfter = value;
-		}    
-		
-		public function getSpacingBefore(): Number
-		{
-			return spacingBefore;
-		}
-		
-		public function getSpacingAfter(): Number
-		{
-			return spacingAfter;
-		}    
-
-		public function isExtendLastRow(): Boolean
-		{
-			return extendLastRow[0];
-		}
-		
 		public function setExtendLastRow( value: Boolean ): void
 		{
 			extendLastRow[0] = value;
 			extendLastRow[1] = value;
 		}
-		
+
 		public function setExtendLastRows( value1: Boolean, value2: Boolean ): void
 		{
 			extendLastRow[0] = value1;
 			extendLastRow[1] = value2;
 		}
 
-		public function isExtendLastRow1( newPageFollows: Boolean ): Boolean
+		/**
+		 * @throws DocumentError
+		 */
+		public function setIntWidths( relativeWidths: Vector.<int> ): void
 		{
-			if (newPageFollows) {
-				return extendLastRow[0];	
-			}
-			return extendLastRow[1];
+			var tb: Vector.<Number> = new Vector.<Number>( relativeWidths.length, true );
+
+			for ( var k: int = 0; k < relativeWidths.length; ++k )
+				tb[k] = relativeWidths[k];
+			setNumberWidths( tb );
 		}
-		
-		public function isSplitLate(): Boolean
+
+		/**
+		 *
+		 * @throws DocumentError
+		 */
+		public function setNumberWidths( $relativeWidths: Vector.<Number> ): void
 		{
-			return splitLate;
+			if ( relativeWidths.length != columnsCount )
+				throw new DocumentError( "wrong number of columns" );
+			relativeWidths = $relativeWidths.concat();
+			_absoluteWidths = new Vector.<Number>( relativeWidths.length, true );
+			_totalHeight = 0;
+			calculateWidths();
+			calculateHeights( true );
 		}
-		
-		public function setSplitLate( value: Boolean ): void
+
+		/**
+		 * @throws DocumentError
+		 */
+		public function setTotalWidths( value: Vector.<Number> ): void
 		{
-			splitLate = value;
+			if ( value.length != columnsCount )
+				throw new DocumentError( "wrong number of columns" );
+			_totalWidth = 0;
+
+			for ( var k: int = 0; k < value.length; ++k )
+				_totalWidth += value[k];
+			setNumberWidths( value );
 		}
-		
-		public function setKeepTogether( value: Boolean ): void
+
+		/**
+		 * @throws DocumentError
+		 */
+		public function setWidthPercentageAndSize( columnWidth: Vector.<Number>, pageSize: RectangleElement ): void
 		{
-			keepTogether = value;
+			if ( columnWidth.length != columnsCount )
+				throw new DocumentError( "wrong number of columns" );
+			var totalWidth: Number = 0;
+
+			for ( var k: int = 0; k < columnWidth.length; ++k )
+				totalWidth += columnWidth[k];
+			_widthPercentage = totalWidth / ( pageSize.getRight() - pageSize.getLeft() ) * 100;
+			setNumberWidths( columnWidth );
 		}
-		
-		public function getKeepTogether(): Boolean
+
+		public function get size(): int
 		{
-			return keepTogether;
+			return _rows.length;
 		}
-		
-		public function getFooterRows(): int
+
+		public function get skipFirstHeader(): Boolean
 		{
-			return footerRows;
+			return _skipFirstHeader;
 		}
-		
-		public function setFooterRows( value: int ): void
+
+		public function set skipFirstHeader( value: Boolean ): void
 		{
-			footerRows = Math.max( value, 0 );
+			_skipFirstHeader = value;
 		}
-		
-		public function completeRow(): void
+
+		public function get skipLastFooter(): Boolean
 		{
-			while (!rowCompleted) {
-				addCell(defaultCell);
-			}
+			return _skipLastFooter;
 		}
-		
-		public function flushContent(): void
+
+		public function set skipLastFooter( value: Boolean ): void
 		{
-			deleteBodyRows();
-			setSkipFirstHeader(true);
+			_skipLastFooter = value;
 		}
-		
-		public function get isComplete(): Boolean
+
+		public function get spacingAfter(): Number
 		{
-			return complete;
+			return _spacingAfter;
 		}
-		
-		public function set isComplete( value: Boolean ): void
+
+		public function set spacingAfter( value: Number ): void
 		{
-			complete = value;
+			_spacingAfter = value;
 		}
-		
+
+		public function get spacingBefore(): Number
+		{
+			return _spacingBefore;
+		}
+
+		public function set spacingBefore( value: Number ): void
+		{
+			_spacingBefore = value;
+		}
+
+		public function get splitLate(): Boolean
+		{
+			return _splitLate;
+		}
+
+		public function set splitLate( value: Boolean ): void
+		{
+			_splitLate = value;
+		}
+
+		public function get splitRows(): Boolean
+		{
+			return _splitRows;
+		}
+
+		public function set splitRows( value: Boolean ): void
+		{
+			_splitRows = value;
+		}
+
 		public function toString(): String
 		{
 			return "[PdfPTable]";
 		}
 
+		public function get totalHeight(): Number
+		{
+			return _totalHeight;
+		}
+
+		public function get totalWidth(): Number
+		{
+			return _totalWidth;
+		}
+
+		public function set totalWidth( value: Number ): void
+		{
+			if ( _totalWidth == value )
+				return;
+			_totalWidth = value;
+			_totalHeight = 0;
+			calculateWidths();
+			calculateHeights( true );
+		}
+
 		public function get type(): int
 		{
 			return Element.PTABLE;
+		}
+
+		public function get widthPercentage(): Number
+		{
+			return _widthPercentage;
+		}
+
+		public function set widthPercentage( value: Number ): void
+		{
+			_widthPercentage = value;
+		}
+
+		public function writeSelectedRows( rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvases: Vector.<PdfContentByte> ): Number
+		{
+			return writeSelectedRows1( 0, -1, rowStart, rowEnd, xPos, yPos, canvases );
+		}
+
+		/**
+		 * @throws RuntimeError
+		 */
+		public function writeSelectedRows1( colStart: int, colEnd: int, rowStart: int, rowEnd: int, xPos: Number, yPos: Number,
+						canvases: Vector.<PdfContentByte> ): Number
+		{
+			if ( _totalWidth <= 0 )
+				throw new RuntimeError( "the table width must be greater than zero" );
+			var totalRows: int = _rows.length;
+
+			if ( rowStart < 0 )
+				rowStart = 0;
+
+			if ( rowEnd < 0 )
+				rowEnd = totalRows;
+			else
+				rowEnd = Math.min( rowEnd, totalRows );
+
+			if ( rowStart >= rowEnd )
+				return yPos;
+			var totalCols: int = columnsCount;
+
+			if ( colStart < 0 )
+				colStart = 0;
+			else
+				colStart = Math.min( colStart, totalCols );
+
+			if ( colEnd < 0 )
+				colEnd = totalCols;
+			else
+				colEnd = Math.min( colEnd, totalCols );
+			var yPosStart: Number = yPos;
+			var k: int;
+			var row: PdfPRow;
+
+			for ( k = rowStart; k < rowEnd; ++k )
+			{
+				row = _rows[k];
+
+				if ( row != null )
+				{
+					row.writeCells( colStart, colEnd, xPos, yPos, canvases );
+					yPos -= row.maxHeights;
+				}
+			}
+			return yPos;
+		}
+
+		public function writeSelectedRows2( rowStart: int, rowEnd: int, xPos: Number, yPos: Number, canvas: PdfContentByte ): Number
+		{
+			return writeSelectedRows3( 0, -1, rowStart, rowEnd, xPos, yPos, canvas );
+		}
+
+		public function writeSelectedRows3( colStart: int, colEnd: int, rowStart: int, rowEnd: int, xPos: Number, yPos: Number,
+						canvas: PdfContentByte ): Number
+		{
+			var totalCols: int = columnsCount;
+
+			if ( colStart < 0 )
+				colStart = 0;
+			else
+				colStart = Math.min( colStart, totalCols );
+
+			if ( colEnd < 0 )
+				colEnd = totalCols;
+			else
+				colEnd = Math.min( colEnd, totalCols );
+			var clip: Boolean = ( colStart != 0 || colEnd != totalCols );
+
+			if ( clip )
+			{
+				var w: Number = 0;
+
+				for ( var k: int = colStart; k < colEnd; ++k )
+					w += _absoluteWidths[k];
+				canvas.saveState();
+				var lx: Number = ( colStart == 0 ) ? 10000 : 0;
+				var rx: Number = ( colEnd == totalCols ) ? 10000 : 0;
+				canvas.rectangle( xPos - lx, -10000, w + lx + rx, PdfPRow.RIGHT_LIMIT );
+				canvas.clip();
+				canvas.newPath();
+			}
+			var canvases: Vector.<PdfContentByte> = beginWritingRows( canvas );
+			var y: Number = writeSelectedRows1( colStart, colEnd, rowStart, rowEnd, xPos, yPos, canvases );
+			endWritingRows( canvases );
+
+			if ( clip )
+				canvas.restoreState();
+			return y;
+		}
+
+		protected function adjustCellsInRow( start: int, end: int ): PdfPRow
+		{
+			var row: PdfPRow = PdfPRow.fromRow( _rows[start] );
+			row.initExtraHeights();
+			var k: int;
+			var cell: PdfPCell;
+			var cells: Vector.<PdfPCell> = row.cells;
+
+			for ( var i: int = 0; i < cells.length; i++ )
+			{
+				cell = cells[i];
+
+				if ( cell == null || cell.rowspan == 1 )
+					continue;
+				var stop: int = Math.min( end, start + cell.rowspan );
+				var extra: Number = 0;
+
+				for ( k = start + 1; k < stop; k++ )
+				{
+					extra += getRowHeight( k );
+				}
+				row.setExtraHeight( i, extra );
+			}
+			return row;
+		}
+
+		protected function calculateWidths(): void
+		{
+			if ( _totalWidth <= 0 )
+				return;
+			var total: Number = 0;
+			var k: int;
+			var numCols: int = columnsCount;
+
+			for ( k = 0; k < numCols; ++k )
+				total += relativeWidths[k];
+
+			for ( k = 0; k < numCols; ++k )
+				_absoluteWidths[k] = _totalWidth * relativeWidths[k] / total;
+		}
+
+		protected function copyFormat( sourceTable: PdfPTable ): void
+		{
+			relativeWidths = sourceTable.relativeWidths.concat();
+			relativeWidths.length = columnsCount;
+			_absoluteWidths = sourceTable._absoluteWidths.concat();
+			_absoluteWidths.length = columnsCount;
+			_totalWidth = sourceTable._totalWidth;
+			_totalHeight = sourceTable._totalHeight;
+			currentRowIdx = 0;
+			_runDirection = sourceTable.runDirection;
+			_defaultCell = PdfPCell.fromCell( sourceTable._defaultCell );
+			currentRow = new Vector.<PdfPCell>( sourceTable.currentRow.length, true );
+			isColspan = sourceTable.isColspan;
+			_splitRows = sourceTable._splitRows;
+			_spacingAfter = sourceTable._spacingAfter;
+			_spacingBefore = sourceTable._spacingBefore;
+			headerRows = sourceTable.headerRows;
+			_footerRows = sourceTable._footerRows;
+			_lockedWidth = sourceTable._lockedWidth;
+			extendLastRow = sourceTable.extendLastRow;
+			_headersInEvent = sourceTable._headersInEvent;
+			_widthPercentage = sourceTable._widthPercentage;
+			_splitLate = sourceTable._splitLate;
+			_skipFirstHeader = sourceTable._skipFirstHeader;
+			_skipLastFooter = sourceTable._skipLastFooter;
+			_horizontalAlignment = sourceTable._horizontalAlignment;
+			_keepTogether = sourceTable._keepTogether;
+			_complete = sourceTable._complete;
+		}
+
+		private function getEventWidths( xPos: Number, firstRow: int, lastRow: int, includeHeaders: Boolean ): Vector.<Vector.<Number>>
+		{
+			if ( includeHeaders )
+			{
+				firstRow = Math.max( firstRow, headerRows );
+				lastRow = Math.max( lastRow, headerRows );
+			}
+			var k: int;
+			var row: PdfPRow;
+			var widths: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>( ( includeHeaders ? headerRows : 0 ) + lastRow -
+							firstRow, true );
+
+			if ( isColspan )
+			{
+				var n: int = 0;
+
+				if ( includeHeaders )
+				{
+					for ( k = 0; k < headerRows; ++k )
+					{
+						row = _rows[k];
+
+						if ( row == null )
+							++n;
+						else
+							widths[n++] = row.getEventWidth( xPos );
+					}
+				}
+
+				for ( ; firstRow < lastRow; ++firstRow )
+				{
+					row = _rows[firstRow];
+
+					if ( row == null )
+						++n;
+					else
+						widths[n++] = row.getEventWidth( xPos );
+				}
+			} else
+			{
+				var numCols: int = columnsCount;
+				var width: Vector.<Number> = new Vector.<Number>( numCols + 1, true );
+				width[0] = xPos;
+
+				for ( k = 0; k < numCols; ++k )
+					width[k + 1] = width[k] + _absoluteWidths[k];
+
+				for ( k = 0; k < widths.length; ++k )
+					widths[k] = width;
+			}
+			return widths;
+		}
+
+		private function initFromInt( numColumns: int ): void
+		{
+			if ( numColumns <= 0 )
+				throw new ArgumentError( "the number of columns must be greater than zero" );
+			relativeWidths = new Vector.<Number>( numColumns, true );
+
+			for ( var k: int = 0; k < numColumns; ++k )
+				relativeWidths[k] = 1;
+			_absoluteWidths = new Vector.<Number>( relativeWidths.length, true );
+			calculateWidths();
+			currentRow = new Vector.<PdfPCell>( _absoluteWidths.length, true );
+			_keepTogether = false;
+		}
+
+		private function initFromTable( o: PdfPTable ): void
+		{
+			var k: int;
+			copyFormat( o );
+
+			for ( k = 0; k < currentRow.length; ++k )
+			{
+				if ( o.currentRow[k] == null )
+					break;
+				currentRow[k] = PdfPCell.fromCell( o.currentRow[k] );
+			}
+
+			for ( k = 0; k < o._rows.length; ++k )
+			{
+				var row: PdfPRow = ( o._rows[k] );
+
+				if ( row != null )
+					row = PdfPRow.fromRow( row );
+				_rows.push( row );
+			}
+		}
+
+		private function skipColsWithRowspanAbove(): void
+		{
+			var direction: int = 1;
+
+			if ( runDirection == PdfWriter.RUN_DIRECTION_RTL )
+				direction = -1;
+
+			while ( rowSpanAbove( _rows.length, currentRowIdx ) )
+				currentRowIdx += direction;
+		}
+
+		/**
+		 * Checks if there are rows above belonging to a rowspan
+		 */
+		internal function rowSpanAbove( currRow: int, currCol: int ): Boolean
+		{
+			if ( ( currCol >= columnsCount ) || ( currCol < 0 ) || ( currRow == 0 ) )
+				return false;
+			var row: int = currRow - 1;
+			var col: int;
+			var aboveRow: PdfPRow = _rows[row];
+
+			if ( aboveRow == null )
+				return false;
+			var aboveCell: PdfPCell = aboveRow.cells[currCol];
+
+			while ( ( aboveCell == null ) && ( row > 0 ) )
+			{
+				aboveRow = _rows[--row];
+
+				if ( aboveRow == null )
+					return false;
+				aboveCell = aboveRow.cells[currCol];
+			}
+			var distance: int = currRow - row;
+
+			if ( aboveCell == null )
+			{
+				col = currCol - 1;
+				aboveCell = aboveRow.cells[col];
+
+				while ( ( aboveCell == null ) && ( row > 0 ) )
+					aboveCell = aboveRow.cells[--col];
+				return aboveCell != null && aboveCell.rowspan > distance;
+			}
+
+			if ( ( aboveCell.rowspan == 1 ) && ( distance > 1 ) )
+			{
+				col = currCol - 1;
+				aboveRow = _rows[( row + 1 )];
+				distance--;
+				aboveCell = aboveRow.cells[col];
+
+				while ( ( aboveCell == null ) && ( col > 0 ) )
+					aboveCell = aboveRow.cells[--col];
+			}
+			return aboveCell != null && aboveCell.rowspan > distance;
+		}
+
+		pdf_core function set rows( value: Vector.<PdfPRow> ): void
+		{
+			_rows = value;
+		}
+
+		static public function beginWritingRows( canvas: PdfContentByte ): Vector.<PdfContentByte>
+		{
+			return Vector.<PdfContentByte>( [
+							canvas, canvas.duplicate(), canvas.duplicate(), canvas.duplicate(),
+							] );
+		}
+
+		static public function endWritingRows( canvases: Vector.<PdfContentByte> ): void
+		{
+			var canvas: PdfContentByte = canvases[BASECANVAS];
+			canvas.saveState();
+			canvas.addContent( canvases[BACKGROUNDCANVAS] );
+			canvas.restoreState();
+			canvas.saveState();
+			canvas.setLineCap( 2 );
+			canvas.resetStroke();
+			canvas.addContent( canvases[LINECANVAS] );
+			canvas.restoreState();
+			canvas.addContent( canvases[TEXTCANVAS] );
+		}
+
+		static public function shallowCopy( table: PdfPTable ): PdfPTable
+		{
+			var nt: PdfPTable = new PdfPTable( null );
+			nt.copyFormat( table );
+			return nt;
 		}
 	}
 }

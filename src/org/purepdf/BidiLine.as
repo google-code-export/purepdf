@@ -28,7 +28,8 @@ package org.purepdf
 		protected var storedOrderLevels: Vector.<int> = new Vector.<int>();
 		protected var storedIndexChars: Vector.<int> = new Vector.<int>();
 		
-		protected var indexChars: Vector.<int> = new Vector.<int>(pieceSize);
+		protected var indexChars: Vector.<int> = new Vector.<int>(pieceSize, true);
+		protected var orderLevels: Vector.<int> = new Vector.<int>(pieceSize, true);
 		
 		protected var storedIndexChunk: int = 0;
 		protected var storedIndexChunkChar: int = 0;
@@ -37,11 +38,45 @@ package org.purepdf
 		protected var shortStore: Boolean;
 		
 		protected var pieceSize: int = 256;
-		protected var text: Vector.<int> = new Vector.<int>( pieceSize );
-		protected var detailChunks: Vector.<PdfChunk> = new Vector.<PdfChunk>( pieceSize );
+		protected var text: Vector.<int> = new Vector.<int>( pieceSize, true );
+		protected var detailChunks: Vector.<PdfChunk> = new Vector.<PdfChunk>( pieceSize, true );
 		
 		public function BidiLine()
 		{
+		}
+		
+		public static function fromBidiLine( org: BidiLine ): BidiLine
+		{
+			var result: BidiLine = new BidiLine();
+			result.runDirection = org.runDirection;
+			result.pieceSize = org.pieceSize;
+			result.text = org.text.concat();
+			result.detailChunks = org.detailChunks.concat();
+			result.totalTextLength = org.totalTextLength;
+			
+			result.orderLevels = org.orderLevels.concat();
+			result.indexChars = org.indexChars.concat();
+			
+			result.chunks = org.chunks.concat();
+			result.indexChunk = org.indexChunk;
+			result.indexChunkChar = org.indexChunkChar;
+			result.currentChar = org.currentChar;
+			
+			result.storedRunDirection = org.storedRunDirection;
+			result.storedText = org.storedText.concat();
+			result.storedDetailChunks = org.storedDetailChunks.concat();
+			result.storedTotalTextLength = org.storedTotalTextLength;
+			
+			result.storedOrderLevels = org.storedOrderLevels.concat();
+			result.storedIndexChars = org.storedIndexChars.concat();
+			
+			result.storedIndexChunk = org.storedIndexChunk;
+			result.storedIndexChunkChar = org.storedIndexChunkChar;
+			result.storedCurrentChar = org.storedCurrentChar;
+			
+			result.shortStore = org.shortStore;
+			result.arabicOptions = org.arabicOptions;
+			return result;
 		}
 		
 		public function addPiece( c: int, chunk: PdfChunk ): void
