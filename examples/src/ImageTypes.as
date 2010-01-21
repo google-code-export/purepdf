@@ -58,9 +58,9 @@ package
 						
 			var image1: ImageElement = ImageElement.getInstance( bytes );
 			image1.alignment = ImageElement.RIGHT;	// set the image alignment
-			image1.setBorderWidth( 5 );
-			image1.setBorderSides( RectangleElement.LEFT | RectangleElement.TOP | RectangleElement.RIGHT | RectangleElement.BOTTOM );
-			image1.setBorderColor( new RGBColor( 255, 255, 255 ) );
+			image1.borderWidth = 5;
+			image1.borderSides = RectangleElement.LEFT | RectangleElement.TOP | RectangleElement.RIGHT | RectangleElement.BOTTOM;
+			image1.borderColor = new RGBColor( 255, 255, 255 );
 			document.add( image1 );
 			
 			// test image scaling

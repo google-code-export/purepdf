@@ -55,7 +55,7 @@ package
 			} else if( event.tag == 'box' )
 			{
 				cb = document.getDirectContentUnder();
-				event.rect.setBackgroundColor( RGBColor.CYAN );
+				event.rect.backgroundColor = RGBColor.CYAN;
 				event.rect.setBottom( event.rect.getBottom() - 5 );
 				cb.rectangle( event.rect );
 			}

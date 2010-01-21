@@ -16,10 +16,10 @@ package
 			super.execute( event );
 			
 			var rect: RectangleElement = RectangleElement.clone( PageSize.getRectangle("A4") );
-			rect.setBorderWidth( 50 );
-			rect.setBorderSides( RectangleElement.ALL );
-			rect.setBorderColor( new GrayColor( 0.4 ) );
-			rect.setBackgroundColor( new GrayColor( 0.7 ) );
+			rect.borderWidth = 50;
+			rect.borderSides = RectangleElement.ALL;
+			rect.borderColor = new GrayColor( 0.4 );
+			rect.backgroundColor = new GrayColor( 0.7 );
 
 			createDocument( "Page borders example", rect );
 			document.setPdfVersion( PdfVersion.VERSION_1_5 );
@@ -40,10 +40,10 @@ package
 			cb.saveState();
 			
 			var r: RectangleElement = new RectangleElement( 50, 450, 150, 650 );
-			r.setBorderSides( RectangleElement.ALL );
-			r.setBorderColor( RGBColor.BLACK );
-			r.setBackgroundColor( RGBColor.BLUE );
-			r.setBorderWidth( 4 );
+			r.borderSides = RectangleElement.ALL;
+			r.borderColor = RGBColor.BLACK;
+			r.backgroundColor = RGBColor.BLUE;
+			r.borderWidth = 4;
 			
 			cb.rectangle( r );
 			cb.restoreState();
