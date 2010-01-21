@@ -26,57 +26,57 @@ package org.purepdf.elements
 			throwReadOnlyError();
 		}
 
-		override public function setBackgroundColor( value: RGBColor ): void
+		override public function set backgroundColor( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderColor( value: RGBColor ): void
+		override public function set borderColor( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderColorBottom( value: RGBColor ): void
+		override public function set borderColorBottom( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderColorLeft( value: RGBColor ): void
+		override public function set borderColorLeft( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderColorRight( value: RGBColor ): void
+		override public function set borderColorRight( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderColorTop( value: RGBColor ): void
+		override public function set borderColorTop( value: RGBColor ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderSides( borderType: int ): void
+		override public function set borderSides( borderType: int ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderWidth( value: Number ): void
+		override public function set borderWidth( value: Number ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderWidthBottom( value: Number ): void
+		override public function set borderWidthBottom( value: Number ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderWidthLeft( value: Number ): void
+		override public function set borderWidthLeft( value: Number ): void
 		{
 			throwReadOnlyError();
 		}
 
-		override public function setBorderWidthRight( value: Number ): void
+		override public function set borderWidthRight( value: Number ): void
 		{
 			throwReadOnlyError();
 		}

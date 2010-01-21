@@ -1158,9 +1158,9 @@ package org.purepdf.pdf
 				.append_separator();
 		}
 
-		public function size(): uint
+		public function get size(): uint
 		{
-			return content.size();
+			return content.size;
 		}
 
 		/**

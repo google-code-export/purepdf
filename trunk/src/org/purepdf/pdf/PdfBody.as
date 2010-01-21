@@ -103,7 +103,7 @@ package org.purepdf.pdf
 				currentObjNum = getIndirectReferenceNumber();
 				numObj = 0;
 			}
-			var p: int = streamObjects.size();
+			var p: int = streamObjects.size;
 			var idx: int = numObj++;
 			var enc: PdfEncryption = writer.getEncryption();
 			writer.setEncryption( null );
@@ -118,7 +118,7 @@ package org.purepdf.pdf
 		{
 			if ( numObj == 0 )
 				return;
-			var first: int = index.size();
+			var first: int = index.size;
 			index.append_bytebuffer( streamObjects );
 			var stream: PdfStream = new PdfStream( index.toByteArray() );
 			stream.flateCompress( writer.getCompressionLevel() );

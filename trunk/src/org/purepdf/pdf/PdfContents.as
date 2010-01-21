@@ -52,13 +52,13 @@ package org.purepdf.pdf
 						break;
 				}
 				
-				if( under.size() > 0 ){
+				if( under.size > 0 ){
 					out.writeBytes( SAVESTATE );
 					under.getInternalBuffer().writeTo( out );
 					out.writeBytes( RESTORESTATE );
 				}
 				
-				if( content.size() > 0 ){
+				if( content.size > 0 ){
 					out.writeBytes( SAVESTATE );
 					content.getInternalBuffer().writeTo( out );
 					out.writeBytes( RESTORESTATE );
@@ -70,7 +70,7 @@ package org.purepdf.pdf
 					out.writeBytes( RESTORESTATE );
 				}
 				
-				if( secondContent.size() > 0 ){
+				if( secondContent.size > 0 ){
 					secondContent.getInternalBuffer().writeTo( out );
 				}
 				

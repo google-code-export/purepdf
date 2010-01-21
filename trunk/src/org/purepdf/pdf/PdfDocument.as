@@ -243,6 +243,19 @@ package org.purepdf.pdf
 					_addAnchor( Anchor(element) );
 					break;
 
+				case Element.PTABLE:
+					var ptable: PdfPTable = PdfPTable(element);
+					if( ptable.size <= ptable.headerRows )
+						break;
+					
+					ensureNewLine();
+					flushLines();
+					
+					_addPTable( ptable );
+					pageEmpty = false;
+					newLine();
+					break;
+				
 				default:
 					trace( "PdfDocument.add. Invalid type: " + element.type );
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
@@ -294,7 +307,7 @@ package org.purepdf.pdf
 			{
 				var e: ILargeElement = ( element as ILargeElement );
 
-				if ( !e.isComplete )
+				if ( !e.complete )
 					e.flushContent();
 			}
 			return success;
@@ -429,7 +442,7 @@ package org.purepdf.pdf
 
 		public function isPageEmpty(): Boolean
 		{
-			return _writer == null || ( _writer.getDirectContent().size() == 0 && _writer.getDirectContentUnder().size() == 0 && ( pageEmpty
+			return _writer == null || ( _writer.getDirectContent().size == 0 && _writer.getDirectContentUnder().size == 0 && ( pageEmpty
 				|| _writer.isPaused() ) );
 		}
 
@@ -514,7 +527,7 @@ package org.purepdf.pdf
 					page.put( PdfName.ANNOTS, array );
 			}
 
-			if ( text.size() > textEmptySize )
+			if ( text.size > textEmptySize )
 			{
 				text.endText();
 			}
@@ -715,6 +728,23 @@ package org.purepdf.pdf
 			line = new PdfLine( indentLeft, indentRight, alignment, leading );
 		}
 
+		/**
+		 * Ensure a new line is started
+		 */
+		protected function ensureNewLine(): void
+		{
+			try 
+			{
+				if( ( lastElementType == Element.PHRASE ) || (lastElementType == Element.CHUNK) )
+				{
+					newLine();
+					flushLines();
+				}
+			} catch ( ex: DocumentError ) {
+				throw new ConversionError(ex);
+			}
+		}
+		
 		protected function flushLines(): Number
 		{
 			if ( lines == null )
@@ -793,7 +823,7 @@ package org.purepdf.pdf
 			text = new PdfContentByte( _writer );
 			text.reset();
 			text.beginText();
-			textEmptySize = text.size();
+			textEmptySize = text.size;
 			markPoint = 0;
 			setNewPageSizeAndMargins();
 			imageEnd = -1;
@@ -1604,11 +1634,72 @@ package org.purepdf.pdf
 			indentation.sectionIndentLeft -= (section.indentationLeft + section.indentation);
 			indentation.sectionIndentRight -= section.indentationRight;
 			
-			if( section.isComplete )
+			if( section.complete )
 				if( section.type == Element.CHAPTER )
 					dispatchEvent( new ChapterEvent( ChapterEvent.CHAPTER_END, indentTop - currentHeight, null ) );
 				else
 					dispatchEvent( new SectionEvent( SectionEvent.SECTION_END, indentTop - currentHeight, section.depth, null ) );
+		}
+		
+		
+		
+		/** 
+		 * Adds a PdfPTable to the document
+		 * @throws DocumentError
+		 */
+		private function _addPTable( ptable: PdfPTable ): void
+		{
+			var ct: ColumnText = new ColumnText( writer.getDirectContent() );
+
+			if( ptable.keepTogether && !_fitsPage( ptable, 0 ) && currentHeight > 0)
+				newPage();
+
+			if (currentHeight > 0) {
+				var p: Paragraph = new Paragraph(null);
+				p.leading = 0;
+				ct.addElement( p );
+			}
+			
+			ct.addElement(ptable);
+			var he: Boolean = ptable.headersInEvent;
+			ptable.headersInEvent = true;
+			var loop: int = 0;
+			while (true) 
+			{
+				ct.setSimpleColumn( indentLeft, indentBottom, indentRight, indentTop - currentHeight );
+				var status: int = ct.go();
+				if( (status & ColumnText.NO_MORE_TEXT) != 0 )
+				{
+					text.moveText(0, ct.yLine - indentTop + currentHeight);
+					currentHeight = indentTop - ct.yLine;
+					break;
+				}
+				if (indentTop - currentHeight == ct.yLine)
+					++loop;
+				else
+					loop = 0;
+				if (loop == 3) {
+					add( new Paragraph("ERROR: Infinite table loop") );
+					break;
+				}
+				newPage();
+			}
+			ptable.headersInEvent = he;
+		}
+
+		/**
+		 * Checks if a PdfPTable fits the current page
+		 */
+		
+		private function _fitsPage( table: PdfPTable, margin: Number ): Boolean
+		{
+			if (!table.lockedWidth) {
+				var totalWidth: Number = (indentRight - indentLeft) * table.widthPercentage / 100;
+				table.totalWidth = totalWidth;
+			}
+			// ensuring that a new line has been started.
+			ensureNewLine();
+			return table.totalHeight + ((currentHeight > 0) ? table.spacingBefore : 0) <= indentTop - currentHeight - indentBottom - margin;
 		}
 	}
 }

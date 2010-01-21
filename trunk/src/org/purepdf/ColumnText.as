@@ -2,7 +2,13 @@ package org.purepdf
 {
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.IElement;
+	import org.purepdf.elements.List;
+	import org.purepdf.elements.ListItem;
+	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
+	import org.purepdf.elements.SimpleTable;
+	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
@@ -13,6 +19,9 @@ package org.purepdf
 	import org.purepdf.pdf.PdfDocument;
 	import org.purepdf.pdf.PdfFont;
 	import org.purepdf.pdf.PdfLine;
+	import org.purepdf.pdf.PdfPCell;
+	import org.purepdf.pdf.PdfPRow;
+	import org.purepdf.pdf.PdfPTable;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.pdf_core;
 
@@ -26,58 +35,123 @@ package org.purepdf
 		protected const LINE_STATUS_OFFLIMITS: int = 1;
 		protected const LINE_STATUS_OK: int = 0;
 		protected var _alignment: int = Element.ALIGN_LEFT;
+		protected var _canvas: PdfContentByte;
+		protected var _canvases: Vector.<PdfContentByte>;
+		protected var _descender: Number = 0;
 		protected var _extraParagraphSpace: Number = 0;
 		protected var _followingIndent: Number = 0;
 		protected var _indent: Number = 0;
 		protected var _multipliedLeading: Number = 0;
+		protected var _rightIndent: Number = 0;
+		protected var _runDirection: int = PdfWriter.RUN_DIRECTION_DEFAULT;
+		protected var _yLine: Number = 0;
 		protected var bidiLine: BidiLine;
-		protected var canvas: PdfContentByte;
-		protected var canvases: Vector.<PdfContentByte>;
 		protected var composite: Boolean = false;
 		protected var compositeColumn: ColumnText;
-		protected var compositeElements: Array;
+		protected var compositeElements: Vector.<IElement>;
 		protected var currentLeading: Number = 16;
-		protected var descender: Number;
 		protected var fixedLeading: Number = 16;
 		protected var leftWall: Vector.<Vector.<Number>>;
-		protected var leftX: Number;
-		protected var lineStatus: int;
+		protected var leftX: Number = 0;
+		protected var lineStatus: int = 0;
 		protected var listIdx: int = 0;
-		protected var maxY: Number;
-		protected var minY: Number;
+		protected var maxY: Number = 0;
+		protected var minY: Number = 0;
 		protected var rectangularMode: Boolean = false;
 		protected var rectangularWidth: Number = -1;
-		protected var _rightIndent: Number = 0;
 		protected var rightWall: Vector.<Vector.<Number>>;
-		protected var rightX: Number;
-		protected var runDirection: int = PdfWriter.RUN_DIRECTION_DEFAULT;
+		protected var rightX: Number = 0;
 		protected var waitPhrase: Phrase;
-		protected var yLine: Number;
+		private var _filledWidth: Number = 0;
 		private var _useAscender: Boolean = false;
 		private var adjustFirstLine: Boolean = true;
 		private var arabicOptions: int = 0;
-		private var filledWidth: Number;
-		private var firstLineY: Number;
+		private var firstLineY: Number = 0;
 		private var firstLineYDone: Boolean = false;
 		private var lastWasNewline: Boolean = true;
-		private var linesWritten: int;
+		private var linesWritten: int = 0;
 		private var spaceCharRatio: Number = GLOBAL_SPACE_CHAR_RATIO;
 		private var splittedRow: Boolean;
 
 		public function ColumnText( content: PdfContentByte )
 		{
-			canvas = content;
+			_canvas = content;
 		}
 
-		public function get rightIndent():Number
+		/**
+		 * Adds an element. Supported elements are Paragraph,
+		 * List, PdfPTable, ImageElement and
+		 * Graphic.<br/>
+		 * It removes all the text placed with addText().
+		 *
+		 */
+		public function addElement( element: IElement ): void
 		{
-			return _rightIndent;
-		}
+			if ( element == null )
+				return;
 
-		public function set rightIndent(value:Number):void
-		{
-			_rightIndent = value;
-			lastWasNewline = true;
+			if ( element is ImageElement )
+			{
+				var img: ImageElement = ImageElement( element );
+				var t: PdfPTable = new PdfPTable( 1 );
+				var w: Number = img.widthPercentage;
+
+				if ( w == 0 )
+				{
+					t.totalWidth = img.scaledWidth;
+					t.lockedWidth = true;
+				} else
+					t.widthPercentage = w;
+				t.spacingAfter = img.spacingAfter;
+				t.spacingBefore = img.spacingBefore;
+
+				switch ( img.alignment )
+				{
+					case ImageElement.LEFT:
+						t.horizontalAlignment = Element.ALIGN_LEFT;
+						break;
+					case ImageElement.RIGHT:
+						t.horizontalAlignment = Element.ALIGN_RIGHT;
+						break;
+					default:
+						t.horizontalAlignment = Element.ALIGN_CENTER;
+						break;
+				}
+				var c: PdfPCell = PdfPCell.fromImage( img, true );
+				c.padding = 0;
+				c.border = img.border;
+				c.borderColor = img.borderColor;
+				c.borderWidth = img.borderWidth;
+				c.backgroundColor = img.backgroundColor;
+				t.addCell( c );
+				element = t;
+			}
+
+			if ( element.type == Element.CHUNK )
+			{
+				element = Paragraph.fromChunk( Chunk( element ) );
+			} else if ( element.type == Element.PHRASE )
+			{
+				element = Paragraph.fromPhrase( Phrase( element ) );
+			}
+
+			if ( element is SimpleTable )
+			{
+				throw new NonImplementatioError( "SimpleTable not yet implemented" );
+			} else if ( element.type != Element.PARAGRAPH && element.type != Element.LIST && element.type != Element.PTABLE &&
+							element.type != Element.YMARK )
+			{
+				throw new ArgumentError( "element not allowed" );
+			}
+
+			if ( !composite )
+			{
+				composite = true;
+				compositeElements = new Vector.<IElement>();
+				bidiLine = null;
+				waitPhrase = null;
+			}
+			compositeElements.push( element );
 		}
 
 		public function addText( phrase: Phrase ): void
@@ -107,6 +181,39 @@ package org.purepdf
 			_alignment = value;
 		}
 
+		public function get canvas(): PdfContentByte
+		{
+			return _canvas;
+		}
+
+		public function set canvas( value: PdfContentByte ): void
+		{
+			_canvas = value;
+			_canvases = null;
+
+			if ( compositeColumn != null )
+				compositeColumn.canvas = value;
+		}
+
+		public function get canvases(): Vector.<PdfContentByte>
+		{
+			return _canvases;
+		}
+
+		public function set canvases( value: Vector.<PdfContentByte> ): void
+		{
+			_canvases = value;
+			_canvas = _canvases[PdfPTable.TEXTCANVAS];
+
+			if ( compositeColumn != null )
+				compositeColumn.canvases = value;
+		}
+
+		public function get descender(): Number
+		{
+			return _descender;
+		}
+
 		public function get extraParagraphSpace(): Number
 		{
 			return _extraParagraphSpace;
@@ -115,6 +222,16 @@ package org.purepdf
 		public function set extraParagraphSpace( value: Number ): void
 		{
 			_extraParagraphSpace = value;
+		}
+
+		public function get filledWidth(): Number
+		{
+			return _filledWidth;
+		}
+
+		public function set filledWidth( value: Number ): void
+		{
+			_filledWidth = value;
 		}
 
 		public function get followingIndent(): Number
@@ -129,22 +246,19 @@ package org.purepdf
 		}
 
 		/**
-		 * Outputs the lines to the document. The output can be simulated.
-		 * @param simulate <CODE>true</CODE> to simulate the writing to the document
-		 * @return returns the result of the operation. It can be <CODE>NO_MORE_TEXT</CODE>
-		 * and/or <CODE>NO_MORE_COLUMN</CODE>
+		 * Outputs the lines to the document. The output can be simulated
 		 *
 		 * @throws DocumentError
 		 */
 		public function go( simulate: Boolean = false ): int
 		{
 			if ( composite )
-				throw new NonImplementatioError();
+				return goComposite( simulate );
 			addWaitingPhrase();
 
 			if ( bidiLine == null )
 				return NO_MORE_TEXT;
-			descender = 0;
+			_descender = 0;
 			linesWritten = 0;
 			var dirty: Boolean = false;
 			var ratio: Number = spaceCharRatio;
@@ -158,14 +272,14 @@ package org.purepdf
 			var firstLineY: Number = Number.NaN;
 			var localRunDirection: int = PdfWriter.RUN_DIRECTION_NO_BIDI;
 
-			if ( runDirection != PdfWriter.RUN_DIRECTION_DEFAULT )
-				localRunDirection = runDirection;
+			if ( _runDirection != PdfWriter.RUN_DIRECTION_DEFAULT )
+				localRunDirection = _runDirection;
 
-			if ( canvas != null )
+			if ( _canvas != null )
 			{
-				graphics = canvas;
-				pdf = canvas.pdfDocument;
-				text = canvas.duplicate();
+				graphics = _canvas;
+				pdf = _canvas.pdfDocument;
+				text = _canvas.duplicate();
 			} else if ( !simulate )
 				throw new NullPointerError( "column text go with simulate == false and text == null" );
 
@@ -201,7 +315,8 @@ package org.purepdf
 						status = NO_MORE_TEXT;
 						break;
 					}
-					line = bidiLine.processLine( leftX, rectangularWidth - firstIndent - _rightIndent, _alignment, localRunDirection,
+					line = bidiLine.processLine( leftX, rectangularWidth - firstIndent - _rightIndent, _alignment,
+									localRunDirection,
 									arabicOptions );
 
 					if ( line == null )
@@ -216,13 +331,13 @@ package org.purepdf
 					else
 						currentLeading = Math.max( fixedLeading + maxSize[0] * _multipliedLeading, maxSize[1] );
 
-					if ( yLine > maxY || yLine - currentLeading < minY )
+					if ( _yLine > maxY || _yLine - currentLeading < minY )
 					{
 						status = NO_MORE_COLUMN;
 						bidiLine.restore();
 						break;
 					}
-					yLine -= currentLeading;
+					_yLine -= currentLeading;
 
 					if ( !simulate && !dirty )
 					{
@@ -231,12 +346,12 @@ package org.purepdf
 					}
 
 					if ( isNaN( firstLineY ) )
-						firstLineY = yLine;
+						firstLineY = _yLine;
 					updateFilledWidth( rectangularWidth - line.widthLeft );
 					x1 = leftX;
 				} else
 				{
-					var yTemp: Number = yLine;
+					var yTemp: Number = _yLine;
 					var xx: Vector.<Number> = findLimitsTwoLines();
 
 					if ( xx == null )
@@ -245,14 +360,14 @@ package org.purepdf
 
 						if ( bidiLine.isEmpty )
 							status |= NO_MORE_TEXT;
-						yLine = yTemp;
+						_yLine = yTemp;
 						break;
 					}
 
 					if ( bidiLine.isEmpty )
 					{
 						status = NO_MORE_TEXT;
-						yLine = yTemp;
+						_yLine = yTemp;
 						break;
 					}
 					x1 = Math.max( xx[0], xx[2] );
@@ -272,7 +387,7 @@ package org.purepdf
 					if ( line == null )
 					{
 						status = NO_MORE_TEXT;
-						yLine = yTemp;
+						_yLine = yTemp;
 						break;
 					}
 				}
@@ -281,22 +396,30 @@ package org.purepdf
 				{
 					currentValues[0] = currentFont;
 					text.setTextMatrix( 1, 0, 0, 1, x1 + ( line.isRTL ? _rightIndent : firstIndent ) + line.pdf_core::indentLeft,
-									yLine );
+									_yLine );
 					pdf.pdf_core::writeLineToContent( line, text, graphics, currentValues, ratio );
 					currentFont = currentValues[0] as PdfFont;
 				}
 				lastWasNewline = line.isNewlineSplit;
-				yLine -= line.isNewlineSplit ? _extraParagraphSpace : 0;
+				_yLine -= line.isNewlineSplit ? _extraParagraphSpace : 0;
 				++linesWritten;
-				descender = line.descender;
+				_descender = line.descender;
 			}
 
 			if ( dirty )
 			{
 				text.endText();
-				canvas.pdf_core::addContent( text );
+				_canvas.addContent( text );
 			}
 			return status;
+		}
+
+		/**
+		 * Checks if the element has a height of 0.
+		 */
+		public function get hasZeroHeightElement(): Boolean
+		{
+			return composite && !( compositeElements.length == 0 ) && compositeElements[0].type == Element.YMARK;
 		}
 
 		public function get indent(): Number
@@ -320,6 +443,37 @@ package org.purepdf
 			return _multipliedLeading;
 		}
 
+		public function get rightIndent(): Number
+		{
+			return _rightIndent;
+		}
+
+		public function set rightIndent( value: Number ): void
+		{
+			_rightIndent = value;
+			lastWasNewline = true;
+		}
+
+		public function get runDirection(): int
+		{
+			return _runDirection;
+		}
+
+		public function set runDirection( value: int ): void
+		{
+			if ( value < PdfWriter.RUN_DIRECTION_DEFAULT || value > PdfWriter.RUN_DIRECTION_RTL )
+				throw new RuntimeError( "invalid run direction" );
+			_runDirection = value;
+		}
+
+		public function setACopy( org: ColumnText ): void
+		{
+			setSimpleVars( org );
+
+			if ( org.bidiLine != null )
+				bidiLine = BidiLine.fromBidiLine( org.bidiLine );
+		}
+
 		public function setAlignment( value: int ): void
 		{
 			_alignment = value;
@@ -331,20 +485,13 @@ package org.purepdf
 			_multipliedLeading = mul;
 		}
 
-		public function setRunDirection( value: int ): void
-		{
-			if ( value < PdfWriter.RUN_DIRECTION_DEFAULT || value > PdfWriter.RUN_DIRECTION_RTL )
-				throw new RuntimeError( "invalid run direction" );
-			runDirection = value;
-		}
-
 		public function setSimpleColumn( llx: Number, lly: Number, urx: Number, ury: Number ): void
 		{
 			leftX = Math.min( llx, urx );
 			maxY = Math.max( lly, ury );
 			minY = Math.min( lly, ury );
 			rightX = Math.max( llx, urx );
-			yLine = maxY;
+			_yLine = maxY;
 			rectangularWidth = rightX - leftX;
 
 			if ( rectangularWidth < 0 )
@@ -365,8 +512,8 @@ package org.purepdf
 
 		public function updateFilledWidth( w: Number ): void
 		{
-			if ( w > filledWidth )
-				filledWidth = w;
+			if ( w > _filledWidth )
+				_filledWidth = w;
 		}
 
 		/**
@@ -380,6 +527,16 @@ package org.purepdf
 		public function set useAscender( value: Boolean ): void
 		{
 			_useAscender = value;
+		}
+
+		public function get yLine(): Number
+		{
+			return _yLine;
+		}
+
+		public function set yLine( value: Number ): void
+		{
+			_yLine = value;
 		}
 
 		/**
@@ -406,7 +563,7 @@ package org.purepdf
 		{
 			lineStatus = LINE_STATUS_OK;
 
-			if ( yLine < minY || yLine > maxY )
+			if ( _yLine < minY || _yLine > maxY )
 			{
 				lineStatus = LINE_STATUS_OFFLIMITS;
 				return 0;
@@ -416,9 +573,9 @@ package org.purepdf
 			{
 				var r: Vector.<Number> = wall[k];
 
-				if ( yLine < r[0] || yLine > r[1] )
+				if ( _yLine < r[0] || _yLine > r[1] )
 					continue;
-				return r[2] * yLine + r[3];
+				return r[2] * _yLine + r[3];
 			}
 			lineStatus = LINE_STATUS_NOLINE;
 			return 0;
@@ -441,7 +598,7 @@ package org.purepdf
 
 				if ( lineStatus == LINE_STATUS_OFFLIMITS )
 					return null;
-				yLine -= currentLeading;
+				_yLine -= currentLeading;
 
 				if ( lineStatus == LINE_STATUS_NOLINE )
 					continue;
@@ -452,7 +609,7 @@ package org.purepdf
 
 				if ( lineStatus == LINE_STATUS_NOLINE )
 				{
-					yLine -= currentLeading;
+					_yLine -= currentLeading;
 					continue;
 				}
 
@@ -461,6 +618,512 @@ package org.purepdf
 				return Vector.<Number>( [x1[0], x1[1], x2[0], x2[1]] );
 			}
 			return null;
+		}
+
+		/**
+		 * @throws DocumentError
+		 */
+		protected function goComposite( simulate: Boolean ): int
+		{
+			if ( !rectangularMode )
+				throw new DocumentError( "irregular columns are not supported in composite mode" );
+			linesWritten = 0;
+			_descender = 0;
+			var firstPass: Boolean = adjustFirstLine;
+			var k: int;
+			var i: int;
+			var status: int;
+			var keep: int;
+			var lastY: Number;
+			var createHere: Boolean;
+			var keepCandidate: Boolean;
+			var rowHeight: Number;
+
+			//main_loop:
+			
+			var main_loop: Boolean = false;
+			
+			while ( true )
+			{
+				main_loop = false;
+				
+				if ( compositeElements.length == 0 )
+					return NO_MORE_TEXT;
+				var element: IElement = IElement( compositeElements[0] );
+
+				if ( element.type == Element.PARAGRAPH )
+				{
+					var para: Paragraph = Paragraph( element );
+					status = 0;
+
+					for ( keep = 0; keep < 2; ++keep )
+					{
+						lastY = _yLine;
+						createHere = false;
+
+						if ( compositeColumn == null )
+						{
+							compositeColumn = new ColumnText( canvas );
+							compositeColumn.useAscender = firstPass ? _useAscender : false;
+							compositeColumn.alignment = para.alignment;
+							compositeColumn.indent = para.indentationLeft + para.firstLineIndent;
+							compositeColumn.extraParagraphSpace = para.extraParagraphSpace;
+							compositeColumn.followingIndent = para.indentationLeft;
+							compositeColumn.rightIndent = para.indentationRight;
+							compositeColumn.setLeading( para.leading, para.multipliedLeading );
+							compositeColumn.runDirection = _runDirection;
+							compositeColumn.arabicOptions = arabicOptions;
+							compositeColumn.spaceCharRatio = spaceCharRatio;
+							compositeColumn.addText( para );
+
+							if ( !firstPass )
+							{
+								_yLine -= para.spacingBefore;
+							}
+							createHere = true;
+						}
+						compositeColumn.leftX = leftX;
+						compositeColumn.rightX = rightX;
+						compositeColumn.yLine = _yLine;
+						compositeColumn.rectangularWidth = rectangularWidth;
+						compositeColumn.rectangularMode = rectangularMode;
+						compositeColumn.minY = minY;
+						compositeColumn.maxY = maxY;
+						keepCandidate = ( para.keeptogether && createHere && !firstPass );
+						status = compositeColumn.go( simulate || ( keepCandidate && keep == 0 ) );
+						updateFilledWidth( compositeColumn.filledWidth );
+
+						if ( ( status & NO_MORE_TEXT ) == 0 && keepCandidate )
+						{
+							compositeColumn = null;
+							_yLine = lastY;
+							return NO_MORE_COLUMN;
+						}
+
+						if ( simulate || !keepCandidate )
+							break;
+
+						if ( keep == 0 )
+						{
+							compositeColumn = null;
+							_yLine = lastY;
+						}
+					}
+					firstPass = false;
+					_yLine = compositeColumn.yLine;
+					linesWritten += compositeColumn.linesWritten;
+					_descender = compositeColumn.descender;
+
+					if ( ( status & NO_MORE_TEXT ) != 0 )
+					{
+						compositeColumn = null;
+						compositeElements.shift();
+						_yLine -= para.spacingAfter;
+					}
+
+					if ( ( status & NO_MORE_COLUMN ) != 0 )
+					{
+						return NO_MORE_COLUMN;
+					}
+				} else if ( element.type == Element.LIST )
+				{
+					var list: List = List( element );
+					var items: Vector.<IElement> = list.items;
+					var item: ListItem = null;
+					var listIndentation: Number = list.indentationLeft;
+					var count: int = 0;
+					var stack: Vector.<Vector.<Object>> = new Vector.<Vector.<Object>>();
+
+					for ( k = 0; k < items.length; ++k )
+					{
+						var obj: Object = items[k];
+
+						if ( obj is ListItem )
+						{
+							if ( count == listIdx )
+							{
+								item = ListItem( obj );
+								break;
+							} else
+								++count;
+						} else if ( obj is List )
+						{
+							stack.push( Vector.<Object>( [list, k, listIndentation] ) );
+							list = List( obj );
+							items = list.items;
+							listIndentation += list.indentationLeft;
+							k = -1;
+							continue;
+						}
+
+						if ( k == items.length - 1 )
+						{
+							if ( stack.length > 0 )
+							{
+								var objs: Vector.<Object> = Vector.<Object>( stack.pop() );
+								list = List( objs[0] );
+								items = list.items;
+								k = int( objs[1] );
+								listIndentation = Number( objs[2] );
+							}
+						}
+					}
+					status = 0;
+
+					for ( keep = 0; keep < 2; ++keep )
+					{
+						lastY = _yLine;
+						createHere = false;
+
+						if ( compositeColumn == null )
+						{
+							if ( item == null )
+							{
+								listIdx = 0;
+								compositeElements.shift();
+								
+								trace( 'continue main_loop' );
+								
+								main_loop = true;
+								//continue main_loop;
+								break;
+							}
+							compositeColumn = new ColumnText( canvas );
+							compositeColumn.useAscender = ( firstPass ? _useAscender : false );
+							compositeColumn.alignment = item.alignment;
+							compositeColumn.indent = item.indentationLeft + listIndentation + item.firstLineIndent;
+							compositeColumn.extraParagraphSpace = item.extraParagraphSpace;
+							compositeColumn.followingIndent = compositeColumn.indent;
+							compositeColumn.rightIndent = item.indentationRight + list.indentationRight;
+							compositeColumn.setLeading( item.leading, item.multipliedLeading );
+							compositeColumn.runDirection = runDirection;
+							compositeColumn.arabicOptions = arabicOptions;
+							compositeColumn.spaceCharRatio = spaceCharRatio;
+							compositeColumn.addText( item );
+
+							if ( !firstPass )
+							{
+								_yLine -= item.spacingBefore;
+							}
+							createHere = true;
+						}
+						compositeColumn.leftX = leftX;
+						compositeColumn.rightX = rightX;
+						compositeColumn.yLine = _yLine;
+						compositeColumn.rectangularWidth = rectangularWidth;
+						compositeColumn.rectangularMode = rectangularMode;
+						compositeColumn.minY = minY;
+						compositeColumn.maxY = maxY;
+						keepCandidate = ( item.keeptogether && createHere && !firstPass );
+						status = compositeColumn.go( simulate || ( keepCandidate && keep == 0 ) );
+						updateFilledWidth( compositeColumn.filledWidth );
+
+						if ( ( status & NO_MORE_TEXT ) == 0 && keepCandidate )
+						{
+							compositeColumn = null;
+							_yLine = lastY;
+							return NO_MORE_COLUMN;
+						}
+
+						if ( simulate || !keepCandidate )
+							break;
+
+						if ( keep == 0 )
+						{
+							compositeColumn = null;
+							_yLine = lastY;
+						}
+					}
+					
+					if( main_loop )
+						continue;
+					
+					firstPass = false;
+					_yLine = compositeColumn.yLine;
+					linesWritten += compositeColumn.linesWritten;
+					_descender = compositeColumn.descender;
+
+					if ( !isNaN( compositeColumn.firstLineY ) && !compositeColumn.firstLineYDone )
+					{
+						if ( !simulate )
+							showTextAligned( canvas, Element.ALIGN_LEFT, Phrase.fromChunk( item.listSymbol ), compositeColumn.
+											leftX + listIndentation, compositeColumn.firstLineY, 0 );
+						compositeColumn.firstLineYDone = true;
+					}
+
+					if ( ( status & NO_MORE_TEXT ) != 0 )
+					{
+						compositeColumn = null;
+						++listIdx;
+						_yLine -= item.spacingAfter;
+					}
+
+					if ( ( status & NO_MORE_COLUMN ) != 0 )
+						return NO_MORE_COLUMN;
+				} else if ( element.type == Element.PTABLE )
+				{
+					if ( _yLine < minY || _yLine > maxY )
+						return NO_MORE_COLUMN;
+					var table: PdfPTable = PdfPTable( element );
+
+					if ( table.size <= table.headerRows )
+					{
+						compositeElements.shift();
+						continue;
+					}
+					var yTemp: Number = _yLine;
+
+					if ( !firstPass && listIdx == 0 )
+						yTemp -= table.spacingBefore;
+					var yLineWrite: Number = yTemp;
+
+					if ( yTemp < minY || yTemp > maxY )
+						return NO_MORE_COLUMN;
+					currentLeading = 0;
+					var x1: Number = leftX;
+					var tableWidth: Number;
+
+					if ( table.lockedWidth )
+					{
+						tableWidth = table.totalWidth;
+						updateFilledWidth( tableWidth );
+					} else
+					{
+						tableWidth = rectangularWidth * table.widthPercentage / 100;
+						table.totalWidth = tableWidth;
+					}
+					var headerRows: int = table.headerRows;
+					var footerRows: int = table.footerRows;
+
+					if ( footerRows > headerRows )
+						footerRows = headerRows;
+					var realHeaderRows: int = headerRows - footerRows;
+					var headerHeight: Number = table.headerHeight;
+					var footerHeight: Number = table.footerHeight;
+					var skipHeader: Boolean = ( !firstPass && table.skipFirstHeader && listIdx <= headerRows );
+
+					if ( !skipHeader )
+					{
+						yTemp -= headerHeight;
+
+						if ( yTemp < minY || yTemp > maxY )
+						{
+							if ( firstPass )
+							{
+								compositeElements.shift();
+								continue;
+							}
+							return NO_MORE_COLUMN;
+						}
+					}
+
+					if ( listIdx < headerRows )
+						listIdx = headerRows;
+
+					if ( !table.complete )
+						yTemp -= footerHeight;
+
+					for ( k = listIdx; k < table.size; ++k )
+					{
+						rowHeight = table.getRowHeight( k );
+
+						if ( yTemp - rowHeight < minY )
+							break;
+						yTemp -= rowHeight;
+					}
+
+					if ( !table.complete )
+						yTemp += footerHeight;
+
+					if ( k < table.size )
+					{
+						if ( table.splitRows && ( !table.splitLate || ( k == listIdx && firstPass ) ) )
+						{
+							if ( !splittedRow )
+							{
+								splittedRow = true;
+								table = new PdfPTable( table );
+								compositeElements[0] = table;
+								var rows: Vector.<PdfPRow> = table.rows;
+
+								for ( i = headerRows; i < listIdx; ++i )
+									rows[i] = null;
+							}
+							var h: Number = yTemp - minY;
+							var newRow: PdfPRow = table.getRow( k ).splitRow( table, k, h );
+
+							if ( newRow == null )
+							{
+								if ( k == listIdx )
+									return NO_MORE_COLUMN;
+							} else
+							{
+								yTemp = minY;
+								table.rows[++k] = newRow;
+							}
+						} else if ( !table.splitRows && k == listIdx && firstPass )
+						{
+							compositeElements.shift();
+							splittedRow = false;
+							continue;
+						} else if ( k == listIdx && !firstPass && ( !table.splitRows || table.splitLate ) && ( table.footerRows == 0 || table.complete ) )
+							return NO_MORE_COLUMN;
+					}
+					firstPass = false;
+
+					if ( !simulate )
+					{
+						switch ( table.horizontalAlignment )
+						{
+							case Element.ALIGN_LEFT:
+								break;
+							case Element.ALIGN_RIGHT:
+								x1 += rectangularWidth - tableWidth;
+								break;
+							default:
+								x1 += ( rectangularWidth - tableWidth ) / 2;
+						}
+						var nt: PdfPTable = PdfPTable.shallowCopy( table );
+
+						if ( !skipHeader && realHeaderRows > 0 )
+						{
+							nt.pdf_core::rows = nt.rows.concat( table.getRows( 0, realHeaderRows ) );
+						} else
+						{
+							nt.headerRows = footerRows;
+						}
+						nt.pdf_core::rows = nt.rows.concat( table.getRows( listIdx, k ) );
+						var showFooter: Boolean = !table.skipLastFooter;
+						var newPageFollows: Boolean = false;
+
+						if ( k < table.size )
+						{
+							nt.complete = true;
+							showFooter = true;
+							newPageFollows = true;
+						}
+
+						for ( var j: int = 0; j < footerRows && nt.complete && showFooter; ++j )
+							nt.rows.push( table.getRow( j + realHeaderRows ) );
+						rowHeight = 0;
+						var index: int = nt.rows.length - 1;
+
+						if ( showFooter )
+							index -= footerRows;
+						var last: PdfPRow = nt.rows[index];
+
+						if ( table.isExtendLastRow1( newPageFollows ) )
+						{
+							rowHeight = last.maxHeights;
+							last.maxHeights = yTemp - minY + rowHeight;
+							yTemp = minY;
+						}
+
+						if ( canvases != null )
+							nt.writeSelectedRows( 0, -1, x1, yLineWrite, canvases );
+						else
+							nt.writeSelectedRows2( 0, -1, x1, yLineWrite, canvas );
+
+						if ( table.isExtendLastRow1( newPageFollows ) )
+						{
+							last.maxHeights = rowHeight;
+						}
+					} else if ( table.isExtendLastRow() && minY > PdfPRow.BOTTOM_LIMIT )
+					{
+						yTemp = minY;
+					}
+					_yLine = yTemp;
+
+					if ( !( skipHeader || table.complete ) )
+						_yLine += footerHeight;
+
+					if ( k >= table.size )
+					{
+						_yLine -= table.spacingAfter;
+						compositeElements.shift();
+						splittedRow = false;
+						listIdx = 0;
+					} else
+					{
+						if ( splittedRow )
+						{
+							var tempRows: Vector.<PdfPRow> = table.rows;
+
+							for ( i = listIdx; i < k; ++i )
+								tempRows[i] = null;
+						}
+						listIdx = k;
+						return NO_MORE_COLUMN;
+					}
+				} else if ( element.type == Element.YMARK )
+				{
+					throw new NonImplementatioError( "Element.YMARK not yet implemented" );
+					compositeElements.shift();
+				} else
+				{
+					compositeElements.shift();
+				}
+			}
+			return -1;
+		}
+
+		protected function setSimpleVars( org: ColumnText ): void
+		{
+			maxY = org.maxY;
+			minY = org.minY;
+			alignment = org.alignment;
+			leftWall = null;
+
+			if ( org.leftWall != null )
+				leftWall = org.leftWall.concat();
+			rightWall = null;
+
+			if ( org.rightWall != null )
+				rightWall = org.rightWall.concat();
+			_yLine = org.yLine;
+			currentLeading = org.currentLeading;
+			fixedLeading = org.fixedLeading;
+			_multipliedLeading = org.multipliedLeading;
+			_canvas = org.canvas;
+			_canvases = org.canvases;
+			lineStatus = org.lineStatus;
+			indent = org.indent;
+			followingIndent = org.followingIndent;
+			rightIndent = org.rightIndent;
+			extraParagraphSpace = org.extraParagraphSpace;
+			rectangularWidth = org.rectangularWidth;
+			rectangularMode = org.rectangularMode;
+			spaceCharRatio = org.spaceCharRatio;
+			lastWasNewline = org.lastWasNewline;
+			linesWritten = org.linesWritten;
+			arabicOptions = org.arabicOptions;
+			_runDirection = org.runDirection;
+			_descender = org.descender;
+			composite = org.composite;
+			splittedRow = org.splittedRow;
+
+			if ( org.composite )
+			{
+				compositeElements = org.compositeElements.concat();
+
+				if ( splittedRow )
+				{
+					var table: PdfPTable = compositeElements[0] as PdfPTable;
+					compositeElements[0] = new PdfPTable( table );
+				}
+
+				if ( org.compositeColumn != null )
+					compositeColumn = duplicate( org.compositeColumn );
+			}
+			listIdx = org.listIdx;
+			firstLineY = org.firstLineY;
+			leftX = org.leftX;
+			rightX = org.rightX;
+			firstLineYDone = org.firstLineYDone;
+			waitPhrase = org.waitPhrase;
+			useAscender = org.useAscender;
+			_filledWidth = org.filledWidth;
+			adjustFirstLine = org.adjustFirstLine;
 		}
 
 		private function addWaitingPhrase(): void
@@ -474,6 +1137,13 @@ package org.purepdf
 					bidiLine.addChunk( PdfChunk.fromChunk( Chunk( chunks[k] ), null ) );
 				waitPhrase = null;
 			}
+		}
+
+		static public function duplicate( src: ColumnText ): ColumnText
+		{
+			var ct: ColumnText = new ColumnText( null );
+			ct.setACopy( src );
+			return ct;
 		}
 
 		/**
@@ -539,8 +1209,8 @@ package org.purepdf
 				else if ( alignment == Element.ALIGN_RIGHT )
 					alignment = Element.ALIGN_LEFT;
 			}
-			ct.setAlignment( alignment );
-			ct.setRunDirection( runDirection );
+			ct.alignment = alignment;
+			ct.runDirection = runDirection;
 
 			try
 			{

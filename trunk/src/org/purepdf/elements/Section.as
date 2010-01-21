@@ -25,7 +25,7 @@ package org.purepdf.elements
 		protected var _triggerNewPage: Boolean = false;
 		protected var subsections: int = 0;
 		protected var _numbers: Vector.<Number> = null;
-		protected var complete: Boolean = true;
+		protected var _complete: Boolean = true;
 		protected var _addedCompletely: Boolean = false;
 		protected var _notAddedYet: Boolean = true;
 		
@@ -176,7 +176,7 @@ package org.purepdf.elements
 				if (element is Section) 
 				{
 					var s: Section = Section(element);
-					if( !s.isComplete && size == 1 )
+					if( !s.complete && size == 1 )
 					{
 						s.flushContent();
 						return;
@@ -353,14 +353,14 @@ package org.purepdf.elements
 			return Element.SECTION;
 		}
 		
-		public function get isComplete():Boolean
+		public function get complete():Boolean
 		{
-			return complete;
+			return _complete;
 		}
 		
-		public function set isComplete(value:Boolean):void
+		public function set complete(value:Boolean):void
 		{
-			complete = value;
+			_complete = value;
 		}
 		
 		public function newPage(): void
