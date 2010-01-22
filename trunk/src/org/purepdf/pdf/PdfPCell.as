@@ -506,7 +506,7 @@ package org.purepdf.pdf
 				c._table = new PdfPTable( cell._table );
 			// TODO: we should clone the image
 			c._image = cell._image;
-			//cellEvent = cell.cellEvent;
+			c._cellEvent = cell.cellEvent;
 			c._useDescender = cell._useDescender;
 			c._column = ColumnText.duplicate(cell._column);
 			c._useBorderPadding = cell._useBorderPadding;
@@ -535,6 +535,7 @@ package org.purepdf.pdf
 				c.padding = c._borderWidth / 2;
 			}
 			else {
+				// TODO: implements a clone method in ImageElement
 				c._phrase = Phrase.fromChunk( Chunk.fromImage( image, 0, 0 ) );
 				c._column.addText( c._phrase );
 				c._column.setLeading(0, 1);

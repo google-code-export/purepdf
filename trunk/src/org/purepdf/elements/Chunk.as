@@ -50,6 +50,7 @@ package org.purepdf.elements
 			_font = font != null ? font : new Font();
 		}
 		
+		// TODO: implements a clone method in ImageElement
 		public static function fromImage( image: ImageElement, offsetX: Number, offsetY: Number ): Chunk 
 		{
 			var result: Chunk = new Chunk( OBJECT_REPLACEMENT_CHARACTER, new Font() );
