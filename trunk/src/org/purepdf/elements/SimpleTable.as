@@ -18,7 +18,7 @@ package org.purepdf.elements
 		{
 			super( 0, 0, 0, 0 );
 			border = BOX;
-			borderWidth = 6;
+			borderWidth = 2;
 		}
 		
 		public function tableLayout( table: PdfPTable, widths: Vector.<Vector.<Number>>, heights: Vector.<Number>, headerRows: int, rowStart: int, canvases: Vector.<PdfContentByte> ): void

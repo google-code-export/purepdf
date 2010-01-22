@@ -687,12 +687,12 @@ package org.purepdf.pdf
 				_tableEvent = null;
 			else if ( _tableEvent == null )
 				_tableEvent = event;
-			else if ( _tableEvent instanceof PdfPTableEventForwarder )
+			else if ( _tableEvent is PdfPTableEventForwarder )
 				PdfPTableEventForwarder( _tableEvent ).addTableEvent( event );
 			else
 			{
 				var forward: PdfPTableEventForwarder = new PdfPTableEventForwarder();
-				forward.addTableEvent( this.tableEvent );
+				forward.addTableEvent( _tableEvent );
 				forward.addTableEvent( event );
 				_tableEvent = forward;
 			}
@@ -803,8 +803,7 @@ package org.purepdf.pdf
 						hr = row.maxHeights;
 					heights[k - rowStart + 1] = heights[k - rowStart] - hr;
 				}
-				tableEvent.tableLayout( this, getEventWidths( xPos, rowStart, rowEnd, headersInEvent ), heights, headersInEvent ?
-								headerRows : 0, rowStart, canvases );
+				tableEvent.tableLayout( this, getEventWidths( xPos, rowStart, rowEnd, headersInEvent ), heights, headersInEvent ? headerRows : 0, rowStart, canvases );
 			}
 			return yPos;
 		}
@@ -903,6 +902,7 @@ package org.purepdf.pdf
 			_totalHeight = sourceTable._totalHeight;
 			currentRowIdx = 0;
 			_runDirection = sourceTable.runDirection;
+			_tableEvent = sourceTable.tableEvent;
 			_defaultCell = PdfPCell.fromCell( sourceTable._defaultCell );
 			currentRow = new Vector.<PdfPCell>( sourceTable.currentRow.length, true );
 			isColspan = sourceTable.isColspan;
