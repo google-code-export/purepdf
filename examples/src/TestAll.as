@@ -61,6 +61,11 @@ package
 			class_list.push( TableExample2 );
 			class_list.push( PdfPTableAbsoluteColumns );
 			class_list.push( PdfPTableAbsolutePositions );
+			class_list.push( PdfPTableAligned );
+			class_list.push( PdfPTableCellHeights );
+			class_list.push( PdfPTableColors );
+			class_list.push( PdfPTableColumnWidths );
+			class_list.push( PdfPTableCompare );
 			
 			total_number = class_list.length;
 		}

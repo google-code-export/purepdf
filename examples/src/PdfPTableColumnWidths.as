@@ -6,11 +6,11 @@ package
 	import org.purepdf.pdf.PdfPCell;
 	import org.purepdf.pdf.PdfPTable;
 
-	public class PdfPTableAbsoluteColumns extends DefaultBasicExample
+	public class PdfPTableColumnWidths extends DefaultBasicExample
 	{
-		public function PdfPTableAbsoluteColumns(d_list:Array=null)
+		public function PdfPTableColumnWidths(d_list:Array=null)
 		{
-			super(["This example shows how to create a PDFPtable","with absolute width for columns"]);
+			super(["Create a pdf with PdfPTables with custom column widths"]);
 		}
 		
 		override protected function execute(event:Event=null):void
@@ -24,9 +24,9 @@ package
 			var cell: PdfPCell;
 			var table: PdfPTable;
 			
-			table = new PdfPTable(3);
-			cell = PdfPCell.fromPhrase( new Paragraph("header with colspan 3"));
-			cell.colspan = (3);
+			table = new PdfPTable( Vector.<Number>([ 1, 1, 2 ]) );
+			cell = PdfPCell.fromPhrase(new Paragraph("header with colspan 3"));
+			cell.colspan = 3;
 			table.addCell(cell);
 			table.addStringCell("1.1");
 			table.addStringCell("2.1");
@@ -34,11 +34,10 @@ package
 			table.addStringCell("1.2");
 			table.addStringCell("2.2");
 			table.addStringCell("3.2");
-			var widths: Vector.<Number> = Vector.<Number>([ 72, 72, 144 ]);
-			table.setTotalWidths( widths );
-			table.lockedWidth = true;
 			document.add(table);
 			
+			table.setNumberWidths( Vector.<Number>([2,1,1]) );
+			document.add(table);
 			
 			document.close();
 			save();
