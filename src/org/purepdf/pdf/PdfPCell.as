@@ -10,6 +10,8 @@ package org.purepdf.pdf
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.events.PdfPCellEventForwarder;
+	import org.purepdf.pdf.interfaces.PdfPCellEvent;
 
 	public class PdfPCell extends RectangleElement
 	{
@@ -29,6 +31,7 @@ package org.purepdf.pdf
 		private var _useBorderPadding: Boolean = false;
 		private var _useDescender: Boolean;
 		private var _verticalAlignment: int = Element.ALIGN_TOP;
+		private var _cellEvent: PdfPCellEvent;
 
 		public function PdfPCell()
 		{
@@ -36,6 +39,27 @@ package org.purepdf.pdf
 			_borderWidth = 0.5;
 			_border = BOX;
 			_column.setLeading(0, 1);			
+		}
+		
+		public function get cellEvent(): PdfPCellEvent
+		{
+			return _cellEvent;
+		}
+		
+		public function set cellEvent( value: PdfPCellEvent ): void
+		{
+			if( value == null)
+				_cellEvent = null;
+			else if (_cellEvent == null)
+				_cellEvent = value;
+			else if (_cellEvent is PdfPCellEventForwarder )
+				PdfPCellEventForwarder(_cellEvent).addCellEvent(cellEvent);
+			else {
+				var forward: PdfPCellEventForwarder = new PdfPCellEventForwarder();
+				forward.addCellEvent(_cellEvent);
+				forward.addCellEvent(cellEvent);
+				_cellEvent = forward;
+			}
 		}
 		
 		public function get runDirection(): int
@@ -66,6 +90,16 @@ package org.purepdf.pdf
 		public function set useDescender(value:Boolean):void
 		{
 			_useDescender = value;
+		}
+		
+		public function get useAscender(): Boolean
+		{
+			return _column.useAscender;
+		}
+		
+		public function set useAscender( value: Boolean ): void
+		{
+			_column.useAscender = value;
 		}
 
 		public function get image():ImageElement
@@ -466,6 +500,7 @@ package org.purepdf.pdf
 			c._noWrap = cell._noWrap;
 			c._colspan = cell._colspan;
 			c._rowspan = cell._rowspan;
+			c._cellEvent = cell._cellEvent;
 			
 			if( cell._table != null )
 				c._table = new PdfPTable( cell._table );

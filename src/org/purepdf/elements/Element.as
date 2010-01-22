@@ -48,5 +48,6 @@ package org.purepdf.elements
 		public static const TITLE: int = 1;
 		public static const YMARK: int = 55;
 		public static const TABLE: int = 22;
+		public static const CELL: int = 20;
 	}
 }

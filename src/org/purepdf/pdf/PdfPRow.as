@@ -8,6 +8,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.interfaces.PdfPCellEvent;
 
 	public class PdfPRow
 	{
@@ -351,15 +352,13 @@ package org.purepdf.pdf
 						}
 					}
 				}
-				/*
-				PdfPCellEvent evt = cell.getCellEvent();
-				if (evt != null) {
-					Rectangle rect = new Rectangle(cell.getLeft() + xPos, cell.getTop()
-						+ yPos - currentMaxHeight, cell.getRight() + xPos, cell.getTop()
-						+ yPos);
+				
+				var evt: PdfPCellEvent = cell.cellEvent;
+				if (evt != null) 
+				{
+					var rect: RectangleElement = new RectangleElement(cell.getLeft() + xPos, cell.getTop() + yPos - currentMaxHeight, cell.getRight() + xPos, cell.getTop()	+ yPos);
 					evt.cellLayout(cell, rect, canvases);
 				}
-				*/
 			}
 		}
 		
