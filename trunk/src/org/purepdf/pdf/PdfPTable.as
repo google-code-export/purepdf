@@ -8,6 +8,8 @@ package org.purepdf.pdf
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.pdf.events.PdfPTableEventForwarder;
+	import org.purepdf.pdf.interfaces.PdfPTableEvent;
 	import org.purepdf.utils.pdf_core;
 
 	/**
@@ -20,6 +22,7 @@ package org.purepdf.pdf
 		public static const BASECANVAS: int = 0;
 		public static const LINECANVAS: int = 2;
 		public static const TEXTCANVAS: int = 3;
+		protected var _absoluteWidths: Vector.<Number>;
 		protected var _complete: Boolean = true;
 		protected var _defaultCell: PdfPCell = PdfPCell.fromPhrase( null );
 		protected var _headerRows: int = 0;
@@ -30,7 +33,6 @@ package org.purepdf.pdf
 		protected var _totalHeight: Number = 0;
 		protected var _totalWidth: Number = 0;
 		protected var _widthPercentage: Number = 80;
-		protected var _absoluteWidths: Vector.<Number>;
 		protected var currentRow: Vector.<PdfPCell>;
 		protected var currentRowIdx: int = 0;
 		protected var isColspan: Boolean = false;
@@ -45,6 +47,7 @@ package org.purepdf.pdf
 		private var _skipLastFooter: Boolean = false;
 		private var _splitLate: Boolean = true;
 		private var _splitRows: Boolean = true;
+		private var _tableEvent: PdfPTableEvent;
 		private var extendLastRow: Vector.<Boolean> = Vector.<Boolean>( [false, false] );
 
 		public function PdfPTable( obj: Object = null )
@@ -73,6 +76,11 @@ package org.purepdf.pdf
 				default:
 					throw new RuntimeError( "invalid run direction" );
 			}
+		}
+
+		public function get absoluteWidths(): Vector.<Number>
+		{
+			return _absoluteWidths;
 		}
 
 		public function addCell( cell: PdfPCell ): void
@@ -284,11 +292,6 @@ package org.purepdf.pdf
 		public function set footerRows( value: int ): void
 		{
 			_footerRows = Math.max( value, 0 );
-		}
-
-		public function get absoluteWidths(): Vector.<Number>
-		{
-			return _absoluteWidths;
 		}
 
 		public function getChunks(): Vector.<Object>
@@ -673,6 +676,28 @@ package org.purepdf.pdf
 			_splitRows = value;
 		}
 
+		public function get tableEvent(): PdfPTableEvent
+		{
+			return _tableEvent;
+		}
+
+		public function set tableEvent( event: PdfPTableEvent ): void
+		{
+			if ( event == null )
+				_tableEvent = null;
+			else if ( _tableEvent == null )
+				_tableEvent = event;
+			else if ( _tableEvent instanceof PdfPTableEventForwarder )
+				PdfPTableEventForwarder( _tableEvent ).addTableEvent( event );
+			else
+			{
+				var forward: PdfPTableEventForwarder = new PdfPTableEventForwarder();
+				forward.addTableEvent( this.tableEvent );
+				forward.addTableEvent( event );
+				_tableEvent = forward;
+			}
+		}
+
 		public function toString(): String
 		{
 			return "[PdfPTable]";
@@ -762,6 +787,24 @@ package org.purepdf.pdf
 					row.writeCells( colStart, colEnd, xPos, yPos, canvases );
 					yPos -= row.maxHeights;
 				}
+			}
+
+			if ( _tableEvent != null && colStart == 0 && colEnd == totalCols )
+			{
+				var heights: Vector.<Number> = new Vector.<Number>( rowEnd - rowStart + 1, true );
+				heights[0] = yPosStart;
+
+				for ( k = rowStart; k < rowEnd; ++k )
+				{
+					row = rows[k];
+					var hr: Number = 0;
+
+					if ( row != null )
+						hr = row.maxHeights;
+					heights[k - rowStart + 1] = heights[k - rowStart] - hr;
+				}
+				tableEvent.tableLayout( this, getEventWidths( xPos, rowStart, rowEnd, headersInEvent ), heights, headersInEvent ?
+								headerRows : 0, rowStart, canvases );
 			}
 			return yPos;
 		}

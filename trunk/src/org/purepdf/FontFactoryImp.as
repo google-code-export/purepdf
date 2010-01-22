@@ -82,7 +82,7 @@ package org.purepdf
 			return getFont1( fontname, encoding, embedded, size, style, color, true );
 		}
 		
-		public function getFont1( fontname: String, encoding: String, embedded: Boolean, size: Number, style: int, color: RGBColor, cached: Boolean ): Font
+		public function getFont1( fontname: String, encoding: String, embedded: Boolean, size: Number, style: int, color: RGBColor, cached: Boolean = true ): Font
 		{
 			if( fontname == null ) return new Font( Font.UNDEFINED, size, style, color );
 			var lowercasefontname: String = fontname.toLowerCase();

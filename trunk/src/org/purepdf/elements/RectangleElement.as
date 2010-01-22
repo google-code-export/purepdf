@@ -41,6 +41,11 @@ package org.purepdf.elements
 			ury = $ury;
 		}
 		
+		public function get useVariableBorders():Boolean
+		{
+			return _useVariableBorders;
+		}
+
 		public function process( listener: IElementListener ): Boolean
 		{
 			try 
@@ -67,6 +72,41 @@ package org.purepdf.elements
 			_borderColorLeft = rect._borderColorLeft;
 			_borderColorRight = rect._borderColorRight;
 			_borderColorTop = rect._borderColorTop;
+		}
+		
+		/**
+		 * Copies each of the parameters, except the position
+		 */
+		public function softCloneNonPositionParameters( rect: RectangleElement ): void
+		{
+			if (rect.rotation != 0)
+				_rotation = rect.rotation;
+			if (rect.backgroundColor != null)
+				backgroundColor = rect.backgroundColor;
+			if (rect.border != UNDEFINED)
+				border = rect.border;
+			if ( _useVariableBorders )
+				_useVariableBorders = rect._useVariableBorders;
+			if (rect.borderWidth != UNDEFINED)
+				borderWidth = rect.borderWidth;
+			if (rect.borderWidthLeft != UNDEFINED)
+				borderWidthLeft = rect.borderWidthLeft;
+			if (rect.borderWidthRight != UNDEFINED)
+				borderWidthRight = rect.borderWidthRight;
+			if (rect.borderWidthTop != UNDEFINED)
+				borderWidthTop = rect.borderWidthTop;
+			if (rect.borderWidthBottom != UNDEFINED)
+				borderWidthBottom = rect.borderWidthBottom;
+			if (rect.borderColor != null)
+				borderColor = rect.borderColor;
+			if (rect.borderColorLeft != null)
+				borderColorLeft = rect.borderColorLeft;
+			if (rect.borderColorRight != null)
+				borderColorRight = rect.borderColorRight;
+			if (rect.borderColorTop != null)
+				borderColorTop = rect.borderColorTop;
+			if (rect.borderColorBottom != null)
+				borderColorBottom = rect.borderColorBottom;
 		}
 
 		public function disableBorderSide( side: int ): void

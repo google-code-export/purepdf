@@ -25,6 +25,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.Section;
+	import org.purepdf.elements.SimpleTable;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
@@ -254,6 +255,21 @@ package org.purepdf.pdf
 					_addPTable( ptable );
 					pageEmpty = false;
 					newLine();
+					break;
+				
+				case Element.TABLE:
+					if (element is SimpleTable )
+					{
+						var ptable: PdfPTable = SimpleTable(element).createPdfPTable();
+						if( ptable.size <= ptable.headerRows )
+							break;
+						
+						ensureNewLine();
+						flushLines();
+						_addPTable( ptable );
+						pageEmpty = false;
+						break;
+					}
 					break;
 				
 				default:

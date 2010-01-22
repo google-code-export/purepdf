@@ -137,7 +137,8 @@ package org.purepdf
 
 			if ( element is SimpleTable )
 			{
-				throw new NonImplementatioError( "SimpleTable not yet implemented" );
+				//throw new NonImplementatioError( "SimpleTable not yet implemented" );
+				element = SimpleTable(element).createPdfPTable();
 			} else if ( element.type != Element.PARAGRAPH && element.type != Element.LIST && element.type != Element.PTABLE &&
 							element.type != Element.YMARK )
 			{
