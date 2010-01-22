@@ -9,9 +9,9 @@ package
 	import org.purepdf.pdf.fonts.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
-	public class PdfpTable1 extends DefaultBasicExample
+	public class PdfPTableExample1 extends DefaultBasicExample
 	{
-		public function PdfpTable1(d_list:Array=null)
+		public function PdfPTableExample1(d_list:Array=null)
 		{
 			super(["This example will create a siple table","with a header row created using column span"]);
 			

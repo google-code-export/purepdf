@@ -57,7 +57,7 @@ package
 			class_list.push( TextRender );
 			class_list.push( FlyerExample );
 			class_list.push( BarCodes );
-			class_list.push( PdfpTable1 );
+			class_list.push( PdfPTableExample1 );
 			
 			total_number = class_list.length;
 		}
