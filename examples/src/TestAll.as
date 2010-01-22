@@ -60,6 +60,7 @@ package
 			class_list.push( PdfPTableExample1 );
 			class_list.push( TableExample2 );
 			class_list.push( PdfPTableAbsoluteColumns );
+			class_list.push( PdfPTableAbsolutePositions );
 			
 			total_number = class_list.length;
 		}
