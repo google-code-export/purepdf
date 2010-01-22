@@ -1013,7 +1013,7 @@ package org.purepdf
 							index -= footerRows;
 						var last: PdfPRow = nt.rows[index];
 
-						if ( table.isExtendLastRow1( newPageFollows ) )
+						if ( table.isExtendLastRow( newPageFollows ) )
 						{
 							rowHeight = last.maxHeights;
 							last.maxHeights = yTemp - minY + rowHeight;
@@ -1025,11 +1025,11 @@ package org.purepdf
 						else
 							nt.writeSelectedRows2( 0, -1, x1, yLineWrite, canvas );
 
-						if ( table.isExtendLastRow1( newPageFollows ) )
+						if ( table.isExtendLastRow( newPageFollows ) )
 						{
 							last.maxHeights = rowHeight;
 						}
-					} else if ( table.isExtendLastRow() && minY > PdfPRow.BOTTOM_LIMIT )
+					} else if ( table.extendLastRow && minY > PdfPRow.BOTTOM_LIMIT )
 					{
 						yTemp = minY;
 					}

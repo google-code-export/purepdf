@@ -7,6 +7,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.DocumentError;
+	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.events.PdfPTableEventForwarder;
 	import org.purepdf.pdf.interfaces.PdfPTableEvent;
@@ -48,8 +49,13 @@ package org.purepdf.pdf
 		private var _splitLate: Boolean = true;
 		private var _splitRows: Boolean = true;
 		private var _tableEvent: PdfPTableEvent;
-		private var extendLastRow: Vector.<Boolean> = Vector.<Boolean>( [false, false] );
+		private var _extendLastRow: Vector.<Boolean> = Vector.<Boolean>( [false, false] );
 
+		/**
+		 * Create a PdfPTable
+		 * init constructor must be one of the following: Number, PdfPTable, Vector.<Number>
+		 * 
+		 */
 		public function PdfPTable( obj: Object = null )
 		{
 			if ( obj != null )
@@ -58,6 +64,8 @@ package org.purepdf.pdf
 					initFromInt( int( obj ) );
 				else if ( obj is PdfPTable )
 					initFromTable( PdfPTable( obj ) );
+				else if( obj is Vector.<Number> )
+					initFromVectorNumber( obj as Vector.<Number> );
 				else
 					throw new TypeError( "possible elements are: PdfpTable, int" );
 			}
@@ -483,18 +491,18 @@ package org.purepdf.pdf
 			return true;
 		}
 
-		public function isExtendLastRow(): Boolean
+		public function get extendLastRow(): Boolean
 		{
-			return extendLastRow[0];
+			return _extendLastRow[0];
 		}
 
-		public function isExtendLastRow1( newPageFollows: Boolean ): Boolean
+		public function isExtendLastRow( newPageFollows: Boolean ): Boolean
 		{
 			if ( newPageFollows )
 			{
-				return extendLastRow[0];
+				return _extendLastRow[0];
 			}
-			return extendLastRow[1];
+			return _extendLastRow[1];
 		}
 
 		public function get isNestable(): Boolean
@@ -543,16 +551,16 @@ package org.purepdf.pdf
 			return _runDirection;
 		}
 
-		public function setExtendLastRow( value: Boolean ): void
+		public function set extendLastRow( value: Boolean ): void
 		{
-			extendLastRow[0] = value;
-			extendLastRow[1] = value;
+			_extendLastRow[0] = value;
+			_extendLastRow[1] = value;
 		}
 
-		public function setExtendLastRows( value1: Boolean, value2: Boolean ): void
+		public function setExtendLastRow( value1: Boolean, value2: Boolean ): void
 		{
-			extendLastRow[0] = value1;
-			extendLastRow[1] = value2;
+			_extendLastRow[0] = value1;
+			_extendLastRow[1] = value2;
 		}
 
 		/**
@@ -912,7 +920,7 @@ package org.purepdf.pdf
 			headerRows = sourceTable.headerRows;
 			_footerRows = sourceTable._footerRows;
 			_lockedWidth = sourceTable._lockedWidth;
-			extendLastRow = sourceTable.extendLastRow;
+			_extendLastRow = sourceTable._extendLastRow;
 			_headersInEvent = sourceTable._headersInEvent;
 			_widthPercentage = sourceTable._widthPercentage;
 			_splitLate = sourceTable._splitLate;
@@ -974,6 +982,21 @@ package org.purepdf.pdf
 					widths[k] = width;
 			}
 			return widths;
+		}
+		
+		private function initFromVectorNumber( value: Vector.<Number> ): void
+		{
+			if ( value == null )
+				throw new NullPointerError("widths can't be null");
+			if (value.length == 0)
+				throw new ArgumentError("widths array can't be empty");
+			
+			relativeWidths = value.concat();
+			
+			_absoluteWidths = new Vector.<Number>(relativeWidths.length, true);
+			calculateWidths();
+			currentRow = new Vector.<PdfPCell>(absoluteWidths.length, true);
+			_keepTogether = false;
 		}
 
 		private function initFromInt( numColumns: int ): void
