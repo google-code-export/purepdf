@@ -58,6 +58,8 @@ package
 			class_list.push( FlyerExample );
 			class_list.push( BarCodes );
 			class_list.push( PdfPTableExample1 );
+			class_list.push( TableExample2 );
+			class_list.push( PdfPTableAbsoluteColumns );
 			
 			total_number = class_list.length;
 		}

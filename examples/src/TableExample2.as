@@ -1,9 +1,13 @@
 package
 {
+	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.utils.ByteArray;
 	
 	import org.purepdf.Font;
+	import org.purepdf.colors.CMYKColor;
+	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.Paragraph;
@@ -46,6 +50,7 @@ package
 		protected var totalE: int = 0;
 		protected var unit: Boolean = false;
 		protected var units: int = 0;
+		
 		[Embed( source="assets/studyprogram.xml", mimeType="application/octet-stream" )]
 		private var cls: Class;
 		
@@ -54,18 +59,27 @@ package
 		private var font11b: Font;
 		private var font12: Font;
 		private var font12b: Font;
+		private var xml: XML;
 
 		public function TableExample2( d_list: Array = null )
 		{
-			super( d_list );
+			super( ["Create a more advanced table parsing an xml for","rows and columns.","It will also automatically split the table accross pages."] );
 			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, BuiltinFonts.HELVETICA_BOLD );
 			
-			font11 = FontFactory.getFont( BaseFont.HELVETICA_BOLD, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 11 );
-			font14 = FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 14 );
-			font12 = FontFactory.getFont( BaseFont.HELVETICA_BOLD, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 12 );
+			font11	= FontFactory.getFont( BaseFont.HELVETICA_BOLD, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 11 );
+			font14	= FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 14, -1, new CMYKColor(0.9, 0.7, 0.4, 0.1) );
+			font12	= FontFactory.getFont( BaseFont.HELVETICA_BOLD, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 12 );
 			font12b = FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 12 );
 			font11b = FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 11 );
+			
+			table = new SimpleTable();
+			table.widthPercentage = 100;
+			
+			currentRow = new SimpleCell( SimpleCell.ROW );
+			var b: ByteArray = new cls() as ByteArray;
+			b.position = 0;
+			xml = new XML( b.readUTFBytes( b.length ) );
 		}
 
 		public function characters( content: String ): void
@@ -216,18 +230,38 @@ package
 			super.execute();
 			createDocument("Table Example 2", PageSize.A4.rotate() );
 			document.open();
-			var bold: Font = new Font( Font.HELVETICA, 16, Font.BOLD );
+			
 			var p: Paragraph = new Paragraph( "Academic Year 2009/2010\n\n" );
 			p.alignment = Element.ALIGN_CENTER;
 			document.add( p );
-			table = new SimpleTable();
-			table.widthPercentage = 100;
-			currentRow = new SimpleCell( SimpleCell.ROW );
-			var b: ByteArray = new cls() as ByteArray;
-			b.position = 0;
-			var xml: XML = new XML( b.readUTFBytes( b.length ) );
+			
+			addEventListener("parseComplete", onXMLParseComplete );
 			parse( xml );
+		}
+		
+		private function onXMLParseComplete( event: Event ): void
+		{
 			document.add( table );
+			
+			end_time = new Date().getTime();
+			
+			addResultTime( end_time - start_time );
+			
+			var btn: Sprite = createButton( 0xFFFF00, "save", onPostSave );
+			center( btn, create_button );
+			create_button.parent.addChild( btn );
+			
+			var p: Paragraph = new Paragraph( "Sem.: 1 = first semester, 2 = second semester, Y = annual course");
+			p.alignment = Element.ALIGN_RIGHT;
+			document.add( p );
+			p = new Paragraph("P-T = courses can be taken on a part-time basis, 1 = first part, 2 = second part");
+			p.alignment = Element.ALIGN_RIGHT;
+			document.add(p);
+		}
+		
+		private function onPostSave( event: MouseEvent ): void
+		{
+			start_time = new Date().getTime();
 			document.close();
 			save();
 		}
@@ -352,11 +386,12 @@ package
 				startElement( children[a] );
 				endElement( children[a] );
 			}
+			
+			dispatchEvent( new Event("parseComplete") );
 		}
 
 		private function startElement( element: XML ): void
 		{
-			trace( 'start', element.name() );
 			var qName: String = element.name().toString().toLowerCase();
 			var p: Paragraph;
 
@@ -380,7 +415,6 @@ package
 					status = COURSE;
 				} else if ( "d" == qName || "e" == qName )
 				{
-					trace( element.attribute("count").valueOf() );
 					count = "true" == ( element.attribute( "count" ).valueOf() );
 				}
 				buffers = "";

@@ -21,6 +21,9 @@ package
 	import org.purepdf.pdf.PdfDocument;
 	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfWriter;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
 	import org.purepdf.utils.StringUtils;
 
 	public class DefaultBasicExample extends Sprite
@@ -49,6 +52,11 @@ package
 		{
 			execute();
 			return [filename, buffer];
+		}
+		
+		protected function regusterDefaultFont(): void
+		{
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 		}
 
 		protected function addResultTime( time: Number ): void
