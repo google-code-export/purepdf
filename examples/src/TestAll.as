@@ -67,6 +67,7 @@ package
 			class_list.push( PdfPTableColumnWidths );
 			class_list.push( PdfPTableCompare );
 			class_list.push( PdfPTableImages );
+			class_list.push( PdfPTableMemoryFriendly );
 			
 			total_number = class_list.length;
 		}
