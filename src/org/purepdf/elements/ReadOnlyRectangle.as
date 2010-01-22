@@ -86,7 +86,7 @@ package org.purepdf.elements
 			throwReadOnlyError();
 		}
 
-		override public function setGrayFill( value: Number ): void
+		override public function set grayFill( value: Number ): void
 		{
 			throwReadOnlyError();
 		}

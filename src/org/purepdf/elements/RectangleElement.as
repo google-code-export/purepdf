@@ -406,9 +406,9 @@ package org.purepdf.elements
 			lly = $lly;
 		}
 
-		public function setGrayFill( value: Number ): void
+		public function set grayFill( value: Number ): void
 		{
-			_backgroundColor = new GrayColor( value * 255 );
+			_backgroundColor = new GrayColor( value );
 		}
 
 		public function setLeft( $llx: Number ): void

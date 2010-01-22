@@ -166,7 +166,7 @@ package org.purepdf.pdf
 			_column.setText(null);
 			_image = null;
 			if (_table != null) {
-				_table.setExtendLastRow(verticalAlignment == Element.ALIGN_TOP);
+				_table.extendLastRow = (verticalAlignment == Element.ALIGN_TOP);
 				_column.addElement(table);
 				_table.widthPercentage = 100;
 			}
@@ -361,7 +361,7 @@ package org.purepdf.pdf
 		public function set verticalAlignment(value:int):void
 		{
 			if( _table != null )
-				_table.setExtendLastRow( value == Element.ALIGN_TOP );
+				_table.extendLastRow = ( value == Element.ALIGN_TOP );
 			_verticalAlignment = value;
 		}
 
