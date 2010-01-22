@@ -66,6 +66,7 @@ package
 			class_list.push( PdfPTableColors );
 			class_list.push( PdfPTableColumnWidths );
 			class_list.push( PdfPTableCompare );
+			class_list.push( PdfPTableImages );
 			
 			total_number = class_list.length;
 		}
