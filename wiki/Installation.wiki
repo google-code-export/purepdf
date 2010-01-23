@@ -1,5 +1,5 @@
 #summary purepdf compilation with ant.
-#labels Phase-Implementation,Phase-Deploy
+#labels Phase-Implementation,Phase-Deploy,Featured
 
 = Introduction =
 
