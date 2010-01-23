@@ -8,6 +8,7 @@ package org.purepdf.elements
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.iterators.VectorIterator;
+	import org.purepdf.utils.pdf_core;
 
 	/**
 	 * A Phrase contains a series of Chunks.
@@ -341,7 +342,7 @@ package org.purepdf.elements
 			return true;
 		}
 
-		protected function addSpecial( o: Object ): void
+		pdf_core function addSpecial( o: Object ): void
 		{
 			_array.push( o );
 		}

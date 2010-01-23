@@ -2,6 +2,7 @@ package org.purepdf.elements
 {
 	import org.purepdf.Font;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.utils.pdf_core;
 
 	/**
 	 * A Paragraph contains a series of Chunks and/or Phrases.
@@ -38,6 +39,8 @@ package org.purepdf.elements
 		protected var _spacingBefore: Number = 0;
 		private var _extraParagraphSpace: Number = 0;
 		private var _firstLineIndent: Number = 0;
+		
+		use namespace pdf_core;
 
 		public function Paragraph( text: String, font: Font = null )
 		{
@@ -77,8 +80,13 @@ package org.purepdf.elements
 		{
 			var p: Paragraph = new Paragraph( null, null );
 			p.leading = leading;
-			p.push( chunk );
-			p.font = chunk.font;
+			if( chunk )
+			{
+				p.push( chunk );
+				p.font = chunk.font;
+			} else {
+				p.font = new Font();
+			}
 			return p;
 		}
 		
