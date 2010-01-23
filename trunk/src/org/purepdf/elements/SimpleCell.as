@@ -46,9 +46,9 @@ package org.purepdf.elements
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.PdfPCell;
 	import org.purepdf.pdf.PdfPTable;
-	import org.purepdf.pdf.interfaces.PdfPCellEvent;
+	import org.purepdf.pdf.interfaces.IPdfPCellEvent;
 
-	public class SimpleCell extends RectangleElement implements PdfPCellEvent, ITextElementaryArray
+	public class SimpleCell extends RectangleElement implements IPdfPCellEvent, ITextElementaryArray
 	{
 		public static const CELL: Boolean = false;
 		public static const ROW: Boolean = true;

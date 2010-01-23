@@ -54,7 +54,7 @@ package org.purepdf.elements
 		public static function fromImage( image: ImageElement, offsetX: Number, offsetY: Number ): Chunk 
 		{
 			var result: Chunk = new Chunk( OBJECT_REPLACEMENT_CHARACTER, new Font() );
-			var copyImage: ImageElement = image;// = Image.getInstance( image );
+			var copyImage: ImageElement = ImageElement.getImageInstance(image);// = Image.getInstance( image );
 			copyImage.setAbsolutePosition( Number.NaN, Number.NaN );
 			result.setAttribute( IMAGE, Vector.<Object>([ copyImage, offsetX, offsetY, false ]) );
 			return result;

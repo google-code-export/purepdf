@@ -22,16 +22,24 @@ package org.purepdf.elements.images
 		
 		private var icc: Vector.<Bytes>;
 		
-		public function Jpeg( buffer: ByteArray )
+		public function Jpeg( obj: Object )
 		{
-			super( null );
-			buffer.position = 0;
+			super( obj is ByteArray ? null : ( obj is ImageElement ? obj : null ) );
 			
-			_rawData = buffer;
-			_rawData.position = 0;
-			_originalData = buffer;
-			
-			processParameters();
+			if( obj is ByteArray )
+			{
+				var buffer: ByteArray = ByteArray( obj );
+				
+				buffer.position = 0;
+				_rawData = buffer;
+				_rawData.position = 0;
+				_originalData = buffer;
+				processParameters();
+			} else if( obj is Jpeg )
+			{
+			} else {
+				throw new ArgumentError("invalid parameter passed");
+			}
 		}
 		
 		/**
@@ -251,7 +259,5 @@ package org.purepdf.elements.images
 				icc =  null;
 			}
 		}
-		
-		
 	}
 }
