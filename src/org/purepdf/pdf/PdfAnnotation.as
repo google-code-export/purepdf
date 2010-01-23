@@ -1,7 +1,6 @@
 package org.purepdf.pdf
 {
 	import it.sephiroth.utils.HashMap;
-	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -57,14 +56,15 @@ package org.purepdf.pdf
 
 			if ( rect != null )
 			{
-				if( action != null )
+				if ( action != null )
 				{
 					put( PdfName.SUBTYPE, PdfName.LINK );
 					put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
 					put( PdfName.A, action );
 					put( PdfName.BORDER, new PdfBorderArray( 0, 0, 0 ) );
 					put( PdfName.C, new PdfColor( 0x00, 0x00, 0xFF ) );
-				} else {
+				} else
+				{
 					put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
 				}
 			}
@@ -78,6 +78,16 @@ package org.purepdf.pdf
 		public function set annotation( value: Boolean ): void
 		{
 			_annotation = value;
+		}
+
+		public function set appearanceState( state: String ): void
+		{
+			if ( state == null )
+			{
+				remove( PdfName.AS );
+				return;
+			}
+			put( PdfName.AS, new PdfName( state ) );
 		}
 
 		public function set borderStyle( border: PdfBorderDictionary ): void
@@ -129,6 +139,11 @@ package org.purepdf.pdf
 			return reference;
 		}
 
+		public function getUsed(): Boolean
+		{
+			return used;
+		}
+
 		public function get isAnnotation(): Boolean
 		{
 			return _annotation;
@@ -137,16 +152,6 @@ package org.purepdf.pdf
 		public function get isForm(): Boolean
 		{
 			return _form;
-		}
-
-		public function getUsed(): Boolean
-		{
-			return used;
-		}
-
-		public function setUsed(): void
-		{
-			used = true;
 		}
 
 		public function set mkBackgroundColor( color: RGBColor ): void
@@ -190,6 +195,36 @@ package org.purepdf.pdf
 			if ( templates == null )
 				templates = new HashMap();
 			templates.put( template, null );
+		}
+
+		public function setAppearanceState( ap: PdfName, state: String, template: PdfTemplate ): void
+		{
+			var dicAp: PdfDictionary = getValue( PdfName.AP ) as PdfDictionary;
+
+			if ( dicAp == null )
+				dicAp = new PdfDictionary();
+			var dic: PdfDictionary;
+			var obj: PdfObject = dicAp.getValue( ap ) as PdfObject;
+
+			if ( obj != null && obj.isDictionary() )
+				dic = PdfDictionary( obj );
+			else
+				dic = new PdfDictionary();
+			dic.put( new PdfName( state ), template.indirectReference );
+			dicAp.put( ap, dic );
+			put( PdfName.AP, dicAp );
+
+			if ( !form )
+				return;
+
+			if ( templates == null )
+				templates = new HashMap();
+			templates.put( template, null );
+		}
+
+		public function setUsed(): void
+		{
+			used = true;
 		}
 
 		public function get templates(): HashMap
