@@ -206,7 +206,7 @@ package org.purepdf.elements
 
 		public function setAnchor( url: String ): Chunk
 		{
-			return setAttribute( ACTION, PdfAction.create( url ) );
+			return setAttribute( ACTION, PdfAction.fromURL( url ) );
 		}
 		
 		public function setAction( action: PdfAction ): Chunk

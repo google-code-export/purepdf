@@ -209,9 +209,9 @@ package org.purepdf.pdf
 		 * @return a page number
 		 */
 
-		public function getPageNumber(): int
+		public function get pageNumber(): int
 		{
-			return pdf.getPageNumber();
+			return pdf.pageNumber;
 		}
 
 		/**
