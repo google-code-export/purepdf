@@ -32,13 +32,13 @@ package
 			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.pageSize.height ) );
 			
 			cb.saveState();
-			cb.setFillColor( new RGBColor( 255, 0, 0 ) );
+			cb.setColorFill( new RGBColor( 255, 0, 0 ) );
 			cb.circle( 100, 100, 50 );
 			cb.fill();
 			cb.restoreState();
 			
 			cb.saveState();
-			cb.setFillColor( new RGBColor( 0, 0, 255 ) );
+			cb.setColorFill( new RGBColor( 0, 0, 255 ) );
 			cb.setTransform( new Matrix( 1, 0, 0, 1, 25, 50 ) );
 			gs = new PdfGState();
 			gs.setFillOpacity( 0.5 );	// change the fill opacity
@@ -48,7 +48,7 @@ package
 			cb.restoreState();
 			
 			cb.saveState();
-			cb.setFillColor( new RGBColor( 0, 255, 0 ) );
+			cb.setColorFill( new RGBColor( 0, 255, 0 ) );
 			cb.setTransform( new Matrix( 1, 0, 0, 1, 50, 0 ) );
 			gs = new PdfGState();
 			gs.setBlendMode( PdfBlendMode.MULTIPLY );	// use blendmode

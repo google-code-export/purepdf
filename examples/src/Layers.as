@@ -33,19 +33,19 @@ package
 			nested.addChild( nested_2 );
 			cb.beginLayer( nested );
 			
-			cb.setFillColor( RGBColor.LIGHT_GRAY );
+			cb.setColorFill( RGBColor.LIGHT_GRAY );
 			cb.rectangle( 20, 522, 300, 300 );
 			cb.fill();
 			cb.endLayer();
 			
 			cb.beginLayer( nested_1 );
-			cb.setFillColor( RGBColor.GRAY );
+			cb.setColorFill( RGBColor.GRAY );
 			cb.rectangle( 40, 502, 300, 300 );
 			cb.fill();
 			cb.endLayer();
 			
 			cb.beginLayer( nested_2 );
-			cb.setFillColor( RGBColor.DARK_GRAY );
+			cb.setColorFill( RGBColor.DARK_GRAY );
 			cb.rectangle( 60, 482, 300, 300 );
 			cb.fill();
 			cb.endLayer();

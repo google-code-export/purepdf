@@ -19,7 +19,7 @@ package
 			createDocument();
 			document.open();
 			
-			regusterDefaultFont();
+			registerDefaultFont();
 			
 			var table: PdfPTable = new PdfPTable(2);
 			table.extendLastRow = true;

@@ -20,7 +20,7 @@ package
 			createDocument();
 			document.open();
 			
-			regusterDefaultFont();
+			registerDefaultFont();
 			
 			var table: PdfPTable = new PdfPTable(3);
 			var cell: PdfPCell = PdfPCell.fromPhrase(new Paragraph("header with colspan 3"));

@@ -45,7 +45,7 @@ package
 			var sc_rgb9: SpotColor = new SpotColor(psc_rgb, 0.9);
 			var sc_cmyk: SpotColor = new SpotColor(psc_cmyk, 0.25);
 
-			cb.setFillColor( sc_g );
+			cb.setColorFill( sc_g );
 			cb.rectangle( 36, 770, 36, 36 );
 			cb.fillStroke();
 			cb.setSpotFillColor( psc_g, 0.5 );
@@ -61,31 +61,31 @@ package
 			cb.rectangle( 252, 770, 36, 36 );
 			cb.fillStroke();
 
-			cb.setFillColor(sc_rgb1);
+			cb.setColorFill(sc_rgb1);
 			cb.rectangle(36, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb2);
+			cb.setColorFill(sc_rgb2);
 			cb.rectangle(90, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb3);
+			cb.setColorFill(sc_rgb3);
 			cb.rectangle(144, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb4);
+			cb.setColorFill(sc_rgb4);
 			cb.rectangle(198, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb5);
+			cb.setColorFill(sc_rgb5);
 			cb.rectangle(252, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb6);
+			cb.setColorFill(sc_rgb6);
 			cb.rectangle(306, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb7);
+			cb.setColorFill(sc_rgb7);
 			cb.rectangle(360, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb8);
+			cb.setColorFill(sc_rgb8);
 			cb.rectangle(416, 716, 36, 36);
 			cb.fillStroke();
-			cb.setFillColor(sc_rgb9);
+			cb.setColorFill(sc_rgb9);
 			cb.rectangle(470, 716, 36, 36);
 			cb.fillStroke();
 			
@@ -117,7 +117,7 @@ package
 			cb.rectangle(470, 662, 36, 36);
 			cb.fillStroke();
 			
-			cb.setFillColor(sc_cmyk);
+			cb.setColorFill(sc_cmyk);
 			cb.rectangle(36, 608, 36, 36);
 			cb.fillStroke();
 			cb.setSpotFillColor(psc_cmyk, 0.25);

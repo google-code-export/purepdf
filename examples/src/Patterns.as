@@ -32,8 +32,8 @@ package
 			
 			// define the patterns
 			var square: PdfPatternPainter = cb.createPattern( 15, 15 );
-			square.setFillColor( new RGBColor( 0xff, 0xff, 0x00 ) );
-			square.setStrokeColor( new RGBColor( 0xff, 0x00, 0x00 ) );
+			square.setColorFill( new RGBColor( 0xff, 0xff, 0x00 ) );
+			square.setColorStroke( new RGBColor( 0xff, 0x00, 0x00 ) );
 			square.rectangle( 5, 5, 5, 5 );
 			square.fillStroke();
 			
@@ -53,11 +53,11 @@ package
 			var lines: PatternColor = new PatternColor( line );
 			
 			// draw to content
-			cb.setFillColor( squares );
+			cb.setColorFill( squares );
 			cb.rectangle( 30, 700, 80, 80 );
 			cb.fillStroke();
 			
-			cb.setFillColor( lines );
+			cb.setColorFill( lines );
 			cb.rectangle( 360, 716, 72, 72 );
 			cb.fillStroke();
 			

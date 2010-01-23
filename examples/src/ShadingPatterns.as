@@ -42,7 +42,7 @@ package
 			cb.fillStroke();
 			
 			var axialColor: ShadingColor = new ShadingColor( axialPattern );
-			cb.setFillColor( axialColor );
+			cb.setColorFill( axialColor );
 			cb.rectangle( 10, 200, 50, 50 );
 			cb.rectangle( 70, 200, 50, 50 );
 			cb.rectangle( 130, 200, 50, 50 );
@@ -51,7 +51,7 @@ package
 			
 			var radialPattern: PdfShadingPattern = new PdfShadingPattern( radial );
 			var radialColor: ShadingColor = new ShadingColor( radialPattern );
-			cb.setFillColor( radialColor );
+			cb.setColorFill( radialColor );
 			cb.rectangle( 10, 100, 50, 50 );
 			cb.rectangle( 70, 100, 50, 50 );
 			cb.rectangle( 130, 100, 50, 50 );

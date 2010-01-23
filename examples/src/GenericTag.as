@@ -48,7 +48,7 @@ package
 			if( event.tag == 'ellipse' )
 			{
 				cb = document.getDirectContent();
-				cb.setStrokeColor( RGBColor.RED );
+				cb.setColorStroke( RGBColor.RED );
 				cb.ellipse( event.rect.getLeft(), event.rect.getBottom() - 5, event.rect.getRight(), event.rect.getTop() );
 				cb.stroke();
 				cb.resetStroke();

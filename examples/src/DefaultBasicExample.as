@@ -54,7 +54,7 @@ package
 			return [filename, buffer];
 		}
 		
-		protected function regusterDefaultFont(): void
+		protected function registerDefaultFont(): void
 		{
 			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 		}

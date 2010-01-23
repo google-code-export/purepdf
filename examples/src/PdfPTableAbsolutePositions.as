@@ -15,7 +15,7 @@ package
 		{
 			super(["This example shows how to create a PdfPTable and","print its rows using the method writeSelectedRows","the resulting table will be splitted accross pages"]);
 			
-			regusterDefaultFont();
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null):void

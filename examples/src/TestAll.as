@@ -68,6 +68,7 @@ package
 			class_list.push( PdfPTableCompare );
 			class_list.push( PdfPTableImages );
 			class_list.push( PdfPTableMemoryFriendly );
+			class_list.push( RegistrationForm );
 			
 			total_number = class_list.length;
 		}

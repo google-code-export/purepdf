@@ -21,7 +21,7 @@ package
 			createDocument();
 			document.open();
 			
-			regusterDefaultFont();
+			registerDefaultFont();
 			
 			var table: PdfPTable = new PdfPTable(4);
 			table.widthPercentage = 100;

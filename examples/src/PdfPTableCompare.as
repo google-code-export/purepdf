@@ -22,7 +22,7 @@ package
 			createDocument();
 			document.open();
 			
-			regusterDefaultFont();
+			registerDefaultFont();
 			
 			var cell: PdfPCell;
 			var table: PdfPTable;

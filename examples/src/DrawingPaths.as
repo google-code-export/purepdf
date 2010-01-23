@@ -29,7 +29,7 @@ package
 			//cb.setTransform( new Matrix( 1, 0, 0, -1, 0, document.pageSize.getHeight() ) );
 			
 			cb.saveState();
-			cb.setFillColor( new RGBColor( 255, 0, 0 ) );
+			cb.setColorFill( new RGBColor( 255, 0, 0 ) );
 			cb.moveTo( 110, 110 );
 			cb.lineTo( 310, 110 );
 			cb.lineTo( 310, 310 );
@@ -49,13 +49,13 @@ package
 			cb.restoreState();
 			
 			cb.saveState();
-			cb.setFillColor( RGBColor.MAGENTA );
+			cb.setColorFill( RGBColor.MAGENTA );
 			cb.rectangle( 220, 220, 120, 140 );
 			cb.fill();
 			cb.restoreState();
 			
 			cb.saveState();
-			cb.setFillColor( new GrayColor( 0.8 ) );
+			cb.setColorFill( new GrayColor( 0.8 ) );
 			cb.arc( 250, 330, 370, 410, 45, 270 );
 			cb.fill();
 			cb.restoreState();
