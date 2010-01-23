@@ -39,8 +39,8 @@ package org.purepdf.pdf
 		public static const MARKUP_UNDERLINE: int = 1;
 		protected var _placeInPage: int = -1;
 		internal var _templates: HashMap;
-		internal var annotation: Boolean = true;
-		internal var form: Boolean = false;
+		internal var _annotation: Boolean = true;
+		protected var _form: Boolean = false;
 		protected var reference: PdfIndirectReference;
 		protected var used: Boolean = false;
 		protected var _writer: PdfWriter;
@@ -51,6 +51,26 @@ package org.purepdf.pdf
 
 			if ( rect != null )
 				put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
+		}
+
+		public function get annotation():Boolean
+		{
+			return _annotation;
+		}
+
+		public function set annotation(value:Boolean):void
+		{
+			_annotation = value;
+		}
+
+		public function set form(value:Boolean):void
+		{
+			_form = value;
+		}
+
+		public function get form():Boolean
+		{
+			return _form;
 		}
 
 		/**
@@ -73,12 +93,12 @@ package org.purepdf.pdf
 
 		public function get isAnnotation(): Boolean
 		{
-			return annotation;
+			return _annotation;
 		}
 
 		public function get isForm(): Boolean
 		{
-			return form;
+			return _form;
 		}
 
 		public function get isUsed(): Boolean
@@ -106,7 +126,7 @@ package org.purepdf.pdf
 			return _templates;
 		}
 		
-		internal function setTemplates( value: HashMap ): void
+		public function set templates( value: HashMap ): void
 		{
 			_templates = value;
 		}

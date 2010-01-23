@@ -171,6 +171,22 @@ package org.purepdf
 			for ( var k: int = 0; k < chunks.length; ++k )
 				bidiLine.addChunk( PdfChunk.fromChunk( Chunk( chunks[k] ), null ) );
 		}
+		
+		/**
+		 * Gets the width that the line will occupy after writing.
+		 * Only the width of the first line is returned.
+		 */    
+		public static function getWidth( phrase: Phrase, runDirection: int, arabicOptions: int ): Number
+		{
+			var ct: ColumnText = new ColumnText(null);
+			ct.addText(phrase);
+			ct.addWaitingPhrase();
+			var line: PdfLine = ct.bidiLine.processLine(0, 20000, Element.ALIGN_LEFT, runDirection, arabicOptions);
+			if (line == null)
+				return 0;
+			else
+				return 20000 - line.widthLeft;
+		}
 
 		public function get alignment(): int
 		{
@@ -1158,7 +1174,7 @@ package org.purepdf
 		 * @param rotation the rotation to be applied in degrees counterclockwise
 		 */
 		static public function showTextAligned( canvas: PdfContentByte, alignment: int, phrase: Phrase, x: Number, y: Number,
-						rotation: Number, runDirection: int = 0 ): void
+						rotation: Number, runDirection: int = 0, arabicOptions: int = 0 ): void
 		{
 			if ( alignment != Element.ALIGN_LEFT && alignment != Element.ALIGN_CENTER && alignment != Element.ALIGN_RIGHT )
 				alignment = Element.ALIGN_LEFT;

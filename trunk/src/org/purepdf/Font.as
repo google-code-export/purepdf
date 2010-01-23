@@ -2,9 +2,9 @@ package org.purepdf
 {
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.errors.ConversionError;
+	import org.purepdf.factories.FontFactory;
 	import org.purepdf.html.Markup;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.factories.FontFactory;
 
 	public class Font implements IComparable
 	{
@@ -14,7 +14,6 @@ package org.purepdf
 		public static const DEFAULTSIZE: int = 12;
 		public static const HELVETICA: int = 1;
 		public static const ITALIC: int = 2;
-
 		public static const NORMAL: int = 0;
 		public static const STRIKETHRU: int = 8;
 		public static const SYMBOL: int = 3;
@@ -24,33 +23,26 @@ package org.purepdf
 		public static const ZAPFDINGBATS: int = 4;
 		private var _baseFont: BaseFont = null;
 		private var _color: RGBColor = null;
-
 		private var _family: int = UNDEFINED;
 		private var _size: Number = UNDEFINED;
 		private var _style: int = UNDEFINED;
 
 		/**
-		 * 
+		 *
 		 * @param $style a combination of Font style ( eg: Font.UNDERLINE | Font.BOLD )
 		 */
-		public function Font( $family: int=UNDEFINED, $size: Number=UNDEFINED, $style: int=UNDEFINED, $color: RGBColor=null, $baseFont: BaseFont
-			=null )
+		public function Font( family: int = UNDEFINED, size: Number = UNDEFINED, style: int = UNDEFINED, color: RGBColor = null,
+						baseFont: BaseFont = null )
 		{
-			_family = $family;
-			_size = $size;
-			_style = $style;
-			_color = $color;
-			_baseFont = $baseFont;
+			_family = family;
+			_size = size;
+			_style = style;
+			_color = color;
+			_baseFont = baseFont;
 
-			if ( $baseFont != null )
+			if ( baseFont != null )
 				_family = UNDEFINED;
 		}
-		
-		public function clone(): Object
-		{
-			return new Font( _family, _size, _style, _color, _baseFont );
-		}
-
 
 		public function get baseFont(): BaseFont
 		{
@@ -65,6 +57,11 @@ package org.purepdf
 				_family = UNDEFINED;
 		}
 
+		public function clone(): Object
+		{
+			return new Font( _family, _size, _style, _color, _baseFont );
+		}
+
 		public function get color(): RGBColor
 		{
 			return _color;
@@ -75,12 +72,10 @@ package org.purepdf
 			_color = value;
 		}
 
-
 		public function compareTo( o: Object ): int
 		{
 			if ( o == null )
 				return -1;
-
 			var font: Font;
 
 			try
@@ -111,14 +106,11 @@ package org.purepdf
 
 				if ( color.equals( font.color ) )
 					return 0;
-
 				return 4;
-			}
-			catch ( err: Error )
+			} catch ( err: Error )
 			{
 				return -3;
 			}
-
 			return -3;
 		}
 
@@ -130,7 +122,6 @@ package org.purepdf
 		{
 			if ( font == null )
 				return this;
-
 			// size
 			var dSize: Number = font.size;
 
@@ -138,7 +129,6 @@ package org.purepdf
 			{
 				dSize = size;
 			}
-
 			// style
 			var dStyle: int = UNDEFINED;
 			var style1: int = style;
@@ -153,7 +143,6 @@ package org.purepdf
 					style2 = 0;
 				dStyle = style1 | style2;
 			}
-
 			// color
 			var dColor: RGBColor = font.color;
 
@@ -175,7 +164,6 @@ package org.purepdf
 					return new Font( UNDEFINED, dSize, dStyle, dColor, baseFont );
 				else
 					return FontFactory.getFont( familyname, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, dSize, dStyle, dColor );
-
 			}
 			return new Font( family, dSize, dStyle, dColor );
 		}
@@ -218,14 +206,14 @@ package org.purepdf
 
 						for ( var i: int = 0; i < names.length; i++ )
 						{
-							if ( "0" == names[ i ][ 2 ] )
-								return names[ i ][ 3 ];
+							if ( "0" == names[i][2] )
+								return names[i][3];
 
-							if ( "1033" == names[ i ][ 2 ] )
-								tmp = names[ i ][ 3 ];
+							if ( "1033" == names[i][2] )
+								tmp = names[i][3];
 
-							if ( "" == names[ i ][ 2 ] )
-								tmp = names[ i ][ 3 ];
+							if ( "" == names[i][2] )
+								tmp = names[i][3];
 						}
 					}
 			}
@@ -240,12 +228,10 @@ package org.purepdf
 		{
 			if ( baseFont != null )
 				return baseFont;
-
 			var s: int = style;
 
 			if ( s == UNDEFINED )
 				s = NORMAL;
-
 			var fontName: String = BaseFont.HELVETICA;
 			var encoding: String = BaseFont.WINANSI;
 			var cfont: BaseFont = null;
@@ -269,7 +255,6 @@ package org.purepdf
 						break;
 				}
 					break;
-
 				case TIMES_ROMAN:
 					switch ( s & BOLDITALIC )
 				{
@@ -288,19 +273,16 @@ package org.purepdf
 						break;
 				}
 					break;
-
 				case SYMBOL:
 					fontName = BaseFont.SYMBOL;
 					if ( specialEncoding )
 						encoding = BaseFont.SYMBOL;
 					break;
-
 				case ZAPFDINGBATS:
 					fontName = BaseFont.ZAPFDINGBATS;
 					if ( specialEncoding )
 						encoding = BaseFont.ZAPFDINGBATS;
 					break;
-
 				default:
 				case Font.HELVETICA:
 					switch ( s & BOLDITALIC )
@@ -325,13 +307,12 @@ package org.purepdf
 			try
 			{
 				cfont = BaseFont.createFont( fontName, encoding, false );
-			} catch( ee: Error )
+			} catch ( ee: Error )
 			{
-				throw new ConversionError(ee.message);
+				throw new ConversionError( ee.message );
 			}
 			return cfont;
 		}
-
 
 		public function getCalculatedLeading( linespacing: Number ): Number
 		{
@@ -363,12 +344,10 @@ package org.purepdf
 				return s & ( ~BOLDITALIC );
 		}
 
-
 		public function get isBold(): Boolean
 		{
 			if ( style == UNDEFINED )
 				return false;
-
 			return ( style & BOLD ) == BOLD;
 		}
 
@@ -376,7 +355,6 @@ package org.purepdf
 		{
 			if ( style == UNDEFINED )
 				return false;
-
 			return ( style & ITALIC ) == ITALIC;
 		}
 
@@ -389,7 +367,6 @@ package org.purepdf
 		{
 			if ( style == UNDEFINED )
 				return false;
-
 			return ( style & STRIKETHRU ) == STRIKETHRU;
 		}
 
@@ -397,7 +374,6 @@ package org.purepdf
 		{
 			if ( style == UNDEFINED )
 				return false;
-
 			return ( style & UNDERLINE ) == UNDERLINE;
 		}
 
@@ -421,8 +397,12 @@ package org.purepdf
 			_style = value;
 		}
 
+		static public function fromBaseFont( bs: BaseFont, size: Number, style: int, color: RGBColor ): Font
+		{
+			return new Font( UNDEFINED, size, style, color, bs );
+		}
 
-		public static function getFamilyIndex( family: String ): int
+		static public function getFamilyIndex( family: String ): int
 		{
 			family = family.toLowerCase();
 
@@ -440,7 +420,6 @@ package org.purepdf
 
 			if ( family == BaseFont.ZAPFDINGBATS.toLowerCase() )
 				return ZAPFDINGBATS;
-
 			return UNDEFINED;
 		}
 
@@ -448,7 +427,7 @@ package org.purepdf
 		 * Translates a String style value into the
 		 * index value is used for this style
 		 */
-		public static function getStyleValue( style: String ): int
+		static public function getStyleValue( style: String ): int
 		{
 			var s: int = 0;
 

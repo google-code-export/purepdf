@@ -2,9 +2,7 @@ package org.purepdf.pdf
 {
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
-	
 	import it.sephiroth.utils.ObjectHash;
-	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -29,6 +27,7 @@ package org.purepdf.pdf
 
 	public class PdfContentByte extends ObjectHash
 	{
+		use namespace pdf_core;
 		public static const ALIGN_CENTER: int = Element.ALIGN_CENTER;
 		public static const ALIGN_LEFT: int = Element.ALIGN_LEFT;
 		public static const ALIGN_RIGHT: int = Element.ALIGN_RIGHT;
@@ -46,39 +45,33 @@ package org.purepdf.pdf
 		public static const TEXT_RENDER_MODE_INVISIBLE: int = 3;
 		public static const TEXT_RENDER_MODE_STROKE: int = 1;
 		public static const TEXT_RENDER_MODE_STROKE_CLIP: int = 5;
-		private static const unitRect: Vector.<Number> = Vector.<Number>( [ 0, 0, 0, 1, 1, 0, 1, 1 ] );
+		private static const unitRect: Vector.<Number> = Vector.<Number>( [0, 0, 0, 1, 1, 0, 1, 1] );
+		protected var _writer: PdfWriter;
 		protected var content: ByteBuffer = new ByteBuffer();
 		protected var inText: Boolean = false;
 		protected var layerDepth: Vector.<int>;
 		protected var mcDepth: int = 0;
 		protected var pdf: PdfDocument;
-
 		protected var separator: int = '\n'.charCodeAt( 0 );
 		protected var state: GraphicState = new GraphicState();
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
-		protected var _writer: PdfWriter;
-		
-		use namespace pdf_core;
 
 		public function PdfContentByte( $writer: PdfWriter )
 		{
 			_writer = $writer;
 			pdf = _writer.pdfDocument;
 		}
-		
-		public function get writer():PdfWriter
+
+		public function addAnnotation( annot: PdfAnnotation ): void
 		{
-			return _writer;
-		}
-		
-		public function set writer( value: PdfWriter ): void
-		{
-			_writer = value;
+			_writer.pdfDocument.addAnnotation( annot );
 		}
 
-		public function duplicate(): PdfContentByte
+		public function addContent( other: PdfContentByte ): void
 		{
-			return new PdfContentByte( _writer );
+			if ( other.writer != null && _writer != other.writer )
+				throw new RuntimeError();
+			content.append_bytebuffer( other.content );
 		}
 
 		/**
@@ -91,24 +84,6 @@ package org.purepdf.pdf
 		public function addImage( image: ImageElement ): void
 		{
 			addImage1( image, false );
-		}
-		
-		/**
-		 * Sets the text rendering mode
-		 */
-		public function setTextRenderingMode( rendering: int ): void 
-		{
-			content.append_number( rendering ).append_string( " Tr" ).append_separator();
-		}
-
-		
-		/**
-		 * Change the word spacing
-		 */
-		public function setWordSpacing( wordSpace: Number ): void
-		{
-			state.wordSpace = wordSpace;
-			content.append_number( wordSpace ).append_string( " Tw" ).append_separator();
 		}
 
 		/**
@@ -124,9 +99,9 @@ package org.purepdf.pdf
 			if ( !image.hasAbsoluteY )
 				throw new ArgumentError( "image must have absolute position" );
 			var matrix: Vector.<Number> = image.matrix;
-			matrix[ ImageElement.CX ] = image.absoluteX - matrix[ ImageElement.CX ];
-			matrix[ ImageElement.CY ] = image.absoluteY - matrix[ ImageElement.CY ];
-			addImage2( image, matrix[ 0 ], matrix[ 1 ], matrix[ 2 ], matrix[ 3 ], matrix[ 4 ], matrix[ 5 ], inlineImage );
+			matrix[ImageElement.CX] = image.absoluteX - matrix[ImageElement.CX];
+			matrix[ImageElement.CY] = image.absoluteY - matrix[ImageElement.CY];
+			addImage2( image, matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5], inlineImage );
 		}
 
 		/**
@@ -146,7 +121,8 @@ package org.purepdf.pdf
 		 *
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
-		public function addImage2( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number, inlineImage: Boolean ): void
+		public function addImage2( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number,
+						inlineImage: Boolean ): void
 		{
 			if ( image.layer != null )
 				beginLayer( image.layer );
@@ -159,10 +135,8 @@ package org.purepdf.pdf
 				var template: PdfTemplate = image.templateData;
 				w = template.width;
 				h = template.height;
-				
 				addTemplate( template, width / w, b / w, c / h, height / h, x, y );
-			}
-			else
+			} else
 			{
 				content.append( "q " );
 				content.append_number( width ).append_char( ' ' );
@@ -175,8 +149,7 @@ package org.purepdf.pdf
 				if ( inlineImage )
 				{
 					throw new NonImplementatioError();
-				}
-				else
+				} else
 				{
 					var name: PdfName;
 					var prs: PageResources = pageResources;
@@ -214,24 +187,25 @@ package org.purepdf.pdf
 
 			for ( k = 0; k < unitRect.length; k += 2 )
 			{
-				r[ k ] = width * unitRect[ k ] + c * unitRect[ k + 1 ] + x;
-				r[ k + 1 ] = b * unitRect[ k ] + height * unitRect[ k + 1 ] + y;
+				r[k] = width * unitRect[k] + c * unitRect[k + 1] + x;
+				r[k + 1] = b * unitRect[k] + height * unitRect[k + 1] + y;
 			}
-			var llx: Number = r[ 0 ];
-			var lly: Number = r[ 1 ];
+			var llx: Number = r[0];
+			var lly: Number = r[1];
 			var urx: Number = llx;
 			var ury: Number = lly;
 
 			for ( k = 2; k < r.length; k += 2 )
 			{
-				llx = Math.min( llx, r[ k ] );
-				lly = Math.min( lly, r[ k + 1 ] );
-				urx = Math.max( urx, r[ k ] );
-				ury = Math.max( ury, r[ k + 1 ] );
+				llx = Math.min( llx, r[k] );
+				lly = Math.min( lly, r[k + 1] );
+				urx = Math.max( urx, r[k] );
+				ury = Math.max( ury, r[k + 1] );
 			}
 			annot = new Annotation( annot );
 			annot.setDimensions( llx, lly, urx, ury );
-			var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( _writer, annot, new RectangleElement( llx, lly, urx, ury ) );
+			var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( _writer, annot, new RectangleElement( llx, lly, urx,
+							ury ) );
 
 			if ( an == null )
 				return;
@@ -253,9 +227,41 @@ package org.purepdf.pdf
 		 *
 		 * @see org.purepdf.elements.images.ImageElement
 		 */
-		public function addImage3( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number, y: Number ): void
+		public function addImage3( image: ImageElement, width: Number, b: Number, c: Number, height: Number, x: Number,
+						y: Number ): void
 		{
 			addImage2( image, width, b, c, height, x, y, false );
+		}
+
+		/**
+		 * Adds a template to this content
+		 *
+		 * @param template the template
+		 * @param a element of the matrix
+		 * @param b element matrix
+		 * @param c element matrix
+		 * @param d element matrix
+		 * @param tx element matrix
+		 * @param ty element matrix
+		 *
+		 * @see flash.geom.Matrix
+		 */
+		public function addTemplate( template: PdfTemplate, a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, tx: Number =
+						0, ty: Number = 0 ): void
+		{
+			checkWriter();
+			checkNoPattern( template );
+			var name: PdfName = _writer.addDirectTemplateSimple( template, null );
+			var prs: PageResources = pageResources;
+			name = prs.addXObject( name, template.indirectReference );
+			content.append_string( "q " );
+			content.append_number( a ).append_char( ' ' );
+			content.append_number( b ).append_char( ' ' );
+			content.append_number( c ).append_char( ' ' );
+			content.append_number( d ).append_char( ' ' );
+			content.append_number( tx ).append_char( ' ' );
+			content.append_number( ty ).append_string( " cm " );
+			content.append_bytes( name.getBytes() ).append_string( " Do Q" ).append_separator();
 		}
 
 		/**
@@ -276,15 +282,13 @@ package org.purepdf.pdf
 
 			if ( ar.length == 0 )
 				return;
-
-			var pt: Vector.<Number> = ar[ 0 ];
-
-			moveTo( pt[ 0 ], pt[ 1 ] );
+			var pt: Vector.<Number> = ar[0];
+			moveTo( pt[0], pt[1] );
 
 			for ( var k: int = 0; k < ar.length; ++k )
 			{
-				pt = ar[ k ];
-				curveTo( pt[ 2 ], pt[ 3 ], pt[ 4 ], pt[ 5 ], pt[ 6 ], pt[ 7 ] );
+				pt = ar[k];
+				curveTo( pt[2], pt[3], pt[4], pt[5], pt[6], pt[7] );
 			}
 		}
 
@@ -295,47 +299,36 @@ package org.purepdf.pdf
 		 * call to this method and a single call to {@link #endLayer()}; all the nesting control
 		 * is built in.
 		 * @param layer the layer
-		 * 
+		 *
 		 * @throws ArgumentError
 		 */
 		public function beginLayer( layer: IPdfOCG ): void
 		{
-			if(( layer is PdfLayer ) && PdfLayer( layer ).title != null )
-				throw new ArgumentError("Title layer not allowed here");
-			
-			if( layerDepth == null )
+			if ( ( layer is PdfLayer ) && PdfLayer( layer ).title != null )
+				throw new ArgumentError( "Title layer not allowed here" );
+
+			if ( layerDepth == null )
 				layerDepth = new Vector.<int>();
-			
-			if( layer is PdfLayerMembership )
+
+			if ( layer is PdfLayerMembership )
 			{
-				layerDepth.push(1);
-				beginLayer2(layer);
+				layerDepth.push( 1 );
+				beginLayer2( layer );
 				return;
 			}
-			
 			var n: int = 0;
 			var la: PdfLayer = layer as PdfLayer;
-			
-			while( la != null )
+
+			while ( la != null )
 			{
-				if( la.title == null )
+				if ( la.title == null )
 				{
-					beginLayer2(la);
+					beginLayer2( la );
 					++n;
 				}
-				
 				la = la.parent;
 			}
-			
-			layerDepth.push(n);
-		}
-		
-		private function beginLayer2( layer: IPdfOCG ): void
-		{
-			var name: PdfName = _writer.addSimpleProperty( layer, layer.ref )[0] as PdfName;
-			var prs: PageResources = pageResources;
-			name = prs.addProperty( name, layer.ref );
-			content.append_string("/OC ").append_bytes(name.getBytes()).append_string(" BDC").append_separator();
+			layerDepth.push( n );
 		}
 
 		/**
@@ -372,7 +365,7 @@ package org.purepdf.pdf
 		 * <CODE>even_odd</CODE> winding number rule to determine which regions lie inside the clipping
 		 * path.
 		 */
-		public function clip( even_odd: Boolean=false ): void
+		public function clip( even_odd: Boolean = false ): void
 		{
 			content.append( even_odd ? "W*" : "W" ).append_separator();
 		}
@@ -389,7 +382,7 @@ package org.purepdf.pdf
 		/**
 		 * Closes the path, fills it using the <CODE>even_odd</CODE> winding number rule to determine the region to fill and strokes it.
 		 */
-		public function closePathFillStroke( even_odd: Boolean=false ): void
+		public function closePathFillStroke( even_odd: Boolean = false ): void
 		{
 			content.append( even_odd ? "b*" : "b" ).append_separator();
 		}
@@ -414,9 +407,14 @@ package org.purepdf.pdf
 		public function concatCTM( a: Number, b: Number, c: Number, d: Number, e: Number, f: Number ): void
 		{
 			content.append_number( a ).append( ' ' ).append_number( b ).append( ' ' ).append_number( c ).append( ' ' );
-			content.append_number( d ).append( ' ' ).append_number( e ).append( ' ' ).append_number( f ).append( " cm" ).append_separator();
+			content.append_number( d ).append( ' ' ).append_number( e ).append( ' ' ).append_number( f ).append( " cm" ).
+							append_separator();
 		}
 
+		public function createAppearance( width: Number, height: Number ): PdfAppearance
+		{
+			return _createAppearance( width, height, null );
+		}
 
 		/**
 		 * Create a new colored tiling pattern.
@@ -429,7 +427,7 @@ package org.purepdf.pdf
 		 * May be either positive or negative, but not zero.
 		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
 		 */
-		public function createPattern( width: Number, height: Number, xstep: Number=NaN, ystep: Number=NaN ): PdfPatternPainter
+		public function createPattern( width: Number, height: Number, xstep: Number = NaN, ystep: Number = NaN ): PdfPatternPainter
 		{
 			checkWriter();
 
@@ -441,7 +439,6 @@ package org.purepdf.pdf
 
 			if ( xstep == 0.0 || ystep == 0.0 )
 				throw new RuntimeError( "xstep or ystep can not be zero" );
-
 			var painter: PdfPatternPainter = new PdfPatternPainter( _writer );
 			painter.width = width;
 			painter.height = height;
@@ -463,13 +460,13 @@ package org.purepdf.pdf
 		 * @param color the default color. Can be <CODE>null</CODE>
 		 * @return the <CODE>PdfPatternPainter</CODE> where the pattern will be created
 		 */
-		public function createPatternColor( width: Number, height: Number, xstep: Number, ystep: Number, color: RGBColor ): PdfPatternPainter
+		public function createPatternColor( width: Number, height: Number, xstep: Number, ystep: Number,
+						color: RGBColor ): PdfPatternPainter
 		{
 			checkWriter();
 
 			if ( xstep == 0.0 || ystep == 0.0 )
 				throw new RuntimeError( "xstep or ystep can not be zero" );
-
 			var painter: PdfPatternPainter = new PdfPatternPainter( _writer, color );
 			painter.width = width;
 			painter.height = height;
@@ -477,6 +474,21 @@ package org.purepdf.pdf
 			painter.ystep = ystep;
 			_writer.addSimplePattern( painter );
 			return painter;
+		}
+
+		/**
+		 * Creates a new template. This template can be included in this
+		 * PdfContentByte or in another template. Templates are written only when document
+		 * is closed.
+		 */
+		public function createTemplate( width: Number, height: Number, forcedName: PdfName = null ): PdfTemplate
+		{
+			checkWriter();
+			var template: PdfTemplate = new PdfTemplate( _writer );
+			template.width = width;
+			template.height = height;
+			_writer.addDirectTemplateSimple( template, forcedName );
+			return template;
 		}
 
 		/**
@@ -491,9 +503,14 @@ package org.purepdf.pdf
 		 */
 		public function curveTo( x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number ): void
 		{
-			content.append_number( x1 ).append_string( ' ' ).append_number( y1 ).append_string( ' ' ).append_number( x2 ).append_string( ' ' )
-				.append_number( y2 ).append_string( ' ' ).append_number( x3 ).append_string( ' ' ).append_number( y3 ).append_string( " c" )
-				.append_separator();
+			content.append_number( x1 ).append_string( ' ' ).append_number( y1 ).append_string( ' ' ).append_number( x2 ).
+							append_string( ' ' ).append_number( y2 ).append_string( ' ' ).append_number( x3 ).append_string( ' ' ).
+							append_number( y3 ).append_string( " c" ).append_separator();
+		}
+
+		public function duplicate(): PdfContentByte
+		{
+			return new PdfContentByte( _writer );
 		}
 
 		/**
@@ -515,10 +532,9 @@ package org.purepdf.pdf
 
 			if ( layerDepth != null && !( layerDepth.length == 0 ) )
 			{
-				n = layerDepth[ ( layerDepth.length - 1 ) ];
+				n = layerDepth[( layerDepth.length - 1 )];
 				layerDepth.splice( layerDepth.length - 1, 1 );
-			}
-			else
+			} else
 			{
 				throw new IllegalPdfSyntaxError( "unbalanced layer operators" );
 			}
@@ -540,7 +556,7 @@ package org.purepdf.pdf
 		 *
 		 * @param even_odd	Determine how to draw the path (using the <CODE>even-odd</CODE> winding rule or not. Default is false)
 		 */
-		public function fill( even_odd: Boolean=false ): void
+		public function fill( even_odd: Boolean = false ): void
 		{
 			content.append( even_odd ? "f*" : "f" ).append_separator();
 		}
@@ -548,9 +564,51 @@ package org.purepdf.pdf
 		/**
 		 * Fills the path using the <CODE>even_odd</CODE> winding number rule to determine the region to fill and strokes it.
 		 */
-		public function fillStroke( even_odd: Boolean=false ): void
+		public function fillStroke( even_odd: Boolean = false ): void
 		{
 			content.append( even_odd ? "B*" : "B" ).append_separator();
+		}
+
+		/**
+		 * Get the current character spacing
+		 */
+		public function getCharacterSpacing(): Number
+		{
+			return state.charSpace;
+		}
+
+		/**
+		 * Computes the width of the given string taking in account
+		 * the current values of "Character spacing", "Word Spacing"
+		 * and "Horizontal Scaling"
+		 */
+		public function getEffectiveStringWidth( text: String, kerned: Boolean = false ): Number
+		{
+			var bf: BaseFont = state.fontDetails.baseFont;
+			var w: Number;
+
+			if ( kerned )
+				w = bf.getWidthPointKerned( text, state.size );
+			else
+				w = bf.getWidthPoint( text, state.size );
+
+			if ( state.charSpace != 0.0 && text.length > 1 )
+				w += state.charSpace * ( text.length - 1 );
+			var ft: int = bf.fontType;
+
+			if ( state.wordSpace != 0 && ( ft == BaseFont.FONT_TYPE_T1 || ft == BaseFont.FONT_TYPE_TT || ft == BaseFont.
+							FONT_TYPE_T3 ) )
+			{
+				for ( var i: int = 0; i < ( text.length - 1 ); i++ )
+				{
+					if ( text.charCodeAt( i ) == 32 )
+						w += state.wordSpace;
+				}
+			}
+
+			if ( state.scale != 100.0 )
+				w = ( w * state.scale ) / 100.0;
+			return w;
 		}
 
 		/**
@@ -587,20 +645,6 @@ package org.purepdf.pdf
 		{
 			content.append_number( x ).append_string( ' ' ).append_number( y ).append_string( " m" ).append_separator();
 		}
-		
-		/**
-		 * Change the text matrix
-		 */
-		public function setTextMatrix( a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, x: Number = 0, y: Number = 0 ): void
-		{
-			state.xTLM = x;
-			state.yTLM = y;
-			content.append_number(a).append_char(' ').append_number(b).append_int(32)
-				.append_number(c).append_int(32).append_number(d).append_int(32)
-				.append_number(x).append_int(32).append_number(y).append_string(" Tm")
-				.append_separator();
-		}
-
 
 		/**
 		 * Ends the path without filling or stroking it.
@@ -614,28 +658,6 @@ package org.purepdf.pdf
 		{
 			return pdf.pageResources;
 		}
-		
-		public function get pdfDocument(): PdfDocument
-		{
-			return pdf;
-		}
-		
-		/**
-		 * Get the x position of the text line matrix.
-		 */
-		public function get xTLM(): Number
-		{
-			return state.xTLM;
-		}
-		
-		/**
-		 * Get the y position of the text line matrix
-		 */
-		public function get yTLM(): Number
-		{
-			return state.yTLM;
-		}
-
 
 		/**
 		 * Paint using a shading object
@@ -662,6 +684,11 @@ package org.purepdf.pdf
 			paintShading( shading.shading );
 		}
 
+		public function get pdfDocument(): PdfDocument
+		{
+			return pdf;
+		}
+
 		/**
 		 * Adds a rectangle to the current path<br>
 		 * Either a RectangleElement or 4 Numbers are accepted as parameters.<br>
@@ -682,23 +709,22 @@ package org.purepdf.pdf
 		 * @param       y       y-coordinate of the starting point
 		 * @param       w       width
 		 * @param       h       height
-		 * 
+		 *
 		 * @see org.purepdf.elements.RectangleElement
 		 */
 		public function rectangle( ... params: Array ): void
 		{
-			if ( params[ 0 ] is RectangleElement )
+			if ( params[0] is RectangleElement )
 			{
-				setRectangle( params[ 0 ] );
-			}
-			else
+				setRectangle( params[0] );
+			} else
 			{
-				var x: Number = params[ 0 ];
-				var y: Number = params[ 1 ];
-				var w: Number = params[ 2 ];
-				var h: Number = params[ 3 ];
-				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).append_char( ' ' )
-					.append_number( h ).append( " re" ).append_separator();
+				var x: Number = params[0];
+				var y: Number = params[1];
+				var w: Number = params[2];
+				var h: Number = params[3];
+				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).
+								append_char( ' ' ).append_number( h ).append( " re" ).append_separator();
 			}
 		}
 
@@ -706,7 +732,7 @@ package org.purepdf.pdf
 		 * Makes this <CODE>PdfContentByte</CODE> empty.
 		 * Calls <code>reset( true )</code>
 		 */
-		public function reset( value: Boolean=true ): void
+		public function reset( value: Boolean = true ): void
 		{
 			content.reset();
 
@@ -735,8 +761,8 @@ package org.purepdf.pdf
 			var idx: int = stateList.length - 1;
 
 			if ( idx < 0 )
-				throw new IllegalPdfSyntaxError("nothing to restore");
-			state = stateList[ idx ];
+				throw new IllegalPdfSyntaxError( "nothing to restore" );
+			state = stateList[idx];
 			stateList.splice( idx, 1 );
 		}
 
@@ -764,7 +790,6 @@ package org.purepdf.pdf
 		 * @param   yellow  the intensity of yellow. A value between 0 and 1
 		 * @param   black   the intensity of black. A value between 0 and 1
 		 */
-
 		public function setCMYKFillColor( cyan: Number, magenta: Number, yellow: Number, black: Number ): void
 		{
 			helperCMYK( cyan, magenta, yellow, black );
@@ -781,7 +806,6 @@ package org.purepdf.pdf
 		 * @param   yellow
 		 * @param   black
 		 */
-
 		public function setCMYKStrokeColor( cyan: Number, magenta: Number, yellow: Number, black: Number ): void
 		{
 			helperCMYK( cyan, magenta, yellow, black );
@@ -789,10 +813,19 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Change the character spacing
+		 */
+		public function setCharacterSpacing( charSpace: Number ): void
+		{
+			state.charSpace = charSpace;
+			content.append_number( charSpace ).append_string( " Tc" ).append_separator();
+		}
+
+		/**
 		 * Sets the fill color
 		 * @param color the color
 		 */
-		public function setFillColor( color: RGBColor ): void
+		public function setColorFill( color: RGBColor ): void
 		{
 			var type: int = ExtendedColor.getType( color );
 
@@ -801,31 +834,44 @@ package org.purepdf.pdf
 				case ExtendedColor.TYPE_GRAY:
 					setGrayFill( GrayColor( color ).gray );
 					break;
-
 				case ExtendedColor.TYPE_CMYK:
 					var cmyk: CMYKColor = CMYKColor( color );
 					setCMYKFillColor( cmyk.cyan, cmyk.magenta, cmyk.yellow, cmyk.black );
 					break;
-
 				case ExtendedColor.TYPE_SEPARATION:
 					var spot: SpotColor = SpotColor( color );
 					setSpotFillColor( spot.pdfSpotColor, spot.tint );
 					break;
-
 				case ExtendedColor.TYPE_PATTERN:
 					var pat: PatternColor = PatternColor( color );
 					setPatternFill( pat.painter );
 					break;
-
 				case ExtendedColor.TYPE_SHADING:
 					var shading: ShadingColor = ShadingColor( color );
 					setShadingFill( shading.shadingPattern );
 					break;
-
 				default:
 					setRGBFillColor( color.red, color.green, color.blue );
 					break;
 			}
+		}
+
+		/**
+		 * Set the font and the size for the subsequent text writing
+		 */
+		public function setFontAndSize( bf: BaseFont, size: Number ): void
+		{
+			checkWriter();
+
+			if ( size < 0.0001 && size > -0.0001 )
+				throw new ArgumentError( "font size too small" );
+			state.size = size;
+			state.fontDetails = _writer.addSimpleFont( bf );
+			var prs: PageResources = pageResources;
+			var name: PdfName = state.fontDetails.fontName;
+			name = prs.addFont( name, state.fontDetails.indirectReference );
+			content.append_bytes( name.getBytes() ).append_char( ' ' ).append_number( size ).append_string( " Tf" ).
+							append_separator();
 		}
 
 		/**
@@ -836,7 +882,7 @@ package org.purepdf.pdf
 		{
 			var obj: Vector.<PdfObject> = _writer.addSimpleExtGState( gstate );
 			var prs: PageResources = pageResources;
-			var name: PdfName = prs.addExtGState( PdfName( obj[ 0 ] ), PdfIndirectReference( obj[ 1 ] ) );
+			var name: PdfName = prs.addExtGState( PdfName( obj[0] ), PdfIndirectReference( obj[1] ) );
 			content.append_bytes( name.getBytes() ).append( " gs" ).append_separator();
 		}
 
@@ -881,11 +927,10 @@ package org.purepdf.pdf
 		 * @param       phase       the value of the phase
 		 * @param       unitsOn     the number of units that must be 'on' (equals the number of units that must be 'off').
 		 */
-
 		public function setLineDash2( unitsOn: Number, phase: Number ): void
 		{
-			content.append_string( "[" ).append_number( unitsOn ).append_string( "] " ).append_number( phase ).append_string( " d" )
-				.append_separator();
+			content.append_string( "[" ).append_number( unitsOn ).append_string( "] " ).append_number( phase ).
+							append_string( " d" ).append_separator();
 		}
 
 		/**
@@ -896,11 +941,10 @@ package org.purepdf.pdf
 		 * @param       unitsOn     the number of units that must be 'on'
 		 * @param       unitsOff    the number of units that must be 'off'
 		 */
-
 		public function setLineDash3( unitsOn: Number, unitsOff: Number, phase: Number ): void
 		{
-			content.append_string( "[" ).append_number( unitsOn ).append_char( ' ' ).append_number( unitsOff ).append_string( "] " )
-				.append_number( phase ).append_string( " d" ).append_separator();
+			content.append_string( "[" ).append_number( unitsOn ).append_char( ' ' ).append_number( unitsOff ).
+							append_string( "] " ).append_number( phase ).append_string( " d" ).append_separator();
 		}
 
 		/**
@@ -913,14 +957,13 @@ package org.purepdf.pdf
 		 * @param       array       length of the alternating dashes and gaps
 		 * @param       phase       the value of the phase
 		 */
-
 		public function setLineDash4( array: Vector.<Number>, phase: Number ): void
 		{
 			content.append_string( "[" );
 
 			for ( var i: int = 0; i < array.length; i++ )
 			{
-				content.append_number( array[ i ] );
+				content.append_number( array[i] );
 
 				if ( i < array.length - 1 )
 					content.append_char( ' ' );
@@ -1019,7 +1062,6 @@ package org.purepdf.pdf
 
 			if ( !p.is_stencil )
 				throw new RuntimeError( "an uncolored pattern was expected" );
-
 			setPattern3( p, color, tint, true );
 		}
 
@@ -1073,7 +1115,6 @@ package org.purepdf.pdf
 			content.append_string( " rg" ).append_separator();
 		}
 
-
 		public function setRGBStrokeColor( red: int, green: int, blue: int ): void
 		{
 			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
@@ -1117,7 +1158,7 @@ package org.purepdf.pdf
 			setSpotColor( sp, tint, false );
 		}
 
-		public function setStrokeColor( color: RGBColor ): void
+		public function setColorStroke( color: RGBColor ): void
 		{
 			var type: int = ExtendedColor.getType( color );
 
@@ -1149,13 +1190,168 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Change the text matrix
+		 */
+		public function setTextMatrix( a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, x: Number = 0, y: Number =
+						0 ): void
+		{
+			state.xTLM = x;
+			state.yTLM = y;
+			content.append_number( a ).append_char( ' ' ).append_number( b ).append_int( 32 ).append_number( c ).append_int( 32 ).
+							append_number( d ).append_int( 32 ).append_number( x ).append_int( 32 ).append_number( y ).
+							append_string( " Tm" ).append_separator();
+		}
+
+		/**
+		 * Sets the text rendering mode
+		 */
+		public function setTextRenderingMode( rendering: int ): void
+		{
+			content.append_number( rendering ).append_string( " Tr" ).append_separator();
+		}
+
+		/**
+		 * This allows to write text in subscript or superscript mode
+		 */
+		public function setTextRise( rise: Number ): void
+		{
+			content.append_number( rise ).append_string( " Ts" ).append_separator();
+		}
+
+		/**
 		 * Concatenates the transformation to the current matrix
 		 */
 		public function setTransform( m: Matrix ): void
 		{
-			content.append_number( m.a ).append_char( ' ' ).append_number( m.b ).append_char( ' ' ).append_number( m.c ).append_char( ' ' );
-			content.append_number( m.d ).append_char( ' ' ).append_number( m.tx ).append_char( ' ' ).append_number( m.ty ).append( " cm" )
-				.append_separator();
+			content.append_number( m.a ).append_char( ' ' ).append_number( m.b ).append_char( ' ' ).append_number( m.c ).
+							append_char( ' ' );
+			content.append_number( m.d ).append_char( ' ' ).append_number( m.tx ).append_char( ' ' ).append_number( m.ty ).
+							append( " cm" ).append_separator();
+		}
+
+		/**
+		 * Change the word spacing
+		 */
+		public function setWordSpacing( wordSpace: Number ): void
+		{
+			state.wordSpace = wordSpace;
+			content.append_number( wordSpace ).append_string( " Tw" ).append_separator();
+		}
+
+		/**
+		 * Shows the text
+		 */
+		public function showText( text: String ): void
+		{
+			showText2( text );
+			content.append_string( "Tj" ).append_separator();
+		}
+
+		/**
+		 * Shows text aligned (left, center or right) with rotation.
+		 * @param alignment the alignment can be ALIGN_CENTER, ALIGN_RIGHT or ALIGN_LEFT
+		 * @param text the text to show
+		 * @param x the x position
+		 * @param y the y  position
+		 * @param rotation the rotation in degrees
+		 */
+		public function showTextAligned( alignment: int, text: String, x: Number, y: Number, rotation: Number, kerned: Boolean =
+						false ): void
+		{
+			if ( state.fontDetails == null )
+				throw new NullPointerError( "set font and size before write text" );
+
+			if ( rotation == 0 )
+			{
+				switch ( alignment )
+				{
+					case ALIGN_CENTER:
+						x -= getEffectiveStringWidth( text, kerned ) / 2;
+						break;
+					case ALIGN_RIGHT:
+						x -= getEffectiveStringWidth( text, kerned );
+						break;
+				}
+				setTextMatrix( 1, 0, 0, 1, x, y );
+
+				if ( kerned )
+					showTextKerned( text );
+				else
+					showText( text );
+			} else
+			{
+				var alpha: Number = rotation * Math.PI / 180.0;
+				var cos: Number = Math.cos( alpha );
+				var sin: Number = Math.sin( alpha );
+				var len: Number;
+
+				switch ( alignment )
+				{
+					case ALIGN_CENTER:
+						len = getEffectiveStringWidth( text, kerned ) / 2;
+						x -= len * cos;
+						y -= len * sin;
+						break;
+					case ALIGN_RIGHT:
+						len = getEffectiveStringWidth( text, kerned );
+						x -= len * cos;
+						y -= len * sin;
+						break;
+				}
+				setTextMatrix( cos, sin, -sin, cos, x, y );
+
+				if ( kerned )
+					showTextKerned( text );
+				else
+					showText( text );
+				setTextMatrix( 1, 0, 0, 1, 0, 0 );
+			}
+		}
+
+		/**
+		 * Show an array of kerned text
+		 */
+		public function showTextArray( text: PdfTextArray ): void
+		{
+			if ( state.fontDetails == null )
+				throw new NullPointerError( "font and size must be set before write text" );
+			content.append_string( "[" );
+			var arrayList: Vector.<Object> = text.arrayList;
+			var lastWasNumber: Boolean = false;
+
+			for ( var k: int = 0; k < arrayList.length; ++k )
+			{
+				var obj: Object = arrayList[k];
+
+				if ( obj is String )
+				{
+					showText2( String( obj ) );
+					lastWasNumber = false;
+				} else
+				{
+					if ( lastWasNumber )
+						content.append_char( ' ' );
+					else
+						lastWasNumber = true;
+					content.append_number( Number( obj ) );
+				}
+			}
+			content.append_string( "]TJ" ).append_separator();
+		}
+
+		/**
+		 * Shows the text kerned
+		 */
+		public function showTextKerned( text: String ): void
+		{
+			if ( state.fontDetails == null )
+				throw new NullPointerError( "font and size must be set before write text" );
+			var bf: BaseFont = state.fontDetails.baseFont;
+
+			if ( bf.hasKernPairs() )
+				showTextArray( getKernArray( text, bf ) );
+			else
+				showText( text );
 		}
 
 		public function get size(): uint
@@ -1220,7 +1416,7 @@ package org.purepdf.pdf
 				if ( ct == null )
 					resetStroke();
 				else
-					setStrokeColor( ct );
+					setColorStroke( ct );
 				ccol = ct;
 				moveTo( l, t - wt / 2 );
 				lineTo( r, t - wt / 2 );
@@ -1240,7 +1436,7 @@ package org.purepdf.pdf
 					if ( cb == null )
 						resetStroke();
 					else
-						setStrokeColor( cb );
+						setColorStroke( cb );
 					ccol = cb;
 				}
 				moveTo( r, b + wb / 2 );
@@ -1261,7 +1457,7 @@ package org.purepdf.pdf
 					if ( cr == null )
 						resetStroke();
 					else
-						setStrokeColor( cr );
+						setColorStroke( cr );
 					ccol = cr;
 				}
 				bt = compareColors( ct, cr );
@@ -1277,7 +1473,7 @@ package org.purepdf.pdf
 					if ( cr == null )
 						resetFill();
 					else
-						setFillColor( cr );
+						setColorFill( cr );
 					cfil = cr;
 
 					if ( !bt )
@@ -1309,7 +1505,7 @@ package org.purepdf.pdf
 					if ( cl == null )
 						resetStroke();
 					else
-						setStrokeColor( cl );
+						setColorStroke( cl );
 				}
 				bt = compareColors( ct, cl );
 				bb = compareColors( cb, cl );
@@ -1324,7 +1520,7 @@ package org.purepdf.pdf
 						if ( cl == null )
 							resetFill();
 						else
-							setFillColor( cl );
+							setColorFill( cl );
 					}
 
 					if ( !bt )
@@ -1345,6 +1541,32 @@ package org.purepdf.pdf
 				}
 			}
 			restoreState();
+		}
+
+		public function get writer(): PdfWriter
+		{
+			return _writer;
+		}
+
+		public function set writer( value: PdfWriter ): void
+		{
+			_writer = value;
+		}
+
+		/**
+		 * Get the x position of the text line matrix.
+		 */
+		public function get xTLM(): Number
+		{
+			return state.xTLM;
+		}
+
+		/**
+		 * Get the y position of the text line matrix
+		 */
+		public function get yTLM(): Number
+		{
+			return state.yTLM;
 		}
 
 		protected function checkWriter(): void
@@ -1379,74 +1601,22 @@ package org.purepdf.pdf
 			}
 		}
 
-		pdf_core function setRectangle( rectangle: RectangleElement ): void
+		private function _createAppearance( width: Number, height: Number, forcedName: PdfName ): PdfAppearance
 		{
-			var x1: Number = rectangle.getLeft();
-			var y1: Number = rectangle.getBottom();
-			var x2: Number = rectangle.getRight();
-			var y2: Number = rectangle.getTop();
-			var background: RGBColor = rectangle.backgroundColor;
+			checkWriter();
+			var template: PdfAppearance = new PdfAppearance( writer );
+			template.width = width;
+			template.height = height;
+			writer.addDirectTemplateSimple( template, forcedName );
+			return template;
+		}
 
-			if ( background != null )
-			{
-				saveState();
-				setFillColor( background );
-				this.rectangle( x1, y1, x2 - x1, y2 - y1 );
-				fill();
-				restoreState();
-			}
-
-			if ( !rectangle.hasBorders() )
-				return;
-
-			if ( rectangle.isUseVariableBorders() )
-			{
-				variableRectangle( rectangle );
-			}
-			else
-			{
-				if ( rectangle.borderWidth != RectangleElement.UNDEFINED )
-					setLineWidth( rectangle.borderWidth );
-				var color: RGBColor = rectangle.borderColor;
-
-				if ( color != null )
-					setStrokeColor( color );
-
-				if ( rectangle.hasBorder( RectangleElement.ALL ) )
-				{
-					this.rectangle( x1, y1, x2 - x1, y2 - y1 );
-				}
-				else
-				{
-					if ( rectangle.hasBorder( RectangleElement.RIGHT ) )
-					{
-						moveTo( x2, y1 );
-						lineTo( x2, y2 );
-					}
-
-					if ( rectangle.hasBorder( RectangleElement.LEFT ) )
-					{
-						moveTo( x1, y1 );
-						lineTo( x1, y2 );
-					}
-
-					if ( rectangle.hasBorder( RectangleElement.BOTTOM ) )
-					{
-						moveTo( x1, y1 );
-						lineTo( x2, y1 );
-					}
-
-					if ( rectangle.hasBorder( RectangleElement.TOP ) )
-					{
-						moveTo( x1, y2 );
-						lineTo( x2, y2 );
-					}
-				}
-				stroke();
-
-				if ( color != null )
-					resetStroke();
-			}
+		private function beginLayer2( layer: IPdfOCG ): void
+		{
+			var name: PdfName = _writer.addSimpleProperty( layer, layer.ref )[0] as PdfName;
+			var prs: PageResources = pageResources;
+			name = prs.addProperty( name, layer.ref );
+			content.append_string( "/OC " ).append_bytes( name.getBytes() ).append_string( " BDC" ).append_separator();
 		}
 
 		private function compareColors( c1: RGBColor, c2: RGBColor ): Boolean
@@ -1486,8 +1656,8 @@ package org.purepdf.pdf
 				black = 0.0;
 			else if ( black > 1.0 )
 				black = 1.0;
-			content.append_number( cyan ).append_char( ' ' ).append_number( magenta ).append_char( ' ' ).append_number( yellow ).append_char( ' ' )
-				.append_number( black );
+			content.append_number( cyan ).append_char( ' ' ).append_number( magenta ).append_char( ' ' ).append_number( yellow ).
+							append_char( ' ' ).append_number( black );
 		}
 
 		private function helperRGB( red: Number, green: Number, blue: Number ): void
@@ -1514,7 +1684,6 @@ package org.purepdf.pdf
 		 */
 		private function outputColorNumbers( color: RGBColor, tint: Number ): void
 		{
-
 			var type: int = ExtendedColor.getType( color );
 
 			switch ( type )
@@ -1526,26 +1695,21 @@ package org.purepdf.pdf
 					content.append_char( ' ' );
 					content.append_number( Number( color.blue ) / 0xFF );
 					break;
-
 				case ExtendedColor.TYPE_GRAY:
 					content.append_number( GrayColor( color ).gray );
 					break;
-
 				case ExtendedColor.TYPE_CMYK:
 					var cmyk: CMYKColor = CMYKColor( color );
 					content.append_number( cmyk.cyan ).append_char( ' ' ).append_number( cmyk.magenta );
 					content.append_char( ' ' ).append_number( cmyk.yellow ).append_char( ' ' ).append_number( cmyk.black );
 					break;
-
 				case ExtendedColor.TYPE_SEPARATION:
 					content.append_number( tint );
 					break;
-
 				default:
 					throw new RuntimeError( "invalid color type" );
 			}
 		}
-
 
 		private function setPattern( p: PdfPatternPainter, fill: Boolean ): void
 		{
@@ -1553,8 +1717,8 @@ package org.purepdf.pdf
 			var psr: PageResources = pageResources;
 			var name: PdfName = _writer.addSimplePattern( p );
 			name = psr.addPattern( name, p.indirectReference );
-			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
-				.append_string( fill ? " scn" : " SCN" ).append_separator();
+			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.
+							getBytes() ).append_string( fill ? " scn" : " SCN" ).append_separator();
 		}
 
 		private function setPattern3( p: PdfPatternPainter, color: RGBColor, tint: Number, fill: Boolean ): void
@@ -1574,8 +1738,8 @@ package org.purepdf.pdf
 			_writer.addSimpleShadingPattern( shading );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addPattern( shading.patternName, shading.patternReference );
-			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.getBytes() )
-				.append_string( fill ? " scn" : " SCN" ).append_separator();
+			content.append_bytes( PdfName.PATTERN.getBytes() ).append_string( fill ? " cs " : " CS " ).append_bytes( name.
+							getBytes() ).append_string( fill ? " scn" : " SCN" ).append_separator();
 			var details: ColorDetails = shading.colorDetails;
 
 			if ( details != null )
@@ -1589,302 +1753,11 @@ package org.purepdf.pdf
 			var prs: PageResources = pageResources;
 			var name: PdfName = state.colorDetails.colorName;
 			name = prs.addColor( name, state.colorDetails.indirectReference );
-
-			content.append_bytes( name.getBytes() ).append_string( fill ? " cs " : " CS " ).append_number( tint ).append_string( fill
-				? " scn" : " SCN" ).append_separator();
+			content.append_bytes( name.getBytes() ).append_string( fill ? " cs " : " CS " ).append_number( tint ).
+							append_string( fill
+							? " scn" : " SCN" ).append_separator();
 		}
 
-		/**
-		 * Set the font and the size for the subsequent text writing
-		 */
-		public function setFontAndSize( bf: BaseFont, size: Number ): void
-		{
-			checkWriter();
-			if( size < 0.0001 && size > -0.0001 )
-				throw new ArgumentError( "font size too small");
-			state.size = size;
-			state.fontDetails = _writer.addSimpleFont( bf );
-			var prs: PageResources = pageResources;
-			var name: PdfName = state.fontDetails.fontName;
-			name = prs.addFont( name, state.fontDetails.indirectReference );
-			content.append_bytes( name.getBytes() ).append_char(' ').append_number(size).append_string(" Tf").append_separator();
-		}
-		
-		/**
-		 * This allows to write text in subscript or superscript mode
-		 */
-		public function setTextRise( rise: Number ): void
-		{
-			content.append_number( rise ).append_string( " Ts" ).append_separator();
-		}
-		
-		/**
-		 * Get the current character spacing
-		 */
-		public function getCharacterSpacing(): Number
-		{
-			return state.charSpace;
-		}
-
-		/**
-		 * Change the character spacing
-		 */
-		public function setCharacterSpacing( charSpace: Number ): void
-		{
-			state.charSpace = charSpace;
-			content.append_number( charSpace ).append_string( " Tc" ).append_separator();
-		}
-		
-		
-		/**
-		 * Shows the text
-		 */
-		public function showText( text: String ): void
-		{
-			showText2( text );
-			content.append_string( "Tj" ).append_separator();
-		}
-		
-		/**
-		 * Shows text aligned (left, center or right) with rotation.
-		 * @param alignment the alignment can be ALIGN_CENTER, ALIGN_RIGHT or ALIGN_LEFT
-		 * @param text the text to show
-		 * @param x the x position
-		 * @param y the y  position
-		 * @param rotation the rotation in degrees
-		 */
-		public function showTextAligned( alignment: int, text: String, x: Number, y: Number, rotation: Number, kerned: Boolean = false ): void
-		{
-			if( state.fontDetails == null )
-				throw new NullPointerError("set font and size before write text");
-			
-			if( rotation == 0 )
-			{
-				switch( alignment )
-				{
-					case ALIGN_CENTER:
-						x -= getEffectiveStringWidth( text, kerned ) / 2;
-						break;
-					
-					case ALIGN_RIGHT:
-						x -= getEffectiveStringWidth( text, kerned );
-						break;
-				}
-				setTextMatrix( 1, 0, 0, 1, x, y );
-				if( kerned )
-					showTextKerned( text );
-				else
-					showText( text );
-			} else 
-			{
-				var alpha: Number = rotation * Math.PI / 180.0;
-				var cos: Number = Math.cos(alpha);
-				var sin: Number = Math.sin(alpha);
-				var len: Number;
-				
-				switch( alignment )
-				{
-					case ALIGN_CENTER:
-						len = getEffectiveStringWidth(text, kerned) / 2;
-						x -=  len * cos;
-						y -=  len * sin;
-						break;
-					
-					case ALIGN_RIGHT:
-						len = getEffectiveStringWidth(text, kerned);
-						x -=  len * cos;
-						y -=  len * sin;
-						break;
-				}
-				
-				setTextMatrix(cos, sin, -sin, cos, x, y);
-				if( kerned )
-					showTextKerned( text );
-				else
-					showText( text );
-				setTextMatrix(1, 0, 0, 1, 0, 0);
-			}
-		}
-		
-		/**
-		 * Shows the text kerned
-		 */
-		public function showTextKerned( text: String ): void
-		{
-			if( state.fontDetails == null )
-				throw new NullPointerError("font and size must be set before write text");
-			var bf: BaseFont = state.fontDetails.baseFont;
-			if( bf.hasKernPairs() )
-				showTextArray( getKernArray(text, bf) );
-			else
-				showText( text );
-		}
-		
-		/**
-		 * Show an array of kerned text
-		 */
-		public function showTextArray( text: PdfTextArray ): void
-		{
-			if( state.fontDetails == null )
-				throw new NullPointerError("font and size must be set before write text");
-			content.append_string("[");
-			var arrayList: Vector.<Object> = text.arrayList;
-			var lastWasNumber: Boolean = false;
-			for( var k: int = 0; k < arrayList.length; ++k )
-			{
-				var obj: Object = arrayList[k];
-				if( obj is String )
-				{
-					showText2( String( obj ) );
-					lastWasNumber = false;
-				} else 
-				{
-					if( lastWasNumber )
-						content.append_char(' ');
-					else
-						lastWasNumber = true;
-					content.append_number( Number( obj ) );
-				}
-			}
-			content.append_string( "]TJ" ).append_separator();
-		}		
-		
-		/**
-		 * Constructs a kern array for a text in a certain font
-		 * @param text the text
-		 * @param font the font
-		 * @return a PdfTextArray
-		 */
-		internal static function getKernArray( text: String, font: BaseFont ): PdfTextArray
-		{
-			var pa: PdfTextArray = new PdfTextArray();
-			var acc: String = "";
-			var len: int = text.length - 1;
-			var c: Vector.<int> = StringUtils.toCharArray( text );
-			if( len >= 0 )
-				StringUtils.appendChars( acc, c, 0, 1 );
-			
-			for( var k: int = 0; k < len; ++k )
-			{
-				var c2: int = c[k + 1];
-				var kern: int = font.getKerning( c[k], c2 );
-				if( kern == 0 )
-					acc += String.fromCharCode( c2 & 0xff );
-				else 
-				{
-					pa.addString( acc );
-					acc = "";
-					StringUtils.appendChars( acc, c, k+1, 1 );
-					pa.addNumber( -kern );
-				}
-			}
-			pa.addString( acc );
-			return pa;
-		}
-		
-		/**
-		 * Computes the width of the given string taking in account
-		 * the current values of "Character spacing", "Word Spacing"
-		 * and "Horizontal Scaling"
-		 */
-		public function getEffectiveStringWidth( text: String, kerned: Boolean = false ): Number
-		{
-			var bf: BaseFont = state.fontDetails.baseFont;
-			var w: Number;
-			
-			if( kerned )
-				w = bf.getWidthPointKerned( text, state.size );
-			else
-				w = bf.getWidthPoint( text, state.size );
-			
-			if( state.charSpace != 0.0 && text.length > 1 )
-				w += state.charSpace * (text.length -1);
-			
-			var ft: int = bf.fontType;
-			if( state.wordSpace != 0 && (ft == BaseFont.FONT_TYPE_T1 || ft == BaseFont.FONT_TYPE_TT || ft == BaseFont.FONT_TYPE_T3)) 
-			{
-				for ( var i: int = 0; i < (text.length -1); i++)
-				{
-					if( text.charCodeAt(i) == 32 )
-						w += state.wordSpace;
-				}
-			}
-			
-			if( state.scale != 100.0 )
-				w = (w * state.scale) / 100.0;
-			
-			return w;
-		}
-
-		/**
-		 * Creates a new template. This template can be included in this
-		 * PdfContentByte or in another template. Templates are written only when document
-		 * is closed.
-		 */
-		public function createTemplate( width: Number, height: Number, forcedName: PdfName  = null ): PdfTemplate
-		{
-			checkWriter();
-			var template: PdfTemplate = new PdfTemplate( _writer );
-			template.width = width;
-			template.height = height;
-			_writer.addDirectTemplateSimple( template, forcedName );
-			return template;
-		}
-		
-		/**
-		 * Adds a template to this content
-		 *
-		 * @param template the template
-		 * @param a element of the matrix
-		 * @param b element matrix
-		 * @param c element matrix
-		 * @param d element matrix
-		 * @param tx element matrix
-		 * @param ty element matrix
-		 * 
-		 * @see flash.geom.Matrix
-		 */
-		public function addTemplate( template: PdfTemplate, a: Number = 1, b: Number = 0, c: Number = 0, d: Number = 1, tx: Number = 0, ty: Number = 0 ): void
-		{
-			checkWriter();
-			checkNoPattern( template );
-			var name: PdfName = _writer.addDirectTemplateSimple( template, null );
-			var prs: PageResources = pageResources;
-			name = prs.addXObject( name, template.indirectReference );
-			content.append_string("q ");
-			content.append_number(a).append_char(' ');
-			content.append_number(b).append_char(' ');
-			content.append_number(c).append_char(' ');
-			content.append_number(d).append_char(' ');
-			content.append_number(tx).append_char(' ');
-			content.append_number(ty).append_string(" cm ");
-			content.append_bytes( name.getBytes() ).append_string(" Do Q").append_separator();
-		}
-		
-		/** 
-		 * Check if the template is a pattern. In that case
-		 * throws an Error
-		 * 
-		 * @throws RuntimeError
-		 */
-		internal function checkNoPattern( t: PdfTemplate ): void
-		{
-			if( t.type == PdfTemplate.TYPE_PATTERN )
-				throw new RuntimeError("template was expected");
-		}
-		
-		public function addAnnotation( annot: PdfAnnotation ): void
-		{
-			_writer.pdfDocument.addAnnotation( annot );
-		}
-		
-		public function addContent( other: PdfContentByte ): void
-		{
-			if( other.writer != null && _writer != other.writer )
-				throw new RuntimeError();
-			content.append_bytebuffer( other.content );
-		}
-		
 		/**
 		 * A helper to insert into the content stream the <CODE>text</CODE>
 		 * converted to bytes according to the font's encoding.
@@ -1893,15 +1766,95 @@ package org.purepdf.pdf
 		 */
 		private function showText2( text: String ): void
 		{
-			if( state.fontDetails == null )
-				throw new NullPointerError("font and size must be set before writing any text");
+			if ( state.fontDetails == null )
+				throw new NullPointerError( "font and size must be set before writing any text" );
 			var b: Bytes = state.fontDetails.convertToBytes( text );
 			escapeString( b, content );
 		}
 
 		/**
+		 * Check if the template is a pattern. In that case
+		 * throws an Error
+		 *
+		 * @throws RuntimeError
+		 */
+		internal function checkNoPattern( t: PdfTemplate ): void
+		{
+			if ( t.type == PdfTemplate.TYPE_PATTERN )
+				throw new RuntimeError( "template was expected" );
+		}
+
+		pdf_core function setRectangle( rectangle: RectangleElement ): void
+		{
+			var x1: Number = rectangle.getLeft();
+			var y1: Number = rectangle.getBottom();
+			var x2: Number = rectangle.getRight();
+			var y2: Number = rectangle.getTop();
+			var background: RGBColor = rectangle.backgroundColor;
+
+			if ( background != null )
+			{
+				saveState();
+				setColorFill( background );
+				this.rectangle( x1, y1, x2 - x1, y2 - y1 );
+				fill();
+				restoreState();
+			}
+
+			if ( !rectangle.hasBorders() )
+				return;
+
+			if ( rectangle.isUseVariableBorders() )
+			{
+				variableRectangle( rectangle );
+			} else
+			{
+				if ( rectangle.borderWidth != RectangleElement.UNDEFINED )
+					setLineWidth( rectangle.borderWidth );
+				var color: RGBColor = rectangle.borderColor;
+
+				if ( color != null )
+					setColorStroke( color );
+
+				if ( rectangle.hasBorder( RectangleElement.ALL ) )
+				{
+					this.rectangle( x1, y1, x2 - x1, y2 - y1 );
+				} else
+				{
+					if ( rectangle.hasBorder( RectangleElement.RIGHT ) )
+					{
+						moveTo( x2, y1 );
+						lineTo( x2, y2 );
+					}
+
+					if ( rectangle.hasBorder( RectangleElement.LEFT ) )
+					{
+						moveTo( x1, y1 );
+						lineTo( x1, y2 );
+					}
+
+					if ( rectangle.hasBorder( RectangleElement.BOTTOM ) )
+					{
+						moveTo( x1, y1 );
+						lineTo( x2, y1 );
+					}
+
+					if ( rectangle.hasBorder( RectangleElement.TOP ) )
+					{
+						moveTo( x1, y2 );
+						lineTo( x2, y2 );
+					}
+				}
+				stroke();
+
+				if ( color != null )
+					resetStroke();
+			}
+		}
+
+		/**
 		 * Generates an array of bezier curves to draw an arc.
-		 * 
+		 *
 		 * @param x1
 		 * @param y1
 		 * @param x2
@@ -1909,8 +1862,8 @@ package org.purepdf.pdf
 		 * @param startAng starting angle in degrees
 		 * @param extent angle extent in degrees
 		 */
-		public static function bezierArc( x1: Number, y1: Number, x2: Number, y2: Number, startAng: Number, extent: Number ): Vector
-			.<Vector.<Number>>
+		static public function bezierArc( x1: Number, y1: Number, x2: Number, y2: Number, startAng: Number,
+						extent: Number ): Vector.<Vector.<Number>>
 		{
 			var tmp: Number;
 
@@ -1927,7 +1880,6 @@ package org.purepdf.pdf
 				y1 = y2;
 				y2 = tmp;
 			}
-
 			var fragAngle: Number;
 			var Nfrag: int;
 
@@ -1935,13 +1887,11 @@ package org.purepdf.pdf
 			{
 				fragAngle = extent;
 				Nfrag = 1;
-			}
-			else
+			} else
 			{
 				Nfrag = ( Math.ceil( Math.abs( extent ) / 90 ) );
 				fragAngle = extent / Nfrag;
 			}
-
 			var x_cen: Number = ( x1 + x2 ) / 2;
 			var y_cen: Number = ( y1 + y2 ) / 2;
 			var rx: Number = ( x2 - x1 ) / 2;
@@ -1961,34 +1911,33 @@ package org.purepdf.pdf
 
 				if ( fragAngle > 0 )
 				{
-					pointList.push( Vector.<Number>( [ x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 - kappa * sin0 ), y_cen
-						- ry * ( sin0 + kappa * cos0 ), x_cen + rx * ( cos1 + kappa * sin1 ), y_cen - ry * ( sin1 - kappa * cos1 ), x_cen
-						+ rx * cos1, y_cen - ry * sin1 ] ) );
-				}
-				else
+					pointList.push( Vector.<Number>( [x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 - kappa * sin0 ),
+									y_cen - ry * ( sin0 + kappa * cos0 ), x_cen + rx * ( cos1 + kappa * sin1 ), y_cen - ry *
+									( sin1 - kappa * cos1 ), x_cen + rx * cos1, y_cen - ry * sin1] ) );
+				} else
 				{
-					pointList.push( Vector.<Number>( [ x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 + kappa * sin0 ), y_cen
-						- ry * ( sin0 - kappa * cos0 ), x_cen + rx * ( cos1 - kappa * sin1 ), y_cen - ry * ( sin1 + kappa * cos1 ), x_cen
-						+ rx * cos1, y_cen - ry * sin1 ] ) );
+					pointList.push( Vector.<Number>( [x_cen + rx * cos0, y_cen - ry * sin0, x_cen + rx * ( cos0 + kappa * sin0 ),
+									y_cen - ry * ( sin0 - kappa * cos0 ), x_cen + rx * ( cos1 - kappa * sin1 ), y_cen - ry *
+									( sin1 + kappa * cos1 ), x_cen + rx * cos1, y_cen - ry * sin1] ) );
 				}
 			}
 			return pointList;
 		}
 
-		internal static function escapeByteArray( byte: Bytes ): Bytes
+		static internal function escapeByteArray( byte: Bytes ): Bytes
 		{
 			var content: ByteBuffer = new ByteBuffer();
 			escapeString( byte, content );
 			return content.toByteArray();
 		}
 
-		internal static function escapeString( byte: Bytes, content: ByteBuffer ): ByteBuffer
+		static internal function escapeString( byte: Bytes, content: ByteBuffer ): ByteBuffer
 		{
 			content.append_int( '('.charCodeAt( 0 ) );
 
 			for ( var k: int = 0; k < byte.length; ++k )
 			{
-				var c: int = byte[ k ];
+				var c: int = byte[k];
 
 				switch ( String.fromCharCode( c ) )
 				{
@@ -2019,6 +1968,41 @@ package org.purepdf.pdf
 			}
 			content.append( ')' );
 			return content;
+		}
+
+		/**
+		 * Constructs a kern array for a text in a certain font
+		 * @param text the text
+		 * @param font the font
+		 * @return a PdfTextArray
+		 */
+		static internal function getKernArray( text: String, font: BaseFont ): PdfTextArray
+		{
+			var pa: PdfTextArray = new PdfTextArray();
+			var acc: String = "";
+			var len: int = text.length - 1;
+			var c: Vector.<int> = StringUtils.toCharArray( text );
+
+			if ( len >= 0 )
+				StringUtils.appendChars( acc, c, 0, 1 );
+
+			for ( var k: int = 0; k < len; ++k )
+			{
+				var c2: int = c[k + 1];
+				var kern: int = font.getKerning( c[k], c2 );
+
+				if ( kern == 0 )
+					acc += String.fromCharCode( c2 & 0xff );
+				else
+				{
+					pa.addString( acc );
+					acc = "";
+					StringUtils.appendChars( acc, c, k + 1, 1 );
+					pa.addNumber( -kern );
+				}
+			}
+			pa.addString( acc );
+			return pa;
 		}
 	}
 }

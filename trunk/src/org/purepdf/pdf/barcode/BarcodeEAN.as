@@ -446,7 +446,7 @@ package org.purepdf.pdf.barcode
 				gd = baseline / 2;
 			}
 			if (barColor != null)
-				cb.setFillColor(barColor);
+				cb.setColorFill(barColor);
 			
 			var k: int;
 			var c: String;
@@ -469,7 +469,7 @@ package org.purepdf.pdf.barcode
 			cb.fill();
 			if (font != null) {
 				if (textColor != null)
-					cb.setFillColor(textColor);
+					cb.setColorFill(textColor);
 				cb.beginText();
 				cb.setFontAndSize(font, size);
 				switch (codeType) {

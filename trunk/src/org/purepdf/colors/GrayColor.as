@@ -4,6 +4,9 @@ package org.purepdf.colors
 
 	public class GrayColor extends ExtendedColor
 	{
+		public static const GRAYBLACK: GrayColor = new GrayColor(0);
+		public static const GRAYWHITE: GrayColor = new GrayColor(1);
+		
 		private var _gray: Number;
 
 		/**

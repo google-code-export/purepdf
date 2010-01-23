@@ -75,6 +75,11 @@ package org.purepdf.pdf
 			return type == DICTIONARY;
 		}
 		
+		public function isIndirect(): Boolean
+		{
+			return type == INDIRECT;
+		}
+		
 		public function toString(): String
 		{
 			if( bytes == null )

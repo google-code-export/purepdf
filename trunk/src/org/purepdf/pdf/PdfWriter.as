@@ -95,9 +95,9 @@ package org.purepdf.pdf
 		protected var _userunit: Number = 0;
 		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
 
-		public function PdfWriter( instance: SingletonCheck, output: ByteArray, pagesize: RectangleElement )
+		public function PdfWriter( instance: Lock, output: ByteArray, pagesize: RectangleElement )
 		{
-			assertTrue( instance != null && instance is SingletonCheck, "Use PdfWriter.create to initialize a new instance of purepdf" );
+			assertTrue( instance != null && instance is Lock, "Use PdfWriter.create to initialize a new instance of purepdf" );
 
 			os = new OutputStreamCounter( output );
 
@@ -1087,7 +1087,7 @@ package org.purepdf.pdf
 
 		public static function create( output: ByteArray, pagesize: RectangleElement ): PdfWriter
 		{
-			var writer: PdfWriter = new PdfWriter( new SingletonCheck(), output, pagesize );
+			var writer: PdfWriter = new PdfWriter( new Lock(), output, pagesize );
 			return writer;
 		}
 
@@ -1142,8 +1142,4 @@ package org.purepdf.pdf
 				order.add( kids );
 		}
 	}
-}
-
-class SingletonCheck
-{
 }

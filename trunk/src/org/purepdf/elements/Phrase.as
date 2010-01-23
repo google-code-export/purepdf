@@ -67,6 +67,11 @@ package org.purepdf.elements
 			_array.push( o );
 			return true;
 		}
+		
+		public function getValue( index: int ): Object
+		{
+			return _array[index];
+		}
 
 		/**
 		 * Adds a Chunk, Ancor or another Phrase
