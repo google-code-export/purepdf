@@ -1,5 +1,5 @@
 #summary Example usage.
-#labels Phase-Support,Phase-Implementation
+#labels Phase-Support,Phase-Implementation,Featured
 
 = Introduction =
 
@@ -8,6 +8,59 @@ Most of the purepdf usages are explained in the example source folder
 
 = Details =
 
-Here's the complete list of available examples:
+TestAll.as file include and let you run all the available examples:
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/TestAll.as TestAll.as]
 
-  # [http://code.google.com/p/purepdf/source/browse/examples/src/AnimatedGif.as AnimatedGif]
+Here's the complete list of available examples:
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/AnimatedGif.as AnimatedGif.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/AnnotatedChunk.as AnnotatedChunk.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/BarCodes.as BarCodes.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkHorizontalScale.as ChunkHorizontalScale.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkSkew.as ChunkSkew.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ClippingPath.as ClippingPath.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/DefaultBasicExample.as DefaultBasicExample.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/DrawingPaths.as DrawingPaths.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/FlyerExample.as FlyerExample.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/GenericTag.as GenericTag.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/GraphicState.as GraphicState.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HeaderFooter1.as HeaderFooter1.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloChunk.as HelloChunk.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloSplitCharacter.as HelloSplitCharacter.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld.as HelloWorld.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld2.as HelloWorld2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld3.as HelloWorld3.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld4.as HelloWorld4.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld5.as HelloWorld5.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldAnchor.as HelloWorldAnchor.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldBookmark.as HelloWorldBookmark.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldChapterAutoNumber.as HelloWorldChapterAutoNumber.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldGoto.as HelloWorldGoto.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldInternalAnchor.as HelloWorldInternalAnchor.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldMaximum.as HelloWorldMaximum.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldTTF.as HelloWorldTTF.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ImageTypes.as ImageTypes.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/Layers.as Layers.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/LineStyles.as LineStyles.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ListExample1.as ListExample1.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ListExample2.as ListExample2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ParagraphExample.as ParagraphExample.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/Patterns.as Patterns.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableAbsoluteColumns.as PdfPTableAbsoluteColumns.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableAbsolutePositions.as PdfPTableAbsolutePositions.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableAligned.as PdfPTableAligned.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableCellHeights.as PdfPTableCellHeights.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableColors.as PdfPTableColors.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableColumnWidths.as PdfPTableColumnWidths.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableCompare.as PdfPTableCompare.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableExample1.as PdfPTableExample1.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableImages.as PdfPTableImages.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableMemoryFriendly.as PdfPTableMemoryFriendly.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/PhraseExample.as PhraseExample.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/RegistrationForm.as RegistrationForm.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/SeparationColors.as SeparationColors.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingPatterns.as ShadingPatterns.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/SimpleAnnotation.as SimpleAnnotation.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/SlideShow.as SlideShow.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/TableExample2.as TableExample2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/TextRender.as TextRender.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ViewerExample.as ViewerExample.as]
