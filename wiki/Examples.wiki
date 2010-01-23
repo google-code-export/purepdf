@@ -18,7 +18,6 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkHorizontalScale.as ChunkHorizontalScale.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkSkew.as ChunkSkew.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ClippingPath.as ClippingPath.as]
-  # [http://code.google.com/p/purepdf/source/browse/examples/src/DefaultBasicExample.as DefaultBasicExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/DrawingPaths.as DrawingPaths.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/FlyerExample.as FlyerExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/GenericTag.as GenericTag.as]
