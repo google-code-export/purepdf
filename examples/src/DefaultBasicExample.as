@@ -150,9 +150,9 @@ package
 
 			writer = PdfWriter.create( buffer, rect );
 			document = writer.pdfDocument;
-			document.addAuthor( "Alessandro Crugnola" );
+			document.addAuthor( "Alessandro Crugnola (http://www.sephiroth.it)" );
 			document.addTitle( getQualifiedClassName( this ) );
-			document.addCreator( "http://purepdf.org" );
+			document.addCreator( "http://code.google.com/p/purepdf" );
 			if( subject ) 
 				document.addSubject( subject );
 			document.addKeywords( "itext,purepdf" );

@@ -46,7 +46,7 @@ package
 			
 			var footer: HeaderFooter = new HeaderFooter( new Phrase( "Page Number. ", footerFont ) );
 			footer.alignment = Element.ALIGN_CENTER;
-			footer.border = RectangleElement.UNDEFINED;
+			footer.border = RectangleElement.NO_BORDER;
 			footer.backgroundColor = new RGBColor( 180, 180, 180 );
 			
 			document.setHeader( header );

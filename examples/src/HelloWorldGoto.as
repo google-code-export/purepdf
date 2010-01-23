@@ -29,7 +29,7 @@ package
 			font.style = Font.UNDERLINE;
 			
 			var chunk: Chunk = new Chunk("http://www.google.com", font );
-			chunk.setAction( PdfAction.create("http://www.google.com") );
+			chunk.setAction( PdfAction.fromURL("http://www.google.com") );
 			document.add(chunk);
 			
 			document.close();
