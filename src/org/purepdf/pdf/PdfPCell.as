@@ -1,6 +1,5 @@
 package org.purepdf.pdf
 {
-	import org.osmf.layout.AbsoluteLayoutFacet;
 	import org.purepdf.ColumnText;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
@@ -10,7 +9,6 @@ package org.purepdf.pdf
 	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
-	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.events.PdfPCellEventForwarder;
 	import org.purepdf.pdf.interfaces.IPdfPCellEvent;
 

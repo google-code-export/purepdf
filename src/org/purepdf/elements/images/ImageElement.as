@@ -2,11 +2,9 @@ package org.purepdf.elements.images
 {
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
-	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
-	import org.purepdf.IClonable;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
@@ -14,7 +12,6 @@ package org.purepdf.elements.images
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
 	import org.purepdf.errors.NonImplementatioError;
-	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfStream;
