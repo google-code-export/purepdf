@@ -91,12 +91,12 @@ package org.purepdf.pdf
 		protected var leadingCount: int = 0;
 		protected var line: PdfLine = null;
 		protected var lines: Vector.<PdfLine> = new Vector.<PdfLine>();
-		protected var marginBottom: Number = 36.0;
-		protected var marginLeft: Number = 36.0;
+		protected var _marginBottom: Number = 36.0;
+		protected var _marginLeft: Number = 36.0;
 		protected var marginMirroring: Boolean = false;
 		protected var marginMirroringTopBottom: Boolean = false;
-		protected var marginRight: Number = 36.0;
-		protected var marginTop: Number = 36.0;
+		protected var _marginRight: Number = 36.0;
+		protected var _marginTop: Number = 36.0;
 		protected var markPoint: int;
 		protected var nextMarginBottom: Number = 36.0;
 		protected var nextMarginLeft: Number = 36.0;
@@ -122,6 +122,26 @@ package org.purepdf.pdf
 			super();
 			addProducer();
 			addCreationDate();
+		}
+
+		public function get marginTop():Number
+		{
+			return _marginTop;
+		}
+
+		public function get marginRight():Number
+		{
+			return _marginRight;
+		}
+
+		public function get marginLeft():Number
+		{
+			return _marginLeft;
+		}
+
+		public function get marginBottom():Number
+		{
+			return _marginBottom;
 		}
 
 		/**
@@ -350,7 +370,7 @@ package org.purepdf.pdf
 
 		public function bottom( margin: Number=0 ): Number
 		{
-			return _pageSize.getBottom( marginBottom + margin );
+			return _pageSize.getBottom( _marginBottom + margin );
 		}
 
 		/**
@@ -476,7 +496,7 @@ package org.purepdf.pdf
 			return info;
 		}
 
-		public function getPageNumber(): int
+		public function get pageNumber(): int
 		{
 			return pageN;
 		}
@@ -501,7 +521,7 @@ package org.purepdf.pdf
 
 		public function left( margin: Number=0 ): Number
 		{
-			return _pageSize.getLeft( marginLeft + margin );
+			return _pageSize.getLeft( _marginLeft + margin );
 		}
 
 		/**
@@ -604,7 +624,7 @@ package org.purepdf.pdf
 			{
 				opened = true;
 				pageSize = _pageSize;
-				setMargins( marginLeft, marginRight, marginTop, marginBottom );
+				setMargins( _marginLeft, _marginRight, _marginTop, _marginBottom );
 				_writer.open();
 				rootOutline = new PdfOutline( _writer );
 				currentOutline = rootOutline;
@@ -644,7 +664,7 @@ package org.purepdf.pdf
 
 		public function right( margin: Number=0 ): Number
 		{
-			return _pageSize.getRight( marginRight + margin );
+			return _pageSize.getRight( _marginRight + margin );
 		}
 
 		public function setDefaultColorSpace( key: PdfName, value: PdfObject ): void
@@ -702,7 +722,7 @@ package org.purepdf.pdf
 
 		public function top( margin: Number=0 ): Number
 		{
-			return _pageSize.getTop( marginTop + margin );
+			return _pageSize.getTop( _marginTop + margin );
 		}
 
 		/**
@@ -936,26 +956,26 @@ package org.purepdf.pdf
 		{
 			_pageSize = nextPageSize;
 
-			if ( marginMirroring && ( getPageNumber() & 1 ) == 0 )
+			if ( marginMirroring && ( pageN & 1 ) == 0 )
 			{
-				marginRight = nextMarginLeft;
-				marginLeft = nextMarginRight;
+				_marginRight = nextMarginLeft;
+				_marginLeft = nextMarginRight;
 			}
 			else
 			{
-				marginLeft = nextMarginLeft;
-				marginRight = nextMarginRight;
+				_marginLeft = nextMarginLeft;
+				_marginRight = nextMarginRight;
 			}
 
-			if ( marginMirroringTopBottom && ( getPageNumber() & 1 ) == 0 )
+			if ( marginMirroringTopBottom && ( pageN & 1 ) == 0 )
 			{
-				marginTop = nextMarginBottom;
-				marginBottom = nextMarginTop;
+				_marginTop = nextMarginBottom;
+				_marginBottom = nextMarginTop;
 			}
 			else
 			{
-				marginTop = nextMarginTop;
-				marginBottom = nextMarginBottom;
+				_marginTop = nextMarginTop;
+				_marginBottom = nextMarginBottom;
 			}
 		}
 
@@ -1543,7 +1563,7 @@ package org.purepdf.pdf
 				if (obj[1] == null) {
 					obj[1] = writer.getPdfIndirectReference();
 				}
-				action = PdfAction.create2( obj[1] as PdfIndirectReference );
+				action = PdfAction.fromDestination( obj[1] as PdfIndirectReference );
 				obj[0] = action;
 				localDestinations.put(name, obj);
 			} else 
@@ -1681,7 +1701,7 @@ package org.purepdf.pdf
 			var url: String = anchor.reference;
 			leading = anchor.leading;
 			if( url != null )
-				anchorAction = PdfAction.create( url );
+				anchorAction = PdfAction.fromURL( url );
 			anchor.process( this );
 			anchorAction = null;
 			leadingCount--;
