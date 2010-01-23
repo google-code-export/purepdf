@@ -3,7 +3,6 @@ package org.purepdf.pdf
 	import org.purepdf.Font;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Phrase;
-	import org.purepdf.errors.IndexOutOfBoundsError;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.Utilities;
