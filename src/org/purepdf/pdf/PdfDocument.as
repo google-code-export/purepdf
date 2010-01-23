@@ -15,6 +15,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.ChapterAutoNumber;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.HeaderFooter;
 	import org.purepdf.elements.IElement;
 	import org.purepdf.elements.IElementListener;
 	import org.purepdf.elements.ILargeElement;
@@ -112,6 +113,8 @@ package org.purepdf.pdf
 		protected var thisBoxSize: HashMap = new HashMap();
 		protected var viewerPreferences: PdfViewerPreferencesImp = new PdfViewerPreferencesImp();
 		protected var chapternumber: int = 0;
+		protected var header: HeaderFooter = null;
+		protected var footer: HeaderFooter = null;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -426,6 +429,31 @@ package org.purepdf.pdf
 			}
 			
 			return catalog;
+		}
+		
+		public function setHeader( value: HeaderFooter ): void
+		{
+			header = value;
+		}
+		
+		public function setFooter( value: HeaderFooter ): void
+		{
+			footer = value;
+		}
+		
+		public function resetHeader(): void
+		{
+			header = null;
+		}
+		
+		public function resetFooter(): void
+		{
+			footer = null;
+		}
+		
+		public function resetPageCount(): void
+		{
+			pageN = 0;
 		}
 
 		public function getDefaultColorSpace(): PdfDictionary
@@ -861,7 +889,9 @@ package org.purepdf.pdf
 			}
 			var oldleading: Number = leading;
 			var oldAlignment: int = alignment;
+			doFooter();
 			text.moveText( left(), top() );
+			doHeader();
 			pageEmpty = true;
 
 			try
@@ -1553,6 +1583,90 @@ package org.purepdf.pdf
 			
 			annot.put( PdfName.RECT, new PdfRectangle(xMarker, yMarker + descender, xMarker + width - subtract, yMarker + ascender));
 			text.addAnnotation( annot );
+		}
+		
+		/**
+		 * Draw the document footer
+		 * 
+		 * @throws DocumentError
+		 */
+		protected function doFooter(): void
+		{
+			if (footer == null) return;
+			
+			var tmpIndentLeft: Number = indentation.indentLeft;
+			var tmpIndentRight: Number = indentation.indentRight;
+			
+			var tmpListIndentLeft: Number = indentation.listIndentLeft;
+			var tmpImageIndentLeft: Number = indentation.imageIndentLeft;
+			var tmpImageIndentRight: Number = indentation.imageIndentRight;
+			
+			indentation.indentLeft = indentation.indentRight = 0;
+			indentation.listIndentLeft = 0;
+			indentation.imageIndentLeft = 0;
+			indentation.imageIndentRight = 0;
+			footer.pageNumber = pageN;
+			
+			var p: Paragraph = footer.paragraph;
+			
+			leading = p.totalLeading;
+			add( p );
+			
+			indentation.indentBottom = currentHeight;
+			text.moveText(left(), indentBottom );
+			flushLines();
+			text.moveText(-left(), -bottom());
+			footer.setTop(bottom(currentHeight));
+			footer.setBottom(bottom() - (0.75 * leading));
+			footer.setLeft(left());
+			footer.setRight(right());
+			graphics.rectangle(footer);
+			indentation.indentBottom = currentHeight + leading * 2;
+			currentHeight = 0;
+			indentation.indentLeft = tmpIndentLeft;
+			indentation.indentRight = tmpIndentRight;
+			indentation.listIndentLeft = tmpListIndentLeft;
+			indentation.imageIndentLeft = tmpImageIndentLeft;
+			indentation.imageIndentRight = tmpImageIndentRight;
+		}
+		
+		/**
+		 * Draw the document headers
+		 * @throws DocumentError
+		 */
+		protected function doHeader(): void
+		{
+			if (header == null) return;
+			var tmpIndentLeft: Number = indentation.indentLeft;
+			var tmpIndentRight: Number = indentation.indentRight;
+			
+			var tmpListIndentLeft: Number = indentation.listIndentLeft;
+			var tmpImageIndentLeft: Number = indentation.imageIndentLeft;
+			var tmpImageIndentRight: Number = indentation.imageIndentRight;
+			indentation.indentLeft = indentation.indentRight = 0;
+			indentation.listIndentLeft = 0;
+			indentation.imageIndentLeft = 0;
+			indentation.imageIndentRight = 0;
+			header.pageNumber = pageN;
+			
+			var p: Paragraph = header.paragraph;
+			leading = p.totalLeading;
+			text.moveText( 0, leading );
+			add( p  );
+			newLine();
+			indentation.indentTop = currentHeight - leading;
+			header.setTop(top() + leading);
+			header.setBottom( indentTop + leading * 2 / 3);
+			header.setLeft(left());
+			header.setRight(right());
+			graphics.rectangle(header);
+			flushLines();
+			currentHeight = 0;
+			indentation.indentLeft = tmpIndentLeft;
+			indentation.indentRight = tmpIndentRight;
+			indentation.listIndentLeft = tmpListIndentLeft;
+			indentation.imageIndentLeft = tmpImageIndentLeft;
+			indentation.imageIndentRight = tmpImageIndentRight;
 		}
 		
 		// -------------
