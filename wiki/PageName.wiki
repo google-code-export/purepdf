@@ -1,0 +1,13 @@
+#summary Example usage.
+#labels Phase-Support,Phase-Implementation
+
+= Introduction =
+
+Most of the purepdf usages are explained in the example source folder
+
+
+= Details =
+
+Here's the complete list of available examples:
+
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/AnimatedGif.as AnimatedGif]
