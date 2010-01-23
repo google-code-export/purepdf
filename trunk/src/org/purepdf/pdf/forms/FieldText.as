@@ -47,6 +47,15 @@ package org.purepdf.pdf.forms
 			return _getChoiceField(true);
 		}
 		
+		/**
+		 * Returns a combo field
+		 * @throws DocumentError
+		 */
+		public function getComboField(): PdfFormField
+		{
+			return _getChoiceField(false);
+		}
+		
 		private function getTopChoice(): int
 		{
 			if (choiceSelections == null || choiceSelections.length ==0) {

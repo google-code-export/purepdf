@@ -1,5 +1,6 @@
 package org.purepdf.pdf
 {
+	import org.osmf.layout.AbsoluteLayoutFacet;
 	import org.purepdf.ColumnText;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
@@ -39,6 +40,37 @@ package org.purepdf.pdf
 			_borderWidth = 0.5;
 			_border = BOX;
 			_column.setLeading(0, 1);			
+		}
+		
+		public static function fromTable( table: PdfPTable, style: PdfPCell = null ): PdfPCell
+		{
+			var r: PdfPCell = new PdfPCell();
+			r._borderWidth = 0.5;
+			r._border = BOX;
+			r._column.setLeading(0, 1);
+			r._table = table;
+			r._table.widthPercentage = 100;
+			r._table.extendLastRow = true;
+			r._column.addElement(table);
+			
+			if( style != null )
+			{
+				r.cloneNonPositionParameters(style);
+				r._verticalAlignment = style._verticalAlignment;
+				r._paddingLeft = style._paddingLeft;
+				r._paddingRight = style._paddingRight;
+				r._paddingTop = style._paddingTop;
+				r._paddingBottom = style._paddingBottom;
+				r._colspan = style._colspan;
+				r._rowspan = style._rowspan;
+				r._cellEvent = style._cellEvent;
+				r._useDescender = style._useDescender;
+				r._useBorderPadding = style._useBorderPadding;
+				r._rotation = style._rotation;
+			}
+			else
+				r.padding = 0;
+			return r;
 		}
 		
 		public function get cellEvent(): PdfPCellEvent
