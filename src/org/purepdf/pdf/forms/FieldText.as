@@ -9,17 +9,23 @@ package org.purepdf.pdf.forms
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.FontSelector;
+	import org.purepdf.pdf.PdfAnnotation;
 	import org.purepdf.pdf.PdfAppearance;
+	import org.purepdf.pdf.PdfArray;
 	import org.purepdf.pdf.PdfBorderDictionary;
+	import org.purepdf.pdf.PdfDashPattern;
+	import org.purepdf.pdf.PdfName;
+	import org.purepdf.pdf.PdfNumber;
+	import org.purepdf.pdf.PdfString;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.StringUtils;
 
 	public class FieldText extends FieldBase
 	{
-		private var choiceExports: Vector.<String>;
-		private var choiceSelections: Array = new Array();
-		private var choices: Vector.<String>;
+		private var _choicesExport: Vector.<String>;
+		private var choiceSelections: Vector.<int> = new Vector.<int>();
+		private var _choices: Vector.<String>;
 		private var defaultText: String;
 		private var extraMarginLeft: Number = 0;
 		private var extraMarginTop: Number = 0;
@@ -30,6 +36,331 @@ package org.purepdf.pdf.forms
 		public function FieldText( $writer: PdfWriter, $box: RectangleElement, $fieldName: String )
 		{
 			super( $writer, $box, $fieldName );
+		}
+		
+		/**
+		 * 
+		 * @throws DocumentError
+		 */
+		public function getListField(): PdfFormField
+		{
+			return _getChoiceField(true);
+		}
+		
+		private function getTopChoice(): int
+		{
+			if (choiceSelections == null || choiceSelections.length ==0) {
+				return 0;
+			}
+			
+			var firstValue: int = choiceSelections[0];
+			
+			var topChoice: int = 0;
+			if (choices != null) {
+				topChoice = firstValue;
+				topChoice = Math.min( topChoice, _choices.length );
+				topChoice = Math.max( 0, topChoice);
+			}
+			return topChoice;
+		}
+		
+		/**
+		 * 
+		 * @throws DocumentError
+		 */
+		protected function _getChoiceField( isList: Boolean): PdfFormField
+		{
+			options &= (~MULTILINE) & (~COMB);
+			var uchoices: Vector.<String> = choices;
+			if (uchoices == null)
+				uchoices = new Vector.<String>();
+			
+			var topChoice: int = getTopChoice();
+			
+			if (text == null)
+				text = "";
+			
+			if (topChoice >= 0)
+				text = uchoices[topChoice];
+			
+			var field: PdfFormField = null;
+			var mix: Vector.<Vector.<String>> = null;
+			var k: int;
+			
+			if ( _choicesExport == null) {
+				if (isList)
+					field = PdfFormField.createList(writer, uchoices, topChoice);
+				else
+					field = PdfFormField.createCombo(writer, (options & EDIT) != 0, uchoices, topChoice);
+			}
+			else {
+				mix = new Vector.<Vector.<String>>(uchoices.length,true);
+				for ( k = 0; k < mix.length; ++k)
+				{
+					mix[k] = new Vector.<String>(2,true);
+					mix[k][0] = mix[k][1] = uchoices[k];
+				}
+				var top: int = Math.min(uchoices.length, _choicesExport.length);
+				for ( k = 0; k < top; ++k) {
+					if (_choicesExport[k] != null)
+						mix[k][0] = _choicesExport[k];
+				}
+				if (isList)
+					field = PdfFormField.createLists(writer, mix, topChoice);
+				else
+					field = PdfFormField.createCombos(writer, (options & EDIT) != 0, mix, topChoice);
+			}
+			field.setWidget( box, PdfAnnotation.HIGHLIGHT_INVERT );
+			if (rotation != 0)
+				field.mkRotation = rotation;
+			if (fieldName != null) {
+				field.fieldName = fieldName;
+				if (uchoices.length > 0) {
+					if (mix != null) {
+						if (choiceSelections.length < 2) {
+							field.valueAsString = mix[topChoice][0];
+							field.defaultValueAsString = mix[topChoice][0];
+						} else {
+							writeMultipleValues( field, mix);
+						}
+					} else {
+						if (choiceSelections.length < 2) {
+							field.valueAsString = text;
+							field.defaultValueAsString = text;
+						} else {
+							writeMultipleValues( field, null );
+						}
+					}
+				}
+				if ((options & READ_ONLY) != 0)
+					field.fieldFlags = PdfFormField.FF_READ_ONLY;
+				if ((options & REQUIRED) != 0)
+					field.fieldFlags = PdfFormField.FF_REQUIRED;
+				if ((options & DO_NOT_SPELL_CHECK) != 0)
+					field.fieldFlags = PdfFormField.FF_DONOTSPELLCHECK;
+				if ((options & MULTISELECT) != 0) {
+					field.fieldFlags = PdfFormField.FF_MULTISELECT;
+				}
+			}
+			
+			field.borderStyle = new PdfBorderDictionary(borderWidth, borderStyle, new PdfDashPattern(3));
+			var tp: PdfAppearance;
+			if (isList) {
+				tp = getListAppearance();
+				if (topFirst > 0)
+					field.put(PdfName.TI, new PdfNumber(topFirst));
+			}
+			else
+				tp = getAppearance();
+			field.setAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
+			var da: PdfAppearance = tp.duplicate() as PdfAppearance;
+			da.setFontAndSize(getRealFont(), fontSize);
+			if (textColor == null)
+				da.setGrayFill(0);
+			else
+				da.setColorFill(textColor);
+			field.defaultAppearanceString = da;
+			if (borderColor != null)
+				field.mkBorderColor = borderColor;
+			if (backgroundColor != null)
+				field.mkBackgroundColor = backgroundColor;
+			switch (visibility) {
+				case HIDDEN:
+					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_HIDDEN;
+					break;
+				case VISIBLE_BUT_DOES_NOT_PRINT:
+					break;
+				case HIDDEN_BUT_PRINTABLE:
+					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_NOVIEW;
+					break;
+				default:
+					field.flags = PdfAnnotation.FLAGS_PRINT;
+					break;
+			}
+			return field;
+		}
+		
+		/**
+		 * 
+		 * @throws DocumentError
+		 */
+		private function getListAppearance(): PdfAppearance
+		{
+			var app: PdfAppearance = getBorderAppearance();
+			if (choices == null || choices.length == 0) {
+				return app;
+			}
+			app.beginVariableText();
+			
+			var topChoice: int = getTopChoice();
+			
+			var ufont: BaseFont = getRealFont();
+			var usize: Number = fontSize;
+			if (usize == 0)
+				usize = 12;
+			
+			var borderExtra: Boolean = borderStyle == PdfBorderDictionary.STYLE_BEVELED || borderStyle == PdfBorderDictionary.STYLE_INSET;
+			var h: Number = box.height - borderWidth * 2;
+			var offsetX: Number = borderWidth;
+			if (borderExtra) {
+				h -= borderWidth * 2;
+				offsetX *= 2;
+			}
+			
+			var leading: Number = ufont.getFontDescriptor(BaseFont.BBOXURY, usize) - ufont.getFontDescriptor(BaseFont.BBOXLLY, usize);
+			var maxFit: int = (h / leading) + 1;
+			var first: int = 0;
+			var last: int = 0;
+			first = topChoice;
+			last = first + maxFit;
+			if (last > choices.length)
+				last = choices.length;
+			topFirst = first;
+			app.saveState();
+			app.rectangle( offsetX, offsetX, box.width - 2 * offsetX, box.height - 2 * offsetX);
+			app.clip();
+			app.newPath();
+			var fcolor: RGBColor = (textColor == null) ? GrayColor.GRAYBLACK : textColor;
+			
+			
+			app.setColorFill(new RGBColor(10, 36, 106));
+			for (var curVal: int = 0; curVal < choiceSelections.length; ++curVal) {
+				var curChoice: int = choiceSelections[curVal]; 
+				if (curChoice >= first && curChoice <= last) {
+					app.rectangle(offsetX, offsetX + h - (curChoice - first + 1) * leading, box.width - 2 * offsetX, leading);
+					app.fill();
+				}
+			}
+			var xp: Number = offsetX * 2;
+			var yp: Number = offsetX + h - ufont.getFontDescriptor(BaseFont.BBOXURY, usize);
+			for ( var idx: int = first; idx < last; ++idx, yp -= leading) 
+			{
+				var ptext: String = choices[idx];
+				var rtl: int = checkRTL(ptext) ? PdfWriter.RUN_DIRECTION_LTR : PdfWriter.RUN_DIRECTION_NO_BIDI;
+				ptext = removeCRLF(ptext);
+				var textCol: RGBColor = (choiceSelections.indexOf( idx ) > -1 ) ? GrayColor.GRAYWHITE : fcolor;
+				var phrase: Phrase = composePhrase(ptext, ufont, textCol, usize);
+				ColumnText.showTextAligned(app, Element.ALIGN_LEFT, phrase, xp, yp, 0, rtl, 0);
+			}
+			app.restoreState();
+			app.endVariableText();
+			return app;
+		}
+		
+		private function writeMultipleValues( field: PdfFormField, mix: Vector.<Vector.<String>> ): void
+		{
+			var indexes: PdfArray = new PdfArray();
+			var values: PdfArray = new PdfArray();
+			for( var i: int = 0; i < choiceSelections.length; ++i)
+			{
+				var idx: int = choiceSelections[i];
+				indexes.add( new PdfNumber( idx ) );
+				
+				if (mix != null)
+					values.add( new PdfString( mix[idx][0] ) );
+				else if (choices != null)
+					values.add( new PdfString( choices[ idx ] ) );
+			}
+			
+			field.put( PdfName.V, values );
+			field.put( PdfName.I, indexes );
+			
+		}
+
+		public function get choices():Vector.<String>
+		{
+			return _choices;
+		}
+
+		public function set choices(value:Vector.<String>):void
+		{
+			_choices = value;
+		}
+
+		public function get choicesExport():Vector.<String>
+		{
+			return _choicesExport;
+		}
+
+		public function set choicesExport(value:Vector.<String>):void
+		{
+			_choicesExport = value;
+		}
+
+		/**
+		 * Return a new FieldText
+		 * @throws DocumentError
+		 */
+		public function getTextField(): PdfFormField
+		{
+			if (maxCharacterLength <= 0)
+				options &= ~COMB;
+			if ((options & COMB) != 0)
+				options &= ~MULTILINE;
+			var field: PdfFormField = PdfFormField.createTextField( writer, false, false, maxCharacterLength );
+			field.setWidget( box, PdfAnnotation.HIGHLIGHT_INVERT );
+			switch (alignment) {
+				case Element.ALIGN_CENTER:
+					field.quadding = PdfFormField.Q_CENTER;
+					break;
+				case Element.ALIGN_RIGHT:
+					field.quadding = PdfFormField.Q_RIGHT;
+					break;
+			}
+			if (rotation != 0)
+				field.mkRotation = rotation;
+			if (fieldName != null) {
+				field.fieldName = fieldName;
+				if ( text != "" )
+					field.valueAsString = text;
+				if (defaultText != null)
+					field.defaultValueAsString = defaultText;
+				if ((options & READ_ONLY) != 0)
+					field.fieldFlags = PdfFormField.FF_READ_ONLY;
+				if ((options & REQUIRED) != 0)
+					field.fieldFlags = PdfFormField.FF_REQUIRED;
+				if ((options & MULTILINE) != 0)
+					field.fieldFlags = PdfFormField.FF_MULTILINE;
+				if ((options & DO_NOT_SCROLL) != 0)
+					field.fieldFlags = PdfFormField.FF_DONOTSCROLL;
+				if ((options & PASSWORD) != 0)
+					field.fieldFlags = PdfFormField.FF_PASSWORD;
+				if ((options & FILE_SELECTION) != 0)
+					field.fieldFlags = PdfFormField.FF_FILESELECT;
+				if ((options & DO_NOT_SPELL_CHECK) != 0)
+					field.fieldFlags = PdfFormField.FF_DONOTSPELLCHECK;
+				if ((options & COMB) != 0)
+					field.fieldFlags = PdfFormField.FF_COMB;
+			}
+			
+			field.borderStyle = new PdfBorderDictionary( borderWidth, borderStyle, new PdfDashPattern(3) );
+			var tp: PdfAppearance = getAppearance();
+			field.setAppearance( PdfAnnotation.APPEARANCE_NORMAL, tp);
+			var da: PdfAppearance = tp.duplicate() as PdfAppearance;
+			da.setFontAndSize(getRealFont(), fontSize);
+			if (textColor == null)
+				da.setGrayFill(0);
+			else
+				da.setColorFill(textColor);
+			field.defaultAppearanceString = da;
+			if (borderColor != null)
+				field.mkBorderColor = borderColor;
+			if (backgroundColor != null)
+				field.mkBackgroundColor = backgroundColor;
+			switch (visibility) {
+				case HIDDEN:
+					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_HIDDEN;
+					break;
+				case VISIBLE_BUT_DOES_NOT_PRINT:
+					break;
+				case HIDDEN_BUT_PRINTABLE:
+					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_NOVIEW;
+					break;
+				default:
+					field.flags = PdfAnnotation.FLAGS_PRINT;
+					break;
+			}
+			return field;
 		}
 		
 		/**
