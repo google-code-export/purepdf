@@ -191,9 +191,9 @@ import org.purepdf.pdf.PdfAnnotation;
 import org.purepdf.pdf.PdfContentByte;
 import org.purepdf.pdf.PdfPCell;
 import org.purepdf.pdf.forms.PdfFormField;
-import org.purepdf.pdf.interfaces.PdfPCellEvent;
+import org.purepdf.pdf.interfaces.IPdfPCellEvent;
 
-class Layout implements PdfPCellEvent
+class Layout implements IPdfPCellEvent
 {
 	protected var kid: PdfFormField;
 	protected var padding: Number;

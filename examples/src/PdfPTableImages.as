@@ -1,6 +1,7 @@
 package
 {
 	import com.adobe.images.JPGEncoder;
+	import com.adobe.images.PNGEncoder;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -13,7 +14,7 @@ package
 	public class PdfPTableImages extends DefaultBasicExample
 	{
 		
-		[Embed(source="assets/image1.jpg")]
+		[Embed(source="assets/appicondocsec.png")]
 		private var cls1: Class;
 		
 		public function PdfPTableImages(d_list:Array=null)
@@ -33,10 +34,10 @@ package
 			var table: PdfPTable;
 			var bmp: BitmapData = ( new cls1() as Bitmap ).bitmapData;
 			
-			var img: ImageElement = ImageElement.getInstance( new JPGEncoder(90).encode( bmp ) );
+			//var img: ImageElement = ImageElement.getInstance( new JPGEncoder(90).encode( bmp ) );
+			var img: ImageElement = ImageElement.getInstance( PNGEncoder.encode( bmp ) );
 			
 			table = new PdfPTable(1);
-			//table.widthPercentage = 60;
 			table.addStringCell("This image was added with addCell(Image); the image is scaled + there is the default padding of getDefaultCell.");
 			table.addImageCell(img);
 
