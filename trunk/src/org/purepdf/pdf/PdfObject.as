@@ -23,6 +23,7 @@ package org.purepdf.pdf
 		
 		protected var bytes: Bytes;
 		protected var type: int;
+		protected var indRef: PRIndirectReference;
 		
 		public function PdfObject( $type: int )
 		{
@@ -98,6 +99,11 @@ package org.purepdf.pdf
 			{
 				os.writeBytes( bytes );
 			}
+		}
+		
+		public function getIndRef(): PRIndirectReference
+		{
+			return indRef;
 		}
 		
 		/**

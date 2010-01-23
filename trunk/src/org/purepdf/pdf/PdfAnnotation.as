@@ -2,7 +2,13 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.HashMap;
 	
+	import org.purepdf.colors.CMYKColor;
+	import org.purepdf.colors.ExtendedColor;
+	import org.purepdf.colors.GrayColor;
+	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.utils.Bytes;
 
 	public class PdfAnnotation extends PdfDictionary
 	{
@@ -37,40 +43,77 @@ package org.purepdf.pdf
 		public static const MARKUP_SQUIGGLY: int = 3;
 		public static const MARKUP_STRIKEOUT: int = 2;
 		public static const MARKUP_UNDERLINE: int = 1;
-		protected var _placeInPage: int = -1;
-		internal var _templates: HashMap;
-		internal var _annotation: Boolean = true;
 		protected var _form: Boolean = false;
+		protected var _placeInPage: int = -1;
+		protected var _writer: PdfWriter;
 		protected var reference: PdfIndirectReference;
 		protected var used: Boolean = false;
-		protected var _writer: PdfWriter;
+		internal var _annotation: Boolean = true;
+		internal var _templates: HashMap;
 
-		public function PdfAnnotation( $writer: PdfWriter, rect: RectangleElement = null )
+		public function PdfAnnotation( $writer: PdfWriter, rect: RectangleElement = null, action: PdfAction = null )
 		{
 			_writer = $writer;
 
 			if ( rect != null )
-				put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
+			{
+				if( action != null )
+				{
+					put( PdfName.SUBTYPE, PdfName.LINK );
+					put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
+					put( PdfName.A, action );
+					put( PdfName.BORDER, new PdfBorderArray( 0, 0, 0 ) );
+					put( PdfName.C, new PdfColor( 0x00, 0x00, 0xFF ) );
+				} else {
+					put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
+				}
+			}
 		}
 
-		public function get annotation():Boolean
+		public function get annotation(): Boolean
 		{
 			return _annotation;
 		}
 
-		public function set annotation(value:Boolean):void
+		public function set annotation( value: Boolean ): void
 		{
 			_annotation = value;
 		}
 
-		public function set form(value:Boolean):void
+		public function set borderStyle( border: PdfBorderDictionary ): void
 		{
-			_form = value;
+			put( PdfName.BS, border );
 		}
 
-		public function get form():Boolean
+		public function set defaultAppearanceString( cb: PdfContentByte ): void
+		{
+			var b: Bytes = cb.getInternalBuffer().toByteArray();
+			var len: int = b.length;
+
+			for ( var k: int = 0; k < len; ++k )
+			{
+				if ( b[k] == 10 )
+					b[k] = 32;
+			}
+			put( PdfName.DA, new PdfString( b ) );
+		}
+
+		public function set flags( flags: int ): void
+		{
+			if ( flags == 0 )
+				remove( PdfName.F );
+			else
+				put( PdfName.F, new PdfNumber( flags ) );
+		}
+
+		public function get form(): Boolean
 		{
 			return _form;
+		}
+
+		public function set form( value: Boolean ): void
+		{
+			_form = value;
 		}
 
 		/**
@@ -86,11 +129,6 @@ package org.purepdf.pdf
 			return reference;
 		}
 
-		public function get writer(): PdfWriter
-		{
-			return _writer;
-		}
-
 		public function get isAnnotation(): Boolean
 		{
 			return _annotation;
@@ -101,14 +139,35 @@ package org.purepdf.pdf
 			return _form;
 		}
 
-		public function get isUsed(): Boolean
+		public function getUsed(): Boolean
 		{
 			return used;
 		}
 
-		public function set isUsed( value: Boolean ): void
+		public function setUsed(): void
 		{
-			used = value;
+			used = true;
+		}
+
+		public function set mkBackgroundColor( color: RGBColor ): void
+		{
+			if ( color == null )
+				mk.remove( PdfName.BG );
+			else
+				mk.put( PdfName.BG, getMKColor( color ) );
+		}
+
+		public function set mkBorderColor( color: RGBColor ): void
+		{
+			if ( color == null )
+				mk.remove( PdfName.BC );
+			else
+				mk.put( PdfName.BC, getMKColor( color ) );
+		}
+
+		public function set mkRotation( value: int ): void
+		{
+			mk.put( PdfName.R, new PdfNumber( value ) );
 		}
 
 		public function get placeInPage(): int
@@ -116,34 +175,69 @@ package org.purepdf.pdf
 			return _placeInPage;
 		}
 
-		public function set writer( $writer: PdfWriter ): void
+		public function setAppearance( ap: PdfName, template: PdfTemplate ): void
 		{
-			_writer = $writer;
+			var dic: PdfDictionary = getValue( PdfName.AP ) as PdfDictionary;
+
+			if ( dic == null )
+				dic = new PdfDictionary();
+			dic.put( ap, template.indirectReference );
+			put( PdfName.AP, dic );
+
+			if ( !form )
+				return;
+
+			if ( templates == null )
+				templates = new HashMap();
+			templates.put( template, null );
 		}
 
 		public function get templates(): HashMap
 		{
 			return _templates;
 		}
-		
+
 		public function set templates( value: HashMap ): void
 		{
 			_templates = value;
 		}
-		
-		public static function createAction( writer: PdfWriter, llx: Number, lly: Number, urx: Number, ury: Number, action: PdfAction ): PdfAnnotation
+
+		public function get writer(): PdfWriter
+		{
+			return _writer;
+		}
+
+		public function set writer( $writer: PdfWriter ): void
+		{
+			_writer = $writer;
+		}
+
+		protected function get mk(): PdfDictionary
+		{
+			var m: PdfDictionary = getValue( PdfName.MK ) as PdfDictionary;
+
+			if ( m == null )
+			{
+				m = new PdfDictionary();
+				put( PdfName.MK, m );
+			}
+			return m;
+		}
+
+		static public function createAction( writer: PdfWriter, llx: Number, lly: Number, urx: Number, ury: Number,
+						action: PdfAction ): PdfAnnotation
 		{
 			var annot: PdfAnnotation = new PdfAnnotation( writer );
 			annot.put( PdfName.SUBTYPE, PdfName.LINK );
-			annot.put( PdfName.RECT, new PdfRectangle(llx, lly, urx, ury) );
+			annot.put( PdfName.RECT, new PdfRectangle( llx, lly, urx, ury ) );
 			annot.put( PdfName.A, action );
-			annot.put( PdfName.BORDER, new PdfBorderArray(0, 0, 0) );
-			annot.put( PdfName.C, new PdfColor(0x00, 0x00, 0xFF) );
+			annot.put( PdfName.BORDER, new PdfBorderArray( 0, 0, 0 ) );
+			annot.put( PdfName.C, new PdfColor( 0x00, 0x00, 0xFF ) );
 			return annot;
 		}
 
-
-		public static function createText( rect: RectangleElement, title: String, contents: String, opened: Boolean, icon: String ): PdfAnnotation
+		static public function createText( rect: RectangleElement, title: String, contents: String, opened: Boolean,
+						icon: String ): PdfAnnotation
 		{
 			var annot: PdfAnnotation = new PdfAnnotation( null, rect );
 			annot.put( PdfName.SUBTYPE, PdfName.TEXT );
@@ -160,6 +254,36 @@ package org.purepdf.pdf
 			if ( icon != null )
 				annot.put( PdfName.NAME, new PdfName( icon ) );
 			return annot;
+		}
+
+		static public function getMKColor( color: RGBColor ): PdfArray
+		{
+			var array: PdfArray = new PdfArray();
+			var type: int = ExtendedColor.getType( color );
+
+			switch ( type )
+			{
+				case ExtendedColor.TYPE_GRAY:
+					array.add( new PdfNumber( GrayColor( color ).gray ) );
+					break;
+				case ExtendedColor.TYPE_CMYK:
+					var cmyk: CMYKColor = CMYKColor( color );
+					array.add( new PdfNumber( cmyk.cyan ) );
+					array.add( new PdfNumber( cmyk.magenta ) );
+					array.add( new PdfNumber( cmyk.yellow ) );
+					array.add( new PdfNumber( cmyk.black ) );
+					break;
+				case ExtendedColor.TYPE_SEPARATION:
+				case ExtendedColor.TYPE_PATTERN:
+				case ExtendedColor.TYPE_SHADING:
+					throw new RuntimeError( "separations patterns and shadings not.allowed in mk dictionary" );
+					break;
+				default:
+					array.add( new PdfNumber( color.red / 255 ) );
+					array.add( new PdfNumber( color.green / 255 ) );
+					array.add( new PdfNumber( color.blue / 255 ) );
+			}
+			return array;
 		}
 	}
 }

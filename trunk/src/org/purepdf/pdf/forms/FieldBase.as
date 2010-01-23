@@ -46,7 +46,7 @@ package org.purepdf.pdf.forms
 		protected var maxCharacterLength: int;
 		protected var options: int;
 		protected var rotation: int = 0;
-		protected var text: String;
+		protected var text: String = "";
 		protected var textColor: RGBColor;
 		protected var visibility: int = 0;
 		protected var writer: PdfWriter;

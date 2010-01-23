@@ -439,7 +439,7 @@ package org.purepdf.pdf
 				addToBody1( layer.pdfObject, layer.ref );
 			}
 		}
-
+		
 		protected function fillOCProperties( erase: Boolean ): void
 		{
 			var layer: PdfLayer;

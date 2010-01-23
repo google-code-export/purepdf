@@ -13,15 +13,20 @@ package org.purepdf.pdf
 	{
 		protected var annotations: Vector.<PdfAnnotation>;
 		protected var delayedAnnotations: Vector.<PdfAnnotation> = new Vector.<PdfAnnotation>();
-		protected var acroForm: PdfAcroForm;
+		protected var _acroForm: PdfAcroForm;
 		
 		use namespace pdf_core;
 		
 		public function PdfAnnotationsImp( $writer: PdfWriter )
 		{
-			acroForm = new PdfAcroForm( $writer );
+			_acroForm = new PdfAcroForm( $writer );
 		}
 		
+		public function get acroForm():PdfAcroForm
+		{
+			return _acroForm;
+		}
+
 		public function addAnnotation( annot: PdfAnnotation ): void
 		{
 			if( annot.isForm )
@@ -68,6 +73,10 @@ package org.purepdf.pdf
 			throw new NonImplementatioError();
 		}
 		
+		public function hasValidAcroForm(): Boolean
+		{
+			return _acroForm.valid;
+		}
 		
 		internal function rotateAnnotations( writer: PdfWriter, pageSize: RectangleElement ): PdfArray
 		{
@@ -87,22 +96,22 @@ package org.purepdf.pdf
 				
 				if( dic.isForm )
 				{
-					if( !dic.isUsed )
+					if( !dic.getUsed() )
 					{
 						var templates: HashMap = dic.templates;
 						if( templates != null )
-							acroForm.addFieldTemplates( templates );
+							_acroForm.addFieldTemplates( templates );
 					}
 					
 					var field: PdfFormField = PdfFormField( dic );
 					if( field.parent == null )
-						acroForm.addDocumentField( field.getIndirectReference() );
+						_acroForm.addDocumentField( field.getIndirectReference() );
 				}
 				
 				if( dic.isAnnotation )
 				{
 					array.add( dic.getIndirectReference() );
-					if( !dic.isUsed )
+					if( !dic.getUsed() )
 					{
 						var rect: PdfRectangle = dic.getValue( PdfName.RECT ) as PdfRectangle;
 						if( rect != null )
@@ -137,9 +146,9 @@ package org.purepdf.pdf
 					}
 				}
 				
-				if( !dic.isUsed )
+				if( !dic.getUsed() )
 				{
-					dic.isUsed = true;
+					dic.setUsed();
 					writer.addToBody1( dic, dic.getIndirectReference() );
 				}
 			}

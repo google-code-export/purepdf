@@ -81,8 +81,7 @@ package org.purepdf.pdf
 		
 		override public function duplicate(): PdfContentByte 
 		{
-			var tpl: PdfAppearance = new PdfAppearance();
-			tpl.writer = writer;
+			var tpl: PdfAppearance = new PdfAppearance( writer );
 			tpl.pdf = pdf;
 			tpl.thisReference = thisReference;
 			tpl.pageResources = pageResources;

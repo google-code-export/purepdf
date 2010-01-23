@@ -36,9 +36,9 @@ package org.purepdf.pdf
 	import org.purepdf.events.PageEvent;
 	import org.purepdf.events.SectionEvent;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.forms.PdfFormField;
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
-	import org.purepdf.pdf.forms.PdfFormField;
 
 	[Event( name="documentClose",	type="org.purepdf.events.PageEvent" )]
 	[Event( name="pageEnd", 		type="org.purepdf.events.PageEvent" )]
@@ -416,6 +416,14 @@ package org.purepdf.pdf
 			// 6 actions
 			// 7 portable collections
 			// 8 acroform
+			if (annotationsImp.hasValidAcroForm()) {
+				try {
+					catalog.put(PdfName.ACROFORM, writer.addToBody(annotationsImp.acroForm).getIndirectReference());
+				}
+				catch (e: Error ) {
+					throw new ConversionError(e);
+				}
+			}
 			
 			return catalog;
 		}
