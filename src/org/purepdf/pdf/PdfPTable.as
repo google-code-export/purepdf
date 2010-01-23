@@ -53,7 +53,7 @@ package org.purepdf.pdf
 
 		/**
 		 * Create a PdfPTable
-		 * init constructor must be one of the following: Number, PdfPTable, Vector.<Number>
+		 * init constructor must be one of the following: Number, PdfPTable, Vector.&lt;Number&gt;
 		 * 
 		 */
 		public function PdfPTable( obj: Object = null )
