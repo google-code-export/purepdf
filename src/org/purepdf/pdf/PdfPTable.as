@@ -10,7 +10,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.events.PdfPTableEventForwarder;
-	import org.purepdf.pdf.interfaces.PdfPTableEvent;
+	import org.purepdf.pdf.interfaces.IPdfPTableEvent;
 	import org.purepdf.utils.pdf_core;
 
 	/**
@@ -48,7 +48,7 @@ package org.purepdf.pdf
 		private var _skipLastFooter: Boolean = false;
 		private var _splitLate: Boolean = true;
 		private var _splitRows: Boolean = true;
-		private var _tableEvent: PdfPTableEvent;
+		private var _tableEvent: IPdfPTableEvent;
 		private var _extendLastRow: Vector.<Boolean> = Vector.<Boolean>( [false, false] );
 
 		/**
@@ -684,12 +684,12 @@ package org.purepdf.pdf
 			_splitRows = value;
 		}
 
-		public function get tableEvent(): PdfPTableEvent
+		public function get tableEvent(): IPdfPTableEvent
 		{
 			return _tableEvent;
 		}
 
-		public function set tableEvent( event: PdfPTableEvent ): void
+		public function set tableEvent( event: IPdfPTableEvent ): void
 		{
 			if ( event == null )
 				_tableEvent = null;

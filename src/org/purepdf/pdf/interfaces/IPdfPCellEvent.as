@@ -4,7 +4,7 @@ package org.purepdf.pdf.interfaces
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.PdfPCell;
 
-	public interface PdfPCellEvent
+	public interface IPdfPCellEvent
 	{
 		function cellLayout( cell: PdfPCell, position: RectangleElement, canvases: Vector.<PdfContentByte> ): void;
 	}

@@ -12,7 +12,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.events.PdfPCellEventForwarder;
-	import org.purepdf.pdf.interfaces.PdfPCellEvent;
+	import org.purepdf.pdf.interfaces.IPdfPCellEvent;
 
 	public class PdfPCell extends RectangleElement
 	{
@@ -32,7 +32,7 @@ package org.purepdf.pdf
 		private var _useBorderPadding: Boolean = false;
 		private var _useDescender: Boolean;
 		private var _verticalAlignment: int = Element.ALIGN_TOP;
-		private var _cellEvent: PdfPCellEvent;
+		private var _cellEvent: IPdfPCellEvent;
 
 		public function PdfPCell()
 		{
@@ -73,12 +73,12 @@ package org.purepdf.pdf
 			return r;
 		}
 		
-		public function get cellEvent(): PdfPCellEvent
+		public function get cellEvent(): IPdfPCellEvent
 		{
 			return _cellEvent;
 		}
 		
-		public function set cellEvent( value: PdfPCellEvent ): void
+		public function set cellEvent( value: IPdfPCellEvent ): void
 		{
 			if( value == null)
 				_cellEvent = null;
@@ -537,7 +537,7 @@ package org.purepdf.pdf
 			if( cell._table != null )
 				c._table = new PdfPTable( cell._table );
 			// TODO: we should clone the image
-			c._image = cell._image;
+			c._image = ImageElement.getImageInstance( cell._image );
 			c._cellEvent = cell.cellEvent;
 			c._useDescender = cell._useDescender;
 			c._column = ColumnText.duplicate(cell._column);

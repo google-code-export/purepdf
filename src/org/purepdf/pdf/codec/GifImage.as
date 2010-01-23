@@ -414,7 +414,7 @@ package org.purepdf.pdf.codec
 
 			try
 			{
-				img = new ImageRaw( iw, ih, 1, m_bpc, m_out );
+				img = new ImageRaw( null, iw, ih, 1, m_bpc, m_out );
 				var colorspace: PdfArray = new PdfArray();
 				colorspace.add( PdfName.INDEXED );
 				colorspace.add( PdfName.DEVICERGB );

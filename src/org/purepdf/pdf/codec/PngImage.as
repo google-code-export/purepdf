@@ -362,13 +362,13 @@ package org.purepdf.pdf.codec
 			if ( image != null )
 			{
 				if ( colorType == 3 )
-					img = new ImageRaw( width, height, components, bpc, image.buffer );
+					img = new ImageRaw( null, width, height, components, bpc, image.buffer );
 				else
 					img = ImageElement.getRawInstance( width, height, components, bpc, image.buffer );
 			}
 			else
 			{
-				img = new ImageRaw( width, height, components, bpc, idat.toByteArray().buffer );
+				img = new ImageRaw( null, width, height, components, bpc, idat.toByteArray().buffer );
 				img.deflated = true;
 				var decodeparms: PdfDictionary = new PdfDictionary();
 				decodeparms.put( PdfName.BITSPERCOMPONENT, new PdfNumber( bitDepth ) );

@@ -8,7 +8,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
-	import org.purepdf.pdf.interfaces.PdfPCellEvent;
+	import org.purepdf.pdf.interfaces.IPdfPCellEvent;
 
 	public class PdfPRow
 	{
@@ -353,7 +353,7 @@ package org.purepdf.pdf
 					}
 				}
 				
-				var evt: PdfPCellEvent = cell.cellEvent;
+				var evt: IPdfPCellEvent = cell.cellEvent;
 				if (evt != null) 
 				{
 					var rect: RectangleElement = new RectangleElement(cell.getLeft() + xPos, cell.getTop() + yPos - currentMaxHeight, cell.getRight() + xPos, cell.getTop()	+ yPos);

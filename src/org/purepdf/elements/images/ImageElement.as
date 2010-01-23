@@ -2,7 +2,11 @@ package org.purepdf.elements.images
 {
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
+	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 	
+	import org.purepdf.IClonable;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
@@ -10,6 +14,7 @@ package org.purepdf.elements.images
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfStream;
@@ -85,13 +90,84 @@ package org.purepdf.elements.images
 		private var _directReference: PdfIndirectReference;
 		private var _widthPercentage: Number = 100;
 		
+		public function initFromImageElement( other: ImageElement ): void
+		{
+			//var buffer: ByteArray = new ByteArray();
+			//buffer.writeBytes( other._rawData );
+			//buffer.position = 0;
+			
+			_backgroundColor = other._backgroundColor;
+			_border = other._border;
+			_borderColor = other._borderColor;
+			_borderColorBottom = other._borderColorBottom;
+			_borderColorLeft = other._borderColorLeft;
+			_borderColorRight = other._borderColorRight;
+			_borderColorTop = other._borderColorTop;
+			_borderWidth = other._borderWidth;
+			_borderWidthBottom = other._borderWidthBottom;
+			_borderWidthLeft = other._borderWidthLeft;
+			_borderWidthRight = other._borderWidthRight;
+			_borderWidthTop = other._borderWidthTop;
+			llx = other.llx;
+			lly = other.lly;
+			_rotation = other._rotation;
+			urx = other.urx;
+			ury = other.ury;
+			_useVariableBorders = other._useVariableBorders;
+			_XYRatio = other._XYRatio;
+			_absoluteX = other._absoluteX;
+			_absoluteY = other._absoluteY;
+			_additional = other._additional;
+			_alignment = other._alignment;
+			_annotation = other._annotation;
+			_bpc = other._bpc;
+			_colorspace = other._colorspace;
+			_compressionLevel = other._compressionLevel;
+			_deflated = other._deflated;
+			// TODO: should we clone also the mask?
+			_imageMask = other._imageMask;
+			_indentationLeft = other._indentationLeft;
+			_indentationRight = other._indentationRight;
+			_interpolation = other._interpolation;
+			_invert = other._invert;
+			_layer = other._layer;
+			_mask = other._mask;
+			_originalData = other._originalData;
+			_originalType = other._originalType;
+			_rawData = other._rawData;
+			_scaledHeight = other._scaledHeight;
+			_scaledWidth = other._scaledWidth;
+			_smask = other._smask;
+			_transparency = other._transparency ? other._transparency.concat() : null;
+			_type = other._type;
+			alt = other.alt;
+			dpiX = other.dpiX;
+			dpiY = other.dpiY;
+			initialRotation = other.initialRotation;
+			plainHeight = other.plainHeight;
+			plainWidth = other.plainWidth;
+			rotationRadians = other.rotationRadians;
+			_spacingAfter = other._spacingAfter;
+			_spacingBefore = other._spacingBefore;
+			
+			for( var k: int = 0; k < other.template.length; ++k )
+				template[k] = other.template[k] ? ( other.template[k].duplicate() as PdfTemplate ) : null;
+			_directReference = other._directReference;
+			_widthPercentage = other._widthPercentage;
+		}
 
-		public function ImageElement( $url: String )
+		public function ImageElement( obj: Object )
 		{
 			super( 0, 0, 0, 0 );
-			_url = $url;
-			_alignment = DEFAULT;
-			rotationRadians = 0;
+			
+			if( obj is String || obj == null )
+			{
+				_url = String( obj );
+				_alignment = DEFAULT;
+				rotationRadians = 0;
+			} else {
+				initFromImageElement( ImageElement( obj ) );
+			}
 		}
 
 		public function get spacingBefore():Number
@@ -577,6 +653,16 @@ package org.purepdf.elements.images
 		{
 			return new ImageTemplate( template );
 		}
+		
+		public static function getImageInstance( image: ImageElement ): ImageElement
+		{
+			if( image )
+			{
+				var def: Object = getDefinitionByName( getQualifiedClassName( image ) );
+				return new def( image );
+			}
+			return null;
+		}
 
 		/**
 		 * Create a new ImageElement instance from the passed image data
@@ -630,7 +716,7 @@ package org.purepdf.elements.images
 			{
 				throw new NonImplementatioError();
 			}
-			var img: ImageElement = new ImageRaw( width, height, components, bpc, data );
+			var img: ImageElement = new ImageRaw( null, width, height, components, bpc, data );
 			img.transparency = transparency;
 			return img;
 		}

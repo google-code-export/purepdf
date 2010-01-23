@@ -4,9 +4,9 @@ package org.purepdf.elements
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.PdfPTable;
-	import org.purepdf.pdf.interfaces.PdfPTableEvent;
+	import org.purepdf.pdf.interfaces.IPdfPTableEvent;
 
-	public class SimpleTable extends RectangleElement implements PdfPTableEvent, ITextElementaryArray
+	public class SimpleTable extends RectangleElement implements IPdfPTableEvent, ITextElementaryArray
 	{
 		private var _alignment: int = 0;
 		private var _cellpadding: Number = 0;
