@@ -90,6 +90,8 @@ package
 		public function endElement( element: XML ): void
 		{
 			var qName: String = element.name().toString().toLowerCase();
+			var d: String;
+			var e: String;
 
 			try
 			{
@@ -132,7 +134,7 @@ package
 						}
 						if ( "d" == qName )
 						{
-							var d: String = buffers;
+							d = buffers;
 
 							if ( count )
 							{
@@ -146,7 +148,7 @@ package
 						}
 						if ( "e" == qName )
 						{
-							var e: String = buffers;
+							e = buffers;
 
 							if ( count )
 							{
@@ -188,7 +190,7 @@ package
 						}
 						if ( "d" == qName )
 						{
-							var d: String = buffers;
+							d = buffers;
 
 							if ( count )
 							{
@@ -202,7 +204,7 @@ package
 						}
 						if ( "e" == qName )
 						{
-							var e: String = buffers;
+							e = buffers;
 
 							if ( count )
 							{
