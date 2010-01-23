@@ -512,7 +512,7 @@ package org.purepdf.pdf.fonts
 			var firstChar: int = int( params[ 0 ] );
 			var lastChar: int = int( params[ 1 ] );
 			var shortTag: Vector.<int> = Vector.<int>( params[ 2 ] );
-			var subsetp: Boolean = ( params[ 3 ] as Boolean ) && subset;
+			var subsetp: Boolean = ( params[ 3 ] as Boolean ) && _subset;
 			var k: int;
 
 			if ( !subsetp )

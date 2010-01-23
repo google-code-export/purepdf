@@ -4,8 +4,9 @@ package org.purepdf.pdf
 	
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.purepdf.utils.Bytes;
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.utils.Bytes;
 
 	public class PdfEncodings extends ObjectHash
 	{
@@ -83,6 +84,56 @@ package org.purepdf.pdf
 			if( _winansi == null )
 				init();
 			return _winansi;
+		}
+		
+		public static function convertToByte( char1: int, encoding: String ): Bytes 
+		{
+			var result: Bytes = new Bytes();
+			if( encoding == null || encoding.length == 0)
+			{
+				result[0] = ByteBuffer.intToByte( char1 );
+			}
+			
+			var hash: Object;
+			
+			if( encoding == BaseFont.WINANSI)
+				hash = winansi;
+			else if( encoding == PdfObject.TEXT_PDFDOCENCODING )
+				hash = pdfEncoding;
+			
+			if( hash != null )
+			{
+				var c: int = 0;
+				if (char1 < 128 || (char1 > 160 && char1 <= 255))
+					c = char1;
+				else
+					c = hash[char1];
+				if (c != 0)
+				{
+					result[0] = ByteBuffer.intToByte(c);
+					return result;
+				} else
+				{
+					return new Bytes(0);
+				}
+			}
+			if( encoding == PdfObject.TEXT_UNICODE )
+			{
+				var b: Bytes = new Bytes(4);
+				b[0] = -2;
+				b[1] = -1;
+				b[2] = (char1 >> 8);
+				b[3] = (char1 & 0xff);
+				return b;
+			}
+			/*
+			try {
+				return String.valueOf(char1).getBytes(encoding);
+			}
+			catch (UnsupportedEncodingException e) {
+				throw new ExceptionConverter(e);
+			}*/
+			throw new ConversionError();
 		}
 		
 		public static function convertToBytes( text: String, encoding: String ): Bytes

@@ -60,9 +60,10 @@ package org.purepdf.elements
 			return result;
 		}
 		
-		public function append( value: String ): void
+		public function append( value: String ): String
 		{
 			_content += value;
+			return _content;
 		}
 
 		public function get attributes(): HashMap

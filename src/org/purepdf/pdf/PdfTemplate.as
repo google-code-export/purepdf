@@ -119,6 +119,11 @@ package org.purepdf.pdf
 			return _pageResources;
 		}
 		
+		public function set pageResources( value: PageResources ): void
+		{
+			_pageResources = value;
+		}
+		
 		/**
 		 * Constructs the resources used by this template.
 		 *

@@ -38,6 +38,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.iterators.VectorIterator;
 	import org.purepdf.utils.pdf_core;
+	import org.purepdf.pdf.forms.PdfFormField;
 
 	[Event( name="documentClose",	type="org.purepdf.events.PageEvent" )]
 	[Event( name="pageEnd", 		type="org.purepdf.events.PageEvent" )]
@@ -1123,7 +1124,7 @@ package org.purepdf.pdf
 							var ascender: Number = chunk.font.font.getFontDescriptor( BaseFont.ASCENT, fontSize);
 							var descender: Number = chunk.font.font.getFontDescriptor( BaseFont.DESCENT, fontSize);
 							var bgr: Vector.<Object> = Vector.<Object>( chunk.getAttribute(Chunk.BACKGROUND) );
-							graphics.setFillColor( bgr[0] as RGBColor );
+							graphics.setColorFill( bgr[0] as RGBColor );
 							var extra: Vector.<Number> = Vector.<Number>(bgr[1]);
 							graphics.rectangle( xMarker - extra[0],
 								yMarker + descender - extra[1] + chunk.getTextRise(),
@@ -1150,7 +1151,7 @@ package org.purepdf.pdf
 								if (scolor == null)
 									scolor = color;
 								if (scolor != null)
-									graphics.setStrokeColor( scolor );
+									graphics.setColorStroke( scolor );
 								var fsize: Number = chunk.font.size;
 								graphics.setLineWidth( ps[0] + fsize * ps[1] );
 								var shift: Number = ps[2] + fsize * ps[3];
@@ -1279,7 +1280,7 @@ package org.purepdf.pdf
 						if( strokeColor == null )
 							strokeColor = color;
 						if( strokeColor != null )
-							text.setStrokeColor( strokeColor );
+							text.setColorStroke( strokeColor );
 					}
 				}
 
@@ -1287,7 +1288,7 @@ package org.purepdf.pdf
 					rise = Number( fr );
 
 				if ( color != null )
-					text.setFillColor( color );
+					text.setColorFill( color );
 
 				if ( rise != 0 )
 					text.setTextRise( rise );

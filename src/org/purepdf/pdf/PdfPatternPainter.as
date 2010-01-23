@@ -141,16 +141,16 @@ package org.purepdf.pdf
 			super.setCMYKStrokeColor( cyan, magenta, yellow, black );
 		}
 		
-		override public function setStrokeColor(color:RGBColor) : void
+		override public function setColorStroke(color:RGBColor) : void
 		{
 			checkNoColor();
-			super.setStrokeColor( color );
+			super.setColorStroke( color );
 		}
 		
-		override public function setFillColor(color:RGBColor) : void
+		override public function setColorFill(color:RGBColor) : void
 		{
 			checkNoColor();
-			super.setFillColor( color );
+			super.setColorFill( color );
 		}
 		
 		override public function setPatternStroke(p:PdfPatternPainter) : void

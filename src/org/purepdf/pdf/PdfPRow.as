@@ -100,7 +100,7 @@ package org.purepdf.pdf
 				
 				if (background != null) {
 					var backgr: PdfContentByte = canvases[PdfPTable.BACKGROUNDCANVAS];
-					backgr.setFillColor(background);
+					backgr.setColorFill(background);
 					backgr.rectangle(left, bottom, right - left, top - bottom);
 					backgr.fill();
 				}

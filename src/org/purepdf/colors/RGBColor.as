@@ -6,6 +6,8 @@ package org.purepdf.colors
 
 	public class RGBColor extends ObjectHash
 	{
+		private static const FACTOR: Number = 0.7;
+		
 		public static const BLACK: RGBColor =       new RGBColor( 0, 0, 0 );
 		public static const BLUE: RGBColor =        new RGBColor( 0, 0, 255 );
 		public static const CYAN: RGBColor =        new RGBColor( 0, 255, 255 );
@@ -24,6 +26,13 @@ package org.purepdf.colors
 		public function RGBColor( red: int=0, green: int=0, blue: int=0, alpha: int=255 )
 		{
 			setValue( red, green, blue, alpha );
+		}
+		
+		public function darker(): RGBColor
+		{
+			return new RGBColor( Math.max( (red * FACTOR), 0), 
+				Math.max( (green * FACTOR), 0),
+				Math.max( (blue * FACTOR), 0) );
 		}
 		
 		override public function hashCode(): int

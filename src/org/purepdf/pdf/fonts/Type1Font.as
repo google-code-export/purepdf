@@ -101,6 +101,11 @@ package org.purepdf.pdf.fonts
 			tmp[0] = n;
 			return tmp;
 		}
+		
+		override public function getPostscriptFontName():String
+		{
+			return FontName;
+		}
 
 
 		override public function getFontDescriptor( key: int, fontSize: Number ): Number
@@ -220,7 +225,7 @@ package org.purepdf.pdf.fonts
 			var firstChar: int = params[ 0 ] as int;
 			var lastChar: int = params[ 1 ] as int;
 			var shortTag: Vector.<int> = Vector.<int>( params[ 2 ] );
-			var subsetp: Boolean = params[ 3 ] && subset;
+			var subsetp: Boolean = params[ 3 ] && _subset;
 			var k: int;
 
 			if ( !subsetp )

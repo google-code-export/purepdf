@@ -92,7 +92,7 @@ package org.purepdf.pdf.fonts
 		protected var forceWidthsOutput: Boolean = false;
 
 		protected var specialMap: Object;
-		protected var subset: Boolean = true;
+		protected var _subset: Boolean = true;
 		protected var subsetRanges: Vector.<Vector.<int>>;
 		protected var unicodeDifferences: Vector.<int> = new Vector.<int>( 256 );
 		protected var widths: Vector.<int> = new Vector.<int>( 256 );
@@ -100,6 +100,16 @@ package org.purepdf.pdf.fonts
 		public function BaseFont()
 		{
 			super();
+		}
+
+		public function get subset():Boolean
+		{
+			return _subset;
+		}
+
+		public function set subset(value:Boolean):void
+		{
+			_subset = value;
 		}
 
 		public function addSubsetTange( range: Vector.<int> ): void
@@ -130,9 +140,21 @@ package org.purepdf.pdf.fonts
 		{
 			return _fontType;
 		}
+		
+		public function charExists( c: int ): Boolean
+		{
+			var b: Bytes = convertToByte(c);
+			return b.length > 0;
+		}
 
 		[Abstract]
 		public function getFamilyFontName(): Vector.<Vector.<String>>
+		{
+			throw new NonImplementatioError();
+		}
+		
+		[Abstract]
+		public function getPostscriptFontName(): String
 		{
 			throw new NonImplementatioError();
 		}
@@ -251,6 +273,25 @@ package org.purepdf.pdf.fonts
 					return new Bytes();
 
 			return PdfEncodings.convertToBytes( char1, _encoding );
+		}
+		
+		/**
+		 * Converts a char to a Bytes according to the font's encoding.
+		 */
+		internal function convertToByte( char1: int ): Bytes
+		{
+			var code: int = char1;
+			
+			if ( directTextToByte )
+				return PdfEncodings.convertToByte( char1, null );
+			
+			if ( specialMap != null )
+				if ( specialMap[ code ] )
+					return new Bytes( [ specialMap[ code ] ] );
+				else
+					return new Bytes();
+			
+			return PdfEncodings.convertToByte( char1, _encoding );
 		}
 
 		/**
@@ -477,6 +518,7 @@ package org.purepdf.pdf.fonts
 		 */
 		protected static function getBaseName( name: String ): String
 		{
+			return name;
 			if ( StringUtils.endsWith( name, ",Bold" ) )
 				return name.substring( 0, name.length - 5 );
 			else if ( StringUtils.endsWith( name, ",Italic" ) )

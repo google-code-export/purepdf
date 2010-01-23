@@ -6,6 +6,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.forms.PdfFormField;
 	import org.purepdf.utils.pdf_core;
 
 	public class PdfAnnotationsImp extends ObjectHash
@@ -53,7 +54,7 @@ package org.purepdf.pdf
 		protected function addFormFieldRaw( field: PdfFormField ): void
 		{
 			annotations.push( field );
-			var kids: Array = field.kids;
+			var kids: Vector.<PdfFormField> = field.kids;
 			
 			if( kids != null )
 			{
