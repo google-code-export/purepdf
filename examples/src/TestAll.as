@@ -74,6 +74,7 @@ package
 			class_list.push( RegistrationForm );
 			class_list.push( HeaderFooter1 );
 			class_list.push( HeaderFooter2 );
+			class_list.push( SimpleTextField );
 			
 			total_number = class_list.length;
 		}
