@@ -23,6 +23,13 @@ package org.purepdf.colors
 		public static const YELLOW: RGBColor =      new RGBColor( 255, 255, 0 );
 		private var value: int;
 
+		/**
+		 * 
+		 * @param red	an int value between 0 and 255
+		 * @param green	an int value between 0 and 255
+		 * @param blue	an int value between 0 and 255
+		 * @param alpha	an int value between 0 and 255
+		 */
 		public function RGBColor( red: int=0, green: int=0, blue: int=0, alpha: int=255 )
 		{
 			setValue( red, green, blue, alpha );
