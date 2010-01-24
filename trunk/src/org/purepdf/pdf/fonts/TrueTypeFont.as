@@ -53,10 +53,15 @@ package org.purepdf.pdf.fonts
 		protected var rf: ByteArray;
 		protected var style: String = "";
 		protected var tables: HashMap;
-		protected var ttcIndex: String;
+		protected var ttcIndex: String = "";
 		protected var underlinePosition: int = 0;
 		protected var underlineThickness: int = 0;
 
+		public function TrueTypeFont()
+		{
+			super();
+		}
+		
 		/** Creates a new TrueType font.
 		 * @param enc the encoding to be applied to this font
 		 * @param emb true if the font is to be embedded in the PDF
@@ -64,7 +69,7 @@ package org.purepdf.pdf.fonts
 		 * @throws DocumentError
 		 * @throws IOError
 		 */
-		public function TrueTypeFont( $ttFile: String, $enc: String, $emb: Boolean, $ttfAfm: Vector.<int>, $justNames: Boolean, $forceRead: Boolean )
+		public function init( $ttFile: String, $enc: String, $emb: Boolean, $ttfAfm: Vector.<int>, $justNames: Boolean, $forceRead: Boolean ): void
 		{
 			justNames = $justNames;
 			var nameBase: String = getBaseName( $ttFile );
@@ -169,10 +174,10 @@ package org.purepdf.pdf.fonts
 			if ( cmapExt != null )
 				return cmapExt.getValue( c ) as Vector.<int>;
 
-			if ( !fontSpecific && cmap31 != null )
+			if ( !_fontSpecific && cmap31 != null )
 				return cmap31.getValue( c ) as Vector.<int>;
 
-			if ( fontSpecific && cmap10 != null )
+			if ( _fontSpecific && cmap10 != null )
 				return cmap10.getValue( c ) as Vector.<int>;
 
 			if ( cmap31 != null )
@@ -212,9 +217,9 @@ package org.purepdf.pdf.fonts
 				var rg: Vector.<int> = ( subsetRanges == null && directoryOffset > 0 ) ? Vector.<int>( [ 0, 0xffff ] ) : compactRanges( subsetRanges );
 				var usemap: HashMap;
 
-				if ( !fontSpecific && cmap31 != null )
+				if ( !_fontSpecific && cmap31 != null )
 					usemap = cmap31;
-				else if ( fontSpecific && cmap10 != null )
+				else if ( _fontSpecific && cmap10 != null )
 					usemap = cmap10;
 				else if ( cmap31 != null )
 					usemap = cmap31;
@@ -275,7 +280,7 @@ package org.purepdf.pdf.fonts
 			}
 			dic.put( PdfName.BASEFONT, new PdfName( subsetPrefix + fontName + style ) );
 
-			if ( !fontSpecific )
+			if ( !_fontSpecific )
 			{
 				for ( k = firstChar; k <= lastChar; ++k )
 				{
@@ -368,7 +373,7 @@ package org.purepdf.pdf.fonts
 
 			if ( isFixedPitch )
 				flags |= 1;
-			flags |= fontSpecific ? 4 : 32;
+			flags |= _fontSpecific ? 4 : 32;
 
 			if ( ( head.macStyle & 2 ) != 0 )
 				flags |= 64;
@@ -557,7 +562,7 @@ package org.purepdf.pdf.fonts
 							}
 							else
 							{
-								if ( fontSpecific )
+								if ( _fontSpecific )
 									metrics = getMetricsTT( k );
 								else
 									metrics = getMetricsTT( unicodeDifferences[ k ] );
@@ -863,7 +868,7 @@ package org.purepdf.pdf.fonts
 		 * @throws DocumentError
 		 * @throws IOError
 		 */
-		private function process( preload: Boolean ): void
+		protected function process( preload: Boolean ): void
 		{
 			tables = new HashMap();
 
@@ -1010,7 +1015,7 @@ package org.purepdf.pdf.fonts
 			rf.position = table_location[ 0 ];
 			rf.position += 2;
 			var num_tables: int = rf.readUnsignedShort();
-			fontSpecific = false;
+			_fontSpecific = false;
 			var map10: int = 0;
 			var map31: int = 0;
 			var map30: int = 0;
@@ -1025,7 +1030,7 @@ package org.purepdf.pdf.fonts
 
 				if ( platId == 3 && platSpecId == 0 )
 				{
-					fontSpecific = true;
+					_fontSpecific = true;
 					map30 = offset;
 				}
 				else if ( platId == 3 && platSpecId == 1 )
@@ -1220,7 +1225,7 @@ package org.purepdf.pdf.fonts
 					r = new Vector.<int>( 2, true );
 					r[ 0 ] = glyph;
 					r[ 1 ] = getGlyphWidth( r[ 0 ] );
-					h.put( ( fontSpecific ? ( ( j & 0xff00 ) == 0xf000 ? j & 0xff : j ) : j ), r );
+					h.put( ( _fontSpecific ? ( ( j & 0xff00 ) == 0xf000 ? j & 0xff : j ) : j ), r );
 				}
 			}
 			return h;

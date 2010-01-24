@@ -88,7 +88,7 @@ package org.purepdf.pdf.fonts
 		protected var directTextToByte: Boolean = false;
 		protected var embedded: Boolean;
 		protected var fastWinansi: Boolean = false;
-		protected var fontSpecific: Boolean = true;
+		protected var _fontSpecific: Boolean = true;
 		protected var forceWidthsOutput: Boolean = false;
 
 		protected var specialMap: Object;
@@ -100,6 +100,21 @@ package org.purepdf.pdf.fonts
 		public function BaseFont()
 		{
 			super();
+		}
+		
+		public function getUnicodeDifferences( index: int ): int
+		{
+			return unicodeDifferences[index];
+		}
+
+		public function get fontSpecific():Boolean
+		{
+			return _fontSpecific;
+		}
+
+		public function set fontSpecific(value:Boolean):void
+		{
+			_fontSpecific = value;
 		}
 
 		public function get subset():Boolean
@@ -314,7 +329,7 @@ package org.purepdf.pdf.fonts
 			throw new NonImplementatioError();
 		}
 
-		private function _getWidthI( code: int ): int
+		protected function _getWidthI( code: int ): int
 		{
 			if ( fastWinansi )
 			{
@@ -334,7 +349,7 @@ package org.purepdf.pdf.fonts
 			}
 		}
 
-		private function _getWidthS( text: String ): int
+		protected function _getWidthS( text: String ): int
 		{
 			var total: int = 0;
 			var k: int;
@@ -420,20 +435,13 @@ package org.purepdf.pdf.fonts
 			{
 				if( encoding == IDENTITY_H || encoding == IDENTITY_V)
 				{
-					throw new NonImplementatioError();
+					fontBuilt = new TrueTypeFontUnicode();
+					TrueTypeFontUnicode(fontBuilt).init( name, encoding, embedded, ttfAfm, false, forceRead );
 				} else {
-					fontBuilt = new TrueTypeFont(name, encoding, embedded, ttfAfm, false, forceRead);
-					fontBuilt.fastWinansi = encoding == CP1252;
+					fontBuilt = new TrueTypeFont();
+					TrueTypeFont(fontBuilt).init( name, encoding, embedded, ttfAfm, false, forceRead );
+					TrueTypeFont(fontBuilt).fastWinansi = encoding == CP1252;
 				}
-					
-					
-				/*if ( encoding == IDENTITY_H || encoding == IDENTITY_V )
-				   fontBuilt = new TrueTypeFontUnicode( name, encoding, embedded, ttfAfm, forceRead );
-				   else
-				   {
-				   fontBuilt = new TrueTypeFont( name, encoding, embedded, ttfAfm, false, forceRead );
-				   fontBuilt.fastWinansi = encoding == CP1252;
-				 }*/
 			}
 			else if ( isCJKFont )
 				throw new NonImplementatioError(); //fontBuilt = new CJKFont( name, encoding, embedded );
@@ -463,7 +471,7 @@ package org.purepdf.pdf.fonts
 			{
 				throw new NonImplementatioError();
 			}
-			else if ( fontSpecific )
+			else if ( _fontSpecific )
 			{
 				for ( k = 0; k < 256; ++k )
 				{

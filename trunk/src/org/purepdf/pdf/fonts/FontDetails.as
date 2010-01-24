@@ -1,5 +1,6 @@
 package org.purepdf.pdf.fonts
 {
+	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
 	
 	import it.sephiroth.utils.HashMap;
@@ -7,10 +8,13 @@ package org.purepdf.pdf.fonts
 	
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.ByteBuffer;
+	import org.purepdf.pdf.PdfEncodings;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.Utilities;
 	import org.purepdf.utils.pdf_core;
 
 	[ExcludeClass]
@@ -25,6 +29,7 @@ package org.purepdf.pdf.fonts
 		private var _longTag: HashMap;
 		private var _shortTag: Vector.<int>;
 		private var _symbolic: Boolean;
+		private var _ttu: TrueTypeFontUnicode;
 
 		/**
 		 * Each font used in a document has an instance of this class.
@@ -50,7 +55,9 @@ package org.purepdf.pdf.fonts
 					break;
 				
 				case BaseFont.FONT_TYPE_TTUNI:
-					throw new NonImplementatioError( "TrueType unicode not yet supported" );
+					_longTag = new HashMap();
+					_ttu = baseFont as TrueTypeFontUnicode;
+					_symbolic = baseFont.fontSpecific;
 					break;
 			}
 		}
@@ -93,7 +100,59 @@ package org.purepdf.pdf.fonts
 					break;
 				
 				case BaseFont.FONT_TYPE_TTUNI:
-					throw new NonImplementatioError();
+					len = text.length;
+					var metrics: Vector.<int> = null;
+					var glyph: String = "";
+					var i: int = 0;
+					
+					if( symbolic )
+					{
+						b = PdfEncodings.convertToBytes(text, "symboltt");
+						len = b.length;
+						for ( k = 0; k < len; ++k )
+						{
+							metrics = _ttu.getMetricsTT(b[k] & 0xff);
+							if (metrics == null)
+								continue;
+							_longTag.put( metrics[0], Vector.<int>([ metrics[0], metrics[1], _ttu.getUnicodeDifferences(b[k] & 0xff)]) );
+							glyph += String.fromCharCode( metrics[0] );
+						}
+					} else 
+					{
+						for(  k = 0; k < len; ++k )
+						{
+							var val: int;
+							if( Utilities.isSurrogatePair2(text, k) )
+							{
+								val = Utilities.convertToUtf32_2(text, k);
+								k++;
+							} else 
+							{
+								val = text.charCodeAt(k);
+							}
+							metrics = _ttu.getMetricsTT(val);
+							
+							if (metrics == null)
+								continue;
+							
+							var m0: int = metrics[0];
+							var gl: int = m0;
+							if( !_longTag.containsKey(gl) )
+								_longTag.put(gl, Vector.<int>([m0, metrics[1], val]) );
+							glyph += String.fromCharCode( m0 );
+						}
+					}
+					
+					b = new Bytes();
+					b.buffer.writeMultiByte( glyph, "unicodeFFFE" );
+					
+					/*trace( b.length );
+					
+					for( var a: int = 0; a < b.size(); ++a )
+					{
+						trace( b[a] );
+					}*/
+					return b;
 					break;
 			}
 			return b;
