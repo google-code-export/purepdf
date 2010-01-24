@@ -87,7 +87,7 @@ package org.purepdf.pdf.fonts
 			EncodingScheme = StringUtils.trim( EncodingScheme );
 
 			if ( EncodingScheme == "AdobeStandardEncoding" || EncodingScheme == "StandardEncoding" )
-				fontSpecific = false;
+				_fontSpecific = false;
 
 			if ( !StringUtils.startsWith( encoding, "#" ) )
 				PdfEncodings.convertToBytes( " ", enc );
@@ -269,7 +269,7 @@ package org.purepdf.pdf.fonts
 			dic.put( PdfName.BASEFONT, new PdfName( FontName ) );
 			var stdEncoding: Boolean = encoding == "Cp1252" || encoding == "MacRoman";
 
-			if ( !fontSpecific || specialMap != null )
+			if ( !_fontSpecific || specialMap != null )
 			{
 				for ( k = firstChar; k <= lastChar; ++k )
 				{
@@ -307,7 +307,7 @@ package org.purepdf.pdf.fonts
 				}
 			}
 
-			if ( specialMap != null || forceWidthsOutput || !( builtinFont && ( fontSpecific || stdEncoding ) ) )
+			if ( specialMap != null || forceWidthsOutput || !( builtinFont && ( _fontSpecific || stdEncoding ) ) )
 			{
 				dic.put( PdfName.FIRSTCHAR, new PdfNumber( firstChar ) );
 				dic.put( PdfName.LASTCHAR, new PdfNumber( lastChar ) );
@@ -348,7 +348,7 @@ package org.purepdf.pdf.fonts
 
 			if ( IsFixedPitch )
 				flags |= 1;
-			flags |= fontSpecific ? 4 : 32;
+			flags |= _fontSpecific ? 4 : 32;
 
 			if ( ItalicAngle < 0 )
 				flags |= 64;
