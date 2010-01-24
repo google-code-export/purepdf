@@ -210,45 +210,6 @@ package org.purepdf.pdf
 			return this;
 		}
 		
-		private static function convertToBytes( i: int ): Bytes
-		{
-			var size: int = int( Math.floor(Math.log(i) / Math.log(10)) );
-			if (i % 100 != 0) {
-				size += 2;
-			}
-			if (i % 10 != 0) {
-				size++;
-			}
-			if (i < 100) {
-				size++;
-				if (i < 10) {
-					size++;
-				}
-			}
-			size--;
-			
-			var cache: Bytes = new Bytes();
-			size--;
-			if (i < 100) {
-				cache[0] = '0'.charCodeAt(0);
-			}
-			if (i % 10 != 0) {
-				cache[size--] = bytes[i % 10];
-			}
-			if (i % 100 != 0) {
-				cache[size--] = bytes[int(i / 10) % 10];
-				cache[size--] = '.'.charCodeAt(0);
-			}
-			size = int(Math.floor(Math.log(i) / Math.log(10))) - 1;
-			var add: int = 0;
-			while(add < size )
-			{
-				cache[add] = bytes[ int(i / int(Math.pow(10, size - add + 1))) % 10];
-				add++;
-			}
-			return cache;
-		}
-		
 		public static function formatDouble( d: Number, buf: ByteBuffer = null ): String
 		{
 			var negative: Boolean = false;

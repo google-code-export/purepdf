@@ -144,7 +144,7 @@ package org.purepdf.pdf
 				content.append_number( c ).append_char( ' ' );
 				content.append_number( height ).append_char( ' ' );
 				content.append_number( x ).append_char( ' ' );
-				content.append_number( y ).append( " cm" );
+				content.append_number( y ).append_string( " cm" );
 
 				if ( inlineImage )
 				{

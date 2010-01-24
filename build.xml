@@ -24,7 +24,7 @@
 			<try>
 				<compc
 					output="${output_dir}/${output_filename}"
-					locale="en_US" failonerror="false">
+					locale="en_US" failonerror="false" fork="true" maxmemory="512m">
 					<source-path path-element="src"></source-path>
 					<include-sources dir="src" includes="*">
 					</include-sources>

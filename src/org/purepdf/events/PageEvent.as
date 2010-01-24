@@ -13,5 +13,10 @@ package org.purepdf.events
 		{
 			super( type, bubbles, cancelable );
 		}
+		
+		override public function clone() : Event
+		{
+			return new PageEvent( type, bubbles, cancelable );
+		}
 	}
 }

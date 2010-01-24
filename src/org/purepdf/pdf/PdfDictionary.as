@@ -120,7 +120,6 @@ package org.purepdf.pdf
 			os.writeInt( '<'.charCodeAt(0) );
 			os.writeInt( '<'.charCodeAt(0) );
 			
-			var arr: Array;
 			var value: PdfObject;
 			var type: int = 0;
 			
