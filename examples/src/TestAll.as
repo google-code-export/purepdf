@@ -31,6 +31,7 @@ package
 			class_list.push( SeparationColors );
 			class_list.push( ShadingPatterns );
 			class_list.push( ShadingMultipleColors );
+			class_list.push( ShadingGradientTransparency );
 			class_list.push( SimpleAnnotation );
 			class_list.push( SlideShow );
 			class_list.push( ViewerExample );
