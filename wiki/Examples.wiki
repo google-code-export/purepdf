@@ -59,7 +59,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/RegistrationForm.as RegistrationForm.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/SeparationColors.as SeparationColors.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingPatterns.as ShadingPatterns.as]
-  # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingMultipleColors.as shadingMultipleColors.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingMultipleColors.as ShadingMultipleColors.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/SimpleAnnotation.as SimpleAnnotation.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/SlideShow.as SlideShow.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/TableExample2.as TableExample2.as]
