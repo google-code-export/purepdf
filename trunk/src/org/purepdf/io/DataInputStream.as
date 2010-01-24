@@ -8,7 +8,6 @@ package org.purepdf.io
 	public class DataInputStream extends FilterInputStream
 	{
 		private var bytearr: Bytes = new Bytes();
-		private var chararr: Vector.<String> = new Vector.<String>( 80 );
 
 		public function DataInputStream( stream: InputStream )
 		{

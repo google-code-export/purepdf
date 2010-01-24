@@ -41,5 +41,22 @@ package org.purepdf.pdf
 			func.dictionary.put(PdfName.N, new PdfNumber(n));
 			return func;
 		}
+		
+		public static function type3( writer: PdfWriter, domain: Vector.<Number>, range: Vector.<Number>, functions: Vector.<PdfFunction>, bounds: Vector.<Number>, encode: Vector.<Number> ): PdfFunction
+		{
+			var func: PdfFunction = new PdfFunction(writer);
+			func.dictionary = new PdfDictionary();
+			func.dictionary.put(PdfName.FUNCTIONTYPE, new PdfNumber(3));
+			func.dictionary.put(PdfName.DOMAIN, new PdfArray(domain));
+			if (range != null)
+				func.dictionary.put(PdfName.RANGE, new PdfArray(range));
+			var array: PdfArray = new PdfArray();
+			for (var k: int = 0; k < functions.length; ++k )
+				array.add(functions[k].reference );
+			func.dictionary.put(PdfName.FUNCTIONS, array);
+			func.dictionary.put(PdfName.BOUNDS, new PdfArray(bounds));
+			func.dictionary.put(PdfName.ENCODE, new PdfArray(encode));
+			return func;
+		}
 	}
 }

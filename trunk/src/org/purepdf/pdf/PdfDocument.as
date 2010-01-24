@@ -155,6 +155,8 @@ package org.purepdf.pdf
 			if ( _writer != null && _writer.isPaused() )
 				return false;
 
+			var ptable: PdfPTable;
+			
 			switch ( element.type )
 			{
 				case Element.PRODUCER:
@@ -269,7 +271,7 @@ package org.purepdf.pdf
 					break;
 
 				case Element.PTABLE:
-					var ptable: PdfPTable = PdfPTable(element);
+					ptable = PdfPTable(element);
 					if( ptable.size <= ptable.headerRows )
 						break;
 					
@@ -284,7 +286,7 @@ package org.purepdf.pdf
 				case Element.TABLE:
 					if (element is SimpleTable )
 					{
-						var ptable: PdfPTable = SimpleTable(element).createPdfPTable();
+						ptable = SimpleTable(element).createPdfPTable();
 						if( ptable.size <= ptable.headerRows )
 							break;
 						
@@ -297,7 +299,6 @@ package org.purepdf.pdf
 					break;
 				
 				default:
-					trace( "PdfDocument.add. Invalid type: " + element.type );
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
 			lastElementType = element.type;

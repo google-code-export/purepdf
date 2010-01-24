@@ -1,10 +1,10 @@
 package org.purepdf.pdf
 {
-	import org.purepdf.utils.Bytes;
+	import org.purepdf.IOutputStream;
 
 	public class PdfLiteral extends PdfObject
 	{
-		private var position: int;
+		private var _position: int;
 		
 		
 		public function PdfLiteral( text: String = null )
@@ -15,6 +15,11 @@ package org.purepdf.pdf
 				bytes = PdfEncodings.convertToBytes( text, null );
 		}
 		
+		public function get position():int
+		{
+			return _position;
+		}
+
 		override public function toString(): String
 		{
 			var res: String = "";
@@ -23,6 +28,13 @@ package org.purepdf.pdf
 				res += String.fromCharCode( bytes[a] );
 			}
 			return res;
+		}
+		
+		override public function toPdf(writer:PdfWriter, os:IOutputStream) : void
+		{
+			if( os is OutputStreamCounter )
+				_position = OutputStreamCounter(os).getCounter();
+			super.toPdf( writer, os );
 		}
 	}
 }

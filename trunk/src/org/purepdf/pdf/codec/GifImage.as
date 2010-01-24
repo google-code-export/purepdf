@@ -498,7 +498,7 @@ package org.purepdf.pdf.codec
 				throw new IOError( "the file does not contain any valid image" );
 		}
 
-		protected static function newBpc( bpc: int ): int
+		private static function newBpc( bpc: int ): int
 		{
 			switch ( bpc )
 			{

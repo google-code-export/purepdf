@@ -60,7 +60,7 @@ package org.purepdf.factories
 					break;
 				var j: int = pos;
 
-				while (!roman[++j].pre);
+				while (!roman[++j].pre){}
 
 				if (index + roman[j].value >= dig.value)
 				{

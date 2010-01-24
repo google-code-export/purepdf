@@ -8,14 +8,30 @@ package org.purepdf.events
 	{
 		public static const GENERIC_TAG: String = 'genericTag';
 		
-		public var rect: RectangleElement;
-		public var tag: String;
+		protected var _rect: RectangleElement;
+		protected var _tag: String;
 		
 		public function ChunkEvent( type: String, r: RectangleElement, t: String )
 		{
 			super( type, false, false );
-			rect = r;
-			tag = t;
+			_rect = r;
+			_tag = t;
 		}
+
+		override public function clone() : Event
+		{
+			return new ChunkEvent( type, rect, tag );
+		}
+
+		public function get tag():String
+		{
+			return _tag;
+		}
+
+		public function get rect():RectangleElement
+		{
+			return _rect;
+		}
+
 	}
 }

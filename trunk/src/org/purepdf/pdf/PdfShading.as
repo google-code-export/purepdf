@@ -171,6 +171,31 @@ package org.purepdf.pdf
 			return null;
 		}
 
+		/**
+		 * Create a liear gradient shading with 2 colors
+		 * <p>Example:
+		 * <blockquote><pre>
+		 * var cb: PdfContentByte = document.getDirectContent();
+		 * var axial: PdfShading = PdfShading.simpleAxial(
+		 * 					writer, 0, 0, 297, 420, 
+		 * 					RGBColor.BLACK, RGBColor.BLUE
+		 * 	);
+		 * cb.paintShading( axial );
+		 * </pre></blockquote>
+		 * </p>
+		 * 
+		 * 
+		 * @param x				left side of the color rect bound
+		 * @param y				top side of the color rect bound
+		 * @param x1			right side of the color rect bound
+		 * @param y1			bottom side of the color rect bound
+		 * @param startColor	gradient start color
+		 * @param endColor		gradient end color  
+		 * @param extendStart
+		 * @param extendEnd	
+		 * 
+		 * @see org.purepdf.colors.RGBColor
+		 */
 		public static function simpleAxial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, startColor: RGBColor, endColor: RGBColor
 			, extendStart: Boolean=true, extendEnd: Boolean=true ): PdfShading
 		{
@@ -189,6 +214,87 @@ package org.purepdf.pdf
 				, 1 );
 			return type3( writer, startColor, Vector.<Number>( [ x0, y0, r0, x1, y1, r1 ] ), null, fn, Vector.<Boolean>( [ extendStart, extendEnd ] ) );
 		}
+
+		/**
+		 * Create a linear gradient shading with multiple colors ( for 2 colors use simpleAxial )
+		 * <p>Example:
+		 * <blockquote><pre>
+		 * var cb: PdfContentByte = document.getDirectContent();
+		 * var axial: PdfShading = PdfShading.complexAxial(
+		 * 					writer, 0, 0, 297, 420, 
+		 * 					Vector.&lt;RGBColor&gt;([ RGBColor.BLACK, RGBColor.BLUE, RGBColor.CYAN ]),
+		 * 					Vector.&lt;Number&gt;([ 0, 0.5, 1 ] )
+		 * 	);
+		 * cb.paintShading( axial );
+		 * </pre></blockquote>
+		 * </p>
+		 * 
+		 * 
+		 * @param x				left side of the color rect bound
+		 * @param y				top side of the color rect bound
+		 * @param x1			right side of the color rect bound
+		 * @param y1			bottom side of the color rect bound
+		 * @param colors		Vector of RGBColor
+		 * @param ratios		Vector of Number. This is the color spread ratios. 
+		 * 						If null is passed a default ratio will be created  
+		 * @param extendStart
+		 * @param extendEnd	
+		 * 
+		 * @throws ArgumentError	if colors.length ne ratios.length
+		 * @see org.purepdf.colors.RGBColor
+		 */
+		public static function complexAxial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, colors: Vector.<RGBColor> , ratios: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): PdfShading 
+		{
+			var ratio_null: Boolean = ratios == null;
+			if( ratio_null )
+				ratios = new Vector.<Number>( colors.length, true )
+			
+			if( colors.length != ratios.length )
+			{
+				throw new ArgumentError("colors length must equal ratios lenght");
+			}
+			
+			var k: int;
+			var factor: Number = 1/colors.length;
+			var colorArrays: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>( colors.length, true );
+			var functions: Vector.<PdfFunction> = new Vector.<PdfFunction>( ratios.length-1, true );
+			var encode: Vector.<Number> = new Vector.<Number>( functions.length*2, true );
+			var bounds: Vector.<Number> = new Vector.<Number>( functions.length-1, true );
+			
+			for( k = 0; k < colors.length; ++k)
+			{
+				if( ratio_null )
+					ratios[k] = factor * k;
+				else
+					ExtendedColor.normalize( ratios[k] );
+				
+				if( k > 0 )
+					checkCompatibleColors( colors[0], colors[k] );
+				colorArrays[k] = getColorArray( colors[k] );
+			}
+			
+			for( k = 0; k < functions.length; ++k )
+			{
+				functions[k] = PdfFunction.type2( writer,
+						Vector.<Number>([0,1]),
+						null,
+						colorArrays[k],
+						colorArrays[k+1],
+						1);
+				
+				encode[2*k+0] = 0;
+				encode[2*k+1] = 1;
+				
+				if( k < bounds.length )
+					bounds[k] = ratios[k+1];
+					
+			}
+			
+			var fn: PdfFunction = PdfFunction.type3(writer, Vector.<Number>([0,1]), null, functions, bounds, encode);
+				
+			return type2(writer, colors[0], Vector.<Number>([x0, y0, x1, y1]), null, fn, Vector.<Boolean>([extendStart, extendEnd]) );
+		}
+		
 
 		public static function throwColorSpaceErrror(): void
 		{

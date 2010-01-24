@@ -48,8 +48,8 @@ package org.purepdf.elements.images
 		public static const UNDERLYING: int = 8;
 		protected static var serialId: Number = 0;
 		protected var _XYRatio: Number = 0;
-		protected var _absoluteX: Number = NaN;
-		protected var _absoluteY: Number = NaN;
+		protected var _absoluteX: Number = Number.NaN;
+		protected var _absoluteY: Number = Number.NaN;
 		protected var _additional: PdfDictionary;
 		protected var _alignment: int;
 		protected var _annotation: Annotation = null;
@@ -267,12 +267,12 @@ package org.purepdf.elements.images
 
 		public function get hasAbsoluteX(): Boolean
 		{
-			return !isNaN( absoluteX );
+			return !isNaN( _absoluteX );
 		}
 
 		public function get hasAbsoluteY(): Boolean
 		{
-			return !isNaN( absoluteY );
+			return !isNaN( _absoluteY );
 		}
 
 		public function get imageMask(): ImageElement
