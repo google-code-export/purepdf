@@ -34,20 +34,20 @@ package org.purepdf.pdf.forms
 		public static const VISIBLE: int = 0;
 		public static const VISIBLE_BUT_DOES_NOT_PRINT: int = 2;
 		private static var _fieldKeys: HashMap;
-		protected var alignment: int = Element.ALIGN_LEFT;
-		protected var backgroundColor: RGBColor;
-		protected var borderColor: RGBColor;
-		protected var borderStyle: int = PdfBorderDictionary.STYLE_SOLID;
-		protected var borderWidth: Number = BORDER_WIDTH_THIN;
+		protected var _alignment: int = Element.ALIGN_LEFT;
+		protected var _backgroundColor: RGBColor;
+		protected var _borderColor: RGBColor;
+		protected var _borderStyle: int = PdfBorderDictionary.STYLE_SOLID;
+		protected var _borderWidth: Number = BORDER_WIDTH_THIN;
 		protected var box: RectangleElement;
 		protected var fieldName: String;
-		protected var font: BaseFont;
+		protected var _font: BaseFont;
 		protected var _fontSize: Number = 0;
 		protected var maxCharacterLength: int;
 		protected var options: int;
 		protected var rotation: int = 0;
-		protected var text: String = "";
-		protected var textColor: RGBColor;
+		protected var _text: String = "";
+		protected var _textColor: RGBColor;
 		protected var visibility: int = 0;
 		protected var writer: PdfWriter;
 
@@ -58,6 +58,86 @@ package org.purepdf.pdf.forms
 			fieldName = $fieldName;
 		}
 		
+		public function get borderWidth():Number
+		{
+			return _borderWidth;
+		}
+
+		public function set borderWidth(value:Number):void
+		{
+			_borderWidth = value;
+		}
+
+		public function get borderStyle():int
+		{
+			return _borderStyle;
+		}
+
+		public function set borderStyle(value:int):void
+		{
+			_borderStyle = value;
+		}
+
+		public function get borderColor():RGBColor
+		{
+			return _borderColor;
+		}
+
+		public function set borderColor(value:RGBColor):void
+		{
+			_borderColor = value;
+		}
+
+		public function get backgroundColor():RGBColor
+		{
+			return _backgroundColor;
+		}
+
+		public function set backgroundColor(value:RGBColor):void
+		{
+			_backgroundColor = value;
+		}
+
+		public function get alignment():int
+		{
+			return _alignment;
+		}
+
+		public function set alignment(value:int):void
+		{
+			_alignment = value;
+		}
+
+		public function get textColor():RGBColor
+		{
+			return _textColor;
+		}
+
+		public function set textColor(value:RGBColor):void
+		{
+			_textColor = value;
+		}
+
+		public function get text():String
+		{
+			return _text;
+		}
+
+		public function set text(value:String):void
+		{
+			_text = value;
+		}
+
+		public function get font():BaseFont
+		{
+			return _font;
+		}
+
+		public function set font(value:BaseFont):void
+		{
+			_font = value;
+		}
+
 		public function get fontSize():Number
 		{
 			return _fontSize;
@@ -74,10 +154,10 @@ package org.purepdf.pdf.forms
 		 */
 		protected function getRealFont(): BaseFont
 		{
-			if (font == null)
+			if (_font == null)
 				return BaseFont.createFont( BaseFont.HELVETICA, BaseFont.WINANSI, false);
 			else
-				return font;
+				return _font;
 		}
 
 		
@@ -97,30 +177,30 @@ package org.purepdf.pdf.forms
 			}
 			app.saveState();
 			
-			if (backgroundColor != null) {
-				app.setColorFill(backgroundColor);
+			if (_backgroundColor != null) {
+				app.setColorFill(_backgroundColor);
 				app.rectangle(0, 0, box.width, box.height);
 				app.fill();
 			}
 			
-			if (borderStyle == PdfBorderDictionary.STYLE_UNDERLINE) {
-				if (borderWidth != 0 && borderColor != null) {
-					app.setColorStroke(borderColor);
-					app.setLineWidth(borderWidth);
-					app.moveTo(0, borderWidth / 2);
-					app.lineTo(box.width, borderWidth / 2);
+			if (_borderStyle == PdfBorderDictionary.STYLE_UNDERLINE) {
+				if (_borderWidth != 0 && _borderColor != null) {
+					app.setColorStroke(_borderColor);
+					app.setLineWidth(_borderWidth);
+					app.moveTo(0, _borderWidth / 2);
+					app.lineTo(box.width, _borderWidth / 2);
 					app.stroke();
 				}
 			}
-			else if (borderStyle == PdfBorderDictionary.STYLE_BEVELED) {
-				if (borderWidth != 0 && borderColor != null) {
-					app.setColorStroke(borderColor);
-					app.setLineWidth(borderWidth);
-					app.rectangle(borderWidth / 2, borderWidth / 2, box.width - borderWidth, box.height - borderWidth);
+			else if (_borderStyle == PdfBorderDictionary.STYLE_BEVELED) {
+				if (_borderWidth != 0 && _borderColor != null) {
+					app.setColorStroke(_borderColor);
+					app.setLineWidth(_borderWidth);
+					app.rectangle(_borderWidth / 2, _borderWidth / 2, box.width - _borderWidth, box.height - _borderWidth);
 					app.stroke();
 				}
 				// beveled
-				var actual: RGBColor = backgroundColor;
+				var actual: RGBColor = _backgroundColor;
 				if (actual == null)
 					actual = RGBColor.WHITE;
 				app.setGrayFill(1);
@@ -128,11 +208,11 @@ package org.purepdf.pdf.forms
 				app.setColorFill(actual.darker());
 				drawBottomFrame(app);
 			}
-			else if (borderStyle == PdfBorderDictionary.STYLE_INSET) {
-				if (borderWidth != 0 && borderColor != null) {
-					app.setColorStroke(borderColor);
-					app.setLineWidth(borderWidth);
-					app.rectangle(borderWidth / 2, borderWidth / 2, box.width - borderWidth, box.height - borderWidth);
+			else if (_borderStyle == PdfBorderDictionary.STYLE_INSET) {
+				if (_borderWidth != 0 && _borderColor != null) {
+					app.setColorStroke(_borderColor);
+					app.setLineWidth(_borderWidth);
+					app.rectangle(_borderWidth / 2, _borderWidth / 2, box.width - _borderWidth, box.height - _borderWidth);
 					app.stroke();
 				}
 				
@@ -142,17 +222,17 @@ package org.purepdf.pdf.forms
 				drawBottomFrame(app);
 			}
 			else {
-				if (borderWidth != 0 && borderColor != null) {
-					if (borderStyle == PdfBorderDictionary.STYLE_DASHED)
+				if (_borderWidth != 0 && _borderColor != null) {
+					if (_borderStyle == PdfBorderDictionary.STYLE_DASHED)
 						app.setLineDash2(3, 0);
-					app.setColorStroke(borderColor);
-					app.setLineWidth(borderWidth);
-					app.rectangle(borderWidth / 2, borderWidth / 2, box.width - borderWidth, box.height - borderWidth);
+					app.setColorStroke(_borderColor);
+					app.setLineWidth(_borderWidth);
+					app.rectangle(_borderWidth / 2, _borderWidth / 2, box.width - _borderWidth, box.height - _borderWidth);
 					app.stroke();
 					if ((options & COMB) != 0 && maxCharacterLength > 1) {
 						var step: Number = box.width / maxCharacterLength;
-						var yb: Number = borderWidth / 2;
-						var yt: Number = box.height - borderWidth / 2;
+						var yb: Number = _borderWidth / 2;
+						var yt: Number = box.height - _borderWidth / 2;
 						for (var k: int = 1; k < maxCharacterLength; ++k) {
 							var x: Number = step * k;
 							app.moveTo(x, yb);
@@ -168,25 +248,25 @@ package org.purepdf.pdf.forms
 		
 		private function drawTopFrame( app: PdfAppearance ): void
 		{
-			app.moveTo(borderWidth, borderWidth);
-			app.lineTo(borderWidth, box.height - borderWidth);
-			app.lineTo(box.width - borderWidth, box.height - borderWidth);
-			app.lineTo(box.width - 2 * borderWidth, box.height - 2 * borderWidth);
-			app.lineTo(2 * borderWidth, box.height - 2 * borderWidth);
-			app.lineTo(2 * borderWidth, 2 * borderWidth);
-			app.lineTo(borderWidth, borderWidth);
+			app.moveTo(_borderWidth, _borderWidth);
+			app.lineTo(_borderWidth, box.height - _borderWidth);
+			app.lineTo(box.width - _borderWidth, box.height - _borderWidth);
+			app.lineTo(box.width - 2 * _borderWidth, box.height - 2 * _borderWidth);
+			app.lineTo(2 * _borderWidth, box.height - 2 * _borderWidth);
+			app.lineTo(2 * _borderWidth, 2 * _borderWidth);
+			app.lineTo(_borderWidth, _borderWidth);
 			app.fill();
 		}
 		
 		private function drawBottomFrame( app: PdfAppearance ): void
 		{
-			app.moveTo(borderWidth, borderWidth);
-			app.lineTo(box.width - borderWidth, borderWidth);
-			app.lineTo(box.width - borderWidth, box.height - borderWidth);
-			app.lineTo(box.width - 2 * borderWidth, box.height - 2 * borderWidth);
-			app.lineTo(box.width - 2 * borderWidth, 2 * borderWidth);
-			app.lineTo(2 * borderWidth, 2 * borderWidth);
-			app.lineTo(borderWidth, borderWidth);
+			app.moveTo(_borderWidth, _borderWidth);
+			app.lineTo(box.width - _borderWidth, _borderWidth);
+			app.lineTo(box.width - _borderWidth, box.height - _borderWidth);
+			app.lineTo(box.width - 2 * _borderWidth, box.height - 2 * _borderWidth);
+			app.lineTo(box.width - 2 * _borderWidth, 2 * _borderWidth);
+			app.lineTo(2 * _borderWidth, 2 * _borderWidth);
+			app.lineTo(_borderWidth, _borderWidth);
 			app.fill();
 		}
 

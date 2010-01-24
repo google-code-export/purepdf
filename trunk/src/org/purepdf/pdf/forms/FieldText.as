@@ -86,11 +86,11 @@ package org.purepdf.pdf.forms
 			
 			var topChoice: int = getTopChoice();
 			
-			if (text == null)
-				text = "";
+			if (_text == null)
+				_text = "";
 			
 			if (topChoice >= 0)
-				text = uchoices[topChoice];
+				_text = uchoices[topChoice];
 			
 			var field: PdfFormField = null;
 			var mix: Vector.<Vector.<String>> = null;
@@ -134,8 +134,8 @@ package org.purepdf.pdf.forms
 						}
 					} else {
 						if (choiceSelections.length < 2) {
-							field.valueAsString = text;
-							field.defaultValueAsString = text;
+							field.valueAsString = _text;
+							field.defaultValueAsString = _text;
 						} else {
 							writeMultipleValues( field, null );
 						}
@@ -152,7 +152,7 @@ package org.purepdf.pdf.forms
 				}
 			}
 			
-			field.borderStyle = new PdfBorderDictionary(borderWidth, borderStyle, new PdfDashPattern(3));
+			field.borderStyle = new PdfBorderDictionary(_borderWidth, _borderStyle, new PdfDashPattern(3));
 			var tp: PdfAppearance;
 			if (isList) {
 				tp = getListAppearance();
@@ -164,15 +164,15 @@ package org.purepdf.pdf.forms
 			field.setAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
 			var da: PdfAppearance = tp.duplicate() as PdfAppearance;
 			da.setFontAndSize(getRealFont(), fontSize);
-			if (textColor == null)
+			if (_textColor == null)
 				da.setGrayFill(0);
 			else
-				da.setColorFill(textColor);
+				da.setColorFill(_textColor);
 			field.defaultAppearanceString = da;
-			if (borderColor != null)
-				field.mkBorderColor = borderColor;
-			if (backgroundColor != null)
-				field.mkBackgroundColor = backgroundColor;
+			if (_borderColor != null)
+				field.mkBorderColor = _borderColor;
+			if (_backgroundColor != null)
+				field.mkBackgroundColor = _backgroundColor;
 			switch (visibility) {
 				case HIDDEN:
 					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_HIDDEN;
@@ -208,11 +208,11 @@ package org.purepdf.pdf.forms
 			if (usize == 0)
 				usize = 12;
 			
-			var borderExtra: Boolean = borderStyle == PdfBorderDictionary.STYLE_BEVELED || borderStyle == PdfBorderDictionary.STYLE_INSET;
-			var h: Number = box.height - borderWidth * 2;
-			var offsetX: Number = borderWidth;
+			var borderExtra: Boolean = _borderStyle == PdfBorderDictionary.STYLE_BEVELED || _borderStyle == PdfBorderDictionary.STYLE_INSET;
+			var h: Number = box.height - _borderWidth * 2;
+			var offsetX: Number = _borderWidth;
 			if (borderExtra) {
-				h -= borderWidth * 2;
+				h -= _borderWidth * 2;
 				offsetX *= 2;
 			}
 			
@@ -229,7 +229,7 @@ package org.purepdf.pdf.forms
 			app.rectangle( offsetX, offsetX, box.width - 2 * offsetX, box.height - 2 * offsetX);
 			app.clip();
 			app.newPath();
-			var fcolor: RGBColor = (textColor == null) ? GrayColor.GRAYBLACK : textColor;
+			var fcolor: RGBColor = (_textColor == null) ? GrayColor.GRAYBLACK : _textColor;
 			
 			
 			app.setColorFill(new RGBColor(10, 36, 106));
@@ -308,7 +308,7 @@ package org.purepdf.pdf.forms
 				options &= ~MULTILINE;
 			var field: PdfFormField = PdfFormField.createTextField( writer, false, false, maxCharacterLength );
 			field.setWidget( box, PdfAnnotation.HIGHLIGHT_INVERT );
-			switch (alignment) {
+			switch (_alignment) {
 				case Element.ALIGN_CENTER:
 					field.quadding = PdfFormField.Q_CENTER;
 					break;
@@ -320,8 +320,8 @@ package org.purepdf.pdf.forms
 				field.mkRotation = rotation;
 			if (fieldName != null) {
 				field.fieldName = fieldName;
-				if ( text != "" )
-					field.valueAsString = text;
+				if ( _text != "" )
+					field.valueAsString = _text;
 				if (defaultText != null)
 					field.defaultValueAsString = defaultText;
 				if ((options & READ_ONLY) != 0)
@@ -342,20 +342,20 @@ package org.purepdf.pdf.forms
 					field.fieldFlags = PdfFormField.FF_COMB;
 			}
 			
-			field.borderStyle = new PdfBorderDictionary( borderWidth, borderStyle, new PdfDashPattern(3) );
+			field.borderStyle = new PdfBorderDictionary( _borderWidth, _borderStyle, new PdfDashPattern(3) );
 			var tp: PdfAppearance = getAppearance();
 			field.setAppearance( PdfAnnotation.APPEARANCE_NORMAL, tp);
 			var da: PdfAppearance = tp.duplicate() as PdfAppearance;
 			da.setFontAndSize(getRealFont(), fontSize);
-			if (textColor == null)
+			if (_textColor == null)
 				da.setGrayFill(0);
 			else
-				da.setColorFill(textColor);
+				da.setColorFill(_textColor);
 			field.defaultAppearanceString = da;
-			if (borderColor != null)
-				field.mkBorderColor = borderColor;
-			if (backgroundColor != null)
-				field.mkBackgroundColor = backgroundColor;
+			if (_borderColor != null)
+				field.mkBorderColor = _borderColor;
+			if (_backgroundColor != null)
+				field.mkBackgroundColor = _backgroundColor;
 			switch (visibility) {
 				case HIDDEN:
 					field.flags = PdfAnnotation.FLAGS_PRINT | PdfAnnotation.FLAGS_HIDDEN;
@@ -380,16 +380,16 @@ package org.purepdf.pdf.forms
 		{
 			var app: PdfAppearance = getBorderAppearance();
 			app.beginVariableText();
-			if (text == null || text.length == 0) {
+			if (_text == null || _text.length == 0) {
 				app.endVariableText();
 				return app;
 			}
 			
-			var borderExtra: Boolean = borderStyle == PdfBorderDictionary.STYLE_BEVELED || borderStyle == PdfBorderDictionary.STYLE_INSET;
-			var h: Number = box.height - borderWidth * 2 - extraMarginTop;
-			var bw2: Number = borderWidth;
+			var borderExtra: Boolean = _borderStyle == PdfBorderDictionary.STYLE_BEVELED || _borderStyle == PdfBorderDictionary.STYLE_INSET;
+			var h: Number = box.height - _borderWidth * 2 - extraMarginTop;
+			var bw2: Number = _borderWidth;
 			if (borderExtra) {
-				h -= borderWidth * 2;
+				h -= _borderWidth * 2;
 				bw2 *= 2;
 			}
 			var offsetX: Number = Math.max(bw2, 1);
@@ -400,13 +400,13 @@ package org.purepdf.pdf.forms
 			app.newPath();
 			var ptext: String;
 			if ((options & PASSWORD) != 0)
-				ptext = obfuscatePassword(text);
+				ptext = obfuscatePassword(_text);
 			else if ((options & MULTILINE) == 0)
-				ptext = removeCRLF(text);
+				ptext = removeCRLF(_text);
 			else
-				ptext = text; //fixed by Kazuya Ujihara (ujihara.jp)
+				ptext = _text; //fixed by Kazuya Ujihara (ujihara.jp)
 			var ufont: BaseFont = getRealFont();
-			var fcolor: RGBColor = (textColor == null) ? GrayColor.GRAYBLACK : textColor;
+			var fcolor: RGBColor = (_textColor == null) ? GrayColor.GRAYBLACK : _textColor;
 			var rtl: int = checkRTL(ptext) ? PdfWriter.RUN_DIRECTION_LTR : PdfWriter.RUN_DIRECTION_NO_BIDI;
 			var usize: Number = _fontSize;
 			var phrase: Phrase = composePhrase(ptext, ufont, fcolor, usize);
@@ -421,7 +421,7 @@ package org.purepdf.pdf.forms
 							usize = 12;
 						var step: Number = Math.max((usize - 4) / 10, 0.2);
 						ct.setSimpleColumn(0, -h, width, 0);
-						ct.alignment = alignment;
+						ct.alignment = _alignment;
 						ct.runDirection = rtl;
 						for (; usize > 4; usize -= step) {
 							ct.yLine = 0;
@@ -442,7 +442,7 @@ package org.purepdf.pdf.forms
 				var offsetY: Number = offsetX + h - ufont.getFontDescriptor(BaseFont.BBOXURY, usize);
 				ct.setSimpleColumn(extraMarginLeft + 2 * offsetX, -20000, box.width - 2 * offsetX, offsetY + leading);
 				ct.setLeading(leading);
-				ct.alignment = alignment;
+				ct.alignment = _alignment;
 				ct.runDirection = rtl;
 				ct.setText(phrase);
 				ct.go();
@@ -471,16 +471,16 @@ package org.purepdf.pdf.forms
 				if ((options & COMB) != 0 && maxCharacterLength > 0) {
 					var textLen: int = Math.min(maxCharacterLength, ptext.length);
 					var position: int = 0;
-					if (alignment == Element.ALIGN_RIGHT)
+					if (_alignment == Element.ALIGN_RIGHT)
 						position = maxCharacterLength - textLen;
-					else if (alignment == Element.ALIGN_CENTER)
+					else if (_alignment == Element.ALIGN_CENTER)
 						position = (maxCharacterLength - textLen) / 2;
 					var step: Number = (box.width - extraMarginLeft) / maxCharacterLength;
 					var start: Number = step / 2 + position * step;
-					if (textColor == null)
+					if (_textColor == null)
 						app.setGrayFill(0);
 					else
-						app.setColorFill(textColor);
+						app.setColorFill(_textColor);
 					app.beginText();
 					for ( var k: int = 0; k < phrase.size; ++k )
 					{
@@ -500,7 +500,7 @@ package org.purepdf.pdf.forms
 				}
 				else {
 					var x: Number;
-					switch (alignment) {
+					switch (_alignment) {
 						case Element.ALIGN_RIGHT:
 							x = extraMarginLeft + box.width - (2 * offsetX);
 							break;
@@ -510,7 +510,7 @@ package org.purepdf.pdf.forms
 						default:
 							x = extraMarginLeft + (2 * offsetX);
 					}
-					ColumnText.showTextAligned( app, alignment, phrase, x, offsetY - extraMarginTop, 0, rtl, 0);
+					ColumnText.showTextAligned( app, _alignment, phrase, x, offsetY - extraMarginTop, 0, rtl, 0);
 				}
 			}
 			app.restoreState();
