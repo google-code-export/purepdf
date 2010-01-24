@@ -11,7 +11,7 @@ package
 	{
 		public function ShadingMultipleColors(d_list:Array=null)
 		{
-			super(d_list);
+			super(["Create a rectangle box with a multiple colors linear gradient fill"]);
 		}
 		
 		override protected function execute( event: Event = null ) : void

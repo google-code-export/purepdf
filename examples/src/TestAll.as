@@ -24,11 +24,13 @@ package
 			class_list.push( DrawingPaths );
 			class_list.push( GraphicState );
 			class_list.push( ImageTypes );
+			class_list.push( Transparency );
 			class_list.push( Layers );
 			class_list.push( LineStyles );
 			class_list.push( Patterns );
 			class_list.push( SeparationColors );
 			class_list.push( ShadingPatterns );
+			class_list.push( ShadingMultipleColors );
 			class_list.push( SimpleAnnotation );
 			class_list.push( SlideShow );
 			class_list.push( ViewerExample );

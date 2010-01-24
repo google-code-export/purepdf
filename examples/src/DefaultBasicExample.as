@@ -1,5 +1,7 @@
 package
 {
+	import cmodule.as3_jpeg_wrapper.CLibInit;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -39,6 +41,9 @@ package
 		internal var buffer: ByteArray;
 		internal var filename: String;
 		internal var description_list: Array;
+
+		public static var jpegLoader: CLibInit = new CLibInit();
+		public static var jpegLib: Object = jpegLoader.init();
 
 		public function DefaultBasicExample( d_list: Array = null )
 		{

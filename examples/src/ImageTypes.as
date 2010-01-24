@@ -31,14 +31,9 @@ package
 		[Embed(source="assets/hitchcock.gif", mimeType="application/octet-stream")]
 		private var cls3: Class;
 		
-		private var jpegLoader: CLibInit;
-		private var jpegLib: Object;
-		
 		public function ImageTypes()
 		{
 			super();
-			jpegLoader = new CLibInit();
-			jpegLib = jpegLoader.init();
 		}
 		
 		override protected function execute(event:Event=null) : void
