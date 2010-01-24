@@ -57,6 +57,7 @@ package org.purepdf.pdf
 		public static const ROYAL_QUARTO: ReadOnlyRectangle = new ReadOnlyRectangle( 0, 0, 671, 884 );
 		public static const SMALL_PAPERBACK: ReadOnlyRectangle = new ReadOnlyRectangle( 0, 0, 314, 504 );
 		public static const _11X17: ReadOnlyRectangle = new ReadOnlyRectangle( 0, 0, 792, 1224 );
+		public static const POSTCARD: ReadOnlyRectangle = new ReadOnlyRectangle( 0, 0, 283, 416 );
 
 		/**
 		 * Try to return a RectangleElement base on a passed String.
