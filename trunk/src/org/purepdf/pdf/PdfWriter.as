@@ -40,7 +40,7 @@ package org.purepdf.pdf
 		public static const NAME: String = 'purepdf';
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
-		public static const RELEASE: String = '0.0.1_ALPHA';
+		public static const RELEASE: String = '0.0.1';
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
 		public static const VERSION: String = NAME + ' ' + RELEASE;
 		protected var OCGLocked: PdfArray = new PdfArray();
