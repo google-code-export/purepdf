@@ -156,7 +156,6 @@ package org.purepdf.pdf
 				return b;
 			}
 			
-			
 			var hash: Object;
 			
 			if( encoding == BaseFont.WINANSI )
@@ -193,6 +192,32 @@ package org.purepdf.pdf
 				b2.writeBytes( byte, 0, ptr );
 				return b2;
 			}
+			
+			if( encoding == PdfObject.TEXT_UNICODE )
+			{
+				byte = new Bytes();
+				try
+				{
+					byte.buffer.writeMultiByte( text, "unicode" );
+					return byte;
+				} catch( e: Error )
+				{
+					throw e;
+				}
+			}
+			
+			try
+			{
+				byte = new Bytes();
+				byte.buffer.writeMultiByte( text, "unicodeFFFE" );
+				byte.position = 0;
+				
+				return byte;
+			} catch( e: Error )
+			{
+				throw e;
+			}
+			
 			return byte;
 		}
 		
