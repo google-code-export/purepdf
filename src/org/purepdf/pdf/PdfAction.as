@@ -1,6 +1,8 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.pdf_core;
 
 	/**
 	 * A PdfAction defines an action that can be triggered
@@ -15,6 +17,40 @@ package org.purepdf.pdf
 		
 		public function PdfAction()
 		{
+		}
+		
+		/** 
+		 * Create a JavaScript action. If the JavaScript is smaller than
+		 * 50 characters it will be placed as a string, otherwise it will
+		 * be placed as a compressed stream.
+		 * 
+		 * @param code the JavaScript code
+		 * @param writer the writer for this action
+		 * 
+		 * @return the JavaScript action
+		 */    
+		public static function javaScript( code: String, writer: PdfWriter, unicode: Boolean = false ): PdfAction
+		{
+			var js: PdfAction = new PdfAction();
+			js.put(PdfName.S, PdfName.JAVASCRIPT);
+			
+			if ( unicode && code.length < 50 ) {
+				js.put(PdfName.JS, new PdfString(code, PdfObject.TEXT_UNICODE));
+			} else if( !unicode && code.length < 100 )
+			{
+				js.put(PdfName.JS, new PdfString(code));
+			} else {
+				try {
+					var b: Bytes = PdfEncodings.convertToBytes( code, unicode ? PdfObject.TEXT_UNICODE : PdfObject.TEXT_PDFDOCENCODING);
+					var stream: PdfStream = new PdfStream(b);
+					stream.flateCompress( writer.getCompressionLevel() );
+					js.put(PdfName.JS, writer.pdf_core::addToBody(stream).getIndirectReference() );
+				}
+				catch (e: Error ) {
+					js.put(PdfName.JS, new PdfString(code));
+				}
+			}
+			return js;
 		}
 		
 		/**
