@@ -18,7 +18,7 @@ package org.purepdf.elements
 	 * <pre>
 	 * var p1: Paragraph = new Paragraph("This is a paragraph");
 	 * 
-	 * FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+	 * FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
 	 * var p2: Paragraph = new Paragraph("This is a paragraph", new Font( Font.HELVETICA, 12, Font.NORMAL ) );
 	 * </pre>
 	 *

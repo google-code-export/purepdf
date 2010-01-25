@@ -1,11 +1,12 @@
 package org.purepdf.pdf.fonts
 {
-	import flash.errors.EOFError;
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
+	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.collections.iterators.Iterator;
+	
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfArray;
