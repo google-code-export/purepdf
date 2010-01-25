@@ -205,7 +205,9 @@ package org.purepdf.pdf.fonts
 						baseFont.writeFont( writer, indirectReference, Vector.<Object>([_longTag, subset]) );
 						break;
 				}
-			} catch( e: Error ) {
+			} catch( e: Error ) 
+			{
+				trace( e.getStackTrace() );
 				throw new ConversionError( e );
 			}
 		}
