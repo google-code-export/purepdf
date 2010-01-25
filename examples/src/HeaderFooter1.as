@@ -25,8 +25,8 @@ package
 			super(["This example shows how to add headers and footer","to a pdf document"]);
 			registerDefaultFont();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, BuiltinFonts.HELVETICA_BOLD );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ITALIC, BuiltinFonts.TIMES_ITALIC );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new BuiltinFonts.HELVETICA_BOLD() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ITALIC, new BuiltinFonts.TIMES_ITALIC() );
 			
 			headerFont = new Font( Font.TIMES_ROMAN, 10, Font.ITALIC, new RGBColor(100, 100, 100) );
 			footerFont = new Font( Font.HELVETICA, 10, Font.BOLD );

@@ -17,13 +17,13 @@ package
 			
 		public function TextRender()
 		{
-			super( null );
+			super( ["Render text in different ways using","the pdf text render mode"] );
+			FontsResourceFactory.getInstance().registerFont("CarolinaLTStd.otf", new cls1() );
 		}
 
 		override protected function execute( event: Event = null ): void
 		{
 			super.execute();
-			FontsResourceFactory.getInstance().registerFont("CarolinaLTStd.otf", cls1);
 			
 			createDocument();
 			document.open();

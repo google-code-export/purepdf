@@ -14,13 +14,12 @@ package
 		public function HelloSplitCharacter(d_list:Array=null)
 		{
 			super(["This example will show how to create your own","custom ISplitCharacter class in order to use","custom newline split behaviors"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Split character");
 			document.open();

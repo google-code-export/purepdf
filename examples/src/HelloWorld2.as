@@ -19,11 +19,11 @@ package
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, BuiltinFonts.HELVETICA_BOLD );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, BuiltinFonts.HELVETICA_OBLIQUE );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_BOLDITALIC, BuiltinFonts.TIMES_BOLDITALIC );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER, BuiltinFonts.COURIER );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.ZAPFDINGBATS, BuiltinFonts.ZAPFDINGBATS );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new BuiltinFonts.HELVETICA_BOLD() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, new BuiltinFonts.HELVETICA_OBLIQUE() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_BOLDITALIC, new BuiltinFonts.TIMES_BOLDITALIC() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER, new BuiltinFonts.COURIER() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.ZAPFDINGBATS, new BuiltinFonts.ZAPFDINGBATS() );
 			
 			createDocument( "Hello World" );
 			document.open();

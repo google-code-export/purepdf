@@ -16,14 +16,15 @@ package
 		public function ListExample2(d_list:Array=null)
 		{
 			super(["Create ordered list using roman, greek","and zapfdingbats list bullet styles"]);
+
+			registerDefaultFont();
+			FontsResourceFactory.getInstance().registerFont( BaseFont.SYMBOL, new BuiltinFonts.SYMBOL() );
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.SYMBOL, BuiltinFonts.SYMBOL );
 			
 			createDocument();
 			document.open();

@@ -18,15 +18,16 @@ package
 		public function PhraseExample(d_list:Array=null)
 		{
 			super(["Create a document adding some phrase elements"]);
+
+			registerDefaultFont();
+			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ITALIC, new BuiltinFonts.TIMES_ITALIC() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER_BOLD, new BuiltinFonts.COURIER_BOLD() );
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ITALIC, BuiltinFonts.TIMES_ITALIC );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER_BOLD, BuiltinFonts.COURIER_BOLD );
 			
 			createDocument();
 			document.open();

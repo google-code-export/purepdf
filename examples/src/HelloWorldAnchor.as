@@ -19,16 +19,16 @@ package
 		public function HelloWorldAnchor()
 		{
 			super(["This example shows how to add external links using anchors","and creates links with different styles"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, _font1 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE, _font2 );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, _font3 );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new _font1() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLDOBLIQUE, new _font2() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_OBLIQUE, new _font3() );
 			
 			createDocument("Hello World Anchor");
 			document.open();

@@ -14,10 +14,12 @@ package {
 	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
-	public class BarCodes extends DefaultBasicExample {
-		public function BarCodes(d_list : Array = null) {
+	public class BarCodes extends DefaultBasicExample 
+	{
+		
+		public function BarCodes() {
 			super(["Create barcodes"]);
-			FontsResourceFactory.getInstance().registerFont(BaseFont.HELVETICA, BuiltinFonts.HELVETICA);
+			registerDefaultFont();
 		}
 
 		override protected function execute(event : Event = null) : void {

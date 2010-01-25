@@ -13,13 +13,12 @@ package
 		public function ChunkHorizontalScale(d_list:Array=null)
 		{
 			super(["This example shows how to horizontal scale a text chunk"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument();
 			document.open();

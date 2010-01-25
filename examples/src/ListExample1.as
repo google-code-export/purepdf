@@ -14,14 +14,13 @@ package
 	{
 		public function ListExample1( d_list: Array=null )
 		{
-			super( d_list );
+			super(["Ordered list example"]);
+			registerDefaultFont();
 		}
 
 		override protected function execute( event: Event=null ): void
 		{
 			super.execute();
-
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 
 			createDocument( "List example" );
 			document.open();

@@ -12,13 +12,12 @@ package
 		public function HelloWorld(d_list:Array=null)
 		{
 			super(["This example shows how to add a simple text to the document","using a Paragraph element"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument( "Hello World" );
 			document.open();

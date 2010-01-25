@@ -12,13 +12,12 @@ package
 		public function HelloWorld3()
 		{
 			super(["Write text directly on the graphics content", "and assign a custom matrix to it"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World 3");
 			document.open();

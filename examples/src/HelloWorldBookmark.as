@@ -10,13 +10,12 @@ package
 		public function HelloWorldBookmark(d_list:Array=null)
 		{
 			super(["This example will show how to create chapters","and assign bookmarks to them"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World Bookmars");
 			document.open();

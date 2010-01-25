@@ -16,13 +16,12 @@ package
 		public function GenericTag(d_list:Array=null)
 		{
 			super(["Create chunks with custom tags associated to them","then use event listeners to manage the chunks creation"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument();
 			document.addEventListener( ChunkEvent.GENERIC_TAG, onGenericTag );

@@ -13,14 +13,13 @@ package
 		public function HelloWorld4()
 		{
 			super(["Example of text alignment"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
 
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			
 			createDocument("Hello World 4");
 			document.open();
 			

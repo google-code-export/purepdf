@@ -61,7 +61,7 @@ package
 		
 		protected function registerDefaultFont(): void
 		{
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
 		}
 
 		protected function addResultTime( time: Number ): void

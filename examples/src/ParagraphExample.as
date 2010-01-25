@@ -16,15 +16,14 @@ package
 		public function ParagraphExample()
 		{
 			super(["Create a document adding some paragraph elements to it"]);
+			registerDefaultFont();
+			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ROMAN, new BuiltinFonts.TIMES_ROMAN() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER, new BuiltinFonts.COURIER() );
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.TIMES_ROMAN, BuiltinFonts.TIMES_ROMAN );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER, BuiltinFonts.COURIER );
 			
 			createDocument();
 			document.open();

@@ -33,7 +33,7 @@ package
 			
 			registerDefaultFont();
 			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, BuiltinFonts.HELVETICA_BOLD );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new BuiltinFonts.HELVETICA_BOLD() );
 			
 			var bf: BaseFont = BaseFont.createFont( BaseFont.HELVETICA, BaseFont.WINANSI, false, true );
 			font = new Font( Font.HELVETICA, 12, Font.NORMAL, null, bf );

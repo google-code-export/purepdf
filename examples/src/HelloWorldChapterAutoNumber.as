@@ -9,14 +9,13 @@ package
 	{
 		public function HelloWorldChapterAutoNumber(d_list:Array=null)
 		{
-			super(d_list);
+			super(["Create chapters with automatic numbers"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World Bookmars");
 			document.open();

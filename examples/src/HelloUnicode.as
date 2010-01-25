@@ -13,7 +13,7 @@ package
 		public function HelloUnicode()
 		{
 			super(["Embed a japanese font and write","some unicode chars"]);
-			//registerDefaultFont();
+			FontsResourceFactory.getInstance().registerFont("japanese_unicode.ttf", new arialu() );
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -22,7 +22,6 @@ package
 			createDocument();
 			document.open();
 			
-			FontsResourceFactory.getInstance().registerFont("japanese_unicode.ttf", arialu );
 			
 			var bf: BaseFont = BaseFont.createFont( "japanese_unicode.ttf", BaseFont.IDENTITY_H, false, true );
 			var cb: PdfContentByte = document.getDirectContent();

@@ -16,16 +16,17 @@ package
 		public function HelloWorldTTF()
 		{
 			super(["This example shows how to load and use .otf and  .ttf font files","and embed them to the output pdf document"]);
+			registerDefaultFont();
+			
+			// register the 2 more fonts
+			FontsResourceFactory.getInstance().registerFont("CarolinaLTStd.otf", new cls1());
+			FontsResourceFactory.getInstance().registerFont("Herculanum.ttf", new cls2());
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
 
-			// register the 2 fonts
-			FontsResourceFactory.getInstance().registerFont("CarolinaLTStd.otf", cls1);
-			FontsResourceFactory.getInstance().registerFont("Herculanum.ttf", cls2);
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World Embedded fonts");
 			document.open();

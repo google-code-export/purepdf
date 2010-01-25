@@ -13,13 +13,12 @@ package
 		public function HelloWorld5()
 		{
 			super(["Write some text and move it","Then create a template and write text on it"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("HelloWorld5");
 			document.open();

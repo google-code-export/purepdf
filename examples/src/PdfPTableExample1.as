@@ -14,8 +14,7 @@ package
 		public function PdfPTableExample1(d_list:Array=null)
 		{
 			super(["This example will create a siple table","with a header row created using column span"]);
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null):void

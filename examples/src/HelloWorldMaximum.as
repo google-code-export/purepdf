@@ -13,13 +13,12 @@ package
 		public function HelloWorldMaximum(d_list:Array=null)
 		{
 			super(["This example shows how you can change the document units","The Minimum UserUnit is 1 (1 unit = 1/72 inch)","Maximum is 75,000"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World maximum");
 			document.open();

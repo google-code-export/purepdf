@@ -30,7 +30,7 @@ package
 		public function FlyerExample()
 		{
 			super(["Read from an html document and print the resulting pdf"]);
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void

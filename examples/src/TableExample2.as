@@ -64,8 +64,9 @@ package
 		public function TableExample2( d_list: Array = null )
 		{
 			super( ["Create a more advanced table parsing an xml for","rows and columns.","It will also automatically split the table accross pages."] );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, BuiltinFonts.HELVETICA_BOLD );
+			
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new BuiltinFonts.HELVETICA_BOLD() );
 			
 			font11	= FontFactory.getFont( BaseFont.HELVETICA_BOLD, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 11 );
 			font14	= FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED, 14, -1, new CMYKColor(0.9, 0.7, 0.4, 0.1) );
@@ -237,8 +238,24 @@ package
 			p.alignment = Element.ALIGN_CENTER;
 			document.add( p );
 			
-			addEventListener("parseComplete", onXMLParseComplete );
+			if( this.parent )
+				addEventListener("parseComplete", onXMLParseComplete );
+			
 			parse( xml );
+			
+			if( this.parent == null )
+			{
+				document.add( table );
+				var p: Paragraph = new Paragraph( "Sem.: 1 = first semester, 2 = second semester, Y = annual course");
+				p.alignment = Element.ALIGN_RIGHT;
+				document.add( p );
+				p = new Paragraph("P-T = courses can be taken on a part-time basis, 1 = first part, 2 = second part");
+				p.alignment = Element.ALIGN_RIGHT;
+				document.add(p);
+				
+				document.close();
+				save();
+			}
 		}
 		
 		private function onXMLParseComplete( event: Event ): void

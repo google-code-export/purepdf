@@ -13,13 +13,12 @@ package
 		public function HelloWorldInternalAnchor(d_list:Array=null)
 		{
 			super(["This example shows how to create","internal links to the same pdf document", "using PdfAnchor"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument("Hello World internal link");
 			document.open();

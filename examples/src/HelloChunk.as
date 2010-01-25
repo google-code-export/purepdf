@@ -7,12 +7,14 @@ package
 	import org.purepdf.elements.*;
 	import org.purepdf.pdf.*;
 	import org.purepdf.pdf.fonts.*;
+	import org.purepdf.resources.BuiltinFonts;
 
 	public class HelloChunk extends DefaultBasicExample
 	{
 		public function HelloChunk(d_list:Array=null)
 		{
 			super(["Create a document using single chunks","set underline, color and superscript attributes to the chunks"]);
+			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER_BOLD, new BuiltinFonts.COURIER_BOLD() );
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -21,8 +23,6 @@ package
 			
 			createDocument("Hello world chunk");
 			document.open();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.COURIER_BOLD, BuiltinFonts.COURIER_BOLD );
 			
 			var font: Font = new Font( Font.COURIER, -1, Font.BOLD );
 			font.color = RGBColor.BLUE;

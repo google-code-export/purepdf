@@ -14,6 +14,7 @@ package
 		public function HelloWorldGoto()
 		{
 			super(["Simple pdf document with one chunk","and an action assigned to it"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -22,8 +23,6 @@ package
 			
 			createDocument();
 			document.open();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			var font: Font = new Font();
 			font.style = Font.UNDERLINE;

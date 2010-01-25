@@ -14,13 +14,12 @@ package
 		public function ChunkSkew(d_list:Array=null)
 		{
 			super(["Adds chunks and set different skew factors"]);
+			registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
 		{
 			super.execute();
-			
-			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
 			
 			createDocument();
 			document.open();
