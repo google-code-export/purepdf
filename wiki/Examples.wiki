@@ -27,6 +27,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloChunk.as HelloChunk.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloSplitCharacter.as HelloSplitCharacter.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld.as HelloWorld.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloUnicode.as HelloUnicode.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld2.as HelloWorld2.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld3.as HelloWorld3.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld4.as HelloWorld4.as]
