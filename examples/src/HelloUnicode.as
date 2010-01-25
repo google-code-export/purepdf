@@ -8,12 +8,12 @@ package
 
 	public class HelloUnicode extends DefaultBasicExample
 	{
-		[Embed(source="assets/fonts/Arial Unicode.ttf", mimeType="application/octet-stream")] private var arialu: Class;
+		[Embed(source="assets/fonts/AoyagiKouzanFont2.ttf", mimeType="application/octet-stream")] private var arialu: Class;
 		
 		public function HelloUnicode()
 		{
-			super(null);
-			registerDefaultFont();
+			super(["Embed a japanese font and write","some unicode chars"]);
+			//registerDefaultFont();
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -22,14 +22,14 @@ package
 			createDocument();
 			document.open();
 			
-			FontsResourceFactory.getInstance().registerFont("ArialUnicode.ttf", arialu );
+			FontsResourceFactory.getInstance().registerFont("japanese_unicode.ttf", arialu );
 			
-			var bf: BaseFont = BaseFont.createFont( "ArialUnicode.ttf", BaseFont.IDENTITY_H, false, true );
+			var bf: BaseFont = BaseFont.createFont( "japanese_unicode.ttf", BaseFont.IDENTITY_H, false, true );
 			var cb: PdfContentByte = document.getDirectContent();
 			cb.beginText();
-			cb.setFontAndSize( bf, 12 );
+			cb.setFontAndSize( bf, 32 );
 			cb.moveText( 36, 800 );
-			cb.showText( "\u7121\u540d" );
+			cb.showText( "\u7121\u540d\u540e\u540f\u5410\u5421\u5413" );
 			cb.endText();
 			
 			document.close();

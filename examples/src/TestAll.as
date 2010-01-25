@@ -75,6 +75,7 @@ package
 			class_list.push( HeaderFooter1 );
 			class_list.push( HeaderFooter2 );
 			class_list.push( SimpleTextField );
+			class_list.push( HelloUnicode );
 			
 			total_number = class_list.length;
 		}
