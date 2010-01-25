@@ -3,6 +3,7 @@ package org.purepdf.pdf.fonts.cmaps
 	import it.sephiroth.utils.HashMap;
 	
 	import org.purepdf.utils.IProperties;
+	import org.purepdf.utils.StringUtils;
 
 	public class CJKFontResourceFactory
 	{
@@ -19,7 +20,15 @@ package org.purepdf.pdf.fonts.cmaps
 		
 		public function registerProperty( name: String, value: IProperties ): void
 		{
-			properties.put( name, value );
+			var key: String;
+			if( StringUtils.endsWith( name, ".properties" ) )
+			{
+				key = name;
+			} else {
+				key = name + ".properties";
+			}
+			
+			properties.put( key, value );
 		}
 		
 		public function getProperty( name: String ): IProperties
