@@ -21,7 +21,7 @@ package
 			createDocument();
 			document.open();
 			
-			document.addJavascript( "function saySomething(s){ app.alert('JS says: ' + s)}", false );
+			document.addJavaScript( "function saySomething(s){ app.alert('JS says: ' + s)}", false );
 			document.addAdditionalAction( PdfDocument.DOCUMENT_CLOSE, PdfAction.javaScript("saySomething('Thank you for reading the document.');\r", writer ));
 			document.add( new Paragraph("PDF document with a Javascript function. A dialog will appear when the document will be closed..."));
 			

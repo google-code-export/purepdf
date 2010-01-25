@@ -27,7 +27,7 @@ package
 			createDocument();
 			document.open();
 
-			document.addJavascript("function showButtonState() {\n"
+			document.addJavaScript("function showButtonState() {\n"
 				+ "app.alert('Checkboxes:"
 				+ " English: ' + this.getField('English').value + "
 				+ "' Spanish: ' + this.getField('Spanish').value + "

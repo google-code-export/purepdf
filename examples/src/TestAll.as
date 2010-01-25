@@ -79,6 +79,7 @@ package
 			class_list.push( ChineseKoreanJapanese );
 			class_list.push( Javascript1 );
 			class_list.push( Javascript2 );
+			class_list.push( Calculator );
 			
 			total_number = class_list.length;
 		}
