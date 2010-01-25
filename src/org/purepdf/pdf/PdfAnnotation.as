@@ -131,6 +131,24 @@ package org.purepdf.pdf
 		{
 			put( PdfName.A, action );
 		}
+		
+		public function setAdditionalActions( key: PdfName, action: PdfAction ): void
+		{
+			var dic: PdfDictionary;
+			var obj: PdfObject = getValue(PdfName.AA);
+			if (obj != null && obj.isDictionary())
+				dic = PdfDictionary(obj);
+			else
+				dic = new PdfDictionary();
+			dic.put(key, action);
+			put(PdfName.AA, dic);
+		}
+		
+		public function set popup( popup: PdfAnnotation ): void
+		{
+			put(PdfName.POPUP, popup.getIndirectReference() );
+			popup.put(PdfName.PARENT, getIndirectReference() );
+		}
 
 		/**
 		 * Returns an indirect reference to the annotation

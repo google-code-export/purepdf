@@ -332,7 +332,7 @@ package org.purepdf.pdf
 		 * @param unicode select JavaScript unicode
 		 * 
 		 */
-		public function addJavascript( code: String, unicode: Boolean = false ): void
+		public function addJavaScript( code: String, unicode: Boolean = false ): void
 		{
 			var action: PdfAction = PdfAction.javaScript( code, writer, unicode );
 			

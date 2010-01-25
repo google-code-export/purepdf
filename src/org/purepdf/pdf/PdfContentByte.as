@@ -2,7 +2,9 @@ package org.purepdf.pdf
 {
 	import flash.display.JointStyle;
 	import flash.geom.Matrix;
+	
 	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -726,6 +728,33 @@ package org.purepdf.pdf
 				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).
 								append_char( ' ' ).append_number( h ).append( " re" ).append_separator();
 			}
+		}
+		
+		/**
+		 * Adds a round rectangle to the current path.
+		 */
+		public function roundRectangle( x: Number, y: Number, w: Number, h: Number, r: Number ): void
+		{
+			if (w < 0) {
+				x += w;
+				w = -w;
+			}
+			if (h < 0) {
+				y += h;
+				h = -h;
+			}
+			if (r < 0)
+				r = -r;
+			var b: Number = 0.4477;
+			moveTo(x + r, y);
+			lineTo(x + w - r, y);
+			curveTo(x + w - r * b, y, x + w, y + r * b, x + w, y + r);
+			lineTo(x + w, y + h - r);
+			curveTo(x + w, y + h - r * b, x + w - r * b, y + h, x + w - r, y + h);
+			lineTo(x + r, y + h);
+			curveTo(x + r * b, y + h, x, y + h - r * b, x, y + h - r);
+			lineTo(x, y + r);
+			curveTo(x, y + r * b, x + r * b, y, x + r, y);
 		}
 
 		/**
