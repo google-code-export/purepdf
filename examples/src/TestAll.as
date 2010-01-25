@@ -78,6 +78,7 @@ package
 			class_list.push( HelloUnicode );
 			class_list.push( ChineseKoreanJapanese );
 			class_list.push( Javascript1 );
+			class_list.push( Javascript2 );
 			
 			total_number = class_list.length;
 		}
