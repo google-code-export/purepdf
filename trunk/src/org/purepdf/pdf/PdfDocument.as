@@ -65,6 +65,13 @@ package org.purepdf.pdf
 		internal static var compress: Boolean = false;
 		internal static const hangingPunctuation: String = ".,;:'";
 		use namespace pdf_core;
+		
+		public static const DOCUMENT_CLOSE: PdfName = PdfName.WC;
+		public static const WILL_SAVE: PdfName = PdfName.WS;
+		public static const DID_SAVE: PdfName = PdfName.DS;
+		public static const WILL_PRINT: PdfName = PdfName.WP;
+		public static const DID_PRINT: PdfName = PdfName.DP;
+
 
 		protected var _duration: int = -1;
 		protected var _hashCode: int;
@@ -115,6 +122,10 @@ package org.purepdf.pdf
 		protected var chapternumber: int = 0;
 		protected var header: HeaderFooter = null;
 		protected var footer: HeaderFooter = null;
+		private var jsCount: int = 0;
+		protected var documentLevelJS: HashMap = new HashMap();
+		protected var documentFileAttachment: HashMap = new HashMap();
+		protected var additionalActions: PdfDictionary;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -313,6 +324,64 @@ package org.purepdf.pdf
 				annot.writer = _writer;
 			annotationsImp.addAnnotation( annot );
 		}
+		
+		/**
+		 * Add a JavaScript action at the document level.
+		 * When the document opens, all this JavaScript runs.
+		 * @param code the JavaScript code
+		 * @param unicode select JavaScript unicode
+		 * 
+		 */
+		public function addJavascript( code: String, unicode: Boolean = false ): void
+		{
+			var action: PdfAction = PdfAction.javaScript( code, writer, unicode );
+			
+			if( action.getValue( PdfName.JS ) == null )
+				throw new RuntimeError("only javascript actions are allowed");
+			
+			try 
+			{
+				documentLevelJS.put( (jsCount++).toFixed(16), _writer.addToBody(action).getIndirectReference() );
+			} catch( e: Error )
+			{
+				throw new ConversionError( e );
+			}
+		}
+		
+		/**
+		 * Adds additional javascript action to the document
+		 * 
+		 * @see PdfDocument#DOCUMENT_CLOSE
+		 * @see PdfDocument#WILL_SAVE
+		 * @see PdfDocument#DID_SAVE
+		 * @see PdfDocument#WILL_PRINT
+		 * @see PdfDocument#DID_PRINT
+		 */
+		public function addAdditionalAction( actionType: PdfName, action: PdfAction ): void
+		{
+			if( !(actionType.equals(DOCUMENT_CLOSE) ||
+					actionType.equals(WILL_SAVE) ||
+					actionType.equals(DID_SAVE) ||
+					actionType.equals(WILL_PRINT) ||
+					actionType.equals(DID_PRINT)))
+			{
+				throw new DocumentError("invalid additional action type");
+			}
+			_addAdditionalAction(actionType, action);
+		}
+		
+		private function _addAdditionalAction( actionType: PdfName, action: PdfAction ): void
+		{
+			if(additionalActions == null)  {
+				additionalActions = new PdfDictionary();
+			}
+			if (action == null)
+				additionalActions.remove(actionType);
+			else
+				additionalActions.put(actionType, action);
+			if (additionalActions.size() == 0)
+				additionalActions = null;
+		}
 
 		public function addAuthor( value: String ): Boolean
 		{
@@ -437,7 +506,13 @@ package org.purepdf.pdf
 
 			// 4 pagelables
 			// 5 named objects
+			catalog.addNames( localDestinations, documentLevelJS, documentFileAttachment, _writer );
+			
 			// 6 actions
+			if (additionalActions != null)   {
+				catalog.setAdditionalActions(additionalActions);
+			}
+			
 			// 7 portable collections
 			// 8 acroform
 			if (annotationsImp.hasValidAcroForm()) {
