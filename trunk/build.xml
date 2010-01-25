@@ -12,14 +12,17 @@
 		<compc 
 			output="${output_dir}/${font_output_filename}" 
 			locale="en_US"
-			include-classes="org.purepdf.pdf.fonts.BuiltinFonts">
+			include-classes="org.purepdf.resources.BuiltinFonts,org.purepdf.resources.BuiltinCJKFonts,org.purepdf.resources.CMap">
 			<source-path path-element="src" />
 		</compc>
 	</target>
 	
 	<target name="compile">
 		<echo>Compiling ${output_filename}</echo>
-		<move file="src/org/purepdf/pdf/fonts/BuiltinFonts.as" tofile="BuiltinFonts.moved"/>
+		<mkdir dir="_tmp"/>
+		<move file="src/org/purepdf/resources/BuiltinFonts.as" tofile="_tmp/BuiltinFonts.moved"/>
+		<move file="src/org/purepdf/resources/BuiltinCJKFonts.as" tofile="_tmp/BuiltinCJKFonts.moved"/>
+		<move file="src/org/purepdf/resources/CMap.as" tofile="_tmp/CMap.moved"/>
 		<trycatch reference="exception_ref" >
 			<try>
 				<compc
@@ -48,7 +51,9 @@
 	            <fail message="${message}" />
 			</catch>
 			<finally>		
-				<move file="BuiltinFonts.moved" tofile="src/org/purepdf/pdf/fonts/BuiltinFonts.as"/>
+				<move file="_tmp/BuiltinFonts.moved" tofile="src/org/purepdf/resources/BuiltinFonts.as"/>
+				<move file="_tmp/BuiltinCJKFonts.moved" tofile="src/org/purepdf/resources/BuiltinCJKFonts.as"/>
+				<move file="_tmp/CMap.moved" tofile="src/org/purepdf/resources/CMap.as"/>
 			</finally>
 		</trycatch>
 	</target>
