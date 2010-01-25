@@ -76,6 +76,7 @@ package
 			class_list.push( HeaderFooter2 );
 			class_list.push( SimpleTextField );
 			class_list.push( HelloUnicode );
+			class_list.push( ChineseKoreanJapanese );
 			
 			total_number = class_list.length;
 		}
