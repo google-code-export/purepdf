@@ -147,8 +147,7 @@ package org.purepdf.pdf
 		
 		override public function duplicate(): PdfContentByte
 		{
-			var tpl: PdfTemplate = new PdfTemplate();
-			tpl.writer = writer;
+			var tpl: PdfTemplate = new PdfTemplate( writer );
 			tpl.pdf = pdf;
 			tpl.thisReference = thisReference;
 			tpl._pageResources = pageResources;

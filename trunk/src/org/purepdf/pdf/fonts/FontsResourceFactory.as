@@ -2,6 +2,7 @@ package org.purepdf.pdf.fonts
 {
 	import flash.utils.ByteArray;
 	import flash.utils.Dictionary;
+	import flash.utils.IDataOutput;
 	
 	import org.purepdf.utils.StringUtils;
 
@@ -44,7 +45,7 @@ package org.purepdf.pdf.fonts
 		public function getFontFile( filename: String ): ByteArray
 		{
 			if ( fontsMap[filename] )
-				return new( fontsMap[ filename ] )();
+				return fontsMap[filename];
 			return null;
 		}
 
@@ -58,9 +59,9 @@ package org.purepdf.pdf.fonts
 		 * public function main()
 		 * {
 		 *	// this will register a custom, user defined font
-		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, helveticaB );
+		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new helveticaB() );
 		 *	// register a new font, using one of the builtin fonts
-		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, BuiltinFonts.HELVETICA );
+		 *	FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
 		 *	var font: Font = new Font( Font.HELVETICA, 18, Font.BOLD );
 		 *	document.addElement( new Paragraph("Hello world", font) );
 		 * }
@@ -72,7 +73,7 @@ package org.purepdf.pdf.fonts
 		 * @param name	The font name (eg. "Helvetica")
 		 * @see BuiltinFonts
 		 */
-		public function registerFont( name: String, file: Class ): void
+		public function registerFont( name: String, file: ByteArray ): void
 		{
 			fontsMap[ name ] = file;
 		}
