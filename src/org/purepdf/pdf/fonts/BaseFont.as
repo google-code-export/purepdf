@@ -41,6 +41,8 @@ package org.purepdf.pdf.fonts
 		public static const CP1250: String = "Cp1250";
 		public static const CP1252: String = "Cp1252";
 		public static const CP1257: String = "Cp1257";
+		public static const UniGBUCS2_H: String = "UniGB-UCS2-H";
+		public static const UniCNSUCS2_V: String = "UniCNS-UCS2-V";
 		public static const DESCENT: int = 3;
 
 		public static const EMBEDDED: Boolean = true;
@@ -261,6 +263,11 @@ package org.purepdf.pdf.fonts
 			throw new NonImplementatioError();
 		}
 
+		[Abstract]
+		public function getCharBBox( c: int ): Vector.<int> {
+			throw new NonImplementatioError();
+		}
+		
 		/**
 		 * Gets the width from the font according to the Unicode char c
 		 * or the name
@@ -406,7 +413,7 @@ package org.purepdf.pdf.fonts
 			var nameBase: String = getBaseName( name );
 			encoding = normalizeEncoding( encoding );
 			var is_builtinFonts14: Boolean = builtinFonts14.containsKey( name );
-			var isCJKFont: Boolean = false; //is_builtinFonts14 ? false : CJKFont.isCJKFont( nameBase, encoding );
+			var isCJKFont: Boolean = is_builtinFonts14 ? false : CJKFont.isCJKFont( nameBase, encoding );
 
 			if ( is_builtinFonts14 || isCJKFont )
 				embedded = false;
@@ -444,7 +451,10 @@ package org.purepdf.pdf.fonts
 				}
 			}
 			else if ( isCJKFont )
-				throw new NonImplementatioError(); //fontBuilt = new CJKFont( name, encoding, embedded );
+			{
+				fontBuilt = new CJKFont();
+				CJKFont(fontBuilt).init( name, encoding, embedded );
+			}
 			else if ( noThrow )
 				return null;
 			else

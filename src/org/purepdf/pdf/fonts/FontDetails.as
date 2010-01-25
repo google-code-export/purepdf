@@ -1,19 +1,15 @@
 package org.purepdf.pdf.fonts
 {
-	import flash.utils.ByteArray;
-	import flash.utils.Dictionary;
-	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.errors.ConversionError;
-	import org.purepdf.errors.NonImplementatioError;
-	import org.purepdf.pdf.ByteBuffer;
 	import org.purepdf.pdf.PdfEncodings;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.IntHashMap;
 	import org.purepdf.utils.Utilities;
 	import org.purepdf.utils.pdf_core;
 
@@ -22,7 +18,8 @@ package org.purepdf.pdf.fonts
 	{
 		protected var _subset: Boolean = true;
 		private var _baseFont: BaseFont;
-		private var _cjkTag: Dictionary;
+		private var _cjkTag: IntHashMap;
+		private var _cjkFont: CJKFont;
 		private var _fontName: PdfName;
 		private var _fontType: int;
 		private var _indirectReference: PdfIndirectReference;
@@ -51,7 +48,8 @@ package org.purepdf.pdf.fonts
 					break;
 				
 				case BaseFont.FONT_TYPE_CJK:
-					throw new NonImplementatioError( "FontType CJK not yet supported" );
+					_cjkTag = new IntHashMap( 1000 );
+					_cjkFont = baseFont as CJKFont;
 					break;
 				
 				case BaseFont.FONT_TYPE_TTUNI:
@@ -91,7 +89,7 @@ package org.purepdf.pdf.fonts
 				case BaseFont.FONT_TYPE_CJK:
 					len = text.length;
 					for( k = 0; k < len; ++k )
-						throw new NonImplementatioError();
+						_cjkTag.put( _cjkFont.getCidCode( text.charCodeAt(k) ), 0 );
 					b = baseFont.convertToBytes( text );
 					break;
 				
@@ -145,13 +143,6 @@ package org.purepdf.pdf.fonts
 					
 					b = new Bytes();
 					b.buffer.writeMultiByte( glyph, "unicodeFFFE" );
-					
-					/*trace( b.length );
-					
-					for( var a: int = 0; a < b.size(); ++a )
-					{
-						trace( b[a] );
-					}*/
 					return b;
 					break;
 			}
