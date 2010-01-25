@@ -1,14 +1,24 @@
 package org.purepdf.pdf.fonts
 {
 	import it.sephiroth.utils.HashMap;
+	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.PdfArray;
+	import org.purepdf.pdf.PdfDictionary;
+	import org.purepdf.pdf.PdfIndirectObject;
 	import org.purepdf.pdf.PdfIndirectReference;
+	import org.purepdf.pdf.PdfLiteral;
+	import org.purepdf.pdf.PdfName;
+	import org.purepdf.pdf.PdfNumber;
+	import org.purepdf.pdf.PdfObject;
+	import org.purepdf.pdf.PdfString;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.Utilities;
+	import org.purepdf.utils.pdf_core;
 
 	public class TrueTypeFontUnicode extends TrueTypeFont
 	{
@@ -171,9 +181,160 @@ package org.purepdf.pdf.fonts
 			return total;
 		}
 		
+		/** 
+		 * Generates the CIDFontTyte2 dictionary.
+		 * 
+		 * @param fontDescriptor the indirect reference to the font descriptor
+		 * @param subsetPrefix the subset prefix
+		 * @param metrics the horizontal width metrics
+		 * @return a stream
+		 */    
+		private function getCIDFontType2( fontDescriptor: PdfIndirectReference, subsetPrefix: String, metrics: Vector.<Object> ): PdfDictionary
+		{
+			var dic: PdfDictionary = new PdfDictionary( PdfName.FONT );
+			
+			if (cff) {
+				throw new NonImplementatioError();
+			} else 
+			{
+				dic.put( PdfName.SUBTYPE, PdfName.CIDFONTTYPE2 );
+				dic.put( PdfName.BASEFONT, new PdfName(subsetPrefix + fontName) );
+			}
+			dic.put( PdfName.FONTDESCRIPTOR, fontDescriptor );
+			
+			if (!cff)
+				dic.put(PdfName.CIDTOGIDMAP,PdfName.IDENTITY);
+			
+			var cdic: PdfDictionary = new PdfDictionary();
+			cdic.put(PdfName.REGISTRY, new PdfString("Adobe"));
+			cdic.put(PdfName.ORDERING, new PdfString("Identity"));
+			cdic.put(PdfName.SUPPLEMENT, new PdfNumber(0));
+			dic.put(PdfName.CIDSYSTEMINFO, cdic);
+			
+			if (!vertical) {
+				dic.put(PdfName.DW, new PdfNumber(1000));
+				var buf: String = "[";
+				var lastNumber: int = -10;
+				var firstTime: Boolean = true;
+				
+				for( var k: int = 0; k < metrics.length; ++k )
+				{
+					var metric: Vector.<int> = metrics[k] as Vector.<int>;
+					if (metric[1] == 1000)
+						continue;
+					var m: int = metric[0];
+					if (m == lastNumber + 1) {
+						buf + ' ' + metric[1];
+					} else 
+					{
+						if (!firstTime)
+						{
+							buf += ']';
+						}
+						firstTime = false;
+						buf += m + '[' + metric[1];
+					}
+					lastNumber = m;
+				}
+				if (buf.length > 1) 
+				{
+					buf += "]]";
+					dic.put(PdfName.W, new PdfLiteral(buf));
+				}
+			}
+			return dic;
+		}
+		
+		/** 
+		 * Generates the font dictionary.
+		 * 
+		 * @param descendant the descendant dictionary
+		 * @param subsetPrefix the subset prefix
+		 * @param toUnicode the ToUnicode stream
+		 * @return the stream
+		 */    
+		private function getFontBaseType2( descendant: PdfIndirectReference, subsetPrefix: String, toUnicode: PdfIndirectReference ): PdfDictionary
+		{
+			var dic: PdfDictionary = new PdfDictionary(PdfName.FONT);
+			dic.put(PdfName.SUBTYPE, PdfName.TYPE0);
+			if (cff)
+				dic.put(PdfName.BASEFONT, new PdfName(subsetPrefix+fontName+"-"+encoding));
+			else
+				dic.put(PdfName.BASEFONT, new PdfName(subsetPrefix + fontName));
+			dic.put(PdfName.ENCODING, new PdfName(encoding));
+			dic.put(PdfName.DESCENDANTFONTS, new PdfArray(descendant));
+			if (toUnicode != null)
+				dic.put(PdfName.TOUNICODE, toUnicode);  
+			return dic;
+		}
+
+		private function compareInts( a: Vector.<int>, b: Vector.<int> ): Number
+		{
+			var m1: int = a[0];
+			var m2: int = b[0];
+			return m1-m2;
+		}
+		
+		
 		override internal function writeFont(writer:PdfWriter, ref:PdfIndirectReference, params:Vector.<Object>) : void
 		{
-			throw new NonImplementatioError();
+			var longTag: HashMap = HashMap(params[0]);
+			addRangeUni(longTag, true, subset);
+			
+			var metrics: Vector.<Object> = new Vector.<Object>();
+			for( var i: Iterator = longTag.values().iterator(); i.hasNext(); )
+				metrics.push( i.next() );
+			
+			metrics.sort( compareInts );
+			
+			var ind_font: PdfIndirectReference = null;
+			var pobj: PdfObject = null;
+			var obj: PdfIndirectObject = null;
+			var cidset: PdfIndirectReference = null;
+			
+			trace("need to check PDFXConformance");
+			
+			// sivan: cff
+			if( cff ) 
+			{
+				throw new NonImplementatioError("write font with cff font not yet supported");
+			} else
+			{
+				var b: Bytes;
+				if (subset || directoryOffset != 0) 
+				{
+					var sb: TrueTypeFontSubSet = new TrueTypeFontSubSet(fileName, rf, longTag, directoryOffset, false, false);
+					b = sb.process();
+				}
+				else {
+					b = getFullFont();
+				}
+				var lengths: Vector.<int> = Vector.<int>([ b.length]);
+				pobj = StreamFont.create( b, lengths, compressionLevel );
+				obj = writer.pdf_core::addToBody(pobj);
+				ind_font = obj.getIndirectReference();
+			}
+			var subsetPrefix: String = "";
+			if (subset)
+				subsetPrefix = createSubsetPrefix();
+			var dic: PdfDictionary = getFontDescriptorRef(ind_font, subsetPrefix, cidset);
+			obj = writer.pdf_core::addToBody(dic);
+			ind_font = obj.getIndirectReference();
+			
+			pobj = getCIDFontType2(ind_font, subsetPrefix, metrics);
+			obj = writer.pdf_core::addToBody(pobj);
+			ind_font = obj.getIndirectReference();
+			
+			pobj = null; //getToUnicode(metrics);
+			var toUnicodeRef: PdfIndirectReference = null;
+			
+			if (pobj != null) {
+				obj = writer.pdf_core::addToBody(pobj);
+				toUnicodeRef = obj.getIndirectReference();
+			}
+			
+			pobj = getFontBaseType2(ind_font, subsetPrefix, toUnicodeRef);
+			writer.pdf_core::addToBody1(pobj, ref);	
 		}
 	}
 }
