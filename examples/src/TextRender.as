@@ -8,7 +8,7 @@ package
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class TextRender extends DefaultBasicExample

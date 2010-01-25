@@ -5,7 +5,7 @@ package
 	import org.purepdf.Font;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.elements.*;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HelloWorldTTF extends DefaultBasicExample

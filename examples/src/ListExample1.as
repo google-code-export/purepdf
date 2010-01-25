@@ -7,7 +7,7 @@ package
 	import org.purepdf.elements.ListItem;
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class ListExample1 extends DefaultBasicExample

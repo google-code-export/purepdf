@@ -5,11 +5,11 @@ package
 	import org.purepdf.Font;
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinCJKFonts;
 	import org.purepdf.pdf.fonts.cmaps.CJKFontResourceFactory;
-	import org.purepdf.pdf.fonts.cmaps.CMap;
 	import org.purepdf.pdf.fonts.cmaps.CMapResourceFactory;
-	import org.purepdf.pdf.fonts.cmaps.ICMap;
+	import org.purepdf.resources.BuiltinCJKFonts;
+	import org.purepdf.resources.CMap;
+	import org.purepdf.resources.ICMap;
 	import org.purepdf.utils.IProperties;
 	import org.purepdf.utils.Properties;
 
@@ -17,15 +17,17 @@ package
 	{
 		public function ChineseKoreanJapanese()
 		{
-			super(null);
+			super(["This example will show how to load cmaps and properties","in order to write some CJK chars"]);
 			
-			var map: ICMap = new CMap( new CMap.Uni_GBUCS2_H() );
-			CMapResourceFactory.getInstance().registerCMap( BaseFont.UniGBUCS2_H, map );
+			// load and register a cmap
+			var map: ICMap = new CMap( new CMap.UniGB_UCS2_H() );
+			CMapResourceFactory.getInstance().registerCMap( BaseFont.UniGB_UCS2_H, map );
 			
+			// load and register a property
 			var prop: IProperties = new Properties();
-			prop.load( new BuiltinCJKFonts.STSONGLIGHT() );
+			prop.load( new BuiltinCJKFonts.STSong_Light() );
 			
-			CJKFontResourceFactory.getInstance().registerProperty( "STSong-Light.properties", prop );
+			CJKFontResourceFactory.getInstance().registerProperty( BuiltinCJKFonts.getFontName( BuiltinCJKFonts.STSong_Light ), prop );
 		}
 		
 		override protected function execute(event:Event=null) : void
@@ -34,8 +36,10 @@ package
 			createDocument();
 			document.open();
 			
-			var bf: BaseFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED, true );
-			var font: Font = new Font( -1. -1, 12, -1, null, bf );
+			var bf: BaseFont = BaseFont.createFont( BuiltinCJKFonts.getFontName( BuiltinCJKFonts.STSong_Light ), 
+					BaseFont.UniGB_UCS2_H, BaseFont.NOT_EMBEDDED, true );
+			
+			var font: Font = new Font( -1. -1, 32, -1, null, bf );
 			
 			document.add( new Paragraph("\u5341\u950a\u57cb\u4f0f", font));
 			

@@ -8,7 +8,7 @@ package
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RomanList;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class ListExample2 extends DefaultBasicExample

@@ -15,7 +15,7 @@ package
 	import org.purepdf.pdf.PdfPTable;
 	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HeaderFooter2 extends DefaultBasicExample

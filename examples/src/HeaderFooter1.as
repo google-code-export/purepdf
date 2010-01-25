@@ -12,7 +12,7 @@ package
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.events.PageEvent;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class HeaderFooter1 extends DefaultBasicExample

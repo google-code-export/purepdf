@@ -21,7 +21,7 @@ package
 	import org.purepdf.pdf.PdfPTable;
 	import org.purepdf.pdf.PdfPage;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 
 	public class TableExample2 extends DefaultBasicExample

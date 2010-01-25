@@ -24,7 +24,7 @@ package
 	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.pdf.fonts.BuiltinFonts;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
 	import org.purepdf.utils.StringUtils;
 
