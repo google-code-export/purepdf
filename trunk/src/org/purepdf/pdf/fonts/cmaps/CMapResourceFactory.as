@@ -1,6 +1,7 @@
 package org.purepdf.pdf.fonts.cmaps
 {
 	import it.sephiroth.utils.HashMap;
+	import org.purepdf.resources.ICMap;
 
 	public class CMapResourceFactory
 	{

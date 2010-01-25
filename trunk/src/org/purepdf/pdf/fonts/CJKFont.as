@@ -18,7 +18,7 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.pdf.fonts.cmaps.CJKFontResourceFactory;
 	import org.purepdf.pdf.fonts.cmaps.CMapResourceFactory;
-	import org.purepdf.pdf.fonts.cmaps.ICMap;
+	import org.purepdf.resources.ICMap;
 	import org.purepdf.utils.IProperties;
 	import org.purepdf.utils.IntHashMap;
 	import org.purepdf.utils.StringTokenizer;
@@ -526,11 +526,12 @@ package org.purepdf.pdf.fonts
 			{
 				name = name + ".cmap";
 				var cmap: ICMap = CMapResourceFactory.getInstance().getCMap( name );
+				if( cmap == null )
+					trace("could not load " + name  );
 				return cmap.chars;
 			} catch ( e: Error )
 			{
 				// empty on purpose
-				trace( e );
 			}
 			return null;
 		}
@@ -541,6 +542,10 @@ package org.purepdf.pdf.fonts
 			{
 				name += ".properties";
 				var p: IProperties = CJKFontResourceFactory.getInstance().getProperty( name );
+				
+				if( p == null )
+					trace("could not load " + name );
+					
 				var W: Object = createMetric( p.getProperty( "W" ) );
 				p.remove( "W" );
 				var W2: Object;
@@ -565,7 +570,7 @@ package org.purepdf.pdf.fonts
 			} catch ( e: Error )
 			{
 				// empty on purpose
-				throw e;
+				//throw e;
 			}
 			return null;
 		}

@@ -38,11 +38,24 @@ package org.purepdf.pdf.fonts
 		public static const COURIER_BOLD: String = "Courier-Bold.afm";
 		public static const COURIER_BOLDOBLIQUE: String = "Courier-BoldOblique.afm";
 		public static const COURIER_OBLIQUE: String = "Courier-Oblique.afm";
+
 		public static const CP1250: String = "Cp1250";
 		public static const CP1252: String = "Cp1252";
 		public static const CP1257: String = "Cp1257";
-		public static const UniGBUCS2_H: String = "UniGB-UCS2-H";
-		public static const UniCNSUCS2_V: String = "UniCNS-UCS2-V";
+		public static const AdobeCNS1_UCS2: String = "Adobe-CNS1-UCS2";
+		public static const AdobeGB1_UCS2: String = "Adobe-GB1-UCS2";
+		public static const AdobeJapan1_UCS2: String = "Adobe-Japan1-UCS2";
+		public static const AdobeKorea1_UCS2: String = "Adobe-Korea1-UCS2";
+		public static const UniCNS_UCS2_H: String = "UniCNS-UCS2-H";
+		public static const UniCNS_UCS2_V: String = "UniCNS-UCS2-V";
+		public static const UniGB_UCS2_H: String = "UniGB-UCS2-H";
+		public static const UniGB_UCS2_V: String = "UniGB-UCS2-V";
+		public static const UniJIS_UCS2_H: String = "UniJIS-UCS2-H";
+		public static const UniJIS_UCS2_HW_H: String = "UniJIS-UCS2-HW-H";
+		public static const UniJIS_UCS2_HW_V: String = "UniJIS-UCS2-HW-V";
+		public static const UniJIS_UCS2_V: String = "UniJIS-UCS2-V";
+		public static const UniKS_UCS2_H: String = "UniKS-UCS2-H";
+		public static const UniKS_UCS2_V: String = "UniKS-UCS2-V";
 		public static const DESCENT: int = 3;
 
 		public static const EMBEDDED: Boolean = true;

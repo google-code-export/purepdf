@@ -1,4 +1,4 @@
-package org.purepdf.pdf.fonts.cmaps
+package org.purepdf.resources
 {
 	import flash.utils.ByteArray;
 
