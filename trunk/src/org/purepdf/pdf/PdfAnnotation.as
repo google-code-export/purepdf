@@ -1,6 +1,7 @@
 package org.purepdf.pdf
 {
 	import it.sephiroth.utils.HashMap;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -124,6 +125,11 @@ package org.purepdf.pdf
 		public function set form( value: Boolean ): void
 		{
 			_form = value;
+		}
+		
+		public function set action( action: PdfAction ): void
+		{
+			put( PdfName.A, action );
 		}
 
 		/**
