@@ -16,6 +16,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/AnnotatedChunk.as AnnotatedChunk.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/BarCodes.as BarCodes.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkHorizontalScale.as ChunkHorizontalScale.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ChineseKoreanJapanese.as ChineseKoreanJapanese.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ChunkSkew.as ChunkSkew.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ClippingPath.as ClippingPath.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/DrawingPaths.as DrawingPaths.as]
