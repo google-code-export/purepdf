@@ -2,7 +2,6 @@ package
 {
 	import flash.events.Event;
 	
-	import org.purepdf.ColumnText;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
@@ -10,13 +9,13 @@ package
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.events.PageEvent;
+	import org.purepdf.pdf.ColumnText;
 	import org.purepdf.pdf.PdfAction;
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.PdfPTable;
-	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.resources.BuiltinFonts;
 
 	public class HeaderFooter2 extends DefaultBasicExample
 	{
