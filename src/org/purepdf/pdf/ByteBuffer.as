@@ -42,7 +42,7 @@ package org.purepdf.pdf
 	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
 	
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.NumberUtils;
 	import org.purepdf.utils.pdf_core;

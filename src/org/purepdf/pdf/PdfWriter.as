@@ -64,6 +64,7 @@ package org.purepdf.pdf
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
+	import org.purepdf.io.OutputStreamCounter;
 
 	public class PdfWriter extends ObjectHash
 	{

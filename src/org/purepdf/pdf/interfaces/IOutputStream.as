@@ -37,7 +37,7 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf
+package org.purepdf.pdf.interfaces
 {
 	import flash.utils.ByteArray;
 	

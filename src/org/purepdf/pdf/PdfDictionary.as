@@ -45,7 +45,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 
 	public class PdfDictionary extends PdfObject implements IObject
 	{

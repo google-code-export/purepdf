@@ -41,7 +41,7 @@ package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.utils.Bytes;
 	

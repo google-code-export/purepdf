@@ -39,7 +39,8 @@
 */
 package org.purepdf.pdf
 {
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
+	import org.purepdf.io.OutputStreamCounter;
 
 	public class PdfLiteral extends PdfObject
 	{

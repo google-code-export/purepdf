@@ -37,11 +37,11 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.pdf
+package org.purepdf.io
 {
 	import flash.utils.ByteArray;
 	
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 	
 	public class OutputStreamCounter implements IOutputStream
