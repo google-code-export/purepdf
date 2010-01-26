@@ -149,7 +149,9 @@ package org.purepdf
 			}
 			
 			if (runDirection == PdfWriter.RUN_DIRECTION_LTR || runDirection == PdfWriter.RUN_DIRECTION_RTL)
-				throw new NonImplementatioError("Run direction not yet supported");
+			{
+				throw new NonImplementatioError("RTL run direction not yet supported");
+			}
 			
 			totalTextLength = trimRightEx(0, totalTextLength - 1) + 1;
 			return true;
