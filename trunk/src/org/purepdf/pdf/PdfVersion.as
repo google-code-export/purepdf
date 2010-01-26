@@ -42,6 +42,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.io.OutputStreamCounter;
 
 	public class PdfVersion extends ObjectHash
 	{

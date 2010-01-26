@@ -40,7 +40,7 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.Font;
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Paragraph;

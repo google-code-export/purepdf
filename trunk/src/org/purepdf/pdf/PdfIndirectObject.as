@@ -41,7 +41,7 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfIndirectObject extends ObjectHash

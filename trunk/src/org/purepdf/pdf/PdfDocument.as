@@ -47,7 +47,6 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	import it.sephiroth.utils.hashLib;
 	
-	import org.purepdf.ColumnText;
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Anchor;

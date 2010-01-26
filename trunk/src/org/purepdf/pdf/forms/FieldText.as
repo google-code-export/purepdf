@@ -39,7 +39,7 @@
 */
 package org.purepdf.pdf.forms
 {
-	import org.purepdf.ColumnText;
+	import org.purepdf.pdf.ColumnText;
 	import org.purepdf.Font;
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;

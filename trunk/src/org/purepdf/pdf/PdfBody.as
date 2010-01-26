@@ -43,6 +43,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.utils.collections.TreeSet;
+	import org.purepdf.io.OutputStreamCounter;
 
 	/**
 	 * This class generates the structure of a PDF document.

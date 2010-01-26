@@ -37,7 +37,7 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf
+package org.purepdf.pdf
 {
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
@@ -53,15 +53,6 @@ package org.purepdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
-	import org.purepdf.pdf.PdfChunk;
-	import org.purepdf.pdf.PdfContentByte;
-	import org.purepdf.pdf.PdfDocument;
-	import org.purepdf.pdf.PdfFont;
-	import org.purepdf.pdf.PdfLine;
-	import org.purepdf.pdf.PdfPCell;
-	import org.purepdf.pdf.PdfPRow;
-	import org.purepdf.pdf.PdfPTable;
-	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.pdf_core;
 
 	public class ColumnText

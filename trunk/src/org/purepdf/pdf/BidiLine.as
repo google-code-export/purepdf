@@ -37,14 +37,11 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf
+package org.purepdf.pdf
 {
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.lang.Character;
-	import org.purepdf.pdf.PdfChunk;
-	import org.purepdf.pdf.PdfLine;
-	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.Utilities;
 	import org.purepdf.utils.pdf_core;

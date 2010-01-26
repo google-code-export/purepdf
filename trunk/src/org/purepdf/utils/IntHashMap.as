@@ -82,8 +82,9 @@ package org.purepdf.utils
 		{
 			var hash: int = int(key);
 			var index: int = ( hash & 0x7FFFFFFF ) % table.length;
+			var e: Entry;
 			
-			for ( var e: Entry = table[index]; e != null; e = e.next )
+			for ( e = table[index]; e != null; e = e.next )
 			{
 				var k: Object;
 				
@@ -101,7 +102,7 @@ package org.purepdf.utils
 				index = ( hash & 0x7FFFFFFF ) % table.length;
 			}
 			
-			var e: Entry = new Entry( hash, key, value, table[index]);
+			e = new Entry( hash, key, value, table[index]);
 			table[index] = e;
 			_size++;
 			return null;			
@@ -111,6 +112,7 @@ package org.purepdf.utils
 		{
 			var hash: int = int(key);
 			var index: int = (hash & 0x7FFFFFFF) % table.length;
+			var prev: Entry;
 			for( var e: Entry = table[index], prev = null; e != null; prev = e, e = e.next )
 			{
 				if( e.hash == hash && e.key == key )
@@ -132,7 +134,7 @@ package org.purepdf.utils
 		override public function containsValue( value: Object ): Boolean
 		{
 			var v: int = int(value);
-			for( var i = table.length; i-- > 0;) 
+			for( var i: int = table.length; i-- > 0;) 
 			{
 				for( var e: Entry = table[i]; e != null; e = e.next) {
 					if (e.value == v) {

@@ -39,7 +39,7 @@
 */
 package org.purepdf.pdf
 {
-	import org.purepdf.IOutputStream;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfString extends PdfObject

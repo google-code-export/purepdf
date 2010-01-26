@@ -39,7 +39,6 @@
 */
 package org.purepdf.pdf
 {
-	import org.purepdf.ColumnText;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.RectangleElement;
