@@ -427,12 +427,18 @@ package org.purepdf.pdf.forms
 			var borderExtra: Boolean = _borderStyle == PdfBorderDictionary.STYLE_BEVELED || _borderStyle == PdfBorderDictionary.STYLE_INSET;
 			var h: Number = box.height - _borderWidth * 2 - extraMarginTop;
 			var bw2: Number = _borderWidth;
+			
 			if (borderExtra) {
 				h -= _borderWidth * 2;
 				bw2 *= 2;
 			}
+			
+			var wd: Number;
+			var step: Number;
+			var offsetY: Number;
 			var offsetX: Number = Math.max(bw2, 1);
 			var offX: Number = Math.min(bw2, offsetX);
+			
 			app.saveState();
 			app.rectangle(offX, offX, box.width - 2 * offX, box.height - 2 * offX);
 			app.clip();
@@ -458,7 +464,7 @@ package org.purepdf.pdf.forms
 					if (usize > 4) {
 						if (usize > 12)
 							usize = 12;
-						var step: Number = Math.max((usize - 4) / 10, 0.2);
+						step = Math.max((usize - 4) / 10, 0.2);
 						ct.setSimpleColumn(0, -h, width, 0);
 						ct.alignment = _alignment;
 						ct.runDirection = rtl;
@@ -490,7 +496,7 @@ package org.purepdf.pdf.forms
 				if (usize == 0) {
 					var maxCalculatedSize: Number = h / (ufont.getFontDescriptor(BaseFont.BBOXURX, 1) - ufont.getFontDescriptor(BaseFont.BBOXLLY, 1));
 					changeFontSize(phrase, 1);
-					var wd: Number = ColumnText.getWidth(phrase, rtl, 0);
+					wd = ColumnText.getWidth(phrase, rtl, 0);
 					if (wd == 0)
 						usize = maxCalculatedSize;
 					else
@@ -499,7 +505,7 @@ package org.purepdf.pdf.forms
 						usize = 4;
 				}
 				changeFontSize(phrase, usize);
-				var offsetY: Number = offX + ((box.height - 2*offX) - ufont.getFontDescriptor(BaseFont.ASCENT, usize)) / 2;
+				offsetY = offX + ((box.height - 2*offX) - ufont.getFontDescriptor(BaseFont.ASCENT, usize)) / 2;
 				if (offsetY < offX)
 					offsetY = offX;
 				if (offsetY - offX < -ufont.getFontDescriptor(BaseFont.DESCENT, usize)) {
@@ -514,7 +520,7 @@ package org.purepdf.pdf.forms
 						position = maxCharacterLength - textLen;
 					else if (_alignment == Element.ALIGN_CENTER)
 						position = (maxCharacterLength - textLen) / 2;
-					var step: Number = (box.width - extraMarginLeft) / maxCharacterLength;
+					step = (box.width - extraMarginLeft) / maxCharacterLength;
 					var start: Number = step / 2 + position * step;
 					if (_textColor == null)
 						app.setGrayFill(0);
@@ -529,7 +535,7 @@ package org.purepdf.pdf.forms
 						var sb: String = ck.append("");
 						for (var j: int = 0; j < sb.length; ++j) {
 							var c: String = sb.substring(j, j + 1);
-							var wd: Number = bf.getWidthPoint(c, usize);
+							wd = bf.getWidthPoint(c, usize);
 							app.setTextMatrix(extraMarginLeft + start - wd / 2, offsetY - extraMarginTop);
 							app.showText(c);
 							start += step;
