@@ -484,7 +484,7 @@ package org.purepdf.pdf.forms
 				changeFontSize(phrase, usize);
 				ct.canvas = app;
 				var leading: Number = usize * factor;
-				var offsetY: Number = offsetX + h - ufont.getFontDescriptor(BaseFont.BBOXURY, usize);
+				offsetY = offsetX + h - ufont.getFontDescriptor(BaseFont.BBOXURY, usize);
 				ct.setSimpleColumn(extraMarginLeft + 2 * offsetX, -20000, box.width - 2 * offsetX, offsetY + leading);
 				ct.setLeading(leading);
 				ct.alignment = _alignment;

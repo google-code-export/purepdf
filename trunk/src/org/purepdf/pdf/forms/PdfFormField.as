@@ -41,14 +41,11 @@ package org.purepdf.pdf.forms
 {
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
-	import mx.effects.Resize;
-	
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.PdfAnnotation;
 	import org.purepdf.pdf.PdfArray;
 	import org.purepdf.pdf.PdfDictionary;
-	import org.purepdf.pdf.PdfFont;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfNumber;
 	import org.purepdf.pdf.PdfObject;
