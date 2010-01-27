@@ -23,7 +23,7 @@ package
 			document.open();
 			
 			
-			var bf: BaseFont = BaseFont.createFont( "japanese_unicode.ttf", BaseFont.IDENTITY_H, false, true );
+			var bf: BaseFont = BaseFont.createFont( "japanese_unicode.ttf", BaseFont.IDENTITY_H, true, true );
 			var cb: PdfContentByte = document.getDirectContent();
 			cb.beginText();
 			cb.setFontAndSize( bf, 32 );

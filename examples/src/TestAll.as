@@ -80,6 +80,7 @@ package
 			class_list.push( Javascript1 );
 			class_list.push( Javascript2 );
 			class_list.push( Calculator );
+			class_list.push( ArabicText );
 			
 			total_number = class_list.length;
 		}
