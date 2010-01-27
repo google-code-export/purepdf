@@ -31,9 +31,11 @@ package
 			var mct: MultiColumnText = new MultiColumnText();
 			mct.addRegularColumns( document.left(), document.right(), 10, 3);
 			
+			var titleFont: Font = new Font( Font.HELVETICA, 12, -1, null, baseFont );
+			
 			for( var i: int = 0; i < 30; i++ ) 
 			{
-				mct.addElement( new Paragraph( (i + 1).toString()));
+				mct.addElement( new Paragraph( (i + 1).toString(), titleFont ));
 				mct.addElement( newParagraph(randomWord(noun), Element.ALIGN_CENTER, Font.BOLDITALIC));
 				for ( var j: int = 0; j < 4; j++) 
 				{
@@ -50,8 +52,7 @@ package
 		
 		private function newParagraph( text: String, alignment: int, type: int ): IElement
 		{
-			var font: Font = FontFactory.getFont( BaseFont.HELVETICA, BaseFont.WINANSI, false, 9, type );
-			font.baseFont = baseFont;
+			var font: Font = new Font( Font.HELVETICA, 9, type, null, baseFont );
 			var p: Paragraph = new Paragraph(text, font);
 			p.alignment = alignment;
 			p.leading = font.size * 1.2;

@@ -84,6 +84,7 @@ package
 			class_list.push( Calculator );
 			class_list.push( ArabicText );
 			class_list.push( MultiColumnText );
+			class_list.push( MultiColumnIrregular );
 			
 			total_number = class_list.length;
 		}
