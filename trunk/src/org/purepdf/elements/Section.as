@@ -51,6 +51,10 @@ package org.purepdf.elements
 
 	public class Section implements ITextElementaryArray, ILargeElement, IIterable
 	{
+		/**
+		 * hide default number in title
+		 */
+		public static const NUMBERSTYLE_NONE: int = -1;
 		public static const NUMBERSTYLE_DOTTED: int = 0;
 		public static const NUMBERSTYLE_DOTTED_WITHOUT_FINAL_DOT: int = 1;
 		protected var _title: Paragraph;
@@ -67,6 +71,7 @@ package org.purepdf.elements
 		protected var _complete: Boolean = true;
 		protected var _addedCompletely: Boolean = false;
 		protected var _notAddedYet: Boolean = true;
+		protected var _hideNumbers: Boolean;
 		
 		private var _arrayList: Vector.<IElement> = new Vector.<IElement>();
 		
@@ -79,6 +84,17 @@ package org.purepdf.elements
 		public function get numberStyle():int
 		{
 			return _numberStyle;
+		}
+		
+		/**
+		 * 
+		 * @see #NUMBERSTYLE_DOTTED_WITHOUT_FINAL_DOT
+		 * @see #NUMBERSTYLE_DOTTED
+		 * @see #NUMBERSTYLE_NONE
+		 */
+		public function set numberStyle( value: int ): void
+		{
+			_numberStyle = value;
 		}
 
 		public function get numbers():Vector.<Number>
@@ -178,15 +194,20 @@ package org.purepdf.elements
 			if (depth < 1)
 				return title;
 			
+			/*
 			var buf: String = "";
 			for( var i: int = 0; i < depth; i++)
 			{
 				buf = "." + buf;
 				buf = numbers[i] + buf;
 			}
-			
 			if( numberStyle == NUMBERSTYLE_DOTTED_WITHOUT_FINAL_DOT )
-				buf = buf.substr( 0, buf.length - 3 ) + buf.substr( buf.length - 1 );
+			buf = buf.substr( 0, buf.length - 3 ) + buf.substr( buf.length - 1 );
+			*/
+			
+			var buf: String = numbers.slice(0, depth).reverse().join(".");
+			if( numberStyle == NUMBERSTYLE_DOTTED ) buf += ".";
+			
 			
 			var result: Paragraph = Paragraph.fromPhrase( title );
 			result.insert( 0, new Chunk( buf, title.font ) );
