@@ -79,10 +79,10 @@ package org.purepdf.pdf
 		private static const LAM_ALEFHAMZABELOW: int = 0xFEF9;
 		private static const LAM_ALEFMADDA: int = 0xFEF5;
 		
-		public static const ar_nothing: int  = 0x0;
-		public static const ar_novowel: int = 0x1;
-		public static const ar_composedtashkeel: int = 0x4;
-		public static const ar_lig: int = 0x8;
+		public static const AR_NOTHING: int  = 0x0;
+		public static const AR_NOVOWEL: int = 0x1;
+		public static const AR_COMPOSEDTASHKEEL: int = 0x4;
+		public static const AR_LIG: int = 0x8;
 		
 		public function ArabicLigaturizer()
 		{
@@ -372,7 +372,7 @@ package org.purepdf.pdf
 			string.append(s.basechar);
 			s.lignum--;
 			if (s.mark1 != 0) {
-				if ((level & ar_novowel) == 0) {
+				if ((level & AR_NOVOWEL) == 0) {
 					string.append(s.mark1);
 					s.lignum--;
 				}
@@ -381,7 +381,7 @@ package org.purepdf.pdf
 				}
 			}
 			if (s.vowel != 0) {
-				if ((level & ar_novowel) == 0) {
+				if ((level & AR_NOVOWEL) == 0) {
 					string.append(s.vowel);
 					s.lignum--;
 				}
@@ -428,7 +428,7 @@ package org.purepdf.pdf
 			
 			var string: StringBuffer = new StringBuffer("");
 			shape(str, string, level);
-			if ((level & (ar_composedtashkeel | ar_lig)) != 0)
+			if ((level & (AR_COMPOSEDTASHKEEL | AR_LIG)) != 0)
 			{
 				//doublelig(string, level);
 				trace('missing ligatures...');

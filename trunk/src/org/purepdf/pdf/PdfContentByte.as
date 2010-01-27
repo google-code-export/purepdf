@@ -1836,7 +1836,7 @@ package org.purepdf.pdf
 		{
 			if ( state.fontDetails == null )
 				throw new NullPointerError( "font and size must be set before writing any text" );
-			var b: Bytes = state.fontDetails.convertToBytes( text );
+			var b: Bytes = state.fontDetails.pdf_core::convertToBytes( text );
 			escapeString( b, content );
 		}
 
