@@ -68,7 +68,7 @@ package org.purepdf.utils
 			while (true) 
 			{
 				if (entry == null)
-					while ((index-- > 0) && ((entry = table[index]) == null));
+					while ((index-- > 0) && ((entry = table[index]) == null)){ /* empty statement */ }
 				if (entry == null)
 					break;
 				e = entry;
@@ -113,6 +113,7 @@ package org.purepdf.utils
 			var hash: int = int(key);
 			var index: int = (hash & 0x7FFFFFFF) % table.length;
 			var prev: Entry;
+			
 			for( var e: Entry = table[index], prev = null; e != null; prev = e, e = e.next )
 			{
 				if( e.hash == hash && e.key == key )

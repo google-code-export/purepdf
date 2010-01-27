@@ -53,6 +53,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
 
 	public class ColumnText
@@ -95,12 +96,12 @@ package org.purepdf.pdf
 		private var _filledWidth: Number = 0;
 		private var _useAscender: Boolean = false;
 		private var adjustFirstLine: Boolean = true;
-		private var arabicOptions: int = 0;
+		private var _arabicOptions: int = 0;
 		private var firstLineY: Number = 0;
 		private var firstLineYDone: Boolean = false;
 		private var lastWasNewline: Boolean = true;
 		private var linesWritten: int = 0;
-		private var spaceCharRatio: Number = GLOBAL_SPACE_CHAR_RATIO;
+		private var _spaceCharRatio: Number = GLOBAL_SPACE_CHAR_RATIO;
 		private var splittedRow: Boolean;
 
 		public function ColumnText( content: PdfContentByte )
@@ -108,6 +109,75 @@ package org.purepdf.pdf
 			_canvas = content;
 		}
 
+		public function get spaceCharRatio():Number
+		{
+			return _spaceCharRatio;
+		}
+
+		/**
+		 * 
+		 * @see #GLOBAL_SPACE_CHAR_RATIO
+		 */
+		public function set spaceCharRatio(value:Number):void
+		{
+			_spaceCharRatio = value;
+		}
+
+		pdf_core function setSimpleVars( org: ColumnText ): void
+		{
+			maxY = org.maxY;
+			minY = org.minY;
+			_alignment = org._alignment;
+			leftWall = null;
+			if (org.leftWall != null)
+				leftWall = org.leftWall.concat();
+			rightWall = null;
+			if (org.rightWall != null)
+				rightWall = org.rightWall.concat();
+			_yLine = org._yLine;
+			currentLeading = org.currentLeading;
+			fixedLeading = org.fixedLeading;
+			_multipliedLeading = org._multipliedLeading;
+			_canvas = org._canvas;
+			_canvases = org._canvases;
+			lineStatus = org.lineStatus;
+			_indent = org._indent;
+			_followingIndent = org._followingIndent;
+			_rightIndent = org._rightIndent;
+			_extraParagraphSpace = org._extraParagraphSpace;
+			rectangularWidth = org.rectangularWidth;
+			rectangularMode = org.rectangularMode;
+			_spaceCharRatio = org.spaceCharRatio;
+			lastWasNewline = org.lastWasNewline;
+			linesWritten = org.linesWritten;
+			_arabicOptions = org._arabicOptions;
+			_runDirection = org._runDirection;
+			_descender = org._descender;
+			composite = org.composite;
+			splittedRow = org.splittedRow;
+			
+			if (org.composite) {
+				compositeElements = org.compositeElements.concat();
+				if (splittedRow) 
+				{
+					var table: PdfPTable = compositeElements[0] as PdfPTable;
+					compositeElements[0] = new PdfPTable(table);
+				}
+				if (org.compositeColumn != null)
+					compositeColumn = duplicate(org.compositeColumn);
+			}
+			
+			listIdx = org.listIdx;
+			firstLineY = org.firstLineY;
+			leftX = org.leftX;
+			rightX = org.rightX;
+			firstLineYDone = org.firstLineYDone;
+			waitPhrase = org.waitPhrase;
+			useAscender = org.useAscender;
+			filledWidth = org.filledWidth;
+			adjustFirstLine = org.adjustFirstLine;
+		}
+		
 		/**
 		 * Adds an element. Supported elements are Paragraph,
 		 * List, PdfPTable, ImageElement and
@@ -203,6 +273,17 @@ package org.purepdf.pdf
 		}
 		
 		/**
+		 * 
+		 * @see Chunk
+		 */
+		public function addChunk( chunk: Chunk ): void
+		{
+			if( chunk == null || composite )
+				return;
+			addText( Phrase.fromChunk( chunk ) );
+		}
+		
+		/**
 		 * Gets the width that the line will occupy after writing.
 		 * Only the width of the first line is returned.
 		 */    
@@ -223,6 +304,13 @@ package org.purepdf.pdf
 			return _alignment;
 		}
 
+		/**
+		 * 
+		 * @see org.purepdf.elements.Element#ALIGN_RIGHT
+		 * @see org.purepdf.elements.Element#ALIGN_CENTER
+		 * @see org.purepdf.elements.Element#ALIGN_JUSTIFIED
+		 * @see org.purepdf.elements.Element#ALIGN_LEFT
+		 */
 		public function set alignment( value: int ): void
 		{
 			_alignment = value;
@@ -308,7 +396,7 @@ package org.purepdf.pdf
 			_descender = 0;
 			linesWritten = 0;
 			var dirty: Boolean = false;
-			var ratio: Number = spaceCharRatio;
+			var ratio: Number = _spaceCharRatio;
 			var currentValues: Vector.<Object> = new Vector.<Object>( 2, true );
 			var currentFont: PdfFont = null;
 			var lastBaseFactor: Number = 0;
@@ -364,7 +452,7 @@ package org.purepdf.pdf
 					}
 					line = bidiLine.processLine( leftX, rectangularWidth - firstIndent - _rightIndent, _alignment,
 									localRunDirection,
-									arabicOptions );
+									_arabicOptions );
 
 					if ( line == null )
 					{
@@ -429,7 +517,7 @@ package org.purepdf.pdf
 						dirty = true;
 					}
 					line = bidiLine.processLine( x1, x2 - x1 - firstIndent - _rightIndent, _alignment, localRunDirection,
-									arabicOptions );
+									_arabicOptions );
 
 					if ( line == null )
 					{
@@ -506,11 +594,32 @@ package org.purepdf.pdf
 			return _runDirection;
 		}
 
+		/**
+		 * 
+		 * @see org.purepdf.pdf.PdfWriter#RUN_DIRECTION_DEFAULT
+		 * @see org.purepdf.pdf.PdfWriter#RUN_DIRECTION_RTL
+		 * @see org.purepdf.pdf.PdfWriter#RUN_DIRECTION_LTR
+		 * @see org.purepdf.pdf.PdfWriter#RUN_DIRECTION_NO_BIDI
+		 */
 		public function set runDirection( value: int ): void
 		{
 			if ( value < PdfWriter.RUN_DIRECTION_DEFAULT || value > PdfWriter.RUN_DIRECTION_RTL )
 				throw new RuntimeError( "invalid run direction" );
 			_runDirection = value;
+		}
+		
+		/** 
+		 * Sets the arabic shaping options. The option can be AR_NOVOWEL,
+		 * AR_COMPOSEDTASHKEEL and AR_LIG.
+		 * 
+		 * @see org.purepdf.pdf.ArabicLigaturizer#AR_NOTHING
+		 * @see org.purepdf.pdf.ArabicLigaturizer#AR_NOVOWEL
+		 * @see org.purepdf.pdf.ArabicLigaturizer#AR_COMPOSEDTASHKEEL
+		 * @see org.purepdf.pdf.ArabicLigaturizer#AR_LIG
+		 */
+		public function set arabicOptions( value: int ): void
+		{
+			_arabicOptions = value;
 		}
 
 		public function setACopy( org: ColumnText ): void
@@ -545,7 +654,72 @@ package org.purepdf.pdf
 				rectangularWidth = 0;
 			rectangularMode = true;
 		}
+		
+		/**
+		 * Sets the columns bounds. Each column bound is described by a
+		 * Vector.&lt;Number&gt; with the line points [x1,y1,x2,y2,...].
+		 * The array must have at least 4 elements.
+		 * 
+		 */
+		public function setColumns( leftLine: Vector.<Number>, rightLine: Vector.<Number> ): void
+		{
+			maxY = -10e20;
+			minY = 10e20;
+			yLine = Math.max( leftLine[1], leftLine[leftLine.length - 1] );
+			rightWall = convertColumn(rightLine);
+			leftWall = convertColumn(leftLine);
+			rectangularWidth = -1;
+			rectangularMode = false;
+		}
 
+		/**
+		 * Converts a sequence of lines representing one of the column bounds into
+		 * an internal format.
+		 * 
+		 * @throws AssertionError
+		 * @throws RuntimeError
+		 */
+		protected function convertColumn( cLine: Vector.<Number> ): Vector.<Vector.<Number>>
+		{
+			assertTrue( cLine.length >= 4, "parameter cLine must be length >= 4");
+			
+			var cc: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>();
+			var k: int;
+			var x1: Number;
+			var x2: Number;
+			var y1: Number;
+			var y2: Number;
+			var a: Number;
+			var b: Number;
+			var r: Vector.<Number>;
+			
+			for( k = 0; k < cLine.length - 2; k += 2 )
+			{
+				x1 = cLine[k];
+				y1 = cLine[k + 1];
+				x2 = cLine[k + 2];
+				y2 = cLine[k + 3];
+				if (y1 == y2)
+					continue;
+				
+				a = (x1 - x2) / (y1 - y2);
+				b = x1 - a * y1;
+				r = new Vector.<Number>( 4, true );
+				r[0] = Math.min(y1, y2);
+				r[1] = Math.max(y1, y2);
+				r[2] = a;
+				r[3] = b;
+				cc.push(r);
+				maxY = Math.max(maxY, r[1]);
+				minY = Math.min(minY, r[0]);
+			}
+			
+			if( cc.length == 0 )
+				throw new RuntimeError( "no valid column line found" );
+			return cc;
+		}
+		
+		
 		public function setText( phrase: Phrase ): void
 		{
 			bidiLine = null;
@@ -718,9 +892,9 @@ package org.purepdf.pdf
 							compositeColumn.followingIndent = para.indentationLeft;
 							compositeColumn.rightIndent = para.indentationRight;
 							compositeColumn.setLeading( para.leading, para.multipliedLeading );
-							compositeColumn.runDirection = _runDirection;
-							compositeColumn.arabicOptions = arabicOptions;
-							compositeColumn.spaceCharRatio = spaceCharRatio;
+							compositeColumn._runDirection = _runDirection;
+							compositeColumn._arabicOptions = _arabicOptions;
+							compositeColumn._spaceCharRatio = _spaceCharRatio;
 							compositeColumn.addText( para );
 
 							if ( !firstPass )
@@ -843,9 +1017,9 @@ package org.purepdf.pdf
 							compositeColumn.followingIndent = compositeColumn.indent;
 							compositeColumn.rightIndent = item.indentationRight + list.indentationRight;
 							compositeColumn.setLeading( item.leading, item.multipliedLeading );
-							compositeColumn.runDirection = runDirection;
-							compositeColumn.arabicOptions = arabicOptions;
-							compositeColumn.spaceCharRatio = spaceCharRatio;
+							compositeColumn._runDirection = _runDirection;
+							compositeColumn._arabicOptions = _arabicOptions;
+							compositeColumn._spaceCharRatio = _spaceCharRatio;
 							compositeColumn.addText( item );
 
 							if ( !firstPass )
@@ -1140,11 +1314,11 @@ package org.purepdf.pdf
 			extraParagraphSpace = org.extraParagraphSpace;
 			rectangularWidth = org.rectangularWidth;
 			rectangularMode = org.rectangularMode;
-			spaceCharRatio = org.spaceCharRatio;
+			_spaceCharRatio = org.spaceCharRatio;
 			lastWasNewline = org.lastWasNewline;
 			linesWritten = org.linesWritten;
-			arabicOptions = org.arabicOptions;
-			_runDirection = org.runDirection;
+			_arabicOptions = org._arabicOptions;
+			_runDirection = org._runDirection;
 			_descender = org.descender;
 			composite = org.composite;
 			splittedRow = org.splittedRow;
@@ -1162,14 +1336,15 @@ package org.purepdf.pdf
 				if ( org.compositeColumn != null )
 					compositeColumn = duplicate( org.compositeColumn );
 			}
+			
 			listIdx = org.listIdx;
 			firstLineY = org.firstLineY;
 			leftX = org.leftX;
 			rightX = org.rightX;
 			firstLineYDone = org.firstLineYDone;
 			waitPhrase = org.waitPhrase;
-			useAscender = org.useAscender;
-			_filledWidth = org.filledWidth;
+			_useAscender = org._useAscender;
+			_filledWidth = org._filledWidth;
 			adjustFirstLine = org.adjustFirstLine;
 		}
 

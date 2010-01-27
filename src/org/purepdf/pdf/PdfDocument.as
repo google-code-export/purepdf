@@ -60,6 +60,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.List;
 	import org.purepdf.elements.ListItem;
 	import org.purepdf.elements.Meta;
+	import org.purepdf.elements.MultiColumnText;
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
 	import org.purepdf.elements.RectangleElement;
@@ -138,7 +139,7 @@ package org.purepdf.pdf
 		protected var lines: Vector.<PdfLine> = new Vector.<PdfLine>();
 		protected var _marginBottom: Number = 36.0;
 		protected var _marginLeft: Number = 36.0;
-		protected var marginMirroring: Boolean = false;
+		protected var _marginMirroring: Boolean = false;
 		protected var marginMirroringTopBottom: Boolean = false;
 		protected var _marginRight: Number = 36.0;
 		protected var _marginTop: Number = 36.0;
@@ -171,6 +172,16 @@ package org.purepdf.pdf
 			super();
 			addProducer();
 			addCreationDate();
+		}
+
+		public function get marginMirroring():Boolean
+		{
+			return _marginMirroring;
+		}
+
+		public function set marginMirroring(value:Boolean):void
+		{
+			_marginMirroring = value;
 		}
 
 		public function get marginTop():Number
@@ -347,6 +358,16 @@ package org.purepdf.pdf
 					}
 					break;
 				
+				case Element.MULTI_COLUMN_TEXT:
+					ensureNewLine();
+					flushLines();
+					var multiText: MultiColumnText = MultiColumnText( element );
+					var height: Number = multiText.write( writer.getDirectContent(), this, indentTop - currentHeight );
+					currentHeight += height;
+					text.moveText(0, -1* height);
+					pageEmpty = false;
+					break;
+				
 				default:
 					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
 			}
@@ -361,6 +382,18 @@ package org.purepdf.pdf
 			if ( annot.writer == null )
 				annot.writer = _writer;
 			annotationsImp.addAnnotation( annot );
+		}
+		
+		/**
+		 * Gets the current vertical page position.
+		 * @param ensureNewLine Tells whether a new line shall be enforced
+		 */
+		public function getVerticalPosition( ensurenewline: Boolean ): Number
+		{
+			if( ensurenewline )
+				ensureNewLine();
+			
+			return top() -  currentHeight - indentation.indentTop;
 		}
 		
 		/**
@@ -1070,7 +1103,7 @@ package org.purepdf.pdf
 		{
 			_pageSize = nextPageSize;
 
-			if ( marginMirroring && ( pageN & 1 ) == 0 )
+			if ( _marginMirroring && ( pageN & 1 ) == 0 )
 			{
 				_marginRight = nextMarginLeft;
 				_marginLeft = nextMarginRight;
