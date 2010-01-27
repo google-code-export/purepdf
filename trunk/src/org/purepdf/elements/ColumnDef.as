@@ -65,21 +65,21 @@ package org.purepdf.elements
 			_left[1] = _ref.top;          // y1
 			_left[2] = leftPosition; // x2
 			
-			if( _ref.desiredHeight == MultiColumnText.AUTOMATIC || _ref.top == MultiColumnText.AUTOMATIC )
+			if( _ref._desiredHeight == MultiColumnText.AUTOMATIC || _ref.top == MultiColumnText.AUTOMATIC )
 			{
 				_left[3] = MultiColumnText.AUTOMATIC;
 			} else {
-				_left[3] = _ref.top - _ref.desiredHeight;
+				_left[3] = _ref.top - _ref._desiredHeight;
 			}
 			
 			_right = new Vector.<Number>(4, true);
 			_right[0] = rightPosition; // x1
 			_right[1] = _ref.top;           // y1
 			_right[2] = rightPosition; // x2
-			if( _ref.desiredHeight == MultiColumnText.AUTOMATIC || _ref.top == MultiColumnText.AUTOMATIC) {
+			if( _ref._desiredHeight == MultiColumnText.AUTOMATIC || _ref.top == MultiColumnText.AUTOMATIC) {
 				_right[3] = MultiColumnText.AUTOMATIC;
 			} else {
-				_right[3] = _ref.top - _ref.desiredHeight;
+				_right[3] = _ref.top - _ref._desiredHeight;
 			}
 		}
 		

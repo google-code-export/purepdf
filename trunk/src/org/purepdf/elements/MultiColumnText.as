@@ -52,7 +52,7 @@ package org.purepdf.elements
 	public class MultiColumnText implements IElement
 	{
 		public static const AUTOMATIC: int = -1;
-		internal var desiredHeight: Number = 0;
+		internal var _desiredHeight: Number = 0;
 		private var totalHeight: Number = 0;
 		private var _overflow: Boolean;
 		internal var top: Number = AUTOMATIC;
@@ -68,9 +68,15 @@ package org.purepdf.elements
 		{
 			columnDefs = new Vector.<ColumnDef>();
 			columnText = new ColumnText(null);
-			desiredHeight = AUTOMATIC;
+			_desiredHeight = AUTOMATIC;
 			top = AUTOMATIC;
 			totalHeight = 0;
+		}
+		
+		
+		public function set desiredHeight( value: int ): void
+		{
+			_desiredHeight = value;
 		}
 		
 		/**
@@ -83,10 +89,10 @@ package org.purepdf.elements
 		
 		internal function getColumnBottom(): Number
 		{
-			if( desiredHeight == AUTOMATIC )
+			if( _desiredHeight == AUTOMATIC )
 				return document.bottom();
 			else
-				return Math.max( top - ( desiredHeight - totalHeight ), document.bottom() );
+				return Math.max( top - ( _desiredHeight - totalHeight ), document.bottom() );
 		}
 		
 		/**
@@ -324,7 +330,7 @@ package org.purepdf.elements
 					} else 
 					{
 						totalHeight += currentHeight;
-						if( ( desiredHeight != AUTOMATIC) && ( totalHeight >= desiredHeight ) )
+						if( ( _desiredHeight != AUTOMATIC) && ( totalHeight >= _desiredHeight ) )
 						{
 							_overflow = true;
 							break;
@@ -342,7 +348,7 @@ package org.purepdf.elements
 				throw ex;
 			}
 			
-			if( desiredHeight == AUTOMATIC && columnDefs.length == 1 )
+			if( _desiredHeight == AUTOMATIC && columnDefs.length == 1 )
 			{
 				currentHeight = documentY - columnText.yLine;
 			}
@@ -445,7 +451,7 @@ package org.purepdf.elements
 		{
 			resetCurrentColumn();
 			
-			if( desiredHeight == AUTOMATIC )
+			if( _desiredHeight == AUTOMATIC )
 				top = nextY = AUTOMATIC;
 			else
 				top = nextY;
