@@ -97,7 +97,7 @@ package org.purepdf.elements
 		
 		private function _resolvePositions( positions: Vector.<Number> ): Vector.<Number>
 		{
-			if( simple )
+			if( !simple )
 			{
 				positions[1] = _ref.top;
 				return positions;
