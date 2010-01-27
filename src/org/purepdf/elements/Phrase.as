@@ -360,7 +360,7 @@ package org.purepdf.elements
 			{
 				try
 				{
-					var previous: Chunk = _array[ size - 1 ] as Chunk;
+					var previous: Chunk = Chunk(_array[ size - 1 ]);
 
 					if ( !previous.hasAttributes && ( f == null || f.compareTo( previous.font ) == 0 ) && !( "" == StringUtils.trim( previous
 						.content ) ) && !( "" == StringUtils.trim( c ) ) )
@@ -369,8 +369,9 @@ package org.purepdf.elements
 						return true;
 					}
 				}
-				catch ( cce: CastTypeError )
+				catch ( cce: TypeError )
 				{
+					/* empty statement */
 				}
 			}
 

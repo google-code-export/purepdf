@@ -210,14 +210,18 @@ package org.purepdf.pdf
 		 *  
 		 * @see addElement()
 		 */
+		
+		
+		
 		public function addElement( element: IElement ): Boolean
 		{
 			if ( _writer != null && _writer.isPaused() )
 				return false;
 
 			var ptable: PdfPTable;
+			var e_type: int = element.type;
 			
-			switch ( element.type )
+			switch ( e_type )
 			{
 				case Element.PRODUCER:
 					info.addProducer();
@@ -369,7 +373,7 @@ package org.purepdf.pdf
 					break;
 				
 				default:
-					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + element.type );
+					throw new DocumentError( 'PdfDocument.add. Invalid type: ' + e_type );
 			}
 			lastElementType = element.type;
 			return true;
@@ -825,6 +829,15 @@ package org.purepdf.pdf
 			{
 				return false;
 			}
+			
+			if( !opened )
+			{
+				_marginBottom = marginBottom;
+				_marginLeft = marginLeft;
+				_marginRight = marginRight;
+				_marginTop = marginTop;
+			}
+			
 			nextMarginLeft = marginLeft;
 			nextMarginRight = marginRight;
 			nextMarginTop = marginTop;
@@ -1819,7 +1832,7 @@ package org.purepdf.pdf
 			var p: Paragraph = header.paragraph;
 			leading = p.totalLeading;
 			text.moveText( 0, leading );
-			add( p  );
+			add( p );
 			newLine();
 			indentation.indentTop = currentHeight - leading;
 			header.setTop(top() + leading);
