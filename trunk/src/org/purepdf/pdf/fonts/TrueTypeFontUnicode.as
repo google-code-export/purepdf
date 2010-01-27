@@ -263,7 +263,7 @@ package org.purepdf.pdf.fonts
 						continue;
 					var m: int = metric[0];
 					if (m == lastNumber + 1) {
-						buf + ' ' + metric[1];
+						buf += ' ' + metric[1];
 					} else 
 					{
 						if (!firstTime)
