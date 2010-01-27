@@ -7,6 +7,22 @@
 
 	<target name="compile-all" depends="clean,compile-fonts,compile" />
 	
+	<target name="update-version">
+		<propertyset id="tdate"></propertyset>
+		<tstamp>
+			<format property="tdate" pattern="yyyyMMdd"/>
+		</tstamp>
+		<echo>updating version to current datetime: ${tdate}</echo>
+		<replaceregexp byline="true">
+			<regexp pattern="public static const RELEASE: String = \'([0-9]+\.[0-9]+\.)([0-9_-]+)\'"/>
+			<substitution expression="public static const RELEASE: String = '\1${tdate}'"/>
+			<fileset dir="src/org/purepdf/pdf">
+    			<include name="PdfWriter.as"/>
+			</fileset>
+		</replaceregexp>
+	</target>
+	
+	
 	<target name="compile-fonts">
 		<echo>Compiling ${font_output_filename}</echo>
 		<compc 
@@ -17,7 +33,7 @@
 		</compc>
 	</target>
 	
-	<target name="compile">
+	<target name="compile" depends="update-version">
 		<echo>Compiling ${output_filename}</echo>
 		<mkdir dir="_tmp"/>
 		<move file="src/org/purepdf/resources/BuiltinFonts.as" tofile="_tmp/BuiltinFonts.moved"/>
