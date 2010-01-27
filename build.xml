@@ -59,14 +59,15 @@
 	</target>
 
 	<target name="asdoc">
-		<exec executable="${flex_sdk_home}/bin/asdoc" dir="${basedir}" failonerror="true">
-			<arg line="-doc-sources=src" />
-			<arg line="-compiler.library-path+=libs/as3corelib.swc" />
-			<arg line="-compiler.library-path+=libs/float.swc" />
-			<arg line="-compiler.library-path+=libs/FZlib.swc" />
-			<arg line="-compiler.library-path+=libs/HashMap.swc" />
-			<arg line="-compiler.library-path+=${output_dir}/${font_output_filename}" />
-		</exec>
+		<asdoc failonerror="true" fork="true" maxmemory="512m">
+			<compiler.source-path path-element="src" />
+			<doc-sources path-element="src" />
+			<compiler.library-path dir="${output_dir}/${font_output_filename}" />
+			<compiler.library-path dir="libs"><include name="*.swc" /></compiler.library-path>
+		</asdoc>
+		
+		<zip destfile="${output_dir}/asdoc-output.zip" basedir="asdoc-output"></zip>
+		
 	</target>
 
 	<target name="clean">
