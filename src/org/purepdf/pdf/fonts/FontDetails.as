@@ -39,6 +39,9 @@
 */
 package org.purepdf.pdf.fonts
 {
+	import flash.utils.ByteArray;
+	import flash.utils.Endian;
+	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
@@ -140,7 +143,11 @@ package org.purepdf.pdf.fonts
 					len = text.length;
 					var metrics: Vector.<int> = null;
 					var glyph: String = "";
+					var glyphs: Vector.<int> = new Vector.<int>();
 					var i: int = 0;
+					
+					var tmp: ByteArray = new ByteArray();
+					tmp.endian = Endian.LITTLE_ENDIAN;
 					
 					if( symbolic )
 					{
@@ -153,6 +160,7 @@ package org.purepdf.pdf.fonts
 								continue;
 							_longTag.put( metrics[0], Vector.<int>([ metrics[0], metrics[1], _ttu.getUnicodeDifferences(b[k] & 0xff)]) );
 							glyph += String.fromCharCode( metrics[0] );
+							tmp.writeMultiByte( String.fromCharCode( metrics[0] ), "unicodeFFFE" );
 						}
 					} else 
 					{
@@ -177,11 +185,16 @@ package org.purepdf.pdf.fonts
 							if( !_longTag.containsKey(gl) )
 								_longTag.put(gl, Vector.<int>([m0, metrics[1], val]) );
 							glyph += String.fromCharCode( m0 );
+							tmp.writeMultiByte( String.fromCharCode( m0 ), "unicodeFFFE" );
 						}
 					}
 					
+					//b = new Bytes();
+					//b.buffer.writeMultiByte( glyph, "unicodeFFFE" );
+					
 					b = new Bytes();
-					b.buffer.writeMultiByte( glyph, "unicodeFFFE" );
+					b.buffer = tmp;
+					
 					return b;
 					break;
 			}
