@@ -58,6 +58,7 @@ package org.purepdf.lang
 				ws =  CharacterDataLatin1.isWhitespace( code );
 			} else
 			{
+				trace("Character.isWhitespace with unicode not yet implemented");
 				return false;	// not yet implemented
 			}
 			return ws;
