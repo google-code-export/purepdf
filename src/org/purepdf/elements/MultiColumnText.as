@@ -52,10 +52,10 @@ package org.purepdf.elements
 	public class MultiColumnText implements IElement
 	{
 		public static const AUTOMATIC: int = -1;
-		internal var desiredHeight: Number;
-		private var totalHeight: Number;
+		internal var desiredHeight: Number = 0;
+		private var totalHeight: Number = 0;
 		private var _overflow: Boolean;
-		internal var top: Number;
+		internal var top: Number = AUTOMATIC;
 		private var columnText: ColumnText;
 		private var columnDefs: Vector.<ColumnDef>;
 		private var simple: Boolean = true;
@@ -66,6 +66,11 @@ package org.purepdf.elements
 		
 		public function MultiColumnText()
 		{
+			columnDefs = new Vector.<ColumnDef>();
+			columnText = new ColumnText(null);
+			desiredHeight = AUTOMATIC;
+			top = AUTOMATIC;
+			totalHeight = 0;
 		}
 		
 		/**

@@ -163,7 +163,10 @@ package org.purepdf.elements
 		}
 		
 		/**
-		 * @see #setAlignment()
+		 * @see org.purepdf.elements.Element#ALIGN_RIGHT
+		 * @see org.purepdf.elements.Element#ALIGN_CENTER
+		 * @see org.purepdf.elements.Element#ALIGN_JUSTIFIED
+		 * @see org.purepdf.elements.Element#ALIGN_LEFT
 		 */
 		public function set alignment( value: int ): void
 		{
