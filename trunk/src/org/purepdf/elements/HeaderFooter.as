@@ -39,6 +39,7 @@
 */
 package org.purepdf.elements
 {
+	import org.purepdf.Font;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
 
