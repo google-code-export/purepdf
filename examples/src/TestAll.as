@@ -4,6 +4,8 @@ package
 	import flash.events.Event;
 	import flash.net.FileReference;
 	import flash.utils.getQualifiedClassName;
+	
+	import org.purepdf.elements.MultiColumnText;
 
 	public class TestAll extends DefaultBasicExample
 	{
@@ -81,6 +83,7 @@ package
 			class_list.push( Javascript2 );
 			class_list.push( Calculator );
 			class_list.push( ArabicText );
+			class_list.push( MultiColumnText );
 			
 			total_number = class_list.length;
 		}
