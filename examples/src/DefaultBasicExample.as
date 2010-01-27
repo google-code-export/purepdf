@@ -18,14 +18,16 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	
+	import flashx.textLayout.elements.TextFlow;
+	
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfDocument;
 	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.utils.StringUtils;
 
 	public class DefaultBasicExample extends Sprite
@@ -35,7 +37,10 @@ package
 		protected var document: PdfDocument;
 		protected var writer: PdfWriter;
 		protected var end_time: Number;
-		protected var result_time: TextLine;
+		protected var message_line: TextLine;
+		protected var font: FontDescription;
+		protected var msg_format: ElementFormat;
+		protected var default_block: TextBlock;
 
 		protected var start_time: Number;
 		internal var buffer: ByteArray;
@@ -51,6 +56,16 @@ package
 			description_list = d_list;
 			filename = getQualifiedClassName( this ).split( "::" ).pop() + ".pdf";;
 			addEventListener( Event.ADDED_TO_STAGE, added );
+			
+			font = new FontDescription();
+			font.fontName = "Helvetica";
+			
+			msg_format = new ElementFormat();
+			msg_format.fontDescription = font;
+			msg_format.fontSize = 12;
+			msg_format.color = 0x006600;
+			
+			default_block = new TextBlock();
 		}
 
 		public function executeAll(): Array
@@ -71,26 +86,26 @@ package
 			var ms: int = ( time - ( seconds * 1000 ) ) / 10;
 
 			text = "Total execution time: " + StringUtils.padLeft( seconds.toString(), '0', 2 ) + ":" + StringUtils.padLeft( ms.toString(), '0', 2 );
-
-			var font: FontDescription = new FontDescription();
-			font.fontName = "Arial";
-
-			var elementFormat: ElementFormat = new ElementFormat();
-			elementFormat.fontDescription = font;
-			elementFormat.fontSize = 14;
-			elementFormat.color = 0x006600;
-
-			var textline: TextLine;
-			var tb: TextBlock = new TextBlock();
-			tb.content = new TextElement( text, elementFormat );
-			result_time = tb.createTextLine();
-
-			if ( stage )
+			send_message( text );
+		}
+		
+		protected function send_message( msg: String ): void
+		{
+			clear_message();
+			if( stage )
 			{
-				result_time.x = ( stage.stageWidth - result_time.width ) / 2;
-				result_time.y = create_button.y - result_time.height - 5;
-				addChild( result_time );
+				default_block.content = new TextElement( msg, msg_format );
+				message_line = default_block.createTextLine();
+				addChild( message_line );
+				center( message_line, null, create_button );
 			}
+		}
+		
+		protected function clear_message(): void
+		{
+			if( message_line )
+				message_line.parent.removeChild( message_line );
+			message_line = null;
 		}
 
 		protected function added( event: Event ): void
@@ -100,12 +115,14 @@ package
 			createchildren();
 		}
 
-		protected function center( obj: DisplayObject, below: DisplayObject=null ): void
+		protected function center( obj: DisplayObject, below: DisplayObject=null, above: DisplayObject=null ): void
 		{
 			obj.x = ( stage.stageWidth - obj.width ) / 2;
 
 			if ( below )
 				obj.y = below.y + below.height + 5;
+			else if( above )
+				obj.y = above.y - obj.height - 5;
 			else
 				obj.y = ( stage.stageHeight - obj.height ) / 2;
 		}
@@ -226,9 +243,6 @@ package
 			if ( !stage )
 				return;
 			end_time = new Date().getTime();
-
-			if ( result_time )
-				removeChild( result_time );
 
 			addResultTime( end_time - start_time );
 

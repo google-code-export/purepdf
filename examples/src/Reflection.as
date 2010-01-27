@@ -3,18 +3,26 @@ package
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.net.getClassByAlias;
+	import flash.text.engine.FontDescription;
 	import flash.utils.Timer;
 	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
 	import flashx.textLayout.operations.SplitParagraphOperation;
+	import flashx.textLayout.utils.CharacterUtil;
 	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.Font;
+	import org.purepdf.FontFactoryImp;
+	import org.purepdf.IClonable;
+	import org.purepdf.IComparable;
+	import org.purepdf.IFontProvider;
+	import org.purepdf.IIterable;
+	import org.purepdf.ISplitCharacter;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
@@ -24,17 +32,66 @@ package
 	import org.purepdf.colors.ShadingColor;
 	import org.purepdf.colors.SpotColor;
 	import org.purepdf.elements.Anchor;
+	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Chapter;
 	import org.purepdf.elements.ChapterAutoNumber;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
+	import org.purepdf.elements.ElementTags;
+	import org.purepdf.elements.GreekList;
 	import org.purepdf.elements.HeaderFooter;
 	import org.purepdf.elements.List;
 	import org.purepdf.elements.ListItem;
+	import org.purepdf.elements.MarkedObject;
+	import org.purepdf.elements.MarkedSection;
+	import org.purepdf.elements.Meta;
+	import org.purepdf.elements.MultiColumnText;
 	import org.purepdf.elements.Paragraph;
 	import org.purepdf.elements.Phrase;
+	import org.purepdf.elements.ReadOnlyRectangle;
 	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.elements.RomanList;
 	import org.purepdf.elements.Section;
+	import org.purepdf.elements.SimpleCell;
+	import org.purepdf.elements.SimpleTable;
+	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.elements.images.ImageRaw;
+	import org.purepdf.elements.images.ImageTemplate;
+	import org.purepdf.elements.images.ImageWMF;
+	import org.purepdf.elements.images.Jpeg;
+	import org.purepdf.errors.AssertionError;
+	import org.purepdf.errors.BadElementError;
+	import org.purepdf.errors.CastTypeError;
+	import org.purepdf.errors.ConversionError;
+	import org.purepdf.errors.DocumentError;
+	import org.purepdf.errors.IllegalPdfSyntaxError;
+	import org.purepdf.errors.IllegalStateError;
+	import org.purepdf.errors.IndexOutOfBoundsError;
+	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.NullPointerError;
+	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.errors.UnsupportedOperationError;
+	import org.purepdf.events.ChapterEvent;
+	import org.purepdf.events.ChunkEvent;
+	import org.purepdf.events.PageEvent;
+	import org.purepdf.events.ParagraphEvent;
+	import org.purepdf.events.SectionEvent;
+	import org.purepdf.factories.FontFactory;
+	import org.purepdf.factories.GreekAlphabetFactory;
+	import org.purepdf.factories.RomanAlphabetFactory;
+	import org.purepdf.factories.RomanDigit;
+	import org.purepdf.factories.RomanNumberFactory;
+	import org.purepdf.html.Markup;
+	import org.purepdf.io.ByteArrayInputStream;
+	import org.purepdf.io.DataInputStream;
+	import org.purepdf.io.FilterInputStream;
+	import org.purepdf.io.InputStream;
+	import org.purepdf.io.LineReader;
+	import org.purepdf.io.OutputStreamCounter;
+	import org.purepdf.io.zip.InflaterInputStream;
+	import org.purepdf.lang.Character;
+	import org.purepdf.lang.CharacterDataLatin1;
+	import org.purepdf.lang.SpecialSymbol;
 	import org.purepdf.pdf.ArabicLigaturizer;
 	import org.purepdf.pdf.BidiLine;
 	import org.purepdf.pdf.BidiOrder;
@@ -111,14 +168,51 @@ package
 	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.PdfViewerPreferencesImp;
 	import org.purepdf.pdf.PdfWriter;
+	import org.purepdf.pdf.barcode.Barcode;
+	import org.purepdf.pdf.barcode.BarcodeEAN;
+	import org.purepdf.pdf.barcode.BarcodeEANSUPP;
+	import org.purepdf.pdf.codec.GifImage;
+	import org.purepdf.pdf.codec.PngImage;
+	import org.purepdf.pdf.codec.TiffImage;
+	import org.purepdf.pdf.events.PdfPCellEventForwarder;
+	import org.purepdf.pdf.events.PdfPTableEventForwarder;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.CJKFont;
+	import org.purepdf.pdf.fonts.DocumentFont;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.pdf.fonts.GlyphList;
+	import org.purepdf.pdf.fonts.StreamFont;
+	import org.purepdf.pdf.fonts.TrueTypeFont;
+	import org.purepdf.pdf.fonts.TrueTypeFontSubSet;
+	import org.purepdf.pdf.fonts.TrueTypeFontUnicode;
+	import org.purepdf.pdf.fonts.cmaps.CJKFontResourceFactory;
+	import org.purepdf.pdf.fonts.cmaps.CMapResourceFactory;
+	import org.purepdf.pdf.forms.FieldBase;
+	import org.purepdf.pdf.forms.FieldText;
+	import org.purepdf.pdf.forms.PdfFormField;
+	import org.purepdf.resources.BuiltinCJKFonts;
 	import org.purepdf.resources.BuiltinFonts;
+	import org.purepdf.resources.CMap;
+	import org.purepdf.resources.ICMap;
+	import org.purepdf.utils.AlchemyUtils;
+	import org.purepdf.utils.ByteArrayUtils;
+	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.FloatUtils;
+	import org.purepdf.utils.IProperties;
+	import org.purepdf.utils.IntHashMap;
+	import org.purepdf.utils.NumberUtils;
+	import org.purepdf.utils.Properties;
+	import org.purepdf.utils.StringTokenizer;
 	import org.purepdf.utils.StringUtils;
+	import org.purepdf.utils.Utilities;
+	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.collections.TreeSet;
+	import org.purepdf.utils.iterators.VectorIterator;
 
 	public class Reflection extends DefaultBasicExample
 	{
 		private var chapterFont: Font;
+		private var packageFont: Font;
 		private var sectionFont: Font;
 		private var titleFont: Font;
 		private var defaultFont: Font;
@@ -157,10 +251,11 @@ package
 			titleFont = new Font(-1, 24, Font.BOLD, null, myriadpro_bold );
 			mainFont = new Font(-1, 32, Font.NORMAL, null, myriadpro_regular );
 			chapterFont = new Font(-1, 24, -1, null, myriadpro_bold );
+			packageFont = new Font(-1, 12, -1, RGBColor.DARK_GRAY, myriadpro_bold );
 			sectionFont = new Font(-1, 14, -1, null, myriadpro_regular );
 			
-			linkFont = new Font(-1, 10, Font.UNDERLINE, RGBColor.BLUE, minionpro_regular );
-			defaultFont = new Font(-1, 8, -1, null, minionpro_regular );
+			linkFont = new Font(-1, 12, Font.UNDERLINE, RGBColor.BLUE, myriadpro_bold );
+			defaultFont = new Font(-1, 10, -1, null, minionpro_regular );
 			methodsFont = new Font(-1, 12, -1, null, minionpro_regular );
 			methodsParamFont = new Font(-1, 10, -1, RGBColor.DARK_GRAY, minionpro_regular );
 			paramFont = new Font( -1, 8, Font.NORMAL, RGBColor.GRAY, minionpro_regular );
@@ -172,27 +267,31 @@ package
 			timer = new Timer( 10, 1 );
 			timer.addEventListener( TimerEvent.TIMER_COMPLETE, onTimerComplete );
 			
-			push_class( TIFFEncoder, CMYKColor, ExtendedColor, GrayColor, PatternColor, RGBColor, ShadingColor, SpotColor, Element, 
-				PdfViewPreferences,
-				PdfViewerPreferencesImp,
-				PdfVersion,
-				PdfTransparencyGroup,
-				PdfTransition,
-				PdfTrailer,
-				PdfTextArray,
-				PdfTemplate,
-				PdfString,
-				PdfStream,
-				PdfSpotColor, PdfShading, PdfResources, PdfRectangle,
-				PdfReader, PdfPTable, PdfPRow, PdfPCell, PdfPatternPainter, PdfPattern, PdfPages, PdfPage,
-				PdfOutline, PdfOCProperties, PdfObject, PdfNumber, PdfNull, PdfLiteral, PdfLine, PdfLayerMembership,
+			push_class( 
+				ImageElement, ImageRaw, ImageTemplate, ImageWMF, Jpeg, Anchor, Annotation, ChapterAutoNumber,
+				Chunk, Element, ElementTags, GreekList, HeaderFooter, List, ListItem, MarkedObject, MarkedSection,
+				Meta, MultiColumnText, Paragraph, Phrase, ReadOnlyRectangle, RectangleElement, RomanList,
+				SimpleCell, SimpleTable, TIFFEncoder, CMYKColor, ExtendedColor, GrayColor, PatternColor, RGBColor, ShadingColor, SpotColor, Element, 
+				PdfViewPreferences, Font, IClonable, FontFactoryImp, IComparable, IFontProvider, IIterable, ISplitCharacter, RomanNumberFactory,
+				PdfViewerPreferencesImp, AlchemyUtils, ByteArrayUtils, Bytes, FloatUtils, IntHashMap, IProperties, RomanAlphabetFactory, RomanDigit,
+				PdfVersion, NumberUtils, Properties, StringTokenizer, StringUtils, Utilities, Markup, FontFactory, GreekAlphabetFactory,
+				PdfTransparencyGroup, TreeSet, Barcode, BarcodeEAN, BarcodeEANSUPP, ByteArrayInputStream, DataInputStream, FilterInputStream,
+				PdfTransition, VectorIterator, CJKFontResourceFactory, CMapResourceFactory, InputStream, LineReader, OutputStreamCounter,
+				PdfTrailer, ICMap, CMap, BuiltinCJKFonts, BuiltinFonts, FieldBase, FieldText, PdfFormField, AssertionError, BadElementError,
+				PdfTextArray, org.purepdf.pdf.GraphicState, GifImage, PngImage, TiffImage, InflaterInputStream, CastTypeError, ConversionError,
+				PdfTemplate, PdfPCellEventForwarder, PdfPTableEventForwarder, ChapterEvent, ChunkEvent, PageEvent, ParagraphEvent, SectionEvent,
+				PdfString, BaseFont, CJKFont, DocumentFont, FontsResourceFactory, GlyphList, StreamFont, DocumentError, IllegalPdfSyntaxError,
+				PdfStream, TrueTypeFont, TrueTypeFontSubSet, TrueTypeFontUnicode, IllegalStateError, IndexOutOfBoundsError, NonImplementatioError,
+				PdfSpotColor, PdfShading, PdfResources, PdfRectangle, SpecialSymbol, CharacterDataLatin1, Character, CharacterUtil,
+				PdfReader, PdfPTable, PdfPRow, PdfPCell, PdfPatternPainter, PdfPattern, PdfPages, PdfPage, NullPointerError, RuntimeError,
+				PdfOutline, PdfOCProperties, PdfObject, PdfNumber, PdfNull, PdfLiteral, PdfLine, PdfLayerMembership, UnsupportedOperationError,
 				PdfLayer, PdfInfo, PdfIndirectObject, PdfImage, PdfGState, PdfFunction, PdfFormXObject, PdfFont, PdfEncryption,
 				PdfEncodings, PdfDictionary, PdfDestination, PdfDashPattern, PdfCrossReference, PdfCopyFieldsImp, PdfContents,
 				PdfContentByte, PdfColor, PdfChunk, PdfCatalog, PdfBorderArray, PdfBoolean, PdfBody, PdfBlendMode, PdfArray,
 				PdfAppearance, PdfAnnotationsImp, PdfAnnotation, PdfAction, PdfAcroForm, PageSize, PageResources,
 				Indentation, FontSelector, DefaultSplitCharacter, ColumnText, ColorDetails,
 				ByteBuffer, BidiOrder, BidiOrderTypes, BidiLine, ArabicLigaturizer,
-				PdfIndirectReference, PdfDocument, PdfWriter );
+				PdfIndirectReference, PdfDocument );
 		}
 		
 		private function push_class( ...rest: Array ): void
@@ -233,7 +332,7 @@ package
 			document.setFooter( footer );
 			
 			f = new Font( -1, 10, -1, new GrayColor(.7), minionpro_regular );
-			var header: HeaderFooter = new HeaderFooter( new Phrase("http://code.google.com/p/purepdf | ", f ), null, true );
+			var header: HeaderFooter = new HeaderFooter( new Phrase("http://code.google.com/p/purepdf  (", f ), new Phrase(")", f ), true );
 			header.alignment = Element.ALIGN_RIGHT;
 			header.borderSides = RectangleElement.TOP;
 			header.borderColor = new GrayColor(.7);
@@ -244,7 +343,10 @@ package
 			document.setMargins( 72, 72, 72, 72 );
 			document.open();
 			
-			var title: Paragraph = new Paragraph("purepdf Reference\n\n", mainFont );
+			var title: Paragraph = new Paragraph(null, defaultFont);
+			title.add( new Phrase("PUREPDF class list\n", mainFont ));
+			title.add( new Phrase("This document has been generated automatically from purepdf using actionscript reflection methods\n\n", defaultFont ) );
+			
 			document.add( title );
 			
 			timer.start();
@@ -271,15 +373,23 @@ package
 			var paragraph: Paragraph;
 			
 			
-			var chapter: Chapter = new Chapter( new Paragraph( " " + element.@name.toString(), chapterFont ), ++section_count );
+			send_message( processed.size() + ". " + class_name );
+			
+			var chapterTitle: Paragraph = new Paragraph( " " + class_name, chapterFont );
+			
+			var chapter: Chapter = new Chapter( chapterTitle, ++section_count );
 			chapter.bookmarkTitle = class_name;
-			chapter.bookmarkOpen = true;
+			chapter.bookmarkOpen = false;
 			chapter.triggerNewPage = false;
+			//chapter.numberDepth = 0;
+			
+			paragraph = new Paragraph("In package:\t", publicMethodsFont );
+			paragraph.add( new Phrase( package_name + "\n", packageFont ) );
 			
 			// extends
 			if( element.factory.extendsClass.length() > 0 )
 			{
-				paragraph = new Paragraph("Extends: ", publicMethodsFont );
+				var p0: Phrase = new Phrase("Extends:\t", publicMethodsFont );
 				
 				var extended_classes: Vector.<String> = new Vector.<String>();
 				for( k = 0; k < element.factory.extendsClass.length(); ++k )
@@ -290,19 +400,19 @@ package
 					extended_classes.push( type );
 					
 				}
-				var phrase: Phrase = new Phrase( extended_classes.join(", ") + "\n", methodsFont );
-				paragraph.add( phrase );
-				chapter.add( paragraph );
-			} else {
-				paragraph = new Paragraph( null, publicMethodsFont );
+				var phrase: Phrase = new Phrase( extended_classes.join(", ") + "\n", packageFont );
+				p0.add( phrase );
+				paragraph.add( p0 );
 			}
 			
 			var link: Anchor = new Anchor( class_name + ".as", linkFont );
-			link.reference = "http://purepdf.googlecode.com/svn/trunk/" + package_name.split(".").join("/") + class_name + ".as";
-			var linkparagraph: Phrase = new Phrase("See online: ", publicMethodsFont );
+			link.reference = "http://purepdf.googlecode.com/svn/trunk/" + package_name.split(".").join("/") + "/" + class_name + ".as";
+			var linkparagraph: Phrase = new Phrase("See online:\t", publicMethodsFont );
 			paragraph.add( linkparagraph );
 			paragraph.add( link );
 			paragraph.add( "\n" );
+			
+			chapter.add( paragraph );
 			
 			// constants
 			if( element.constant.length() > 0 )
@@ -443,7 +553,6 @@ package
 		{
 			var iterator: Iterator;
 			
-			trace( queue.size(), processed.size() );
 			if( queue.size() > 0 )
 			{
 				iterator = queue.entrySet().iterator();
@@ -454,7 +563,6 @@ package
 				var x: XML = describeType( next.value );
 				if( x )
 				{
-					trace( "\n>>>>> " + next.value );
 					process_element( x );
 				}
 				
@@ -467,9 +575,7 @@ package
 		
 		private function complete(): void
 		{
-			trace('FINISH!!!');
-			
-			//document.add( mainChapter );
+			send_message("completed. generating pdf...");
 			document.close();
 			save();
 		}

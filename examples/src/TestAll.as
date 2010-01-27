@@ -140,13 +140,6 @@ package
 			var result: Array = current.executeAll();
 
 			end_time = new Date().getTime();
-
-			if ( result_time )
-			{
-				removeChild( result_time );
-				result_time = null;
-			}
-
 			addResultTime( end_time - start_time );
 
 
@@ -171,11 +164,7 @@ package
 				skip_button = null;
 			}
 
-			if ( result_time )
-			{
-				removeChild( result_time );
-				result_time = null;
-			}
+			clear_message();
 
 			if ( class_list.length == 0 )
 				return;

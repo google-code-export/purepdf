@@ -22,9 +22,9 @@ package
 		private var footer: PdfPTable;
 		private var header: Phrase;
 		
-		private var font: Font;
 		private var font1: Font;
 		private var font2: Font;
+		private var font3: Font;
 
 		public function HeaderFooter2()
 		{
@@ -35,7 +35,7 @@ package
 			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA_BOLD, new BuiltinFonts.HELVETICA_BOLD() );
 			
 			var bf: BaseFont = BaseFont.createFont( BaseFont.HELVETICA, BaseFont.WINANSI, false, true );
-			font = new Font( Font.HELVETICA, 12, Font.NORMAL, null, bf );
+			font3 = new Font( Font.HELVETICA, 12, Font.NORMAL, null, bf );
 			font1 = new Font( Font.HELVETICA, 12, Font.NORMAL, RGBColor.LIGHT_GRAY, bf );
 			font2 = new Font( Font.HELVETICA, 12, Font.BOLD, null, bf );
 			
@@ -64,7 +64,7 @@ package
 
 			for ( var k: int = 0; k < 300; ++k )
 			{
-				document.add( new Phrase( "Quick brown fox jumps over the lazy dog. ", font ) );
+				document.add( new Phrase( "Quick brown fox jumps over the lazy dog. ", font3 ) );
 			}
 			document.close();
 			save();
