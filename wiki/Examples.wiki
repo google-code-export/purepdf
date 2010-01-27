@@ -47,6 +47,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/LineStyles.as LineStyles.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ListExample1.as ListExample1.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ListExample2.as ListExample2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/MultiColumnIrregular.as MultiColumnIrregular.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/MultiColumnPoem.as MultiColumnPoem.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ParagraphExample.as ParagraphExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Patterns.as Patterns.as]
