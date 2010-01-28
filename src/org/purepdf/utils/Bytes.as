@@ -53,6 +53,11 @@ package org.purepdf.utils
 	{
 		private var buf: ByteArray;
 
+		/**
+		 * Construct a new Bytes instance
+		 * 
+		 * @param value	Possible values are: Number, Array, ByteArray
+		 */
 		public function Bytes( value: Object=null )
 		{
 			super();
@@ -68,6 +73,10 @@ package org.purepdf.utils
 				{
 					for ( var k: int = 0; k < value.length; k++ )
 						this[ k ] = value[ k ];
+				}
+				else if( value is ByteArray )
+				{
+					buf = ByteArray( value );
 				}
 			}
 		}
