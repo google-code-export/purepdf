@@ -55,6 +55,7 @@ package
 		private var publicMethodsFont: Font;
 		
 		private var myriadpro_bold: BaseFont;
+		private var minionpro_bold: BaseFont;
 		private var minionpro_regular: BaseFont;
 		private var myriadpro_regular: BaseFont;
 		private var chapters: Vector.<Section> = new Vector.<Section>();
@@ -63,11 +64,12 @@ package
 		private var processed: HashMap;
 		private var timer: Timer;
 		
-		private var section_count: int = 1;
+		private var section_count: int = 0;
 		
 		[Embed(source="/Library/Fonts/MyriadPro-Semibold.otf", mimeType="application/octet-stream")] private var font1: Class;
-		[Embed(source="/Library/Fonts/MinionPro-Regular.otf", mimeType="application/octet-stream")] private var font2: Class;
 		[Embed(source="/Library/Fonts/MyriadPro-Regular.otf", mimeType="application/octet-stream")] private var font3: Class;
+		[Embed(source="/Library/Fonts/MinionPro-Regular.otf", mimeType="application/octet-stream")] private var font2: Class;
+		[Embed(source="/Library/Fonts/MinionPro-Bold.otf", mimeType="application/octet-stream")] private var font4: Class;
 		
 		public function Reflection(d_list:Array=null)
 		{
@@ -77,12 +79,14 @@ package
 			FontsResourceFactory.getInstance().registerFont( "MyriadPro-Semibold.otf", new font1() );
 			FontsResourceFactory.getInstance().registerFont( "MinionPro-Regular.otf", new font2() );
 			FontsResourceFactory.getInstance().registerFont( "MyriadPro-Regular.otf", new font3() );
+			FontsResourceFactory.getInstance().registerFont( "MinionPro-Bold.otf", new font4() );
 			
 			minionpro_regular = BaseFont.createFont( "MinionPro-Regular.otf", BaseFont.WINANSI, false, true );
+			minionpro_bold = 	BaseFont.createFont( "MinionPro-Bold.otf", BaseFont.WINANSI, false, true );
 			myriadpro_regular = BaseFont.createFont( "MyriadPro-Regular.otf", BaseFont.WINANSI, false, true );
-			myriadpro_bold = BaseFont.createFont( "MyriadPro-Semibold.otf", BaseFont.WINANSI, false, true );
+			myriadpro_bold = 	BaseFont.createFont( "MyriadPro-Semibold.otf", BaseFont.WINANSI, false, true );
 			
-			titleFont = new Font(-1, 32, -1, null, myriadpro_bold );
+			titleFont = new Font(-1, 34, -1, null, minionpro_bold );
 			mainFont = new Font(-1, 32, -1, null, myriadpro_bold );
 			chapterFont = new Font(-1, 24, -1, null, myriadpro_bold );
 			packageFont = new Font(-1, 12, -1, RGBColor.DARK_GRAY, myriadpro_bold );
@@ -201,7 +205,7 @@ package
 		{
 			var title: Paragraph = new Paragraph(null, defaultFont);
 			title.add( new Phrase("purePDF API\n", mainFont ));
-			title.add( new Phrase("This document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") using actionscript reflection methods\n\n", defaultFont ) );
+			title.add( new Phrase("\n\nThis document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") using actionscript reflection methods\n\n", defaultFont ) );
 			
 			title.add( new Phrase("The contents of this file are subject to  LGPL license " +
 				"(the \"GNU LIBRARY GENERAL PUBLIC LICENSE\"), in which case the" +
@@ -529,7 +533,7 @@ package
 		{
 			document.newPage();
 			
-			var tocChapter: Chapter = new Chapter( new Paragraph("Table of contents", mainFont ), 1 );
+			var tocChapter: Chapter = new Chapter( new Paragraph("Table of contents\n", mainFont ), 1 );
 			tocChapter.bookmarkTitle = "Table of Contents";
 			tocChapter.triggerNewPage = false;
 			tocChapter.numberDepth = 0;
