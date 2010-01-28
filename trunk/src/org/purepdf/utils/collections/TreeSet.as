@@ -65,7 +65,9 @@ package org.purepdf.utils.collections
 				return false;
 			
 			map.push( element );
-			map = map.sort( compare );
+			
+			// TODO: verify if map should be sorted
+			//map = map.sort( compare );
 			return true;
 		}
 		
