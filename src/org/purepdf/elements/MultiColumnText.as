@@ -1,8 +1,13 @@
 /*
-* $Id: ColumnText.as 186 2010-01-26 09:44:35Z alessandro.crugnola $
+*                             ______ _____  _______ 
+* .-----..--.--..----..-----.|   __ \     \|    ___|
+* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+* |   __||_____||__|  |_____||___|  |_____/|___|    
+* |__|
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 186 $ $LastChangedDate: 2010-01-26 10:44:35 +0100 (Tue, 26 Jan 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/ColumnText.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the

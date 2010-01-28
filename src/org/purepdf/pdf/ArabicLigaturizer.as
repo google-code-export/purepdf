@@ -1,8 +1,13 @@
 /*
-* $Id: SimpleCell.as 177 2010-01-26 08:36:57Z alessandro.crugnola $
+*                             ______ _____  _______ 
+* .-----..--.--..----..-----.|   __ \     \|    ___|
+* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+* |   __||_____||__|  |_____||___|  |_____/|___|    
+* |__|
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 177 $ $LastChangedDate: 2010-01-26 09:36:57 +0100 (Tue, 26 Jan 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/elements/SimpleCell.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the

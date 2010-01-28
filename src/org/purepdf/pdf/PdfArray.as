@@ -1,4 +1,9 @@
 /*
+*                             ______ _____  _______ 
+* .-----..--.--..----..-----.|   __ \     \|    ___|
+* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+* |   __||_____||__|  |_____||___|  |_____/|___|    
+* |__|
 * $Id$
 * $Author Alessandro Crugnola $
 * $Rev$ $LastChangedDate$
@@ -121,6 +126,16 @@ package org.purepdf.pdf
 		{
 			return arrayList.length;
 		}
+		
+		/**
+		 * Returns the PdfObject at the specified index
+		 * 
+		 */
+		public function getPdfObject( idx: int ): PdfObject
+		{
+			return PdfObject( arrayList[idx] );
+		}
+
 
 		/**
 		 * Writes the PDF representation of this <CODE>PdfArray</CODE> as an array

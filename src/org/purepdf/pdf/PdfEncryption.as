@@ -1,4 +1,9 @@
 /*
+*                             ______ _____  _______ 
+* .-----..--.--..----..-----.|   __ \     \|    ___|
+* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+* |   __||_____||__|  |_____||___|  |_____/|___|    
+* |__|
 * $Id$
 * $Author Alessandro Crugnola $
 * $Rev$ $LastChangedDate$
@@ -45,15 +50,46 @@ package org.purepdf.pdf
 	
 	import it.sephiroth.utils.ObjectHash;
 	
+	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfEncryption extends ObjectHash
 	{
 		private static var seq: Number = new Date().getTime();
 		
+		public static const STANDARD_ENCRYPTION_40: int = 2;
+		public static const STANDARD_ENCRYPTION_128: int = 3;
+		public static const AES_128: int = 4;
+		
+		private var revision: int;
+		private var _embeddedFilesOnly: Boolean;
+		
 		public function PdfEncryption()
 		{
 		}
+		
+		public function calculateStreamSize( n: int ): int
+		{
+			if( revision == AES_128 )
+				return (n & 0x7ffffff0) + 32;
+			else
+				return n;
+		}
+		
+		public function encryptByteArray( b: Bytes ): Bytes
+		{
+			throw new NonImplementatioError("PdfEncryption.enctryptBytes not yet implemented");
+		}
+		
+		/**
+		 * Indicates if only the embedded files have to be encrypted.
+		 * @return	if true only the embedded files will be encrypted
+		 */
+		public function get embeddedFilesOnly(): Boolean 
+		{
+			return _embeddedFilesOnly;
+		}
+
 		
 		public static function createInfoId( id: Bytes ): PdfObject
 		{

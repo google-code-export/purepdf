@@ -1,4 +1,9 @@
 /*
+*                             ______ _____  _______ 
+* .-----..--.--..----..-----.|   __ \     \|    ___|
+* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+* |   __||_____||__|  |_____||___|  |_____/|___|    
+* |__|
 * $Id$
 * $Author Alessandro Crugnola $
 * $Rev$ $LastChangedDate$
@@ -73,6 +78,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.events.ChapterEvent;
 	import org.purepdf.events.ChunkEvent;
+	import org.purepdf.events.DocumentEvent;
 	import org.purepdf.events.PageEvent;
 	import org.purepdf.events.SectionEvent;
 	import org.purepdf.pdf.fonts.BaseFont;
@@ -91,6 +97,10 @@ package org.purepdf.pdf
 	[Event( name="paragraphStart", 	type="org.purepdf.events.ParagraphEvent" )]
 	[Event( name="paragraphEnd", 	type="org.purepdf.events.ParagraphEvent" )]
 	[Event( name="genericTag", 		type="org.purepdf.events.ChunkEvent" )]
+	
+	[Event( name="saveStart", 		type="org.purepdf.events.DocumentEvent" )]
+	[Event( name="saveComplete", 	type="org.purepdf.events.DocumentEvent" )]
+	[Event( name="progress", 		type="flash.events.ProgressEvent" )]
 
 	/**
 	 * 
@@ -525,6 +535,10 @@ package org.purepdf.pdf
 		{
 			if ( closed )
 				return;
+			
+			// dispatch the save start event
+			dispatchEvent( new DocumentEvent( DocumentEvent.SAVE_START ) );
+			
 			var wasImage: Boolean = imageWait != null;
 			newPage();
 
@@ -1303,6 +1317,8 @@ package org.purepdf.pdf
 
 			for ( var j: Iterator = line.iterator(); j.hasNext();  )
 			{
+				
+				
 				chunk = PdfChunk( j.next() );
 				var color: RGBColor = chunk.color;
 				hScale = 1;
@@ -1561,6 +1577,9 @@ package org.purepdf.pdf
 				{
 					text.setCharacterSpacing( baseCharacterSpacing );
 				}
+				
+				
+				
 			}
 
 			if ( isJustified )
