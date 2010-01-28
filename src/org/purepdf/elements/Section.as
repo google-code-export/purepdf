@@ -1,5 +1,4 @@
 /*
-* $Id$
 * $Author Alessandro Crugnola $
 * $Rev$ $LastChangedDate$
 * $URL$
