@@ -41,8 +41,8 @@ package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	
-	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 	
 	
@@ -99,13 +99,28 @@ package org.purepdf.pdf
 			
 			if( crypto != null )
 			{
-				trace('PdfStream.toPdf. crypto != null, implement this');
+				var filter: PdfObject = getValue( PdfName.FILTER );
+				if( filter != null ) 
+				{
+					if( PdfName.CRYPT.equals( filter ) )
+						crypto = null;
+					else if( filter.isArray() )
+					{
+						var a: PdfArray = PdfArray(filter);
+						if( !a.isEmpty() && PdfName.CRYPT.equals( a.getPdfObject(0) ) )
+							crypto = null;
+					}
+				}
 			}
 			
 			var nn: PdfObject = getValue( PdfName.LENGTH );
+			
 			if( crypto != null && nn != null && nn.isNumber() )
 			{
-				
+				var sz: int = PdfNumber(nn).intValue();
+				put( PdfName.LENGTH, new PdfNumber( crypto.calculateStreamSize(sz) ) );
+				superToPdf( writer, os );
+				put( PdfName.LENGTH, nn );				
 			} else
 			{
 				superToPdf( writer, os );
@@ -137,12 +152,26 @@ package org.purepdf.pdf
 				inputStreamLength = counter;
 			} else
 			{
-				trace('PdfStream.toPdf. inputStream implement this');
-				
-				if( streamBytes != null )
+				if( crypto != null && !crypto.embeddedFilesOnly ) 
+				{
+					var b: Bytes;
+					
+					if( streamBytes != null ) 
+					{
+						b = crypto.encryptByteArray( new Bytes( streamBytes ) );
+					}
+					else 
+					{
+						b = crypto.encryptByteArray(bytes);
+					}
+					os.writeBytes( b );
+				} else if( streamBytes != null )
+				{
 					os.writeByteArray( streamBytes );
-				else
+				} else
+				{
 					os.writeBytes( bytes, 0, bytes.length );
+				}
 			}
 			
 			os.writeBytes( ENDSTREAM, 0, ENDSTREAM.length );
