@@ -47,6 +47,7 @@ package org.purepdf.utils.collections
 	public class TreeSet
 	{
 		protected var map: Vector.<IComparable>;
+		protected var dirty: Boolean = true;
 		
 		public function TreeSet()
 		{
@@ -55,6 +56,12 @@ package org.purepdf.utils.collections
 		
 		public function iterator(): Iterator
 		{
+			if( dirty )
+			{
+				map.sort( compare );
+				dirty = false;
+			}
+			
 			return new VectorIterator( Vector.<Object>( map ) );
 		}
 		
@@ -65,6 +72,7 @@ package org.purepdf.utils.collections
 				return false;
 			
 			map.push( element );
+			dirty = true;
 			
 			// TODO: verify if map should be sorted
 			//map = map.sort( compare );
@@ -96,16 +104,29 @@ package org.purepdf.utils.collections
 			var index: int = indexOf( element );
 			if( index == -1 ) return false;
 			map.splice( index, 1 );
+			dirty = true;
 			return true;
 		}
 		
 		public function first(): IComparable
 		{
+			if( dirty )
+			{
+				map.sort( compare );
+				dirty = false;
+			}
+			
 			return map[0];
 		}
 		
 		public function last(): IComparable
 		{
+			if( dirty )
+			{
+				map.sort( compare );
+				dirty = false;
+			}
+			
 			return map[ map.length - 1 ];
 		}
 		

@@ -70,7 +70,7 @@ package org.purepdf
 		 *
 		 * @param $style a combination of Font style ( eg: Font.UNDERLINE | Font.BOLD )
 		 */
-		public function Font( family: int = UNDEFINED, size: Number = 10, style: int = UNDEFINED, color: RGBColor = null,
+		public function Font( family: int = UNDEFINED, size: Number = DEFAULTSIZE, style: int = UNDEFINED, color: RGBColor = null,
 						baseFont: BaseFont = null )
 		{
 			_family = family;

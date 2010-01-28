@@ -69,7 +69,8 @@ package org.purepdf.pdf
 		public function compareTo( o: Object ): int
 		{
 			var other: PdfCrossReference = o as PdfCrossReference;
-			return ( refnum < other.refnum ? -1 : ( refnum == other.refnum ? 0 : 1 ) );
+			return refnum - other.refnum;
+			//return ( refnum < other.refnum ? -1 : ( refnum == other.refnum ? 0 : 1 ) );
 		}
 
 		override public function equals( obj: Object ): Boolean
