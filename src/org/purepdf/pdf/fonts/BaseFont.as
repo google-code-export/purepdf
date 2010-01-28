@@ -460,7 +460,7 @@ package org.purepdf.pdf.fonts
 		public static function createFont( name: String, encoding: String, embedded: Boolean=NOT_EMBEDDED, cached: Boolean=CACHED, ttfAfm: Vector
 			.<int>=null, pfb: Vector.<int>=null, noThrow: Boolean=false, forceRead: Boolean=false ): BaseFont
 		{
-			trace( "BaseFont.createFont. To be implemented" );
+			//trace( "BaseFont.createFont. To be implemented" );
 
 			var nameBase: String = getBaseName( name );
 			encoding = normalizeEncoding( encoding );
