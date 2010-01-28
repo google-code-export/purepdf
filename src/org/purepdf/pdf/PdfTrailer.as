@@ -71,7 +71,7 @@ package org.purepdf.pdf
 			super.toPdf( null, os );
 			os.writeBytes( PdfWriter.getISOBytes("\nstartxref\n") );
 			os.writeBytes( PdfWriter.getISOBytes( offset.toString() ) );
-			os.writeBytes( PdfWriter.getISOBytes("\n%EOF\n") );
+			os.writeBytes( PdfWriter.getISOBytes("\n%%EOF\n") );
 		}
 	}
 }
