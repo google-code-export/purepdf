@@ -53,7 +53,6 @@ package
 		private var mainFont: Font;
 		private var linkFont: Font;
 		private var publicMethodsFont: Font;
-		private var tocChapter: Chapter;
 		
 		private var myriadpro_bold: BaseFont;
 		private var minionpro_regular: BaseFont;
@@ -163,7 +162,7 @@ package
 			var margin_w: int = 18;
 			var margin_h: int = 18;
 			
-			cb.setColorFill( new GrayColor( 0.9 ) );
+			cb.setColorFill( new GrayColor( 0.93 ) );
 			cb.moveTo( w - margin_w, margin_h );
 			cb.lineTo( ( w - margin_w ) - 70, margin_h );
 			cb.curveTo( (w - margin_w ) - 30, h/(3), (w - margin_w) - 30, h/(1.5), w - 70, (h - margin_h) );
@@ -180,16 +179,9 @@ package
 			
 			document.addEventListener( PageEvent.PAGE_START, onPageEnd );
 			
-			/*
-			var f: Font = new Font( -1, 14, -1, RGBColor.GRAY, minionpro_regular );
-			var footer: HeaderFooter = new HeaderFooter( new Phrase("", f ), null, true );
-			footer.alignment = Element.ALIGN_CENTER;
-			footer.borderSides = RectangleElement.NO_BORDER;
-			document.setFooter( footer );
-			*/
-			
+		
 			var f: Font = new Font( -1, 10, -1, new GrayColor(.7), minionpro_regular );
-			var header: HeaderFooter = new HeaderFooter( new Phrase("http://code.google.com/p/purepdf  |  ", f ), new Phrase(")", f ), true );
+			var header: HeaderFooter = new HeaderFooter( new Phrase("http://code.google.com/p/purepdf  |  ", f ), null, true );
 			header.alignment = Element.ALIGN_RIGHT;
 			header.borderSides = RectangleElement.TOP;
 			header.borderColor = new GrayColor(.7);
@@ -200,8 +192,6 @@ package
 			document.setMargins( 72, 72, 72, 72 );
 			document.open();
 			
-			tocChapter = new Chapter( new Paragraph("Table of contents", mainFont ), 1 );
-			
 			create_first_page();
 			
 			timer.start();
@@ -211,7 +201,7 @@ package
 		{
 			var title: Paragraph = new Paragraph(null, defaultFont);
 			title.add( new Phrase("purePDF API\n", mainFont ));
-			title.add( new Phrase("This document has been generated automatically from purepdf (Version " + PdfWriter.VERSION + " using actionscript reflection methods\n\n", defaultFont ) );
+			title.add( new Phrase("This document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") using actionscript reflection methods\n\n", defaultFont ) );
 			
 			title.add( new Phrase("The contents of this file are subject to  LGPL license " +
 				"(the \"GNU LIBRARY GENERAL PUBLIC LICENSE\"), in which case the" +
@@ -252,7 +242,6 @@ package
 		{
 			var real_name: String;
 			var element_name: String = element.@name.toString();
-			var other_class: String;
 			var node: XML;
 			var k: int;
 			var package_name: String = element_name.split("::").shift();
@@ -277,7 +266,6 @@ package
 			chapter.bookmarkTitle = class_name;
 			chapter.bookmarkOpen = false;
 			chapter.triggerNewPage = false;
-			//chapter.numberDepth = 0;
 			
 			paragraph = new Paragraph("In package:\t", publicMethodsFont );
 			paragraph.add( new Phrase( package_name + "\n", packageFont ) );
@@ -539,9 +527,9 @@ package
 		
 		private function post_complete(): void
 		{
-			trace('post_complete');
-
 			document.newPage();
+			
+			var tocChapter: Chapter = new Chapter( new Paragraph("Table of contents", mainFont ), 1 );
 			tocChapter.bookmarkTitle = "Table of Contents";
 			tocChapter.triggerNewPage = false;
 			tocChapter.numberDepth = 0;
@@ -575,7 +563,7 @@ package
 			
 			
 			send_message("Generating TOC (" + processed.size() + ")...");
-			
+
 			var timer2: Timer = new Timer( 20, 0 );
 			timer2.addEventListener( TimerEvent.TIMER, onTimer2Tick );
 			timer2.start();

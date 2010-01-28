@@ -83,7 +83,7 @@ package
 			class_list.push( Javascript2 );
 			class_list.push( Calculator );
 			class_list.push( ArabicText );
-			class_list.push( MultiColumnText );
+			class_list.push( MultiColumnPoem );
 			class_list.push( MultiColumnIrregular );
 			
 			total_number = class_list.length;
