@@ -585,7 +585,7 @@ package org.purepdf.pdf.fonts
 				{
 					if ( subsetp )
 						subsetPrefix = createSubsetPrefix();
-					var glyphs: HashMap = new HashMap();
+					var glyphs: HashMap = new HashMap( 255 );
 
 					for ( k = firstChar; k <= lastChar; ++k )
 					{
