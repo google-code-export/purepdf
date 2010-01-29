@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id: TreeSet.as 219 2010-01-28 19:39:09Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 219 $ $LastChangedDate: 2010-01-28 20:39:09 +0100 (Thu, 28 Jan 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/utils/collections/TreeSet.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
