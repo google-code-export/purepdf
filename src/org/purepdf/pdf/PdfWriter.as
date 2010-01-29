@@ -85,7 +85,11 @@ package org.purepdf.pdf
 		public static const NAME: String = 'purepdf';
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
-		public static const RELEASE: String = '0.2.20100128';
+		public static const MAIN_VERSION: String = '0';
+		public static const BUILD_NUMBER: String = '3';
+		public static const BUILD_DATE: String = '20100129';
+		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
+		
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
 		public static const VERSION: String = NAME + ' ' + RELEASE;
 		protected var OCGLocked: PdfArray = new PdfArray();
