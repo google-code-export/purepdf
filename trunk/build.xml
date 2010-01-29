@@ -12,10 +12,19 @@
 		<tstamp>
 			<format property="tdate" pattern="yyyyMMdd"/>
 		</tstamp>
+		<buildnumber file="build.number"/>
 		<echo>updating version to current datetime: ${tdate}</echo>
 		<replaceregexp byline="true">
-			<regexp pattern="public static const RELEASE: String = \'([0-9]+\.[0-9]+\.)([0-9_-]+)\'"/>
-			<substitution expression="public static const RELEASE: String = '\1${tdate}'"/>
+			<regexp pattern="public static const BUILD_DATE: String = \'([0-9]+)'"/>
+			<substitution expression="public static const BUILD_DATE: String = '${tdate}'"/>
+			<fileset dir="src/org/purepdf/pdf">
+    			<include name="PdfWriter.as"/>
+			</fileset>
+		</replaceregexp>
+		
+		<replaceregexp byline="true">
+			<regexp pattern="public static const BUILD_NUMBER: String = \'([0-9\.]+)'"/>
+			<substitution expression="public static const BUILD_NUMBER: String = '${build.number}'"/>
 			<fileset dir="src/org/purepdf/pdf">
     			<include name="PdfWriter.as"/>
 			</fileset>
