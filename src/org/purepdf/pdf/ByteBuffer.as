@@ -135,12 +135,12 @@ package org.purepdf.pdf
 		{
 			var newcount: int = count + 1;
 			
-			if( newcount > buf.length )
+			/*if( newcount > buf.length )
 			{
 				var newbuf: Bytes = new Bytes();
 				newbuf.writeBytes( buf, 0, count );
 				buf = newbuf;
-			}
+			}*/
 			
 			buf[count] = b;
 			count = newcount;
@@ -195,12 +195,12 @@ package org.purepdf.pdf
 			var newcount: int = count + len;
 			var a: int;
 			
-			if( newcount > buf.length )
+			/*if( newcount > buf.length )
 			{
 				var newbuf: Bytes = new Bytes();
 				newbuf.writeBytes( buf, 0, count );
 				buf = newbuf;
-			}
+			}*/
 			
 			for( a = 0; a < len; a++ )
 			{
@@ -229,13 +229,14 @@ package org.purepdf.pdf
 				return this;
 			
 			var newcount: int = count + len;
+			/*
 			if( newcount > buf.length )
 			{
 				var newbuf: Bytes = new Bytes();
 				newbuf.writeBytes( buf, 0, count );
 				buf = newbuf;
 			}
-			
+			*/
 			for( var a: int = 0; a < len; a++ )
 			{
 				buf[count+a] = b[off+a];

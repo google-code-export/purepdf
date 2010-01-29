@@ -49,12 +49,15 @@ package org.purepdf.pdf
 	import org.purepdf.IComparable;
 	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.pdf_core;
 
 	public final class PdfCrossReference extends ObjectHash implements IComparable
 	{
+		use namespace pdf_core;
+		
 		private var generation: int;
 		private var offset: int;
-		private var refnum: int;
+		pdf_core var refnum: int;
 		private var type: int;
 
 		/**

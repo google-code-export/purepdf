@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: TreeSet.as 219 2010-01-28 19:39:09Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 219 $ $LastChangedDate: 2010-01-28 20:39:09 +0100 (Thu, 28 Jan 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/utils/collections/TreeSet.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,68 +42,33 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.pdf
+package org.purepdf.collections.iterator
 {
-	import it.sephiroth.utils.ObjectHash;
+	import it.sephiroth.utils.collections.iterators.Iterator;
 	
-	import org.purepdf.errors.NonImplementatioError;
-	import org.purepdf.pdf.interfaces.IOutputStream;
-	import org.purepdf.utils.Bytes;
-
-	public class PdfIndirectObject extends ObjectHash
+	[Abstract]
+	public class AbstractIterator implements Iterator
 	{
-		protected var number: int;
+		protected var _next: Object;
 		
-		protected var generation: int = 0;
-		
-		private static const STARTOBJ: Bytes = 	PdfWriter.getISOBytes(" obj\n");
-		private static const ENDOBJ: Bytes = 	PdfWriter.getISOBytes("\nendobj\n");
-		private static const SIZEOBJ: int = STARTOBJ.length + ENDOBJ.length;
-		
-		private var object: PdfObject;
-		private var writer: PdfWriter;
-		
-		/**
-		 * Constructs a <CODE>PdfIndirectObject</CODE>.
-		 *
-		 * @param		number			the object number
-		 * @param		generation		the generation number
-		 * @param		object			the direct object
-		 */
-		
-		function PdfIndirectObject( $number: int, $generation: int, $object: PdfObject, $writer: PdfWriter )
+		public function AbstractIterator()
 		{
-			writer = $writer;
-			number = $number;
-			generation = $generation;
-			object = $object;
-			
-			var crypto: PdfEncryption = null;
-			if (writer != null)
-				crypto = writer.getEncryption();
-			
-			if (crypto != null)
-			{
-				throw new NonImplementatioError();
-			}
 		}
 		
-		public function getIndirectReference(): PdfIndirectReference
+		public function hasNext():Boolean
 		{
-			return new PdfIndirectReference( 0, number, generation );
+			return _next != null;
 		}
 		
-		/**
-		 * Writes efficiently to a stream
-		 */
-		public function writeTo( os: IOutputStream ): void
+		public function next():*
 		{
-			os.writeBytes( PdfWriter.getISOBytes( number.toString() ) );
-			os.writeInt( 32 );
-			os.writeBytes( PdfWriter.getISOBytes( generation.toString() ));
-			os.writeBytes( STARTOBJ );
-			object.toPdf( writer, os );
-			os.writeBytes( ENDOBJ );
+			return nextEntry();
 		}
+
+		protected function nextEntry(): *
+		{
+			return null;
+		}
+		
 	}
 }

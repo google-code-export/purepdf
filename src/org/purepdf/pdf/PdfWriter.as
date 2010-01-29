@@ -62,6 +62,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.DocumentError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.RuntimeError;
+	import org.purepdf.io.OutputStreamCounter;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.pdf.fonts.DocumentFont;
 	import org.purepdf.pdf.fonts.FontDetails;
@@ -69,7 +70,6 @@ package org.purepdf.pdf
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
-	import org.purepdf.io.OutputStreamCounter;
 
 	public class PdfWriter extends ObjectHash
 	{
@@ -912,7 +912,8 @@ package org.purepdf.pdf
 
 		pdf_core function addToBody1( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
 		{
-			var iobj: PdfIndirectObject = body.add3( object, ref );
+			//var iobj: PdfIndirectObject = body.add3( object, ref );
+			var iobj: PdfIndirectObject = body.add( object, ref.number, true );
 			return iobj;
 		}
 

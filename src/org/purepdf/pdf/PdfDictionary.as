@@ -161,8 +161,8 @@ package org.purepdf.pdf
 		
 		override public function toPdf( writer: PdfWriter, os: IOutputStream ) : void
 		{			
-			os.writeInt( '<'.charCodeAt(0) );
-			os.writeInt( '<'.charCodeAt(0) );
+			os.writeInt( 60 /* '<' */ );
+			os.writeInt( 60 /* '<' */ );
 			
 			var value: PdfObject;
 			var type: int = 0;
@@ -180,12 +180,12 @@ package org.purepdf.pdf
 
 				
 				if( type != PdfObject.ARRAY && type != PdfObject.DICTIONARY && type != PdfObject.NAME && type != PdfObject.STRING )
-					os.writeInt(' '.charCodeAt(0) );
+					os.writeInt( 32 /* ' ' */ );
 				value.toPdf( writer, os );
 			}
 			
-			os.writeInt( '>'.charCodeAt(0) );
-			os.writeInt( '>'.charCodeAt(0) );
+			os.writeInt( 62 /* '>' */ );
+			os.writeInt( 62 /* '>' */ );
 		}
 	}
 }
