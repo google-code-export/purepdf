@@ -1,6 +1,7 @@
 package
 {
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.net.getClassByAlias;
 	import flash.text.engine.FontDescription;
@@ -8,6 +9,7 @@ package
 	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
 	
 	import flashx.textLayout.operations.SplitParagraphOperation;
 	import flashx.textLayout.utils.CharacterUtil;
@@ -18,6 +20,8 @@ package
 	
 	import org.purepdf.*;
 	import org.purepdf.codecs.*;
+	import org.purepdf.collections.PdfCrossReferenceCollection;
+	import org.purepdf.collections.iterator.PdfCrossReferenceCollectionIterator;
 	import org.purepdf.colors.*;
 	import org.purepdf.elements.*;
 	import org.purepdf.elements.images.*;
@@ -65,6 +69,7 @@ package
 		private var timer: Timer;
 		
 		private var section_count: int = 0;
+		private var newline: Chunk;
 		
 		[Embed(source="/Library/Fonts/MyriadPro-Semibold.otf", mimeType="application/octet-stream")] private var font1: Class;
 		[Embed(source="/Library/Fonts/MyriadPro-Regular.otf", mimeType="application/octet-stream")] private var font3: Class;
@@ -99,21 +104,23 @@ package
 			paramFont = new Font( -1, 8, -1, RGBColor.GRAY, minionpro_regular );
 			publicMethodsFont = new Font( -1, 11, -1, RGBColor.BLACK, minionpro_regular );
 			
+			newline = new Chunk("\n", defaultFont );
+			
 			queue = new HashMap( 200 );
 			processed = new HashMap( 200 );
 			
-			timer = new Timer( 20, 0 );
+			timer = new Timer( 10, 0 );
 			timer.addEventListener( TimerEvent.TIMER, onTimerComplete );
 			
 			push_class( 
-				ImageRaw, ImageTemplate, ImageWMF, Jpeg, Anchor, Annotation, ChapterAutoNumber,
+				AlchemyUtils, ImageRaw, ImageTemplate, ImageWMF, Jpeg, Anchor, Annotation, ChapterAutoNumber,
 				Chunk, Element, ElementTags, GreekList, HeaderFooter, List, ListItem, MarkedObject, MarkedSection,
-				Meta, MultiColumnText, Paragraph, Phrase, ReadOnlyRectangle, RectangleElement, RomanList,
+				Meta, MultiColumnText, Paragraph, Phrase, ReadOnlyRectangle, RectangleElement, RomanList, PdfCrossReferenceCollectionIterator,
 				SimpleCell, SimpleTable, TIFFEncoder, CMYKColor, ExtendedColor, GrayColor, PatternColor, RGBColor, ShadingColor, SpotColor, Element, 
 				PdfViewPreferences, Font, IClonable, FontFactoryImp, IComparable, IFontProvider, IIterable, ISplitCharacter, RomanNumberFactory,
-				PdfViewerPreferencesImp, AlchemyUtils, ByteArrayUtils, Bytes, FloatUtils, IntHashMap, IProperties, RomanAlphabetFactory, RomanDigit,
+				PdfViewerPreferencesImp, ByteArrayUtils, Bytes, FloatUtils, IntHashMap, IProperties, RomanAlphabetFactory, RomanDigit,
 				PdfVersion, NumberUtils, Properties, StringTokenizer, StringUtils, Utilities, Markup, FontFactory, GreekAlphabetFactory,
-				PdfTransparencyGroup, TreeSet, Barcode, BarcodeEAN, BarcodeEANSUPP, ByteArrayInputStream, DataInputStream, FilterInputStream,
+				PdfTransparencyGroup, PdfCrossReferenceCollection, Barcode, BarcodeEAN, BarcodeEANSUPP, ByteArrayInputStream, DataInputStream, FilterInputStream,
 				PdfTransition, VectorIterator, CJKFontResourceFactory, CMapResourceFactory, InputStream, LineReader, OutputStreamCounter,
 				PdfTrailer, ICMap, CMap, BuiltinCJKFonts, BuiltinFonts, FieldBase, FieldText, PdfFormField, AssertionError, BadElementError,
 				PdfTextArray, org.purepdf.pdf.GraphicState, GifImage, PngImage, TiffImage, InflaterInputStream, CastTypeError, ConversionError,
@@ -205,32 +212,32 @@ package
 		{
 			var title: Paragraph = new Paragraph(null, defaultFont);
 			title.add( new Phrase("purePDF API\n", mainFont ));
-			title.add( new Phrase("\n\nThis document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") using actionscript reflection methods\n\n", defaultFont ) );
+			title.add( new Phrase("\n\nThis document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") with actionscript reflection methods\n\n", defaultFont ) );
 			
 			title.add( new Phrase("The contents of this file are subject to  LGPL license " +
-				"(the \"GNU LIBRARY GENERAL PUBLIC LICENSE\"), in which case the" +
-				"provisions of LGPL are applicable instead of those above.  If you wish to" +
-				"allow use of your version of this file only under the terms of the LGPL" +
-				"License and not to allow others to use your version of this file under" +
-				"the MPL, indicate your decision by deleting the provisions above and" +
-				"replace them with the notice and other provisions required by the LGPL." +
-				"If you do not delete the provisions above, a recipient may use your version" +
+				"(the \"GNU LIBRARY GENERAL PUBLIC LICENSE\"), in which case the " +
+				"provisions of LGPL are applicable instead of those above.  If you wish to " +
+				"allow use of your version of this file only under the terms of the LGPL " +
+				"License and not to allow others to use your version of this file under " +
+				"the MPL, indicate your decision by deleting the provisions above and " +
+				"replace them with the notice and other provisions required by the LGPL. " +
+				"If you do not delete the provisions above, a recipient may use your version " +
 				"of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE\n" +
-				"Software distributed under the License is distributed on an \"AS IS\" basis," +
-				"WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License" +
+				"Software distributed under the License is distributed on an \"AS IS\" basis, " +
+				"WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License " +
 				"for the specific language governing rights and limitations under the License.\n" +
-				"The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie." +
-				"All the Actionscript ported code and all the modifications to the" +
+				"The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie. " +
+				"All the Actionscript ported code and all the modifications to the " +
 				"original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)\n" +
-				"This library is free software; you can redistribute it and/or modify it" +
-				"under the terms of the MPL as stated above or under the terms of the GNU" +
-				"Library General Public License as published by the Free Software Foundation;" +
+				"This library is free software; you can redistribute it and/or modify it " +
+				"under the terms of the MPL as stated above or under the terms of the GNU " +
+				"Library General Public License as published by the Free Software Foundation; " +
 				"either version 2 of the License, or any later version.\n" +
-				"This library is distributed in the hope that it will be useful, but WITHOUT" +
-				"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS" +
-				"FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more" +
+				"This library is distributed in the hope that it will be useful, but WITHOUT " +
+				"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS " +
+				"FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more " +
 				"details\n" +
-				"If you didn't download this code from the following link, you should check if" +
+				"If you didn't download this code from the following link, you should check if " +
 				"you aren't using an obsolete version: http://code.google.com/p/purepdf", defaultFont ) );
 			
 			document.add( title );
@@ -257,7 +264,6 @@ package
 			var paragraph: Paragraph;
 			var anchor: Anchor;
 			var len: int;
-			
 			
 			send_message( processed.size() + ". " + class_name );
 			
@@ -403,100 +409,113 @@ package
 				section.add( paragraph );
 			}
 			
-			
-			// ----------------
+			// ctor
+			if( element.factory.constructor.length() > 0 )
+				process_methods("Constructor", element.factory.constructor, chapter, class_name );
+			// public static methods
+			process_methods("Static methods", element.method, chapter );
 			// public methods
-			// ----------------
-			if( element.factory.method.length() > 0 )
-			{
-				section = chapter.addSection1( new Paragraph(" Public methods", sectionFont) );
-				section.indentation = 20;
-				paragraph = new Paragraph( null, defaultFont );
-				
-				var ctor_added: Boolean = false;
-				for( k = 0; k < element.factory.method.length(); ++k )
-				{
-					if( k == 0 && !ctor_added && element.factory.constructor.length() > 0 )
-					{
-						node = element.factory.constructor[0];
-						name = class_name;
-						ctor_added = true;
-						k = 0;
-					} else
-					{
-						node = element.factory.method[k];
-						name = node.@name.toString();
-					}
-					
-					// method name
-					var method: Phrase = new Phrase( "- " + name, methodsFont );
-					var method_subject_p: Phrase = new Phrase("(", methodsParamFont );
-	
-					len = node.parameter.length();
-					if( len > 0 )
-					{
-						method_subject_p.add(" ");
-						for( var j: int = 0; j < len; ++j )
-						{
-							var pnode: XML = node.parameter[j];
-							push_queue( pnode.@type.toString() );
-							
-							real_name = pnode.@type.toString();
-							
-							if( StringUtils.startsWith( real_name, "org.purepdf" ) )
-							{
-								anchor = new Anchor( extractRealClassName( real_name ), methodsParamFont );
-								anchor.reference = "#" + real_name;
-								method_subject_p.add( anchor );
-							} else 
-							{
-								method_subject_p.add( extractRealClassName( real_name ) );
-							}
-							
-							if( j < node.parameter.length() - 1 )
-							{
-								method_subject_p.add(", ");
-							}
-						}
-					}
-					
-					method_subject_p.add(") ");
-					
-					// return type
-					if( node.@returnType )
-					{
-						real_name = node.@returnType.toString();
-						
-						if( StringUtils.startsWith( real_name, "org.purepdf" ) )
-						{
-							anchor = new Anchor( extractRealClassName( real_name ), methodsParamFont );
-							anchor.reference = "#" + real_name;
-							method_subject_p.add( anchor );
-						} else 
-						{
-							method_subject_p.add( extractRealClassName( real_name ) );
-						}
-						
-						//method_subject_p.add( extractRealClassName( node.@returnType.toString() ) );
-						push_queue( node.@returnType.toString() );
-					}
-					
-					//method.add( new Paragraph( method_subject, methodsParamFont ) );
-					method.add( method_subject_p );
-					paragraph.add( method );
-					paragraph.add( Chunk.NEWLINE );
-				}
-				
-				section.add( paragraph );
-				section.add( Chunk.NEWLINE );
-				section.add( Chunk.NEWLINE );
-			}
+			process_methods("Public methods", element.factory.method, chapter );
 			
-			//document.add( chapter );
 			chapters.push( chapter );
 			
 			// check new files
 			push_queue( element.@base.toString() );
+		}
+		
+		private function process_methods( section_title: String, list: XMLList, chapter: Section, default_name: String = null ): Section
+		{
+			var section: Section;
+			var paragraph: Paragraph;
+			var k: int;
+			var node: XML;
+			var name: String;
+			var len: int;
+			var real_name: String;
+			var anchor: Anchor;
+			
+			if( list.length() > 0 )
+			{
+				section = chapter.addSection1( new Paragraph( " " + section_title, sectionFont) );
+				section.indentation = 20;
+				paragraph = new Paragraph( null, defaultFont );
+				
+				var ctor_added: Boolean = false;
+				for( k = 0; k < list.length(); ++k )
+				{
+					node = list[k];
+					name = default_name ? default_name : node.@name.toString();
+					
+					var method: Phrase = process_method( name, node );
+					
+					paragraph.add( method );
+					paragraph.add( newline );
+				}
+				
+				section.add( paragraph );
+				section.add( newline );
+				section.add( newline );
+			}
+			return section;
+		}
+		
+		private function process_method( name: String, node: XML ): Phrase
+		{
+			var method: Phrase = new Phrase( "- " + name, methodsFont );
+			var method_subject_p: Phrase = new Phrase("(", methodsParamFont );
+			var real_name: String;
+			var len: int = node.parameter.length();
+			var anchor: Anchor;
+			
+			if( len > 0 )
+			{
+				method_subject_p.add(" ");
+				for( var j: int = 0; j < len; ++j )
+				{
+					var pnode: XML = node.parameter[j];
+					push_queue( pnode.@type.toString() );
+					
+					real_name = pnode.@type.toString();
+					
+					if( StringUtils.startsWith( real_name, "org.purepdf" ) )
+					{
+						anchor = new Anchor( extractRealClassName( real_name ), methodsParamFont );
+						anchor.reference = "#" + real_name;
+						method_subject_p.add( anchor );
+					} else 
+					{
+						method_subject_p.add( extractRealClassName( real_name ) );
+					}
+					
+					if( j < node.parameter.length() - 1 )
+					{
+						method_subject_p.add(", ");
+					}
+				}
+			}
+			
+			method_subject_p.add(") ");
+			
+			// return type
+			if( node.@returnType )
+			{
+				real_name = node.@returnType.toString();
+				
+				if( StringUtils.startsWith( real_name, "org.purepdf" ) )
+				{
+					anchor = new Anchor( extractRealClassName( real_name ), methodsParamFont );
+					anchor.reference = "#" + real_name;
+					method_subject_p.add( anchor );
+				} else 
+				{
+					method_subject_p.add( extractRealClassName( real_name ) );
+				}
+				
+				push_queue( node.@returnType.toString() );
+			}
+			
+			method.add( method_subject_p );
+			return method;
 		}
 		
 		private function extractRealClassName( s: String ): String
@@ -533,7 +552,7 @@ package
 		{
 			document.newPage();
 			
-			var tocChapter: Chapter = new Chapter( new Paragraph("Table of contents\n", mainFont ), 1 );
+			var tocChapter: Chapter = new Chapter( new Paragraph("Table of contents\n\n", mainFont ), 1 );
 			tocChapter.bookmarkTitle = "Table of Contents";
 			tocChapter.triggerNewPage = false;
 			tocChapter.numberDepth = 0;
@@ -575,14 +594,21 @@ package
 		
 		private function onTimer2Tick( event: TimerEvent ): void
 		{
-			if( chapters.length > 0 )
+			var t1: Number = getTimer();
+			while( getTimer() - t1 < 300 )
 			{
-				var chapter: Section = chapters.shift();
-				document.add( chapter );
-			} else {
-				send_message("completed. generating pdf...");
-				Timer( event.target ).stop();
-				complete();
+				if( chapters.length > 0 )
+				{
+					send_message( chapters.length + " to go" );
+					var chapter: Section = chapters.shift();
+					document.add( chapter );
+				} else 
+				{
+					send_message("completed. generating pdf...");
+					Timer( event.target ).stop();
+					complete();
+					return;
+				}
 			}
 		}
 		

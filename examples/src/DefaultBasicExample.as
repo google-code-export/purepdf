@@ -146,7 +146,7 @@ package
 			tb.content = new TextElement( label, elementFormat );
 			var tl: TextLine = tb.createTextLine();
 
-			s.addEventListener( MouseEvent.MOUSE_UP, callBack );
+			s.addEventListener( MouseEvent.CLICK, callBack );
 			s.graphics.beginFill( color, 1 );
 			s.graphics.drawRoundRect( 0, 0, tl.width + 20, tl.height + 10, 8, 8 );
 			s.graphics.endFill();
@@ -243,7 +243,6 @@ package
 			if ( !stage )
 				return;
 			end_time = new Date().getTime();
-
 			addResultTime( end_time - start_time );
 
 			var f: FileReference = new FileReference();
