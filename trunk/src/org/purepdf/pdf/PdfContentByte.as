@@ -71,48 +71,169 @@ package org.purepdf.pdf
 	import org.purepdf.utils.assertTrue;
 	import org.purepdf.utils.pdf_core;
 
+	/**
+	 * 
+	 * @author alessandro
+	 */
 	public class PdfContentByte extends ObjectHash
 	{
 		use namespace pdf_core;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const ALIGN_CENTER: int = Element.ALIGN_CENTER;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const ALIGN_LEFT: int = Element.ALIGN_LEFT;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const ALIGN_RIGHT: int = Element.ALIGN_RIGHT;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_CAP_BUTT: int = 0;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_CAP_PROJECTING_SQUARE: int = 2;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_CAP_ROUND: int = 1;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_JOIN_BEVEL: int = 2;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_JOIN_MITER: int = 0;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const LINE_JOIN_ROUND: int = 1;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_CLIP: int = 7;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_FILL: int = 0;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_FILL_CLIP: int = 4;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_FILL_STROKE: int = 2;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_FILL_STROKE_CLIP: int = 6;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_INVISIBLE: int = 3;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_STROKE: int = 1;
+		/**
+		 * 
+		 * @default 
+		 */
 		public static const TEXT_RENDER_MODE_STROKE_CLIP: int = 5;
 		private static const unitRect: Vector.<Number> = Vector.<Number>( [0, 0, 0, 1, 1, 0, 1, 1] );
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var _writer: PdfWriter;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var content: ByteBuffer = new ByteBuffer();
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var inText: Boolean = false;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var layerDepth: Vector.<int>;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var mcDepth: int = 0;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var pdf: PdfDocument;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var separator: int = '\n'.charCodeAt( 0 );
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var state: GraphicState = new GraphicState();
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
 
+		/**
+		 * 
+		 * @param $writer
+		 */
 		public function PdfContentByte( $writer: PdfWriter )
 		{
 			_writer = $writer;
 			pdf = _writer.pdfDocument;
 		}
 
+		/**
+		 * 
+		 * @param annot
+		 */
 		public function addAnnotation( annot: PdfAnnotation ): void
 		{
 			_writer.pdfDocument.addAnnotation( annot );
 		}
 
+		/**
+		 * 
+		 * @param other
+		 * @throws RuntimeError
+		 */
 		public function addContent( other: PdfContentByte ): void
 		{
 			if ( other.writer != null && _writer != other.writer )
@@ -184,7 +305,7 @@ package org.purepdf.pdf
 				addTemplate( template, width / w, b / w, c / h, height / h, x, y );
 			} else
 			{
-				content.append( "q " );
+				content.append_string( "q " );
 				content.append_number( width ).append_char( ' ' );
 				content.append_number( b ).append_char( ' ' );
 				content.append_number( c ).append_char( ' ' );
@@ -208,7 +329,7 @@ package org.purepdf.pdf
 					}
 					name = _writer.addDirectImageSimple( image );
 					name = prs.addXObject( name, _writer.getImageReference( name ) );
-					content.append_char( ' ' ).append_bytes( name.getBytes() ).append( " Do Q" ).append_separator();
+					content.append_char( ' ' ).append_bytes( name.getBytes() ).append_string( " Do Q" ).append_separator();
 				}
 			}
 
@@ -413,7 +534,7 @@ package org.purepdf.pdf
 		 */
 		public function clip( even_odd: Boolean = false ): void
 		{
-			content.append( even_odd ? "W*" : "W" ).append_separator();
+			content.append_string( even_odd ? "W*" : "W" ).append_separator();
 		}
 
 		/**
@@ -422,7 +543,7 @@ package org.purepdf.pdf
 		 */
 		public function closePath(): void
 		{
-			content.append( "h" ).append_separator();
+			content.append_string( "h" ).append_separator();
 		}
 
 		/**
@@ -430,7 +551,7 @@ package org.purepdf.pdf
 		 */
 		public function closePathFillStroke( even_odd: Boolean = false ): void
 		{
-			content.append( even_odd ? "b*" : "b" ).append_separator();
+			content.append_string( even_odd ? "b*" : "b" ).append_separator();
 		}
 
 		/**
@@ -438,7 +559,7 @@ package org.purepdf.pdf
 		 */
 		public function closePathStroke(): void
 		{
-			content.append( "s" ).append_separator();
+			content.append_string( "s" ).append_separator();
 		}
 
 		/**
@@ -452,11 +573,17 @@ package org.purepdf.pdf
 		 **/
 		public function concatCTM( a: Number, b: Number, c: Number, d: Number, e: Number, f: Number ): void
 		{
-			content.append_number( a ).append( ' ' ).append_number( b ).append( ' ' ).append_number( c ).append( ' ' );
-			content.append_number( d ).append( ' ' ).append_number( e ).append( ' ' ).append_number( f ).append( " cm" ).
+			content.append_number( a ).append_string( ' ' ).append_number( b ).append_string( ' ' ).append_number( c ).append_string( ' ' );
+			content.append_number( d ).append_string( ' ' ).append_number( e ).append_string( ' ' ).append_number( f ).append_string( " cm" ).
 							append_separator();
 		}
 
+		/**
+		 * 
+		 * @param width
+		 * @param height
+		 * @return 
+		 */
 		public function createAppearance( width: Number, height: Number ): PdfAppearance
 		{
 			return _createAppearance( width, height, null );
@@ -554,6 +681,10 @@ package org.purepdf.pdf
 							append_number( y3 ).append_string( " c" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function duplicate(): PdfContentByte
 		{
 			return new PdfContentByte( _writer );
@@ -572,6 +703,10 @@ package org.purepdf.pdf
 			arc( x1, y1, x2, y2, 0, 360 );
 		}
 
+		/**
+		 * 
+		 * @throws IllegalPdfSyntaxError
+		 */
 		public function endLayer(): void
 		{
 			var n: int = 1;
@@ -589,12 +724,16 @@ package org.purepdf.pdf
 				content.append_string( "EMC" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @throws IllegalPdfSyntaxError
+		 */
 		public function endText(): void
 		{
 			if ( !inText )
 				throw new IllegalPdfSyntaxError( "Unbalanced begin and end text" );
 			inText = false;
-			content.append( "ET" ).append_separator();
+			content.append_string( "ET" ).append_separator();
 		}
 
 		/**
@@ -604,7 +743,7 @@ package org.purepdf.pdf
 		 */
 		public function fill( even_odd: Boolean = false ): void
 		{
-			content.append( even_odd ? "f*" : "f" ).append_separator();
+			content.append_string( even_odd ? "f*" : "f" ).append_separator();
 		}
 
 		/**
@@ -612,7 +751,7 @@ package org.purepdf.pdf
 		 */
 		public function fillStroke( even_odd: Boolean = false ): void
 		{
-			content.append( even_odd ? "B*" : "B" ).append_separator();
+			content.append_string( even_odd ? "B*" : "B" ).append_separator();
 		}
 
 		/**
@@ -666,9 +805,14 @@ package org.purepdf.pdf
 			return content;
 		}
 
+		/**
+		 * 
+		 * @param x
+		 * @param y
+		 */
 		public function lineTo( x: Number, y: Number ): void
 		{
-			content.append_number( x ).append( ' ' ).append_number( y ).append( " l" ).append_separator();
+			content.append_number( x ).append_string( ' ' ).append_number( y ).append_string( " l" ).append_separator();
 		}
 
 		/**
@@ -681,7 +825,7 @@ package org.purepdf.pdf
 		{
 			state.xTLM += x;
 			state.yTLM += y;
-			content.append_number( x ).append_char( ' ' ).append_number( y ).append( " Td" ).append_separator();
+			content.append_number( x ).append_char( ' ' ).append_number( y ).append_string( " Td" ).append_separator();
 		}
 
 		/**
@@ -697,9 +841,13 @@ package org.purepdf.pdf
 		 */
 		public function newPath(): void
 		{
-			content.append( "n" ).append_separator();
+			content.append_string( "n" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function get pageResources(): PageResources
 		{
 			return pdf.pageResources;
@@ -730,6 +878,10 @@ package org.purepdf.pdf
 			paintShading( shading.shading );
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function get pdfDocument(): PdfDocument
 		{
 			return pdf;
@@ -770,7 +922,7 @@ package org.purepdf.pdf
 				var w: Number = params[2];
 				var h: Number = params[3];
 				content.append_number( x ).append_char( ' ' ).append_number( y ).append_char( ' ' ).append_number( w ).
-								append_char( ' ' ).append_number( h ).append( " re" ).append_separator();
+								append_char( ' ' ).append_number( h ).append_string( " re" ).append_separator();
 			}
 		}
 		
@@ -814,14 +966,20 @@ package org.purepdf.pdf
 			state = new GraphicState();
 		}
 
+		/**
+		 * 
+		 */
 		public function resetFill(): void
 		{
-			content.append( "0 g" ).append_separator();
+			content.append_string( "0 g" ).append_separator();
 		}
 
+		/**
+		 * 
+		 */
 		public function resetStroke(): void
 		{
-			content.append( "0 G" ).append_separator();
+			content.append_string( "0 G" ).append_separator();
 		}
 
 		/**
@@ -830,7 +988,7 @@ package org.purepdf.pdf
 		 */
 		public function restoreState(): void
 		{
-			content.append( "Q" ).append_separator();
+			content.append_string( "Q" ).append_separator();
 			var idx: int = stateList.length - 1;
 
 			if ( idx < 0 )
@@ -845,7 +1003,7 @@ package org.purepdf.pdf
 		 */
 		public function saveState(): void
 		{
-			content.append( "q" ).append_separator();
+			content.append_string( "q" ).append_separator();
 			stateList.push( GraphicState.create( state ) );
 		}
 
@@ -956,17 +1114,25 @@ package org.purepdf.pdf
 			var obj: Vector.<PdfObject> = _writer.addSimpleExtGState( gstate );
 			var prs: PageResources = pageResources;
 			var name: PdfName = prs.addExtGState( PdfName( obj[0] ), PdfIndirectReference( obj[1] ) );
-			content.append_bytes( name.getBytes() ).append( " gs" ).append_separator();
+			content.append_bytes( name.getBytes() ).append_string( " gs" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @param gray
+		 */
 		public function setGrayFill( gray: Number ): void
 		{
-			content.append_number( gray ).append( " g" ).append_separator();
+			content.append_number( gray ).append_string( " g" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @param gray
+		 */
 		public function setGrayStroke( gray: Number ): void
 		{
-			content.append_number( gray ).append( " G" ).append_separator();
+			content.append_number( gray ).append_string( " G" ).append_separator();
 		}
 
 		/**
@@ -1069,7 +1235,7 @@ package org.purepdf.pdf
 					style = 1;
 					break;
 			}
-			content.append( style ).append( " j" ).append_separator();
+			content.append_int( style ).append_string( " j" ).append_separator();
 		}
 
 		/**
@@ -1099,7 +1265,7 @@ package org.purepdf.pdf
 		public function setMiterLimit( miterLimit: Number ): void
 		{
 			if ( miterLimit > 1 )
-				content.append_number( miterLimit ).append( " M" ).append_separator();
+				content.append_number( miterLimit ).append_string( " M" ).append_separator();
 		}
 
 		/**
@@ -1188,10 +1354,16 @@ package org.purepdf.pdf
 			content.append_string( " rg" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @param red
+		 * @param green
+		 * @param blue
+		 */
 		public function setRGBStrokeColor( red: int, green: int, blue: int ): void
 		{
 			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
-			content.append( " RG" ).append_separator();
+			content.append_string( " RG" ).append_separator();
 		}
 
 		/**
@@ -1231,6 +1403,10 @@ package org.purepdf.pdf
 			setSpotColor( sp, tint, false );
 		}
 
+		/**
+		 * 
+		 * @param color
+		 */
 		public function setColorStroke( color: RGBColor ): void
 		{
 			var type: int = ExtendedColor.getType( color );
@@ -1299,7 +1475,7 @@ package org.purepdf.pdf
 			content.append_number( m.a ).append_char( ' ' ).append_number( m.b ).append_char( ' ' ).append_number( m.c ).
 							append_char( ' ' );
 			content.append_number( m.d ).append_char( ' ' ).append_number( m.tx ).append_char( ' ' ).append_number( m.ty ).
-							append( " cm" ).append_separator();
+							append_string( " cm" ).append_separator();
 		}
 
 		/**
@@ -1427,6 +1603,10 @@ package org.purepdf.pdf
 				showText( text );
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function get size(): uint
 		{
 			return content.size;
@@ -1437,15 +1617,24 @@ package org.purepdf.pdf
 		 */
 		public function stroke(): void
 		{
-			content.append( "S" ).append_separator();
+			content.append_string( "S" ).append_separator();
 		}
 
+		/**
+		 * 
+		 * @param $writer
+		 * @return 
+		 */
 		public function toPdf( $writer: PdfWriter ): Bytes
 		{
 			sanityCheck();
 			return content.toByteArray();
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function toString(): String
 		{
 			return content.toString();
@@ -1616,11 +1805,19 @@ package org.purepdf.pdf
 			restoreState();
 		}
 
+		/**
+		 * 
+		 * @return 
+		 */
 		public function get writer(): PdfWriter
 		{
 			return _writer;
 		}
 
+		/**
+		 * 
+		 * @param value
+		 */
 		public function set writer( value: PdfWriter ): void
 		{
 			_writer = value;
@@ -1642,6 +1839,9 @@ package org.purepdf.pdf
 			return state.yTLM;
 		}
 
+		/**
+		 * 
+		 */
 		protected function checkWriter(): void
 		{
 			assertTrue( _writer != null, "The writer is null" );
@@ -1732,24 +1932,17 @@ package org.purepdf.pdf
 			content.append_number( cyan ).append_char( ' ' ).append_number( magenta ).append_char( ' ' ).append_number( yellow ).
 							append_char( ' ' ).append_number( black );
 		}
+		
+		private static var math_min: Function = Math.min;
+		private static var math_max: Function = Math.max;
 
 		private function helperRGB( red: Number, green: Number, blue: Number ): void
 		{
-			if ( red < 0 )
-				red = 0.0;
-			else if ( red > 1.0 )
-				red = 1.0;
+			red		= math_max( math_min( red, 1 ), 0 );
+			green	= math_max( math_min( green, 1 ), 0 );
+			blue	= math_max( math_min( blue, 1 ), 0 );
 
-			if ( green < 0 )
-				green = 0.0;
-			else if ( green > 1.0 )
-				green = 1.0;
-
-			if ( blue < 0 )
-				blue = 0.0;
-			else if ( blue > 1.0 )
-				blue = 1.0;
-			content.append_number( red ).append( ' ' ).append_number( green ).append( ' ' ).append_number( blue );
+			content.append_number( red ).append_string( ' ' ).append_number( green ).append_string( ' ' ).append_number( blue );
 		}
 
 		/**
@@ -1857,6 +2050,10 @@ package org.purepdf.pdf
 				throw new RuntimeError( "template was expected" );
 		}
 
+		/**
+		 * 
+		 * @param rectangle
+		 */
 		pdf_core function setRectangle( rectangle: RectangleElement ): void
 		{
 			var x1: Number = rectangle.getLeft();
@@ -1997,16 +2194,28 @@ package org.purepdf.pdf
 			return pointList;
 		}
 
+		/**
+		 * 
+		 * @param byte
+		 * @return 
+		 */
 		static internal function escapeByteArray( byte: Bytes ): Bytes
 		{
 			var content: ByteBuffer = new ByteBuffer();
 			escapeString( byte, content );
-			return content.toByteArray();
+			return new Bytes( content.getBuffer() );
+			//return content.toByteArray();
 		}
 
+		/**
+		 * 
+		 * @param byte
+		 * @param content
+		 * @return 
+		 */
 		static internal function escapeString( byte: Bytes, content: ByteBuffer ): ByteBuffer
 		{
-			content.append_int( '('.charCodeAt( 0 ) );
+			content.append_int( 40 /* '(' */ );
 
 			for ( var k: int = 0; k < byte.length; ++k )
 			{
@@ -2015,31 +2224,31 @@ package org.purepdf.pdf
 				switch ( String.fromCharCode( c ) )
 				{
 					case '\r':
-						content.append( '\\r' );
+						content.append_string( '\\r' );
 						break;
 					case '\n':
-						content.append( '\\n' );
+						content.append_string( '\\n' );
 						break;
 					case '\t':
-						content.append( '\\t' );
+						content.append_string( '\\t' );
 						break;
 					case '\b':
-						content.append( '\\b' );
+						content.append_string( '\\b' );
 						break;
 					case '\f':
-						content.append( '\\f' );
+						content.append_string( '\\f' );
 						break;
 					case '(':
 					case ')':
 					case '\\':
-						content.append_int( '\\'.charCodeAt( 0 ) ).append_int( c );
+						content.append_int( 92 /*'\\'*/ ).append_int( c );
 						break;
 					default:
 						content.append_int( c );
 						break;
 				}
 			}
-			content.append( ')' );
+			content.append_int( 41 /* ')' */ );
 			return content;
 		}
 

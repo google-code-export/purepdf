@@ -47,7 +47,7 @@ package org.purepdf.pdf
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
-	import org.purepdf.utils.collections.TreeSet;
+	import org.purepdf.collections.PdfCrossReferenceCollection;
 	import org.purepdf.io.OutputStreamCounter;
 
 	/**
@@ -67,12 +67,14 @@ package org.purepdf.pdf
 		private var refnum: int;
 		private var streamObjects: ByteBuffer;
 		private var writer: PdfWriter;
-		private var xrefs: TreeSet;
+		
+		//private var xrefs: TreeSet;
+		private var xrefs: PdfCrossReferenceCollection;
 
 		public function PdfBody( $writer: PdfWriter )
 		{
 			writer = $writer;
-			xrefs = new TreeSet();
+			xrefs = new PdfCrossReferenceCollection();
 			xrefs.add( new PdfCrossReference( 0, 0, 0, PdfWriter.GENERATION_MAX ) );
 			position = writer.getOs().getCounter();
 			refnum = 1;
@@ -206,7 +208,7 @@ package org.purepdf.pdf
 		 */
 		public function size(): int
 		{
-			return Math.max( ( xrefs.last() as PdfCrossReference ).getRefnum() + 1, refnum );
+			return Math.max( xrefs.last.getRefnum() + 1, refnum );
 		}
 
 		public function writeCrossReferenceTable( os: OutputStreamCounter, root: PdfIndirectReference, info: PdfIndirectReference, encryption: PdfIndirectReference, fileID: PdfObject, prevxref: int ): void
@@ -218,7 +220,7 @@ package org.purepdf.pdf
 				throw new Error( 'NonImplementationError' );
 			}
 			var i: Iterator;
-			var entry: PdfCrossReference = PdfCrossReference( xrefs.first() );
+			var entry: PdfCrossReference = xrefs.first;
 			var first: int = entry.getRefnum();
 			var len: int = 0;
 			var sections: Vector.<int> = new Vector.<int>();

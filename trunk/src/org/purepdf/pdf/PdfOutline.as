@@ -97,8 +97,6 @@ package org.purepdf.pdf
 			if (_destination != null && _destination.hasPage )
 				put( PdfName.DEST, _destination);
 			
-			trace("PdfOutline.toPdf. Prtially implemented");
-			
 			if( _action != null)
 				put( PdfName.A, _action );
 			

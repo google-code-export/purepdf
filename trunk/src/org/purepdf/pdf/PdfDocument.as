@@ -46,6 +46,7 @@ package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
 	import flash.utils.getQualifiedClassName;
+	import flash.utils.getTimer;
 	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.IObject;
@@ -536,8 +537,6 @@ package org.purepdf.pdf
 			if ( closed )
 				return;
 			
-			// dispatch the save start event
-			dispatchEvent( new DocumentEvent( DocumentEvent.SAVE_START ) );
 			
 			var wasImage: Boolean = imageWait != null;
 			newPage();
@@ -549,18 +548,31 @@ package org.purepdf.pdf
 			{
 				throw new RuntimeError( "not all annotation could be added to the document" );
 			}
+
+			dispatchEvent( new DocumentEvent( DocumentEvent.SAVE_START ) );
 			dispatchEvent( new PageEvent( PageEvent.DOCUMENT_CLOSE ) );
 
+			var t: Number = getTimer();
 			writer.addLocalDestinations( localDestinations );
+			trace( "addLocalDestination", getTimer() - t );
+			
+			t = getTimer();
 			calculateOutlineCount();
+			trace( "calculateOutlineCount", getTimer() - t );
+			
+			t = getTimer();
 			writeOutlines();
+			trace( "writeOutlines", getTimer() - t );
 
 			if ( !closed )
 			{
 				opened = false;
 				closed = true;
 			}
+			
+			t = getTimer();
 			_writer.close();
+			trace( "wrter.close", getTimer() - t );
 		}
 
 		/**
@@ -1028,7 +1040,7 @@ package org.purepdf.pdf
 				}
 
 				currentValues[ 0 ] = currentFont;
-				writeLineToContent( l, text, graphics, currentValues, writer.spaceCharRatio );
+				writeLineToContent( l, text, graphics, currentValues, _writer.spaceCharRatio );
 
 				currentFont = PdfFont( currentValues[ 0 ] );
 				displacement += l.height;
@@ -1182,7 +1194,7 @@ package org.purepdf.pdf
 
 		internal function outlineTree( outline: PdfOutline ): void
 		{
-			outline.indirectReference = writer.getPdfIndirectReference();
+			outline.indirectReference = _writer.getPdfIndirectReference();
 
 			if ( outline.parent != null )
 				outline.put( PdfName.PARENT, outline.parent.indirectReference );
@@ -1211,7 +1223,7 @@ package org.purepdf.pdf
 			for ( k = 0; k < size; ++k )
 			{
 				var kid: PdfOutline = PdfOutline( kids[ k ] );
-				writer.addToBody1( kid, kid.indirectReference );
+				_writer.addToBody1( kid, kid.indirectReference );
 			}
 		}
 
@@ -1410,7 +1422,7 @@ package org.purepdf.pdf
 								subtract = 0;
 							if( nextChunk == null )
 								subtract += hangingCorrection;
-							text.addAnnotation( PdfAnnotation.createAction( writer, xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size, PdfAction(chunk.getAttribute( Chunk.ACTION )) ) );
+							text.addAnnotation( PdfAnnotation.createAction( _writer, xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size, PdfAction(chunk.getAttribute( Chunk.ACTION )) ) );
 						}
 						
 						if( chunk.isAttribute( Chunk.REMOTEGOTO ) )
@@ -1603,7 +1615,7 @@ package org.purepdf.pdf
 				return;
 
 			outlineTree( rootOutline );
-			writer.addToBody1( rootOutline, rootOutline.indirectReference );
+			_writer.addToBody1( rootOutline, rootOutline.indirectReference );
 		}
 
 		private function addImage( image: ImageElement ): void
@@ -1701,7 +1713,7 @@ package org.purepdf.pdf
 		internal function localGoto( name: String, llx: Number, lly: Number, urx: Number, ury: Number ): void
 		{
 			var action: PdfAction = getLocalGotoAction( name );
-			annotationsImp.addPlainAnnotation( PdfAnnotation.createAction( writer, llx, lly, urx, ury, action ) );
+			annotationsImp.addPlainAnnotation( PdfAnnotation.createAction( _writer, llx, lly, urx, ury, action ) );
 		}
 
 		/**
@@ -1726,7 +1738,7 @@ package org.purepdf.pdf
 			localDestinations.put( name, obj );
 
 			if ( !destination.hasPage )
-				destination.addPage( writer.getCurrentPage() );
+				destination.addPage( _writer.getCurrentPage() );
 			return true;
 		}
 		
@@ -1740,7 +1752,7 @@ package org.purepdf.pdf
 				obj = new Vector.<Object>(3, true);
 			if (obj[0] == null) {
 				if (obj[1] == null) {
-					obj[1] = writer.getPdfIndirectReference();
+					obj[1] = _writer.getPdfIndirectReference();
 				}
 				action = PdfAction.fromDestination( obj[1] as PdfIndirectReference );
 				obj[0] = action;
@@ -1987,7 +1999,7 @@ package org.purepdf.pdf
 		 */
 		private function _addPTable( ptable: PdfPTable ): void
 		{
-			var ct: ColumnText = new ColumnText( writer.getDirectContent() );
+			var ct: ColumnText = new ColumnText( _writer.getDirectContent() );
 
 			if( ptable.keepTogether && !_fitsPage( ptable, 0 ) && currentHeight > 0)
 				newPage();
