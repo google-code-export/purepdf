@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: PdfEncodings.as 219 2010-01-28 19:39:09Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 219 $ $LastChangedDate: 2010-01-28 20:39:09 +0100 (Thu, 28 Jan 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PdfEncodings.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,13 +42,23 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.errors
+package org.purepdf.pdf.encoding
 {
-	public class IndexOutOfBoundsError extends Error
+	import flash.utils.ByteArray;
+	
+	import org.purepdf.utils.Bytes;
+
+	public class Cp437Conversion implements ExtraEncoding
 	{
-		public function IndexOutOfBoundsError(msg:*=null)
+		public function Cp437Conversion()
 		{
-			super(msg);
+		}
+		
+		public function charToByte( text: String, encoding: String ): Bytes
+		{
+			var b: ByteArray = new ByteArray();
+			b.writeMultiByte( text, "IBM437" );
+			return new Bytes( b );
 		}
 	}
 }

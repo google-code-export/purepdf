@@ -46,9 +46,12 @@ package org.purepdf.pdf
 {
 	import flash.errors.IOError;
 	
+	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.errors.ConversionError;
+	import org.purepdf.pdf.encoding.Cp437Conversion;
+	import org.purepdf.pdf.encoding.ExtraEncoding;
 	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.utils.Bytes;
 
@@ -92,6 +95,14 @@ package org.purepdf.pdf
 		
 		private static var _pdfEncoding: Object;
 		private static var _winansi: Object;
+		private static var _extraEncodings: HashMap;
+		
+		private static function get extraEncodings(): HashMap
+		{
+			if( _extraEncodings == null )
+				init_extra();
+			return _extraEncodings;
+		}
 		
 		private static function init(): void
 		{
@@ -114,6 +125,12 @@ package org.purepdf.pdf
 				if( c != 65533 )
 					_pdfEncoding[c] = k;
 			}
+		}
+		
+		private static function init_extra(): void
+		{
+			_extraEncodings = new HashMap();
+			_extraEncodings.put("cp437", new Cp437Conversion() );
 		}
 		
 		public static function get pdfEncoding(): Object
@@ -194,11 +211,20 @@ package org.purepdf.pdf
 			
 			if( encoding == null || encoding.length == 0 ){
 				len = text.length;
-				var b: Bytes = new Bytes();
+				byte = new Bytes();
 				for( k = 0; k < len; ++k )
-					b[k] = ByteBuffer.intToByte( text.charCodeAt(k) );
-				return b;
+					byte[k] = ByteBuffer.intToByte( text.charCodeAt(k) );
+				return byte;
 			}
+			
+			var extra: ExtraEncoding = extraEncodings.getValue( encoding.toLowerCase() ) as ExtraEncoding;
+			if (extra != null) 
+			{
+				byte = extra.charToByte( text, encoding );
+				if( byte != null )
+					return byte;
+			}
+			
 			
 			var hash: Object;
 			

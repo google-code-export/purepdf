@@ -67,9 +67,9 @@ package org.purepdf.pdf
 		
 		use namespace pdf_core;
 		
-		public function ByteBuffer()
+		public function ByteBuffer( size: int = 1024 )
 		{
-			buf = new Bytes();
+			buf = new Bytes( size );
 		}
 		
 		public function reset(): void
