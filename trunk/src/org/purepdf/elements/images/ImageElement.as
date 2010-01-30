@@ -63,6 +63,7 @@ package org.purepdf.elements.images
 	import org.purepdf.pdf.codec.GifImage;
 	import org.purepdf.pdf.codec.PngImage;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
+	import org.purepdf.utils.Bytes;
 
 	public class ImageElement extends RectangleElement implements IElement
 	{
@@ -90,6 +91,14 @@ package org.purepdf.elements.images
 		public static const RIGHT: int = 2;
 		public static const TEXTWRAP: int = 4;
 		public static const UNDERLYING: int = 8;
+		public static const CCITTG4: int = 0x100;
+		public static const CCITTG3_1D: int = 0x101;
+		public static const CCITTG3_2D: int = 0x102;
+		public static const CCITT_BLACKIS1: int = 1;
+		public static const CCITT_ENCODEDBYTEALIGN: int = 2;
+		public static const CCITT_ENDOFLINE: int = 4;
+		public static const CCITT_ENDOFBLOCK: int = 8;
+		
 		protected static var serialId: Number = 0;
 		protected var _XYRatio: Number = 0;
 		protected var _absoluteX: Number = Number.NaN;
@@ -703,6 +712,39 @@ package org.purepdf.elements.images
 				return new def( image );
 			}
 			return null;
+		}
+		
+		
+		/**
+		 * Creates an Image with CCITT G3 or G4 compression. It assumes that the
+		 * data bytes are already compressed.
+		 * 
+		 * @param width
+		 *            the exact width of the image
+		 * @param height
+		 *            the exact height of the image
+		 * @param reverseBits
+		 *            reverses the bits in <code>data</code>. Bit 0 is swapped
+		 *            with bit 7 and so on
+		 * @param typeCCITT
+		 *            the type of compression in <code>data</code>. It can be
+		 *            CCITTG4, CCITTG31D, CCITTG32D
+		 * @param parameters
+		 *            parameters associated with this stream. Possible values are
+		 *            CCITT_BLACKIS1, CCITT_ENCODEDBYTEALIGN, CCITT_ENDOFLINE and
+		 *            CCITT_ENDOFBLOCK or a combination of them
+		 * @param data
+		 * @param transparency
+		 * @throws BadElementError
+		 */
+		public static function getCCITTInstance( width: int, height: int, reverseBits: Boolean,	typeCCITT: int, parameters: int, data: Bytes, transparency: Vector.<int> ): ImageElement
+		{
+			if( transparency != null && transparency.length != 2 )
+				throw new BadElementError("transparency length must be = 2 with");
+			
+			var img: ImageElement = new ImgCCITT( null, width, height, reverseBits, typeCCITT, parameters, data );
+			img.transparency = transparency;
+			return img;
 		}
 
 		/**

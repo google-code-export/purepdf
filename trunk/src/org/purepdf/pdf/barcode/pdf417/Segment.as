@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: PdfEncodings.as 219 2010-01-28 19:39:09Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 219 $ $LastChangedDate: 2010-01-28 20:39:09 +0100 (Thu, 28 Jan 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PdfEncodings.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,13 +42,19 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.errors
+package org.purepdf.pdf.barcode.pdf417
 {
-	public class IndexOutOfBoundsError extends Error
+	public class Segment
 	{
-		public function IndexOutOfBoundsError(msg:*=null)
+		internal var type: int;
+		internal var start: int;
+		internal var end: int;
+		
+		public function Segment( type: int, start: int, end: int )
 		{
-			super(msg);
+			this.type = type;
+			this.start = start;
+			this.end = end;
 		}
 	}
 }
