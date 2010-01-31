@@ -45,6 +45,7 @@
 package org.purepdf.pdf
 {
 	import flash.events.EventDispatcher;
+	import flash.utils.ByteArray;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getTimer;
 	
@@ -432,6 +433,31 @@ package org.purepdf.pdf
 			{
 				throw new ConversionError( e );
 			}
+		}
+		
+		/**
+		 * Add a file attachment at the document level
+		 * @param description	the file description
+		 * @param file			file contents
+		 * @param fileName		file name
+		 */
+		public function addFileAttachment( description: String, file: ByteArray, fileName: String ): void
+		{
+			var fs: PdfFileSpecification = PdfFileSpecification.fileEmbedded( _writer, fileName, file, false, null, null );
+
+			if (description == null || description.length == 0)
+				description = "Unnamed";
+			
+			fs.addDescription(description, true);
+			
+			var fn: String = PdfEncodings.convertToString(new PdfString(description, PdfObject.TEXT_UNICODE).getBytes(), null);
+			var k: int = 0;
+			
+			while (documentFileAttachment.containsKey(fn)) {
+				++k;
+				fn = PdfEncodings.convertToString(new PdfString(description + " " + k, PdfObject.TEXT_UNICODE).getBytes(), null);
+			}
+			documentFileAttachment.put( fn, fs.reference );
 		}
 		
 		/**
