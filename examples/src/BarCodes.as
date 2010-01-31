@@ -6,13 +6,15 @@ package {
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Paragraph;
+	import org.purepdf.elements.images.ImageElement;
 	import org.purepdf.pdf.PdfContentByte;
 	import org.purepdf.pdf.barcode.Barcode;
 	import org.purepdf.pdf.barcode.BarcodeEAN;
 	import org.purepdf.pdf.barcode.BarcodeEANSUPP;
+	import org.purepdf.pdf.barcode.pdf417.BarcodePDF417;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.resources.BuiltinFonts;
 
 	public class BarCodes extends DefaultBasicExample 
 	{
@@ -91,6 +93,14 @@ package {
 			document.add( eanSupp.createImageWithBarcode(cb, null, RGBColor.BLACK ) );
 			document.add( Chunk.NEWLINE );
 			
+			// PDF417
+			document.add( new Paragraph("Barcode PDF417", fontTitle ) );
+			var pdf417: BarcodePDF417 = new BarcodePDF417();
+			var text: String = "http://code.google.com/p/purepdf";
+			pdf417.text = text;
+			var image: ImageElement = pdf417.getImage();
+			image.scalePercent( 150, 150 * pdf417.yHeight );
+			document.add( image );
 			document.close();
 			save();
 		}

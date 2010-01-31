@@ -34,7 +34,10 @@ package
 	import org.purepdf.lang.*;
 	import org.purepdf.pdf.*;
 	import org.purepdf.pdf.barcode.*;
+	import org.purepdf.pdf.barcode.pdf417.BarcodePDF417;
 	import org.purepdf.pdf.codec.*;
+	import org.purepdf.pdf.encoding.Cp437Conversion;
+	import org.purepdf.pdf.encoding.ExtraEncoding;
 	import org.purepdf.pdf.events.*;
 	import org.purepdf.pdf.fonts.*;
 	import org.purepdf.pdf.fonts.cmaps.*;
@@ -133,9 +136,9 @@ package
 				PdfLayer, PdfInfo, PdfIndirectObject, PdfImage, PdfGState, PdfFunction, PdfFormXObject, PdfFont, PdfEncryption,
 				PdfEncodings, PdfDictionary, PdfDestination, PdfDashPattern, PdfCrossReference, PdfCopyFieldsImp, PdfContents,
 				PdfContentByte, PdfColor, PdfChunk, PdfCatalog, PdfBorderArray, PdfBoolean, PdfBody, PdfBlendMode, PdfArray,
-				PdfAppearance, PdfAnnotationsImp, PdfAnnotation, PdfAction, PdfAcroForm, PageSize, PageResources,
-				Indentation, FontSelector, DefaultSplitCharacter, ColumnText, ColorDetails,
-				ByteBuffer, BidiOrder, BidiOrderTypes, BidiLine, ArabicLigaturizer,
+				PdfAppearance, PdfAnnotationsImp, PdfAnnotation, PdfAction, PdfAcroForm, PageSize, PageResources, BarcodePDF417,
+				Indentation, FontSelector, DefaultSplitCharacter, ColumnText, ColorDetails, Cp437Conversion, ExtraEncoding,
+				ByteBuffer, BidiOrder, BidiOrderTypes, BidiLine, ArabicLigaturizer, ImgCCITT, CCITTG4Encoder, TIFFFaxDecoder,
 				PdfIndirectReference, PdfDocument );
 		}
 		
@@ -615,7 +618,10 @@ package
 		private function complete(): void
 		{
 			document.close();
-			save();
+			
+			create_button.removeEventListener( MouseEvent.CLICK, execute );
+			create_button.addEventListener( MouseEvent.CLICK, save );
+			//save();
 		}
 	}
 }
