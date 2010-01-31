@@ -86,7 +86,7 @@ package org.purepdf.pdf
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const MAIN_VERSION: String = '0';
-		public static const BUILD_NUMBER: String = '4';
+		public static const BUILD_NUMBER: String = '5';
 		public static const BUILD_DATE: String = '20100131';
 		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
 		

@@ -44,6 +44,8 @@
 */
 package org.purepdf.pdf
 {
+	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.HashMap;
 	
 	import org.purepdf.colors.CMYKColor;
@@ -326,13 +328,47 @@ package org.purepdf.pdf
 			}
 			return m;
 		}
+		
+		/** 
+		 * Creates a file attachment annotation.
+		 * @param writer 
+		 * @param rect the dimensions in the page of the annotation
+		 * @param contents the file description
+		 * @param fileStore <code>ByteArray</code> of the file contents
+		 * @param fileDisplay the actual file name stored in the pdf
+		 * 
+		 * @return the annotation
+		 */
+		public static function createFileAttachment( writer: PdfWriter, rect: RectangleElement, contents: String, fileStore: ByteArray, fileDisplay: String ): PdfAnnotation
+		{
+			return _createFileAttachment( writer, rect, contents, PdfFileSpecification.fileEmbedded( writer, fileDisplay, fileStore, true ) );
+		}
+		
+		private static function _createFileAttachment( writer: PdfWriter, rect: RectangleElement, contents: String, fs: PdfFileSpecification ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = new PdfAnnotation( writer, rect );
+			annot.put( PdfName.SUBTYPE, PdfName.FILEATTACHMENT );
+			if( contents != null )
+				annot.put( PdfName.CONTENTS, new PdfString( contents, PdfObject.TEXT_UNICODE ) );
+			annot.put( PdfName.FS, fs.reference );
+			return annot;
+		}
 
-		static public function createAction( writer: PdfWriter, llx: Number, lly: Number, urx: Number, ury: Number,
-						action: PdfAction ): PdfAnnotation
+		/**
+		 * 
+		 * @param writer
+		 * @param llx
+		 * @param lly
+		 * @param urx
+		 * @param ury
+		 * @param action
+		 * @return 
+		 */
+		static public function createAction( writer: PdfWriter, rect: RectangleElement, action: PdfAction ): PdfAnnotation
 		{
 			var annot: PdfAnnotation = new PdfAnnotation( writer );
 			annot.put( PdfName.SUBTYPE, PdfName.LINK );
-			annot.put( PdfName.RECT, new PdfRectangle( llx, lly, urx, ury ) );
+			annot.put( PdfName.RECT, PdfRectangle.createFromRectangle( rect ) );
 			annot.put( PdfName.A, action );
 			annot.put( PdfName.BORDER, new PdfBorderArray( 0, 0, 0 ) );
 			annot.put( PdfName.C, new PdfColor( 0x00, 0x00, 0xFF ) );
