@@ -60,7 +60,7 @@ package org.purepdf.pdf
 		private static const bytes: Bytes = new Bytes( [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102] );
 
 		public static const ZERO: int = 48;
-		public static const SEPARATOR: int = "\n".charCodeAt(0);
+		public static const SEPARATOR: int = 10;
 		
 		protected var count: int;
 		protected var buf: Bytes;
@@ -69,7 +69,7 @@ package org.purepdf.pdf
 		
 		public function ByteBuffer( size: int = 1024 )
 		{
-			buf = new Bytes( size );
+			buf = new Bytes();
 		}
 		
 		public function reset(): void
