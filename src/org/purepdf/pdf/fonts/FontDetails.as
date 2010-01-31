@@ -48,6 +48,7 @@ package org.purepdf.pdf.fonts
 	import flash.utils.Endian;
 	
 	import it.sephiroth.utils.HashMap;
+	import it.sephiroth.utils.IntHashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.errors.ConversionError;
@@ -56,7 +57,6 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfWriter;
 	import org.purepdf.utils.Bytes;
-	import org.purepdf.utils.IntHashMap;
 	import org.purepdf.utils.Utilities;
 	import org.purepdf.utils.pdf_core;
 

@@ -45,6 +45,7 @@
 package org.purepdf.pdf.fonts
 {
 	import it.sephiroth.utils.HashMap;
+	import it.sephiroth.utils.IntHashMap;
 	import it.sephiroth.utils.collections.iterators.Iterator;
 	
 	import org.purepdf.errors.DocumentError;
@@ -64,7 +65,6 @@ package org.purepdf.pdf.fonts
 	import org.purepdf.pdf.fonts.cmaps.CMapResourceFactory;
 	import org.purepdf.resources.ICMap;
 	import org.purepdf.utils.IProperties;
-	import org.purepdf.utils.IntHashMap;
 	import org.purepdf.utils.StringTokenizer;
 	import org.purepdf.utils.StringUtils;
 	import org.purepdf.utils.pdf_core;
