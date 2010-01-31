@@ -1448,7 +1448,7 @@ package org.purepdf.pdf
 								subtract = 0;
 							if( nextChunk == null )
 								subtract += hangingCorrection;
-							text.addAnnotation( PdfAnnotation.createAction( _writer, xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size, PdfAction(chunk.getAttribute( Chunk.ACTION )) ) );
+							text.addAnnotation( PdfAnnotation.createAction( _writer, new RectangleElement( xMarker, yMarker, xMarker + width - subtract, yMarker + chunk.font.size ), PdfAction(chunk.getAttribute( Chunk.ACTION )) ) );
 						}
 						
 						if( chunk.isAttribute( Chunk.REMOTEGOTO ) )
@@ -1739,7 +1739,7 @@ package org.purepdf.pdf
 		internal function localGoto( name: String, llx: Number, lly: Number, urx: Number, ury: Number ): void
 		{
 			var action: PdfAction = getLocalGotoAction( name );
-			annotationsImp.addPlainAnnotation( PdfAnnotation.createAction( _writer, llx, lly, urx, ury, action ) );
+			annotationsImp.addPlainAnnotation( PdfAnnotation.createAction( _writer, new RectangleElement( llx, lly, urx, ury ), action ) );
 		}
 
 		/**
