@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id: PdfWriter.as 231 2010-01-31 00:11:24Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 231 $ $LastChangedDate: 2010-01-31 01:11:24 +0100 (Sun, 31 Jan 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PdfWriter.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
