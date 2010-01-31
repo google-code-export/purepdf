@@ -85,6 +85,7 @@ package
 			class_list.push( ArabicText );
 			class_list.push( MultiColumnPoem );
 			class_list.push( MultiColumnIrregular );
+			class_list.push( FileAttachment1 );
 			
 			total_number = class_list.length;
 		}
