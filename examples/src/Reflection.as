@@ -3,15 +3,12 @@ package
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.net.getClassByAlias;
-	import flash.text.engine.FontDescription;
 	import flash.utils.Timer;
 	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getTimer;
 	
-	import flashx.textLayout.operations.SplitParagraphOperation;
 	import flashx.textLayout.utils.CharacterUtil;
 	
 	import it.sephiroth.utils.Entry;
@@ -121,7 +118,7 @@ package
 				Meta, MultiColumnText, Paragraph, Phrase, ReadOnlyRectangle, RectangleElement, RomanList, PdfCrossReferenceCollectionIterator,
 				SimpleCell, SimpleTable, TIFFEncoder, CMYKColor, ExtendedColor, GrayColor, PatternColor, RGBColor, ShadingColor, SpotColor, Element, 
 				PdfViewPreferences, Font, IClonable, FontFactoryImp, IComparable, IFontProvider, IIterable, ISplitCharacter, RomanNumberFactory,
-				PdfViewerPreferencesImp, ByteArrayUtils, Bytes, FloatUtils, IntHashMap, IProperties, RomanAlphabetFactory, RomanDigit,
+				PdfViewerPreferencesImp, ByteArrayUtils, Bytes, FloatUtils, IProperties, RomanAlphabetFactory, RomanDigit,
 				PdfVersion, NumberUtils, Properties, StringTokenizer, StringUtils, Utilities, Markup, FontFactory, GreekAlphabetFactory,
 				PdfTransparencyGroup, PdfCrossReferenceCollection, Barcode, BarcodeEAN, BarcodeEANSUPP, ByteArrayInputStream, DataInputStream, FilterInputStream,
 				PdfTransition, VectorIterator, CJKFontResourceFactory, CMapResourceFactory, InputStream, LineReader, OutputStreamCounter,
@@ -190,9 +187,7 @@ package
 			super.execute();
 			
 			createDocument();
-			
 			document.addEventListener( PageEvent.PAGE_START, onPageEnd );
-			
 		
 			var f: Font = new Font( -1, 10, -1, new GrayColor(.7), minionpro_regular );
 			var header: HeaderFooter = new HeaderFooter( new Phrase("http://code.google.com/p/purepdf  |  ", f ), null, true );

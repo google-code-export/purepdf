@@ -128,7 +128,7 @@ package
 			
 			try
 			{
-				if( document.isOpen() )
+				if( document.opened )
 				{
 					updateStack();
 					for( var i: int = 0; i < H.length; i++ )
@@ -189,7 +189,7 @@ package
 			var qname: String = element.name().toString().toLowerCase();
 			try 
 			{
-				if( document.isOpen() ) 
+				if( document.opened ) 
 				{
 					updateStack();
 					for( var i: int = 0; i < H.length; i++ )
