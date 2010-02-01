@@ -68,6 +68,13 @@ package org.purepdf.pdf
 				streamBytes = new ByteArray();
 				
 				out = streamBytes;
+				
+				if( PdfDocument.compress )
+				{
+					compressed = true;
+					compressionLevel = text.writer.compressionLevel;
+				}
+				
 				var rotation: int = page.rotation;
 				switch( rotation )
 				{
@@ -117,6 +124,9 @@ package org.purepdf.pdf
 				if( secondContent.size > 0 ){
 					secondContent.getInternalBuffer().writeTo( out );
 				}
+				
+				if( compressed )
+					out.compress();
 				
 			} catch( e: Error )
 			{

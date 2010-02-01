@@ -87,7 +87,7 @@ package org.purepdf.pdf
 				try {
 					var b: Bytes = PdfEncodings.convertToBytes( code, unicode ? PdfObject.TEXT_UNICODE : PdfObject.TEXT_PDFDOCENCODING);
 					var stream: PdfStream = new PdfStream(b);
-					stream.flateCompress( writer.getCompressionLevel() );
+					stream.flateCompress( writer.compressionLevel );
 					js.put(PdfName.JS, writer.pdf_core::addToBody(stream).getIndirectReference() );
 				}
 				catch (e: Error ) {

@@ -168,7 +168,7 @@ package org.purepdf.pdf
 			var first: int = index.size;
 			index.append_bytebuffer( streamObjects );
 			var stream: PdfStream = new PdfStream( index.toByteArray() );
-			stream.flateCompress( writer.getCompressionLevel() );
+			stream.flateCompress( writer.compressionLevel );
 			stream.put( PdfName.TYPE, PdfName.OBJSTM );
 			stream.put( PdfName.N, new PdfNumber( numObj ) );
 			stream.put( PdfName.FIRST, new PdfNumber( first ) );

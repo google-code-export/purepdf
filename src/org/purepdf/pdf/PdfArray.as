@@ -75,6 +75,16 @@ package org.purepdf.pdf
 			}
 		}
 		
+		/**
+		 * Check if the PdfArray already contains a certain PdfObject
+		 * @param object
+		 * @return 
+		 */
+		public function contains( object: PdfObject ): Boolean
+		{
+			return arrayList.indexOf( object ) > -1;
+		}
+		
 		public function addFirst( object: PdfObject ): void
 		{
 			arrayList.splice( 0, 0, object );

@@ -139,7 +139,7 @@ package org.purepdf.pdf.fonts
 		protected static var _builtinFonts14: HashMap;
 		protected static var fontCache: HashMap = new HashMap();
 
-		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
+		protected var _compressionLevel: int = PdfStream.BEST_COMPRESSION;
 		protected var _encoding: String;
 		protected var _fontType: int;
 		protected var charBBoxes: Vector.<Vector.<int>> = new Vector.<Vector.<int>>( 256 );
