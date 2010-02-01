@@ -66,7 +66,7 @@ package org.purepdf.io
 			mark = offset;
 		}
 		
-		public function size(): int
+		public function get size(): int
 		{
 			return count;
 		}

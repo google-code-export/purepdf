@@ -50,6 +50,8 @@ package org.purepdf.elements
 
 	public class HeaderFooter extends RectangleElement
 	{
+		use namespace pdf_core;
+		
 		private var _numbered: Boolean;
 		private var _before: Phrase;
 		private var _after: Phrase;
@@ -80,10 +82,10 @@ package org.purepdf.elements
 			var p: Paragraph = Paragraph.fromChunk( null, _before.leading );
 			p.add( _before );
 			if( _numbered )
-				p.pdf_core::addSpecial( new Chunk( _pageN.toString(), _before.font ) );
+				p.addSpecial( new Chunk( _pageN.toString(), _before.font ) );
 			
 			if( _after != null )
-				p.pdf_core::addSpecial( _after );
+				p.addSpecial( _after );
 			
 			p.alignment = _alignment;
 			return p;

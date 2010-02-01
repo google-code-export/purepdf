@@ -73,7 +73,7 @@ package org.purepdf.pdf
 			{
 				_pageResources = new PageResources();
 				_pageResources.addDefaultColor( $writer.getDefaultColorSpace() );
-				thisReference = $writer.getPdfIndirectReference();
+				thisReference = $writer.pdfIndirectReference;
 			}
 		}
 
@@ -144,7 +144,7 @@ package org.purepdf.pdf
 		public function get indirectReference(): PdfIndirectReference
 		{
 			if( thisReference == null )
-				thisReference = writer.getPdfIndirectReference();
+				thisReference = writer.pdfIndirectReference;
 			return thisReference;
 		}
 		

@@ -50,6 +50,8 @@ package org.purepdf.pdf
 
 	public class PdfNameTree
 	{
+		use namespace pdf_core;
+		
 		private static const leafSize: int = 64;
 		
 		/**
@@ -106,7 +108,7 @@ package org.purepdf.pdf
 					arr.add(items.getValue(names[offset]) as PdfObject );
 				}
 				dic.put(PdfName.NAMES, arr);
-				kids[k] = writer.pdf_core::addToBody(dic).getIndirectReference();
+				kids[k] = writer.addToBody(dic).indirectReference;
 			}
 			
 			var top: int = kids.length;
@@ -135,7 +137,7 @@ package org.purepdf.pdf
 						arr.add(kids[offset]);
 					}
 					dic.put(PdfName.KIDS, arr);
-					kids[k] = writer.pdf_core::addToBody(dic).getIndirectReference();
+					kids[k] = writer.addToBody(dic).indirectReference;
 				}
 				top = tt;
 			}

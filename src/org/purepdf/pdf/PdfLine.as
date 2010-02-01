@@ -56,6 +56,8 @@ package org.purepdf.pdf
 
 	public class PdfLine extends ObjectHash
 	{
+		use namespace pdf_core;
+		
 		protected var _alignment: int = 0;
 		protected var _height: Number = 0;
 		protected var _left: Number = 0;
@@ -241,7 +243,7 @@ package org.purepdf.pdf
 			return _right;
 		}
 
-		public function size(): int
+		public function get size(): int
 		{
 			return line.length;
 		}
@@ -302,7 +304,7 @@ package org.purepdf.pdf
 					return chunk;
 
 				_width = originalWidth - tabPosition;
-				chunk.pdf_core::adjustLeft( _left );
+				chunk.adjustLeft( _left );
 				addToLine( chunk );
 			}
 			else if ( chunk.length > 0 || chunk.isImage() )

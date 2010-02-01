@@ -59,6 +59,8 @@ package org.purepdf.pdf
 		public static const LASTPAGE: int = 4;
 		public static const PRINTDIALOG: int = 5;
 		
+		use namespace pdf_core;
+		
 		public function PdfAction()
 		{
 		}
@@ -88,7 +90,7 @@ package org.purepdf.pdf
 					var b: Bytes = PdfEncodings.convertToBytes( code, unicode ? PdfObject.TEXT_UNICODE : PdfObject.TEXT_PDFDOCENCODING);
 					var stream: PdfStream = new PdfStream(b);
 					stream.flateCompress( writer.compressionLevel );
-					js.put(PdfName.JS, writer.pdf_core::addToBody(stream).getIndirectReference() );
+					js.put(PdfName.JS, writer.addToBody(stream).indirectReference );
 				}
 				catch (e: Error ) {
 					js.put(PdfName.JS, new PdfString(code));

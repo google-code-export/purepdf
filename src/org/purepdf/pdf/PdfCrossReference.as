@@ -57,7 +57,7 @@ package org.purepdf.pdf
 		
 		private var generation: int;
 		private var offset: int;
-		pdf_core var refnum: int;
+		pdf_core var _refnum: int;
 		private var type: int;
 
 		/**
@@ -70,14 +70,14 @@ package org.purepdf.pdf
 		{
 			type = $type;
 			offset = $offset;
-			refnum = $refnum;
+			_refnum = $refnum;
 			generation = $generation;
 		}
 
 		public function compareTo( o: Object ): int
 		{
 			var other: PdfCrossReference = o as PdfCrossReference;
-			return refnum - other.refnum;
+			return _refnum - other._refnum;
 			//return ( refnum < other.refnum ? -1 : ( refnum == other.refnum ? 0 : 1 ) );
 		}
 
@@ -86,7 +86,7 @@ package org.purepdf.pdf
 			if ( obj is PdfCrossReference )
 			{
 				var other: PdfCrossReference = PdfCrossReference( obj );
-				return ( refnum == other.refnum );
+				return ( _refnum == other._refnum );
 			}
 			else
 			{
@@ -94,14 +94,14 @@ package org.purepdf.pdf
 			}
 		}
 
-		public function getRefnum(): int
+		public function get refnum(): int
 		{
-			return refnum;
+			return _refnum;
 		}
 
 		override public function hashCode(): int
 		{
-			return refnum;
+			return _refnum;
 		}
 
 		/**

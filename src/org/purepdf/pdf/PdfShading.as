@@ -127,7 +127,7 @@ package org.purepdf.pdf
 		public function get shadingReference(): PdfIndirectReference
 		{
 			if ( _shadingReference == null )
-				_shadingReference = _writer.getPdfIndirectReference();
+				_shadingReference = _writer.pdfIndirectReference;
 			return _shadingReference;
 		}
 

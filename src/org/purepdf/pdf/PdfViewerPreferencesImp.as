@@ -115,7 +115,7 @@ package org.purepdf.pdf
 				catalog.put( PdfName.PAGEMODE, PdfName.USEATTACHMENTS );
 			catalog.remove( PdfName.VIEWERPREFERENCES );
 
-			if ( viewerPreferences.size() > 0 )
+			if ( viewerPreferences.size > 0 )
 			{
 				catalog.put( PdfName.VIEWERPREFERENCES, viewerPreferences );
 			}

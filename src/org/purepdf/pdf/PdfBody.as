@@ -64,7 +64,7 @@ package org.purepdf.pdf
 		private var index: ByteBuffer;
 		private var numObj: int = 0;
 		private var position: int;
-		private var refnum: int;
+		private var _refnum: int;
 		private var streamObjects: ByteBuffer;
 		private var writer: PdfWriter;
 		
@@ -77,7 +77,7 @@ package org.purepdf.pdf
 			xrefs = new PdfCrossReferenceCollection();
 			xrefs.add( new PdfCrossReference( 0, 0, 0, PdfWriter.GENERATION_MAX ) );
 			position = writer.getOs().getCounter();
-			refnum = 1;
+			_refnum = 1;
 		}
 
 		public function add( object: PdfObject, refNumber: int, inObjStm: Boolean=true ): PdfIndirectObject
@@ -115,12 +115,12 @@ package org.purepdf.pdf
 
 		public function add1( object: PdfObject ): PdfIndirectObject
 		{
-			return add( object, getIndirectReferenceNumber() );
+			return add( object, indirectReferenceNumber );
 		}
 
 		public function add2( object: PdfObject, inObjStm: Boolean ): PdfIndirectObject
 		{
-			return add( object, getIndirectReferenceNumber(), inObjStm );
+			return add( object, indirectReferenceNumber, inObjStm );
 		}
 
 		public function add3( object: PdfObject, ref: PdfIndirectReference ): PdfIndirectObject
@@ -147,7 +147,7 @@ package org.purepdf.pdf
 			{
 				index = new ByteBuffer();
 				streamObjects = new ByteBuffer();
-				currentObjNum = getIndirectReferenceNumber();
+				currentObjNum = indirectReferenceNumber;
 				numObj = 0;
 			}
 			var p: int = streamObjects.size;
@@ -178,9 +178,9 @@ package org.purepdf.pdf
 			numObj = 0;
 		}
 
-		public function getIndirectReferenceNumber(): int
+		public function get indirectReferenceNumber(): int
 		{
-			var n: int = refnum++;
+			var n: int = _refnum++;
 			xrefs.add( new PdfCrossReference( 0, n, 0, PdfWriter.GENERATION_MAX ) );
 			return n;
 		}
@@ -188,27 +188,22 @@ package org.purepdf.pdf
 		/**
 		 * Gets a PdfIndirectReference for an object that will be created in the future.
 		 */
-		public function getPdfIndirectReference(): PdfIndirectReference
+		public function get pdfIndirectReference(): PdfIndirectReference
 		{
-			return new PdfIndirectReference( 0, getIndirectReferenceNumber(), 0 );
+			return new PdfIndirectReference( 0, indirectReferenceNumber, 0 );
 		}
 
-		public function offset(): int
+		public function get offset(): int
 		{
 			return position;
-		}
-
-		public function setRefNum( value: int ): void
-		{
-			refnum = value;
 		}
 
 		/**
 		 * Returns the total number of objects contained in the CrossReferenceTable of this <CODE>Body</CODE>.
 		 */
-		public function size(): int
+		public function get size(): int
 		{
-			return Math.max( xrefs.last.getRefnum() + 1, refnum );
+			return Math.max( xrefs.last.refnum + 1, _refnum );
 		}
 
 		public function writeCrossReferenceTable( os: OutputStreamCounter, root: PdfIndirectReference, info: PdfIndirectReference, encryption: PdfIndirectReference, fileID: PdfObject, prevxref: int ): void
@@ -221,7 +216,7 @@ package org.purepdf.pdf
 			}
 			var i: Iterator;
 			var entry: PdfCrossReference = xrefs.first;
-			var first: int = entry.getRefnum();
+			var first: int = entry.refnum;
 			var len: int = 0;
 			var sections: Vector.<int> = new Vector.<int>();
 			i = xrefs.iterator();
@@ -230,7 +225,7 @@ package org.purepdf.pdf
 			{
 				entry = PdfCrossReference( i.next() );
 
-				if ( first + len == entry.getRefnum() )
+				if ( first + len == entry.refnum )
 				{
 					++len;
 				}
@@ -238,7 +233,7 @@ package org.purepdf.pdf
 				{
 					sections.push( first );
 					sections.push( len );
-					first = entry.getRefnum();
+					first = entry.refnum;
 					len = 1;
 				}
 			}

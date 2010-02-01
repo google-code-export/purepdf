@@ -77,7 +77,7 @@ package org.purepdf.pdf
 		internal function get patternReference(): PdfIndirectReference
 		{
 			if( _patternReference == null )
-				_patternReference = _writer.getPdfIndirectReference();
+				_patternReference = _writer.pdfIndirectReference;
 			return _patternReference;
 		}
 		

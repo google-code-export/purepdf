@@ -73,7 +73,6 @@ package org.purepdf.pdf
 
 	public class PdfWriter extends ObjectHash
 	{
-
 		use namespace pdf_core;
 		
 		public static const RUN_DIRECTION_DEFAULT: int = 0;
@@ -86,8 +85,8 @@ package org.purepdf.pdf
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const MAIN_VERSION: String = '0';
-		public static const BUILD_NUMBER: String = '5';
-		public static const BUILD_DATE: String = '20100131';
+		public static const BUILD_NUMBER: String = '9';
+		public static const BUILD_DATE: String = '20100201';
 		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
 		
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
@@ -287,7 +286,7 @@ package org.purepdf.pdf
 
 				if ( ref == null )
 				{
-					ref = body.getPdfIndirectReference();
+					ref = body.pdfIndirectReference;
 					pageReferences[ page ] = ref;
 				}
 			}
@@ -298,7 +297,7 @@ package org.purepdf.pdf
 				for ( var k: int = 0; k < empty; ++k )
 					pageReferences.push( null );
 
-				ref = body.getPdfIndirectReference();
+				ref = body.pdfIndirectReference;
 				pageReferences.push( ref );
 			}
 			return ref;
@@ -554,13 +553,13 @@ package org.purepdf.pdf
 					gr.add( layer.ref );
 			}
 
-			if ( gr.size() > 0 )
+			if ( gr.size > 0 )
 				d.put( PdfName.OFF, gr );
 
-			if ( OCGRadioGroup.size() > 0 )
+			if ( OCGRadioGroup.size > 0 )
 				d.put( PdfName.RBGROUPS, OCGRadioGroup );
 
-			if ( OCGLocked.size() > 0 )
+			if ( OCGLocked.size > 0 )
 				d.put( PdfName.LOCKED, OCGLocked );
 
 			addASEvent( PdfName.VIEW, PdfName.ZOOM );
@@ -619,7 +618,7 @@ package org.purepdf.pdf
 			var object: PdfIndirectObject;
 			object = addToBody( contents );
 
-			page.add( object.getIndirectReference() );
+			page.add( object.indirectReference );
 
 			if ( group != null )
 			{
@@ -748,7 +747,7 @@ package org.purepdf.pdf
 				var destination: PdfDestination = obj[ 2 ] as PdfDestination;
 
 				if ( obj[ 1 ] == null )
-					obj[ 1 ] = getPdfIndirectReference();
+					obj[ 1 ] = pdfIndirectReference;
 
 				if ( destination == null )
 					addToBody1( new PdfString( "invalid_" + name ), PdfIndirectReference( obj[ 1 ] ) );
@@ -761,7 +760,7 @@ package org.purepdf.pdf
 		{
 			if ( !documentExtGState.containsKey( gstate ) )
 			{
-				var obj: Vector.<PdfObject> = Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentExtGState.size() + 1 ) ), getPdfIndirectReference() ] );
+				var obj: Vector.<PdfObject> = Vector.<PdfObject>( [ new PdfName( "Pr" + ( documentExtGState.size() + 1 ) ), pdfIndirectReference ] );
 				documentExtGState.put( gstate, obj );
 			}
 			return documentExtGState.getValue( gstate ) as Vector.<PdfObject>;
@@ -782,7 +781,7 @@ package org.purepdf.pdf
 
 			if ( ret == null )
 			{
-				ret = new FontDetails( new PdfName( "F" + ( fontCount++ ) ), body.getPdfIndirectReference(), bf );
+				ret = new FontDetails( new PdfName( "F" + ( fontCount++ ) ), body.pdfIndirectReference, bf );
 				documentFonts.put( bf, ret );
 			}
 			return ret;
@@ -815,7 +814,7 @@ package org.purepdf.pdf
 				case ExtendedColor.TYPE_RGB:
 					if ( patternColorspaceRGB == null )
 					{
-						patternColorspaceRGB = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), null );
+						patternColorspaceRGB = new ColorDetails( getColorspaceName(), body.pdfIndirectReference, null );
 						array = new PdfArray( PdfName.PATTERN );
 						array.add( PdfName.DEVICERGB );
 						addToBody1( array, patternColorspaceRGB.indirectReference );
@@ -825,7 +824,7 @@ package org.purepdf.pdf
 				case ExtendedColor.TYPE_CMYK:
 					if ( patternColorspaceCMYK == null )
 					{
-						patternColorspaceCMYK = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), null );
+						patternColorspaceCMYK = new ColorDetails( getColorspaceName(), body.pdfIndirectReference, null );
 						array = new PdfArray( PdfName.PATTERN );
 						array.add( PdfName.DEVICECMYK );
 						addToBody1( array, patternColorspaceCMYK.indirectReference );
@@ -834,7 +833,7 @@ package org.purepdf.pdf
 				case ExtendedColor.TYPE_GRAY:
 					if ( patternColorspaceGRAY == null )
 					{
-						patternColorspaceGRAY = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), null );
+						patternColorspaceGRAY = new ColorDetails( getColorspaceName(), body.pdfIndirectReference, null );
 						array = new PdfArray( PdfName.PATTERN );
 						array.add( PdfName.DEVICEGRAY );
 						addToBody1( array, patternColorspaceGRAY.indirectReference );
@@ -842,12 +841,12 @@ package org.purepdf.pdf
 					return patternColorspaceGRAY;
 				case ExtendedColor.TYPE_SEPARATION:
 				{
-					var details: ColorDetails = pdf_core::addSimpleSpotColor( SpotColor( color ).pdfSpotColor );
+					var details: ColorDetails = addSimpleSpotColor( SpotColor( color ).pdfSpotColor );
 					var patternDetails: ColorDetails = documentSpotPatterns.getValue( details ) as ColorDetails;
 
 					if ( patternDetails == null )
 					{
-						patternDetails = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), null );
+						patternDetails = new ColorDetails( getColorspaceName(), body.pdfIndirectReference, null );
 						array = new PdfArray( PdfName.PATTERN );
 						array.add( details.indirectReference );
 						addToBody1( array, patternDetails.indirectReference );
@@ -902,7 +901,7 @@ package org.purepdf.pdf
 
 			if ( ret == null )
 			{
-				ret = new ColorDetails( getColorspaceName(), body.getPdfIndirectReference(), spc );
+				ret = new ColorDetails( getColorspaceName(), body.pdfIndirectReference, spc );
 				documentColors.put( spc, ret );
 			}
 			return ret;
@@ -976,20 +975,20 @@ package org.purepdf.pdf
 				}
 
 				// write the cross-reference table of the body
-				body.writeCrossReferenceTable( os, indirectCatalog.getIndirectReference(), infoObj.getIndirectReference(), encryption
+				body.writeCrossReferenceTable( os, indirectCatalog.indirectReference, infoObj.indirectReference, encryption
 					, fileID, prevxref );
 
 				// full compression
 				if ( fullCompression )
 				{
 					os.writeBytes( getISOBytes( "startxref\n" ) );
-					os.writeBytes( getISOBytes( body.offset().toString() ) );
+					os.writeBytes( getISOBytes( body.offset.toString() ) );
 					os.writeBytes( getISOBytes( "\n%%EOF\n" ) );
 				}
 				else
 				{
-					var trailer: PdfTrailer = new PdfTrailer( body.size(), body.offset(), indirectCatalog.getIndirectReference(), infoObj
-						.getIndirectReference(), encryption, fileID, prevxref );
+					var trailer: PdfTrailer = new PdfTrailer( body.size, body.offset, indirectCatalog.indirectReference, infoObj
+						.indirectReference, encryption, fileID, prevxref );
 					trailer.toPdf( this, os );
 				}
 			}
@@ -1026,9 +1025,9 @@ package org.purepdf.pdf
 		 * @return the <CODE>PdfIndirectReference</CODE>
 		 */
 
-		internal function getPdfIndirectReference(): PdfIndirectReference
+		internal function get pdfIndirectReference(): PdfIndirectReference
 		{
-			return body.getPdfIndirectReference();
+			return body.pdfIndirectReference;
 		}
 
 		internal function getPdfVersion(): PdfVersion
@@ -1093,7 +1092,7 @@ package org.purepdf.pdf
 				}
 
 				if ( fixedRef == null )
-					fixedRef = addToBody( pdfImage ).getIndirectReference();
+					fixedRef = addToBody( pdfImage ).indirectReference;
 				else
 					addToBody1( pdfImage, fixedRef );
 
@@ -1116,7 +1115,7 @@ package org.purepdf.pdf
 					arr.add( layer.ref );
 			}
 
-			if ( arr.size() == 0 )
+			if ( arr.size == 0 )
 				return;
 
 			var d: PdfDictionary = PdfDictionary( OCProperties.getValue( PdfName.D ) );
@@ -1189,7 +1188,7 @@ package org.purepdf.pdf
 				getOCGOrder( kids, PdfLayer( children[ k ] ) );
 			}
 
-			if ( kids.size() > 0 )
+			if ( kids.size > 0 )
 				order.add( kids );
 		}
 	}

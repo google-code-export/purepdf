@@ -88,7 +88,7 @@ package org.purepdf.pdf
 			}
 		}
 		
-		public function getIndirectReference(): PdfIndirectReference
+		public function get indirectReference(): PdfIndirectReference
 		{
 			return new PdfIndirectReference( 0, number, generation );
 		}

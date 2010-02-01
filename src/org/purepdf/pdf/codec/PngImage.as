@@ -428,7 +428,7 @@ package org.purepdf.pdf.codec
 			if ( intent != null )
 				additional.put( PdfName.INTENT, intent );
 
-			if ( additional.size() > 0 )
+			if ( additional.size > 0 )
 				img.additional = additional;
 
 			if ( palShades )

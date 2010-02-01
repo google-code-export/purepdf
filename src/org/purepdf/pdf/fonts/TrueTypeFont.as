@@ -584,7 +584,7 @@ package org.purepdf.pdf.fonts
 				{
 					pobj = StreamFont.create2( readCffFont(), "Type1C", compressionLevel );
 					obj = writer.addToBody( pobj );
-					ind_font = obj.getIndirectReference();
+					ind_font = obj.indirectReference;
 				}
 				else
 				{
@@ -635,7 +635,7 @@ package org.purepdf.pdf.fonts
 					var lengths: Vector.<int> = Vector.<int>( [ b.length ] );
 					pobj = StreamFont.create( b, lengths, compressionLevel );
 					obj = writer.addToBody( pobj );
-					ind_font = obj.getIndirectReference();
+					ind_font = obj.indirectReference;
 				}
 			}
 
@@ -644,7 +644,7 @@ package org.purepdf.pdf.fonts
 			if ( pobj != null )
 			{
 				obj = writer.addToBody( pobj );
-				ind_font = obj.getIndirectReference();
+				ind_font = obj.indirectReference;
 			}
 
 			pobj = getFontBaseType( ind_font, subsetPrefix, firstChar, lastChar, shortTag );
