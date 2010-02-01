@@ -44,19 +44,49 @@
 */
 package org.purepdf.pdf 
 {
+	import flash.geom.Matrix;
+	
 	import org.purepdf.utils.pdf_core;
 	
 
+	/**
+	 * 
+	 * @author alessandro
+	 */
 	public class PdfShadingPattern extends PdfDictionary
 	{
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var _shading: PdfShading;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var _writer: PdfWriter;
-		protected var _matrix: Vector.<Number> = Vector.<Number>([1, 0, 0, 1, 0, 0]);
+		/**
+		 * 
+		 * @default 
+		 */
+		protected var _matrix: Matrix = new Matrix();
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var _patternName: PdfName;
+		/**
+		 * 
+		 * @default 
+		 */
 		protected var _patternReference: PdfIndirectReference;
 		
 		use namespace pdf_core;
 		
+		/**
+		 * 
+		 * @param sh
+		 */
 		public function PdfShadingPattern( sh: PdfShading )
 		{
 			_writer = sh.writer;
@@ -64,16 +94,28 @@ package org.purepdf.pdf
 			_shading = sh;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		internal function get patternName(): PdfName
 		{
 			return _patternName;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		internal function get shadingName(): PdfName
 		{
 			return _shading.shadingName;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		internal function get patternReference(): PdfIndirectReference
 		{
 			if( _patternReference == null )
@@ -81,40 +123,66 @@ package org.purepdf.pdf
 			return _patternReference;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		internal function get shadingReference(): PdfIndirectReference
 		{
 			return _shading.shadingReference;
 		}
 		
+		/**
+		 * 
+		 * @param number
+		 */
 		internal function setName( number: int ): void
 		{
 			_patternName = new PdfName("P" + number);
 		}
 		
+		/**
+		 * 
+		 */
 		internal function addToBody(): void
 		{
+			var ar: Vector.<Number> = Vector.<Number>([ _matrix.a, _matrix.b, _matrix.c, _matrix.d, _matrix.tx, _matrix.ty ] );
 			put( PdfName.SHADING, shadingReference );
-			put( PdfName.MATRIX, new PdfArray(_matrix) );
+			put( PdfName.MATRIX, new PdfArray( ar ) );
 			_writer.addToBody1( this, patternReference );
 		}
 		
-		public function set matrix( value: Vector.<Number>):void
+		/**
+		 * 
+		 * @param value
+		 */
+		public function set matrix( value: Matrix ):void
 		{
-			if (value.length != 6)
-				throw new ArgumentError("the matrix size must be 6");
 			_matrix = value;
 		}
 		
-		public function get matrix(): Vector.<Number>
+		/**
+		 * 
+		 * @return 
+		 */
+		public function get matrix(): Matrix
 		{
 			return _matrix;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		public function get shading(): PdfShading
 		{
 			return _shading;
 		}
 		
+		/**
+		 * 
+		 * @return 
+		 */
 		internal function get colorDetails(): ColorDetails
 		{
 			return _shading.colorDetails;
