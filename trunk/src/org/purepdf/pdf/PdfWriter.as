@@ -100,7 +100,7 @@ package org.purepdf.pdf
 
 		protected var body: PdfBody;
 		protected var colorNumber: int = 1;
-		protected var compressionLevel: int = PdfStream.NO_COMPRESSION;
+		protected var _compressionLevel: int = PdfStream.BEST_COMPRESSION;
 		protected var crypto: PdfEncryption;
 		protected var currentPageNumber: int = 1;
 		protected var defaultColorspace: PdfDictionary = new PdfDictionary();
@@ -180,9 +180,9 @@ package org.purepdf.pdf
 		 * Returns the compression level used for streams written by this writer.
 		 * @return the compression level (0 = best speed, 9 = best compression, -1 is default)
 		 */
-		public function getCompressionLevel(): int
+		public function get compressionLevel(): int
 		{
-			return compressionLevel;
+			return _compressionLevel;
 		}
 
 		public function getCurrentPage(): PdfIndirectReference
@@ -426,7 +426,7 @@ package org.purepdf.pdf
 					continue;
 
 				if ( template != null && template.type == PdfTemplate.TYPE_TEMPLATE )
-					addToBody1( template.getFormXObject( compressionLevel ), template.indirectReference );
+					addToBody1( template.getFormXObject( _compressionLevel ), template.indirectReference );
 			}
 
 			// 5 add all the dependencies in the imported pages
@@ -446,7 +446,7 @@ package org.purepdf.pdf
 			for ( it; it.hasNext();  )
 			{
 				pat = it.next() as PdfPatternPainter;
-				addToBody1( pat.getPattern( compressionLevel ), pat.indirectReference );
+				addToBody1( pat.getPattern( _compressionLevel ), pat.indirectReference );
 			}
 
 			// 8 add the shading patterns

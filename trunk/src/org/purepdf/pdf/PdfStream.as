@@ -44,9 +44,12 @@
 */
 package org.purepdf.pdf
 {
+	import flash.errors.IOError;
 	import flash.utils.ByteArray;
 	
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 	
@@ -61,7 +64,7 @@ package org.purepdf.pdf
 		protected static const SIZESTREAM: int = STARTSTREAM.length + ENDSTREAM.length;
 		
 		protected var compressed: Boolean = false;
-		protected var compressionLevel: int = NO_COMPRESSION;
+		protected var compressionLevel: int = BEST_COMPRESSION;
 		protected var streamBytes: ByteArray = null;
 		protected var inputStream: ByteArray;
 		protected var ref: PdfIndirectReference;
@@ -90,7 +93,51 @@ package org.purepdf.pdf
 			if( compressed )
 				return;
 			
-			throw new NonImplementatioError();
+			var filter: PdfObject = PdfReader.getPdfObject( getValue( PdfName.FILTER ) );
+			if (filter != null) 
+			{
+				if (filter.isName()) {
+					if (PdfName.FLATEDECODE.equals(filter))
+						return;
+				}
+				else if (filter.isArray()) {
+					if( PdfArray(filter).contains( PdfName.FLATEDECODE ) )
+						return;
+				}
+				else {
+					throw new RuntimeError("stream could not be compressed. filter is not a name or array");
+				}
+			}
+
+			try {
+				// compress
+				
+				var zip: ByteArray = new ByteArray();
+				
+				if (streamBytes != null)
+					zip.writeBytes( streamBytes );
+				else
+					zip.writeBytes( bytes.buffer );
+				zip.compress();
+				
+				streamBytes = zip;
+				bytes = null;
+				
+				put( PdfName.LENGTH, new PdfNumber( streamBytes.length ) );
+				if (filter == null) 
+				{
+					put( PdfName.FILTER, PdfName.FLATEDECODE );
+				} else 
+				{
+					var filters: PdfArray = new PdfArray( filter );
+					filters.add( PdfName.FLATEDECODE );
+					put( PdfName.FILTER, filters );
+				}
+				compressed = true;
+			} catch( ioe: IOError )
+			{
+				throw new ConversionError( ioe );
+			}
 		}
 		
 		override public function toPdf( writer: PdfWriter, os: IOutputStream ): void

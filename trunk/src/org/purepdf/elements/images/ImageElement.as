@@ -108,7 +108,7 @@ package org.purepdf.elements.images
 		protected var _annotation: Annotation = null;
 		protected var _bpc: int = 1;
 		protected var _colorspace: int = -1;
-		protected var _compressionLevel: int = PdfStream.NO_COMPRESSION;
+		protected var _compressionLevel: int = PdfStream.BEST_COMPRESSION;
 		protected var _deflated: Boolean = false;
 		protected var _imageMask: ImageElement;
 		protected var _indentationLeft: Number = 0;

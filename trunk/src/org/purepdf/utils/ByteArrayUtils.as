@@ -62,11 +62,11 @@ package org.purepdf.utils
 			return b;
 		}
 		
-		public static function toVector( buffer: ByteArray ): Vector.<int>
+		public static function toVector( buffer: ByteArray, offset:uint=0, len:uint=0 ): Vector.<int>
 		{
 			var b: Bytes = new Bytes();
 			b.buffer = buffer;
-			return b.toVector();
+			return b.toVector( offset, len );
 		}
 		
 		public static function readChar( buffer: ByteArray ): int

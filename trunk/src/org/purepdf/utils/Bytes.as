@@ -139,12 +139,15 @@ package org.purepdf.utils
 			return "[" + toVector().toString() + "]";
 		}
 
-		public function toVector(): Vector.<int>
+		public function toVector( offset: uint = 0, len: uint = 0 ): Vector.<int>
 		{
-			var r: Vector.<int> = new Vector.<int>( length );
-
-			for ( var k: int = 0; k < length; k++ )
-				r[ k ] = this[ k ];
+			if( offset == 0 && len == 0 )
+				len = this.length;
+			
+			var r: Vector.<int> = new Vector.<int>( len );
+			
+			for ( var k: int = 0; k < len; k++ )
+				r[ k ] = this[ k + offset ];
 			return r;
 		}
 

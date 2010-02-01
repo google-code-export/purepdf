@@ -113,7 +113,7 @@ package org.purepdf.pdf
 	 */
 	public class PdfDocument extends EventDispatcher implements IObject, IElementListener
 	{
-		internal static var compress: Boolean = false;
+		public static var compress: Boolean = true;
 		internal static const hangingPunctuation: String = ".,;:'";
 		use namespace pdf_core;
 		
