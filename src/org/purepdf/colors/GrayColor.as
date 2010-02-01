@@ -72,6 +72,11 @@ package org.purepdf.colors
 			return _gray;
 		}
 		
+		public function set gray( value: Number ): void
+		{
+			_gray = value;
+		}
+		
 		override public function hashCode() : int
 		{
 			return FloatUtils.floatToIntBits( _gray );
