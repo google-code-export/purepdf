@@ -13,83 +13,52 @@ package
 	import org.purepdf.pdf.PdfShadingPattern;
 	import org.purepdf.pdf.PdfTemplate;
 	import org.purepdf.pdf.PdfTransparencyGroup;
+	import org.purepdf.utils.ShadingUtils;
+	import org.purepdf.utils.assertTrue;
 
 	public class ShadingGradientTransparency extends DefaultBasicExample
 	{
-		public function ShadingGradientTransparency(d_list:Array=null)
+		public function ShadingGradientTransparency()
 		{
-			super(["This example will show how to create a gradient","box with transparent colors"] );
+			super( [ "This example will show how to create a gradient", "box and circle with transparent colors" ] );
 		}
-		
-		override protected function execute(event:Event=null) : void
+
+		override protected function execute( event: Event = null ): void
 		{
 			super.execute();
-			
+
 			createDocument();
 			document.open();
-			
+
 			var cb: PdfContentByte = document.getDirectContent();
-			
+
+			cb.saveState();
 			cb.setColorFill( RGBColor.RED );
-			cb.circle( 110, PageSize.A4.height/2, 100 );
+			cb.circle( 180, PageSize.A4.height / 2 - 60, 100 );
 			cb.fill();
 			cb.resetFill();
+			cb.restoreState();
+
+			var colors: Vector.<RGBColor> = Vector.<RGBColor>( [ RGBColor.BLACK, RGBColor.YELLOW, RGBColor.RED, RGBColor.CYAN ] );
+			var ratios: Vector.<Number> = Vector.<Number>( [ 0, 0.5, 0.7, 1 ] );
+			var alphas: Vector.<Number> = Vector.<Number>( [ 0.2, 1, .7, 0 ] );
+
+			cb.saveState();
+			ShadingUtils.drawRectangleGradient( cb, 100, 100, 100, PageSize.A4.height - 200, colors, ratios, alphas );
+			cb.restoreState();
 			
-			drawTransparentGradient( cb, 100, 100, 100, PageSize.A4.height - 200 );
-			
+			cb.saveState();
+			ShadingUtils.drawRadialGradient( cb, PageSize.A4.width/2, PageSize.A4.height/2, 0, 100, colors, ratios, alphas );
+			cb.restoreState();
+
+			/*cb.saveState();
+			cb.setColorFill( RGBColor.BLUE );
+			cb.circle( 110, PageSize.A4.height / 2 + 120, 100 );
+			cb.fill();
+			cb.restoreState();
+			*/
 			document.close();
 			save();
 		}
-		
-		public function drawTransparentGradient( cb: PdfContentByte, x: Number, y: Number, width: Number, height: Number ): void
-		{
-			var shading: PdfShading;
-			var template: PdfTemplate;
-			var gState: PdfGState;
-			
-			cb.moveTo(x, y);
-			cb.lineTo(x + width, y);
-			cb.lineTo(x + width, y + height);
-			cb.lineTo(x, y + height);
-			
-			// Create template
-			template = cb.createTemplate(x+width, y+height);
-			
-			// Prepare transparent group
-			var transGroup: PdfTransparencyGroup = new PdfTransparencyGroup();
-			transGroup.put(PdfName.CS, PdfName.DEVICERGB);
-			transGroup.isolated = true;
-			transGroup.knockout = false;
-			template.group = transGroup;
-			
-			// Prepare graphic state
-			gState = new PdfGState();
-			var maskDict: PdfDictionary = new PdfDictionary();
-			maskDict.put(PdfName.TYPE, PdfName.MASK);
-			maskDict.put(PdfName.S, new PdfName("Luminosity"));
-			maskDict.put(new PdfName("G"), template.indirectReference );
-			gState.put(PdfName.SMASK, maskDict);
-			cb.setGState(gState);
-			
-			shading = PdfShading.complexAxial( 
-				writer, 0, y, 0, height, 
-				Vector.<RGBColor>([ new GrayColor(1), new GrayColor(0), new GrayColor(.5), new GrayColor(1), new GrayColor(1), new GrayColor(0.2), new GrayColor(1) ]),
-				null
-			);
-			template.paintShading(shading);
-			
-			// Draw the actual colour under the mask
-			shading = PdfShading.complexAxial( 
-				writer, 0, y, 0, height,
-				Vector.<RGBColor>([ RGBColor.YELLOW, RGBColor.BLACK, RGBColor.CYAN, RGBColor.GREEN, RGBColor.BLUE, RGBColor.ORANGE , RGBColor.MAGENTA ]),
-				null
-			);
-			
-			var axialPattern: PdfShadingPattern = new PdfShadingPattern( shading );
-			
-			cb.setShadingFill( axialPattern );
-			cb.fill();
-		}
-
 	}
 }
