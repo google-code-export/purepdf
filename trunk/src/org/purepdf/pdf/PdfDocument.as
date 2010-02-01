@@ -578,27 +578,18 @@ package org.purepdf.pdf
 			dispatchEvent( new DocumentEvent( DocumentEvent.SAVE_START ) );
 			dispatchEvent( new PageEvent( PageEvent.DOCUMENT_CLOSE ) );
 
-			var t: Number = getTimer();
 			writer.addLocalDestinations( localDestinations );
-			trace( "addLocalDestination", getTimer() - t );
 			
-			t = getTimer();
 			calculateOutlineCount();
-			trace( "calculateOutlineCount", getTimer() - t );
 			
-			t = getTimer();
 			writeOutlines();
-			trace( "writeOutlines", getTimer() - t );
 
 			if ( !closed )
 			{
 				_opened = false;
 				closed = true;
 			}
-			
-			t = getTimer();
 			_writer.close();
-			trace( "wrter.close", getTimer() - t );
 		}
 
 		/**
