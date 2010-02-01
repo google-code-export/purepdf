@@ -53,6 +53,8 @@ package org.purepdf.pdf
 
 	public class PdfAppearance extends PdfTemplate
 	{
+		use namespace pdf_core;
+		
 		public static var _stdFieldFontNames: HashMap;
 		
 		public static function get stdFieldFontNames(): HashMap
@@ -106,7 +108,7 @@ package org.purepdf.pdf
 				throw new NonImplementatioError("Document font not yet supported");
 			} else
 			{
-				state.fontDetails = writer.pdf_core::addSimpleFont(bf);
+				state.fontDetails = writer.addSimpleFont(bf);
 			}
 			var psn: PdfName = stdFieldFontNames.getValue( bf.getPostscriptFontName() ) as PdfName;
 			if (psn == null) 
@@ -149,7 +151,7 @@ package org.purepdf.pdf
 			var template: PdfAppearance = new PdfAppearance(writer);
 			template.width = width;
 			template.height = height;
-			writer.pdf_core::addDirectTemplateSimple( template, forcedName );
+			writer.addDirectTemplateSimple( template, forcedName );
 			return template;
 		}
 	}

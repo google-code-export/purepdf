@@ -62,9 +62,9 @@ package org.purepdf.io
 			return input;
 		}
 		
-		public function size(): int
+		public function get size(): int
 		{
-			return input.size();
+			return input.size;
 		}
 		
 		public function readUnsignedByte(): int

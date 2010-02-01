@@ -56,6 +56,8 @@ package org.purepdf.elements
 	 */
 	public class MultiColumnText implements IElement
 	{
+		use namespace pdf_core;
+		
 		public static const AUTOMATIC: int = -1;
 		internal var _desiredHeight: Number = 0;
 		private var totalHeight: Number = 0;
@@ -89,7 +91,7 @@ package org.purepdf.elements
 		 */
 		public function useColumnParams( sourceColumn: ColumnText ): void
 		{
-			columnText.pdf_core::setSimpleVars( sourceColumn );
+			columnText.setSimpleVars( sourceColumn );
 		}
 		
 		internal function getColumnBottom(): Number

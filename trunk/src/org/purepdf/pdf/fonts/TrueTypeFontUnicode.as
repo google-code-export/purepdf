@@ -66,6 +66,8 @@ package org.purepdf.pdf.fonts
 
 	public class TrueTypeFontUnicode extends TrueTypeFont
 	{
+		use namespace pdf_core;
+		
 		private var vertical: Boolean = false;
 
 		public function TrueTypeFontUnicode()
@@ -355,30 +357,30 @@ package org.purepdf.pdf.fonts
 				}
 				var lengths: Vector.<int> = Vector.<int>([ b.length]);
 				pobj = StreamFont.create( b, lengths, compressionLevel );
-				obj = writer.pdf_core::addToBody(pobj);
-				ind_font = obj.getIndirectReference();
+				obj = writer.addToBody(pobj);
+				ind_font = obj.indirectReference;
 			}
 			var subsetPrefix: String = "";
 			if (subset)
 				subsetPrefix = createSubsetPrefix();
 			var dic: PdfDictionary = getFontDescriptorRef(ind_font, subsetPrefix, cidset);
-			obj = writer.pdf_core::addToBody(dic);
-			ind_font = obj.getIndirectReference();
+			obj = writer.addToBody(dic);
+			ind_font = obj.indirectReference;
 			
 			pobj = getCIDFontType2(ind_font, subsetPrefix, metrics);
-			obj = writer.pdf_core::addToBody(pobj);
-			ind_font = obj.getIndirectReference();
+			obj = writer.addToBody(pobj);
+			ind_font = obj.indirectReference;
 			
 			pobj = null; //getToUnicode(metrics);
 			var toUnicodeRef: PdfIndirectReference = null;
 			
 			if (pobj != null) {
-				obj = writer.pdf_core::addToBody(pobj);
-				toUnicodeRef = obj.getIndirectReference();
+				obj = writer.addToBody(pobj);
+				toUnicodeRef = obj.indirectReference;
 			}
 			
 			pobj = getFontBaseType2(ind_font, subsetPrefix, toUnicodeRef);
-			writer.pdf_core::addToBody1(pobj, ref);	
+			writer.addToBody1(pobj, ref);	
 		}
 	}
 }

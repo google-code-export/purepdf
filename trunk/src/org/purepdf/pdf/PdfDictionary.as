@@ -98,7 +98,7 @@ package org.purepdf.pdf
 			return hashMap.getValue( key ) as PdfObject;
 		}
 		
-		public function size(): int
+		public function get size(): int
 		{
 			return hashMap.size();
 		}

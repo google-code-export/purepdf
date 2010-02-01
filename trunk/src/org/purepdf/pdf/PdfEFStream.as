@@ -75,7 +75,7 @@ package org.purepdf.pdf
 					else if ( filter.isArray() )
 					{
 						var a: PdfArray = PdfArray( filter );
-						if ( !a.isEmpty() && PdfName.CRYPT.equals( a.getPdfObject( 0 ) ) )
+						if ( !a.isEmpty && PdfName.CRYPT.equals( a.getPdfObject( 0 ) ) )
 							crypto = null;
 					}
 				}

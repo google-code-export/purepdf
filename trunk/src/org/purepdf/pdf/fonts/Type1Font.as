@@ -290,7 +290,7 @@ package org.purepdf.pdf.fonts
 			if ( pobj != null )
 			{
 				obj = writer.addToBody( pobj );
-				ind_font = obj.getIndirectReference();
+				ind_font = obj.indirectReference;
 			}
 
 			pobj = getFontDescriptorRef( ind_font );
@@ -298,7 +298,7 @@ package org.purepdf.pdf.fonts
 			if ( pobj != null )
 			{
 				obj = writer.addToBody( pobj );
-				ind_font = obj.getIndirectReference();
+				ind_font = obj.indirectReference;
 			}
 
 			pobj = getFontBaseType( ind_font, firstChar, lastChar, shortTag );

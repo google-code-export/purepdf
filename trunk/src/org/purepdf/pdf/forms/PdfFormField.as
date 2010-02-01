@@ -211,14 +211,14 @@ package org.purepdf.pdf.forms
 			used = true;
 
 			if ( parent != null )
-				put( PdfName.PARENT, parent.getIndirectReference() );
+				put( PdfName.PARENT, parent.indirectReference() );
 
 			if ( _kids != null )
 			{
 				var array: PdfArray = new PdfArray();
 
 				for ( var k: int = 0; k < kids.length; ++k )
-					array.add( PdfFormField( kids[k] ).getIndirectReference() );
+					array.add( PdfFormField( kids[k] ).indirectReference() );
 				put( PdfName.KIDS, array );
 			}
 

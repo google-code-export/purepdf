@@ -66,7 +66,7 @@ package org.purepdf.pdf
 		public function get reference(): PdfIndirectReference
 		{
 			if( _reference == null )
-				_reference = writer.addToBody( dictionary ).getIndirectReference();
+				_reference = writer.addToBody( dictionary ).indirectReference;
 			return _reference;
 		}
 		

@@ -362,7 +362,7 @@ package org.purepdf.pdf
 		public function get effectivePaddingBottom(): Number
 		{
 			if ( useBorderPadding ) {
-				var border: Number = borderWidthBottom/(isUseVariableBorders() ? 1 : 2 );
+				var border: Number = borderWidthBottom/(useVariableBorders ? 1 : 2 );
 				return _paddingBottom + border;
 			}
 			return _paddingBottom;
@@ -381,7 +381,7 @@ package org.purepdf.pdf
 		public function get effectivePaddingTop(): Number
 		{
 			if ( useBorderPadding ) {
-				var border: Number = borderWidthTop / (isUseVariableBorders()? 1 : 2 );
+				var border: Number = borderWidthTop / (useVariableBorders ? 1 : 2 );
 				return _paddingTop + border;
 			}
 			return _paddingTop;
@@ -401,7 +401,7 @@ package org.purepdf.pdf
 		{
 			if( useBorderPadding )
 			{
-				var border: Number = borderWidthLeft / (isUseVariableBorders() ? 1 : 2 );
+				var border: Number = borderWidthLeft / (useVariableBorders ? 1 : 2 );
 				return _paddingLeft + border;
 			}
 			return _paddingLeft;
@@ -410,7 +410,7 @@ package org.purepdf.pdf
 		public function get effectivePaddingRight(): Number
 		{
 			if ( useBorderPadding ) {
-				var border: Number = borderWidthRight / (isUseVariableBorders() ? 1 : 2 );
+				var border: Number = borderWidthRight / (useVariableBorders ? 1 : 2 );
 				return _paddingRight + border;
 			}
 			return _paddingRight;

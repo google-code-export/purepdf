@@ -322,11 +322,6 @@ package org.purepdf.elements
 			return false;
 		}
 
-		public function isUseVariableBorders(): Boolean
-		{
-			return _useVariableBorders;
-		}
-
 		public function get isContent(): Boolean
 		{
 			return true;

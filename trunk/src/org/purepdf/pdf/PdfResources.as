@@ -53,7 +53,7 @@ package org.purepdf.pdf
 		
 		public function add( key: PdfName, resource: PdfDictionary ): void
 		{
-			if( resource.size() == 0 )
+			if( resource.size == 0 )
 				return;
 			
 			var dict: PdfDictionary = getAsDict( key );

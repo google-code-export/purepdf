@@ -70,7 +70,7 @@ package org.purepdf.pdf
 			{
 				super( PdfName.OCG );
 				name = $name;
-				_ref = writer.getPdfIndirectReference();
+				_ref = writer.pdfIndirectReference;
 				writer.registerLayer( this );
 			}
 		}

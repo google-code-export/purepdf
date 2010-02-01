@@ -99,7 +99,7 @@ package org.purepdf.collections
 
 		public function add( element: PdfCrossReference ): Boolean
 		{
-			var refnum: int = element.refnum;
+			var refnum: int = element._refnum;
 
 			if( refnum >= values.length || values[refnum] != null )
 			{
@@ -114,7 +114,7 @@ package org.purepdf.collections
 
 		public function remove( element: PdfCrossReference ): Boolean
 		{
-			var refnum: int = element.refnum;
+			var refnum: int = element._refnum;
 
 			if ( values[refnum] != null )
 				return false;

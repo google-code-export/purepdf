@@ -121,18 +121,17 @@ package org.purepdf.pdf
 			return true;
 		}
 
-		[Deprecated]
 		public function getArrayList(): Vector.<PdfObject>
 		{
 			return arrayList;
 		}
 
-		public function isEmpty(): Boolean
+		public function get isEmpty(): Boolean
 		{
 			return arrayList.length == 0;
 		}
 
-		public function size(): int
+		public function get size(): int
 		{
 			return arrayList.length;
 		}

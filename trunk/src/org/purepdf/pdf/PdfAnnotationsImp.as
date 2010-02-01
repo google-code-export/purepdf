@@ -149,12 +149,12 @@ package org.purepdf.pdf
 					
 					var field: PdfFormField = PdfFormField( dic );
 					if( field.parent == null )
-						_acroForm.addDocumentField( field.getIndirectReference() );
+						_acroForm.addDocumentField( field.indirectReference() );
 				}
 				
 				if( dic.isAnnotation )
 				{
-					array.add( dic.getIndirectReference() );
+					array.add( dic.indirectReference() );
 					if( !dic.getUsed() )
 					{
 						var rect: PdfRectangle = dic.getValue( PdfName.RECT ) as PdfRectangle;
@@ -193,7 +193,7 @@ package org.purepdf.pdf
 				if( !dic.getUsed() )
 				{
 					dic.setUsed();
-					writer.addToBody1( dic, dic.getIndirectReference() );
+					writer.addToBody1( dic, dic.indirectReference() );
 				}
 			}
 			return array;

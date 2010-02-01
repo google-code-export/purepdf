@@ -71,7 +71,7 @@ package org.purepdf.io.zip
 		{
 			super( stream );
 			singleByteBuf.length = 1;
-			init( stream, stream.size() );
+			init( stream, stream.size );
 		}
 		
 		private function init( stream: InputStream, size: int ): void

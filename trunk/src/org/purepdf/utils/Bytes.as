@@ -129,11 +129,6 @@ package org.purepdf.utils
 			return str;
 		}
 
-		public function size(): uint
-		{
-			return buf.length;
-		}
-
 		public function toString(): String
 		{
 			return "[" + toVector().toString() + "]";

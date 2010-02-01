@@ -50,6 +50,6 @@ package org.purepdf.io
 	{
 		function readUnsignedByte(): int;
 		function readBytes( b: ByteArray, off: int, len: int ): int;
-		function size(): int;
+		function get size(): int;
 	}
 }

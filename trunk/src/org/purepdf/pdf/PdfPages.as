@@ -72,7 +72,7 @@ package org.purepdf.pdf
 		public function addPage( page: PdfDictionary ): void
 		{
 			if(( pages.length % leafSize ) == 0 )
-				parents.push( writer.getPdfIndirectReference() );
+				parents.push( writer.pdfIndirectReference );
 			
 			var parent: PdfIndirectReference = parents[ parents.length - 1] as PdfIndirectReference;
 			page.put( PdfName.PARENT, parent );
@@ -84,7 +84,7 @@ package org.purepdf.pdf
 		public function addPageRef( pageRef: PdfIndirectReference ): PdfIndirectReference
 		{
 			if( ( pages.length % leafSize ) == 0 )
-				parents.push( writer.getPdfIndirectReference() );
+				parents.push( writer.pdfIndirectReference );
 			pages.push( pageRef );
 			return parents[ (parents.length - 1) ];
 		}
@@ -134,7 +134,7 @@ package org.purepdf.pdf
 					if( tParents.length > 1 )
 					{
 						if( (p % leafSize) == 0 )
-							nextParents.push( writer.getPdfIndirectReference() );
+							nextParents.push( writer.pdfIndirectReference );
 						top.put( PdfName.PARENT, nextParents[ int(p / leafSize) ] );
 					} else {
 						top.put( PdfName.PUREPDF, new PdfString( PdfWriter.RELEASE ) );

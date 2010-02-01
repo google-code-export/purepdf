@@ -192,19 +192,19 @@ package org.purepdf.pdf
 		
 		public function set popup( popup: PdfAnnotation ): void
 		{
-			put(PdfName.POPUP, popup.getIndirectReference() );
-			popup.put(PdfName.PARENT, getIndirectReference() );
+			put(PdfName.POPUP, popup.indirectReference() );
+			popup.put(PdfName.PARENT, indirectReference() );
 		}
 
 		/**
 		 * Returns an indirect reference to the annotation
 		 * @return the indirect reference
 		 */
-		public function getIndirectReference(): PdfIndirectReference
+		public function indirectReference(): PdfIndirectReference
 		{
 			if ( reference == null )
 			{
-				reference = _writer.getPdfIndirectReference();
+				reference = _writer.pdfIndirectReference;
 			}
 			return reference;
 		}

@@ -53,6 +53,8 @@ package org.purepdf.pdf
 
 	public class BidiLine
 	{
+		use namespace pdf_core;
+		
 		private static const mirrorChars: Object = { 0x0028: 0x0029, 0x0029: 0x0028, 0x003C: 0x003E, 0x003E: 0x003C, 0x005B: 0x005D,
 							0x005D: 0x005B, 0x007B: 0x007D, 0x007D: 0x007B, 0x00AB: 0x00BB, 0x00BB: 0x00AB, 0x2039: 0x203A,
 							0x203A: 0x2039, 0x2045: 0x2046, 0x2046: 0x2045, 0x207D: 0x207E, 0x207E: 0x207D, 0x208D: 0x208E,
@@ -551,7 +553,7 @@ package org.purepdf.pdf
 						return PdfLine.create( 0, originalWidth, width, alignment, true, createArrayOfPdfChunks( oldCurrentChar,
 										currentChar - 1 ), isRTL );
 					}
-					detailChunks[currentChar].pdf_core::adjustLeft( leftX );
+					detailChunks[currentChar].adjustLeft( leftX );
 					width = originalWidth - tabPosition;
 				}
 

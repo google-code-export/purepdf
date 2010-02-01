@@ -253,7 +253,7 @@ package org.purepdf.elements
 			return type == Element.CHAPTER;
 		}
 		
-		public function isSection(): Boolean
+		public function get isSection(): Boolean
 		{
 			return type == Element.SECTION;
 		}

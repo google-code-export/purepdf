@@ -71,6 +71,8 @@ package org.purepdf.pdf.fonts
 
 	public class CJKFont extends BaseFont
 	{
+		use namespace pdf_core;
+		
 		public static const CJK_ENCODING: String = "UnicodeBigUnmarked";
 		public static const cjkEncodings: Object = { "UniJIS-UCS2-H": "UniJIS-UCS2-H",
 							"UniJIS-UCS2-V": "UniJIS-UCS2-H UniJIS-UCS2-V", "UniJIS-UCS2-HW-H": "UniJIS-UCS2-H UniJIS-UCS2-HW-H",
@@ -316,17 +318,17 @@ package org.purepdf.pdf.fonts
 			
 			pobj = _getFontDescriptor();
 			if (pobj != null){
-				obj = writer.pdf_core::addToBody(pobj);
-				ind_font = obj.getIndirectReference();
+				obj = writer.addToBody(pobj);
+				ind_font = obj.indirectReference;
 			}
 			pobj = getCIDFont(ind_font, cjkTag);
 			if (pobj != null){
-				obj = writer.pdf_core::addToBody(pobj);
-				ind_font = obj.getIndirectReference();
+				obj = writer.addToBody(pobj);
+				ind_font = obj.indirectReference;
 			}
 			
 			pobj = getFontBaseType(ind_font);
-			writer.pdf_core::addToBody1(pobj, ref);			
+			writer.addToBody1(pobj, ref);			
 		}
 		
 		override protected function _getWidthI( code: int ): int

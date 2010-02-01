@@ -45,12 +45,15 @@
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
+	
 	import org.purepdf.io.InputStream;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.pdf_core;
 
 	public class PdfFileSpecification extends PdfDictionary
 	{
+		use namespace pdf_core;
+		
 		protected var ref: PdfIndirectReference;
 		protected var writer: PdfWriter;
 
@@ -79,7 +82,7 @@ package org.purepdf.pdf
 		{
 			if ( ref != null )
 				return ref;
-			ref = writer.pdf_core::addToBody( this ).getIndirectReference();
+			ref = writer.addToBody( this ).indirectReference;
 			return ref;
 		}
 
@@ -118,7 +121,7 @@ package org.purepdf.pdf
 			if ( mimeType != null )
 				stream.put( PdfName.SUBTYPE, new PdfName( mimeType ) );
 
-			ref = writer.pdf_core::addToBody( stream ).getIndirectReference();
+			ref = writer.addToBody( stream ).indirectReference;
 			var f: PdfDictionary = new PdfDictionary();
 			f.put( PdfName.F, ref );
 			f.put( PdfName.UF, ref );

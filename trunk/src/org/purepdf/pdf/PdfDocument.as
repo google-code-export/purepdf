@@ -161,7 +161,7 @@ package org.purepdf.pdf
 		protected var nextMarginRight: Number = 36.0;
 		protected var nextMarginTop: Number = 36.0;
 		protected var nextPageSize: RectangleElement;
-		protected var opened: Boolean;
+		protected var _opened: Boolean;
 		protected var pageEmpty: Boolean = true;
 		protected var pageN: int = 0;
 		protected var rootOutline: PdfOutline;
@@ -428,7 +428,7 @@ package org.purepdf.pdf
 			
 			try 
 			{
-				documentLevelJS.put( (jsCount++).toFixed(16), _writer.addToBody(action).getIndirectReference() );
+				documentLevelJS.put( (jsCount++).toFixed(16), _writer.addToBody(action).indirectReference );
 			} catch( e: Error )
 			{
 				throw new ConversionError( e );
@@ -491,7 +491,7 @@ package org.purepdf.pdf
 				additionalActions.remove(actionType);
 			else
 				additionalActions.put(actionType, action);
-			if (additionalActions.size() == 0)
+			if (additionalActions.size == 0)
 				additionalActions = null;
 		}
 
@@ -516,7 +516,7 @@ package org.purepdf.pdf
 			if ( closed )
 				throw new Error( "document is closed" );
 
-			if ( !opened && element.isContent )
+			if ( !_opened && element.isContent )
 				throw new Error( "document is not opened" );
 			
 			if( element is ChapterAutoNumber )
@@ -592,7 +592,7 @@ package org.purepdf.pdf
 
 			if ( !closed )
 			{
-				opened = false;
+				_opened = false;
 				closed = true;
 			}
 			
@@ -644,7 +644,7 @@ package org.purepdf.pdf
 			// 8 acroform
 			if (annotationsImp.hasValidAcroForm()) {
 				try {
-					catalog.put(PdfName.ACROFORM, writer.addToBody(annotationsImp.acroForm).getIndirectReference());
+					catalog.put(PdfName.ACROFORM, writer.addToBody(annotationsImp.acroForm).indirectReference );
 				}
 				catch (e: Error ) {
 					throw new ConversionError(e);
@@ -711,12 +711,15 @@ package org.purepdf.pdf
 			return _hashCode;
 		}
 
-		public function isOpen(): Boolean
+		/**
+		 * Return true if the document is already opened
+		 */
+		public function get opened(): Boolean
 		{
-			return opened;
+			return _opened;
 		}
 
-		public function isPageEmpty(): Boolean
+		public function get isPageEmpty(): Boolean
 		{
 			return _writer == null || ( _writer.getDirectContent().size == 0 && _writer.getDirectContentUnder().size == 0 && ( pageEmpty
 				|| _writer.isPaused() ) );
@@ -744,13 +747,13 @@ package org.purepdf.pdf
 		{
 			lastElementType = -1;
 
-			if ( isPageEmpty() )
+			if ( isPageEmpty )
 			{
 				setNewPageSizeAndMargins();
 				return false;
 			}
 
-			if ( !opened || closed )
+			if ( !_opened || closed )
 			{
 				throw new Error( "Document is not opened" );
 			}
@@ -799,7 +802,7 @@ package org.purepdf.pdf
 			{
 				var array: PdfArray = annotationsImp.rotateAnnotations( _writer, _pageSize );
 
-				if ( array.size() != 0 )
+				if ( array.size != 0 )
 					page.put( PdfName.ANNOTS, array );
 			}
 
@@ -823,9 +826,9 @@ package org.purepdf.pdf
 		 */
 		public function open(): void
 		{
-			if ( !opened )
+			if ( !_opened )
 			{
-				opened = true;
+				_opened = true;
 				pageSize = _pageSize;
 				setMargins( _marginLeft, _marginRight, _marginTop, _marginBottom );
 				_writer.open();
@@ -882,7 +885,7 @@ package org.purepdf.pdf
 				return false;
 			}
 			
-			if( !opened )
+			if( !_opened )
 			{
 				_marginBottom = marginBottom;
 				_marginLeft = marginLeft;
@@ -991,7 +994,7 @@ package org.purepdf.pdf
 			{
 				if ( currentHeight + line.height + leading < indentTop - indentBottom )
 				{
-					if ( line.size() > 0 )
+					if ( line.size > 0 )
 					{
 						currentHeight += line.height;
 						lines.push( line );
@@ -1035,7 +1038,7 @@ package org.purepdf.pdf
 			if ( lines == null )
 				return 0;
 
-			if ( line != null && line.size() > 0 )
+			if ( line != null && line.size > 0 )
 			{
 				lines.push( line );
 				line = new PdfLine( indentLeft, indentRight, alignment, leading );
@@ -1220,7 +1223,7 @@ package org.purepdf.pdf
 
 		internal function outlineTree( outline: PdfOutline ): void
 		{
-			outline.indirectReference = _writer.getPdfIndirectReference();
+			outline.indirectReference = _writer.pdfIndirectReference;
 
 			if ( outline.parent != null )
 				outline.put( PdfName.PARENT, outline.parent.indirectReference );
@@ -1270,7 +1273,7 @@ package org.purepdf.pdf
 
 				if ( parent != null )
 				{
-					if ( outline.isOpen() )
+					if ( outline.opened )
 					{
 						parent.count = outline.count + parent.count + 1;
 					}
@@ -1324,7 +1327,7 @@ package org.purepdf.pdf
 					baseCharacterSpacing = lastBaseFactor;
 				} else {
 					width = line.widthLeft;
-					var last: PdfChunk = line.getChunk(line.size() - 1);
+					var last: PdfChunk = line.getChunk(line.size - 1);
 					if (last != null) {
 						var s: String = last.toString();
 						var cs1: String;
@@ -1778,7 +1781,7 @@ package org.purepdf.pdf
 				obj = new Vector.<Object>(3, true);
 			if (obj[0] == null) {
 				if (obj[1] == null) {
-					obj[1] = _writer.getPdfIndirectReference();
+					obj[1] = _writer.pdfIndirectReference;
 				}
 				action = PdfAction.fromDestination( obj[1] as PdfIndirectReference );
 				obj[0] = action;

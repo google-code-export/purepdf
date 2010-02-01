@@ -53,6 +53,8 @@ package org.purepdf.pdf
 
 	public class PdfCatalog extends PdfDictionary
 	{
+		use namespace pdf_core;
+		
 		private var writer: PdfWriter;
 
 		public function PdfCatalog( $pages: PdfIndirectReference, $writer: PdfWriter )
@@ -66,7 +68,7 @@ package org.purepdf.pdf
 		{
 			try
 			{
-				put( PdfName.AA, writer.pdf_core::addToBody( actions ).getIndirectReference() );
+				put( PdfName.AA, writer.addToBody( actions ).indirectReference );
 			} catch( e: Error )
 			{
 				throw new ConversionError(e);
@@ -100,28 +102,28 @@ package org.purepdf.pdf
 						ar.add( ref );
 					}
 
-					if ( ar.size() > 0 )
+					if ( ar.size > 0 )
 					{
 						var dests: PdfDictionary = new PdfDictionary();
 						dests.put( PdfName.NAMES, ar );
-						names.put( PdfName.DESTS, writer.pdf_core::addToBody( dests ).getIndirectReference() );
+						names.put( PdfName.DESTS, writer.addToBody( dests ).indirectReference );
 					}
 				}
 
 				if ( !documentLevelJS.isEmpty() )
 				{
 					var tree: PdfDictionary = PdfNameTree.writeTree( documentLevelJS, writer );
-					names.put( PdfName.JAVASCRIPT, writer.pdf_core::addToBody( tree ).getIndirectReference() );
+					names.put( PdfName.JAVASCRIPT, writer.addToBody( tree ).indirectReference );
 				}
 
 				if ( !documentFileAttachment.isEmpty() )
 				{
-					names.put( PdfName.EMBEDDEDFILES, writer.pdf_core::addToBody( PdfNameTree.writeTree( documentFileAttachment,
-									writer ) ).getIndirectReference() );
+					names.put( PdfName.EMBEDDEDFILES, writer.addToBody( PdfNameTree.writeTree( documentFileAttachment,
+									writer ) ).indirectReference );
 				}
 
-				if ( names.size() > 0 )
-					put( PdfName.NAMES, writer.pdf_core::addToBody( names ).getIndirectReference() );
+				if ( names.size > 0 )
+					put( PdfName.NAMES, writer.addToBody( names ).indirectReference );
 			} catch ( e: Error )
 			{
 				trace( e.getStackTrace() );
