@@ -63,7 +63,7 @@ package org.purepdf.utils
 		 * <pre>
 		 * var colors: Vector.&lt;RGBColor&gt; 	= Vector.&lt;RGBColor&gt;([ RGBColor.BLACK, RGBColor.YELLOW, RGBColor.RED, RGBColor.CYAN ] );
 		 * var ratios: Vector.&lt;Number&gt;		= Vector.&lt;Number&gt;([0, 0.5, 0.7, 1]);
-		 * var alphas: Vector.&ltNumber&gt;		= Vector.&lt;Number&gt;([ 0, 0.2, 0.3, 0.6 ]);
+		 * var alphas: Vector.&lt;Number&gt;		= Vector.&lt;Number&gt;([ 0, 0.2, 0.3, 0.6 ]);
 		 * ShadingUtils.drawRectangleGradient( cb, 100, 100, 100, PageSize.A4.height - 200, colors, ratios, alphas ); 
 		 * </pre>
 		 * 
