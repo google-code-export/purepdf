@@ -37,7 +37,8 @@
 		<compc 
 			output="${output_dir}/${font_output_filename}" 
 			locale="en_US"
-			include-classes="org.purepdf.resources.BuiltinFonts,org.purepdf.resources.BuiltinCJKFonts,org.purepdf.resources.CMap">
+			include-classes="org.purepdf.resources.BuiltinFonts,org.purepdf.resources.BuiltinCJKFonts,org.purepdf.resources.CMap"
+			fork="true" maxmemory="512m">
 			<source-path path-element="src" />
 		</compc>
 	</target>
