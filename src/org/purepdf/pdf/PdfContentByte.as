@@ -577,6 +577,15 @@ package org.purepdf.pdf
 			content.append_number( d ).append_int( 32 ).append_number( e ).append_int( 32 ).append_number( f ).append_string( " cm" ).
 							append_separator();
 		}
+		
+		/**
+		 * Concatenate a matrix to the current matrix.
+		 * @param matrix
+		 */
+		public function concatMatrix( matrix: Matrix ): void
+		{
+			concatCTM( matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty );
+		}
 
 		/**
 		 * 
@@ -1139,7 +1148,7 @@ package org.purepdf.pdf
 		 * <p>Changes the <VAR>Line cap style</VAR></p>
 		 * <p>The line cap style specifies the shape to be used at the end of open subpaths
 		 * when they are stroked.</p>
-		 * @param	style
+		 * @param	style	0 = CapsStyle.NONE, 1 = CapsStyle.ROUND, 2 = CapsStyle.SQUARE
 		 * @see	PdfContentByte
 		 */
 		public function setLineCap( style: int ): void
@@ -1353,6 +1362,22 @@ package org.purepdf.pdf
 			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
 			content.append_string( " rg" ).append_separator();
 		}
+		
+		/**
+		 * Changes the current color for filling paths<br />
+		 * Sets the color space to DeviceRGB
+		 *
+		 * @param value	Color RGB value
+		 */
+		public function setFillColor( value: uint ): void
+		{
+			var r: uint = value >> 16 & 0xFF;
+			var g: uint = value >> 8 & 0xFF;
+			var b: uint = value & 0xFF;
+			
+			helperRGB( Number( r & 0xFF ) / 0xFF, Number( g & 0xFF ) / 0xFF, Number( b & 0xFF ) / 0xFF );
+			content.append_string( " rg" ).append_separator();
+		}
 
 		/**
 		 * 
@@ -1363,6 +1388,17 @@ package org.purepdf.pdf
 		public function setRGBStrokeColor( red: int, green: int, blue: int ): void
 		{
 			helperRGB( Number( red & 0xFF ) / 0xFF, Number( green & 0xFF ) / 0xFF, Number( blue & 0xFF ) / 0xFF );
+			content.append_string( " RG" ).append_separator();
+		}
+		
+		public function setStrokeColor( value: uint ): void
+		{
+			var r: uint = value >> 16 & 0xFF;
+			var g: uint = value >> 8 & 0xFF;
+			var b: uint = value & 0xFF;
+			
+			helperRGB( Number( r & 0xFF ) / 0xFF, Number( g & 0xFF ) / 0xFF, Number( b & 0xFF ) / 0xFF );
+			
 			content.append_string( " RG" ).append_separator();
 		}
 

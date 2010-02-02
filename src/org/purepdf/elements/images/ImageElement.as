@@ -690,13 +690,19 @@ package org.purepdf.elements.images
 		}
 
 		/**
-		 * Create an ImageElement instance from a BitmapData
-		 *
+		 * Create an ImageElement instance from a BitmapData.
+		 * The image will be encoded using a TIFF encoder and compressed
+		 * into a raw bytearray
 		 */
 		public static function getBitmapDataInstance( data: BitmapData ): ImageElement
 		{
-			var bytes: ByteArray = TIFFEncoder.encode( data );
-			return ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
+			var tiff: ByteArray = TIFFEncoder.encode( data );
+			var bytes: ByteArray = new ByteArray();
+			bytes.writeBytes( tiff, TIFFEncoder.DATA_OFFSET, tiff.length - TIFFEncoder.DATA_OFFSET );
+			bytes.compress();
+			var img: ImageElement = ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
+			img.deflated = true;
+			return img;
 		}
 		
 		public static function getTemplateInstance( template: PdfTemplate ): ImageElement

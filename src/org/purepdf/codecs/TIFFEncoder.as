@@ -50,6 +50,8 @@ package org.purepdf.codecs
 
 	public class TIFFEncoder
 	{
+		public static const DATA_OFFSET: uint = 180;
+		
 		public function TIFFEncoder()
 		{
 		}

@@ -44,6 +44,8 @@
 */
 package org.purepdf.pdf
 {
+	import flash.display.BlendMode;
+	
 	import it.sephiroth.utils.ObjectHash;
 	
 
@@ -54,6 +56,26 @@ package org.purepdf.pdf
 	 */
 	public class PdfBlendMode extends ObjectHash
 	{
+		public static function fromBlend( value: String ): PdfName
+		{
+			if( value == BlendMode.ADD ) 				return null;
+			else if( value == BlendMode.ALPHA ) 		return null;
+			else if( value == BlendMode.DARKEN ) 		return PdfBlendMode.DARKEN;
+			else if( value == BlendMode.DIFFERENCE )	return PdfBlendMode.DIFFERENCE;
+			else if( value == BlendMode.ERASE ) 		return PdfBlendMode.EXCLUSION;
+			else if( value == BlendMode.HARDLIGHT ) 	return PdfBlendMode.HARDLIGHT;
+			else if( value == BlendMode.INVERT ) 		return null;
+			else if( value == BlendMode.LAYER ) 		return null;
+			else if( value == BlendMode.LIGHTEN ) 		return PdfBlendMode.LIGHTEN;
+			else if( value == BlendMode.MULTIPLY ) 		return PdfBlendMode.MULTIPLY;
+			else if( value == BlendMode.NORMAL ) 		return PdfBlendMode.NORMAL;
+			else if( value == BlendMode.OVERLAY ) 		return PdfBlendMode.OVERLAY;
+			else if( value == BlendMode.SCREEN ) 		return PdfBlendMode.SCREEN;
+			else if( value == BlendMode.SHADER ) 		return null;
+			else if( value == BlendMode.SUBTRACT ) 		return PdfBlendMode.EXCLUSION;
+			return null;
+		}
+		
 		public static const NORMAL: PdfName = new PdfName("Normal");
 		public static const COMPATIBLE: PdfName = new PdfName("Compatible");
 		public static const MULTIPLY: PdfName = new PdfName("Multiply");
