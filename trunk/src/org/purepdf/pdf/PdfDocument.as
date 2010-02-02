@@ -215,6 +215,11 @@ package org.purepdf.pdf
 		{
 			return _marginBottom;
 		}
+		
+		public function getCurrentPage(): PdfIndirectReference
+		{
+			return _writer.getCurrentPage();
+		}
 
 		/**
 		 * Don't use this directly if you are 100% sure what

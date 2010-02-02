@@ -131,6 +131,7 @@ package org.purepdf.pdf
 						internalArray.push( tmp[a] );
 					
 					top.put( PdfName.KIDS, kids );
+					//top.put( PdfName.ROTATE, new PdfNumber(180) );
 					if( tParents.length > 1 )
 					{
 						if( (p % leafSize) == 0 )
