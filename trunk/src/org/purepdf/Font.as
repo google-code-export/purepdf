@@ -50,7 +50,7 @@ package org.purepdf
 	import org.purepdf.html.Markup;
 	import org.purepdf.pdf.fonts.BaseFont;
 
-	public class Font implements IComparable
+	public class Font implements IComparable, IClonable
 	{
 		public static const BOLD: int = 1;
 		public static const BOLDITALIC: int = BOLD | ITALIC;
