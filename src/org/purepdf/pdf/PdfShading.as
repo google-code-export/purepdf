@@ -287,7 +287,8 @@ package org.purepdf.pdf
 		 * @throws ArgumentError	if colors.length ne ratios.length
 		 * @see org.purepdf.colors.RGBColor
 		 */
-		public static function complexAxial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, colors: Vector.<RGBColor> , ratios: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): PdfShading 
+		public static function complexAxial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, colors: Vector.<RGBColor> , 
+											 ratios: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): PdfShading 
 		{
 			var ratio_null: Boolean = ratios == null;
 			if( ratio_null )
@@ -368,7 +369,8 @@ package org.purepdf.pdf
 		 * @throws ArgumentError	if colors.length ne ratios.length
 		 * @see org.purepdf.colors.RGBColor
 		 */
-		public static function complexRadial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, r0: Number, r1: Number, colors: Vector.<RGBColor> , ratios: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): PdfShading 
+		public static function complexRadial( writer: PdfWriter, x0: Number, y0: Number, x1: Number, y1: Number, r0: Number, r1: Number, colors: Vector.<RGBColor> , 
+											  ratios: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): PdfShading 
 		{
 			var ratio_null: Boolean = ratios == null;
 			if( ratio_null )

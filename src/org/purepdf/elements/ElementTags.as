@@ -182,32 +182,33 @@ package org.purepdf.elements
 			if ( alignment == null )
 				return Element.ALIGN_UNDEFINED;
 
-			if ( ALIGN_CENTER.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_CENTER.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_CENTER;
 
-			if ( ALIGN_LEFT.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_LEFT.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_LEFT;
 
-			if ( ALIGN_RIGHT.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_RIGHT.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_RIGHT;
 
-			if ( ALIGN_JUSTIFIED.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_JUSTIFIED.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_JUSTIFIED;
 
-			if ( ALIGN_JUSTIFIED_ALL.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_JUSTIFIED_ALL.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_JUSTIFIED_ALL;
 
-			if ( ALIGN_TOP.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_TOP.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_TOP;
 
-			if ( ALIGN_MIDDLE.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_MIDDLE.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_MIDDLE;
 
-			if ( ALIGN_BOTTOM.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_BOTTOM.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_BOTTOM;
 
-			if ( ALIGN_BASELINE.toLowerCase() == alignment.toLowerCase() )
+			else if ( ALIGN_BASELINE.toLowerCase() == alignment.toLowerCase() )
 				return Element.ALIGN_BASELINE;
+			
 			return Element.ALIGN_UNDEFINED;
 		}
 

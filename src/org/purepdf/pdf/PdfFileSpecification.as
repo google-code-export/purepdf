@@ -103,9 +103,7 @@ package org.purepdf.pdf
 			fs.put( PdfName.F, new PdfString( fileDisplay ) );
 			fs.setUnicodeFileName( fileDisplay, false );
 			var stream: PdfEFStream;
-			var input: InputStream;
 			var ref: PdfIndirectReference;
-			var refFileLength: PdfIndirectReference;
 			stream = new PdfEFStream( new Bytes( fileStore ) );
 			stream.put( PdfName.TYPE, PdfName.EMBEDDEDFILE );
 			stream.flateCompress( compressionLevel );

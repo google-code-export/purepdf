@@ -80,7 +80,18 @@ package org.purepdf.pdf
 			return _status;
 		}
 		
-		static public function create2( type: int, left: Number, top: Number, zoom: Number ): PdfDestination
+		/** 
+		 * Constructs a new <code>PdfDestination</code>.
+		 * Display the page, with the coordinates (left, top) positioned
+		 * at the top-left corner of the window and the contents of the page magnified
+		 * by the factor zoom. A negative value for any of the parameters left or top, or a
+		 * zoom value of 0 specifies that the current value of that parameter is to be retained unchanged.
+		 * 
+		 * @param left the left value. Negative to place a null
+		 * @param top the top value. Negative to place a null
+		 * @param zoom The zoom factor. A value of 0 keeps the current value
+		 */
+		static public function create2( left: Number, top: Number, zoom: Number ): PdfDestination
 		{
 			var dest: PdfDestination = new PdfDestination( PdfName.XYZ );
 			if (left < 0)

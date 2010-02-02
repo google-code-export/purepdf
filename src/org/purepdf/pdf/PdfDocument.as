@@ -1467,7 +1467,7 @@ package org.purepdf.pdf
 								subtract = 0;
 							if (nextChunk == null)
 								subtract += hangingCorrection;
-							localDestination( String( chunk.getAttribute(Chunk.LOCALDESTINATION) ), PdfDestination.create2( PdfDestination.XYZ, xMarker, yMarker + chunk.font.size, 0));
+							localDestination( String( chunk.getAttribute(Chunk.LOCALDESTINATION) ), PdfDestination.create2( xMarker, yMarker + chunk.font.size, 0 ) );
 						}
 						
 						if( chunk.isAttribute( Chunk.GENERICTAG ) )
@@ -1800,7 +1800,8 @@ package org.purepdf.pdf
 			dispatchEvent( new ChunkEvent( ChunkEvent.GENERIC_TAG, rect, String(chunk.getAttribute( Chunk.GENERICTAG )) ) );
 		}
 		
-		private function _writeLineToContent_PdfAnnotation( lastBaseFactor: Number, chunk: PdfChunk, nextChunk: PdfChunk, text: PdfContentByte, hangingCorrection: Number, xMarker: Number, yMarker: Number, width: Number ): void
+		private function _writeLineToContent_PdfAnnotation( lastBaseFactor: Number, chunk: PdfChunk, nextChunk: PdfChunk, text: PdfContentByte, hangingCorrection: 
+															Number, xMarker: Number, yMarker: Number, width: Number ): void
 		{
 			var subtract: Number = lastBaseFactor;
 			if (nextChunk != null && nextChunk.isAttribute(Chunk.PDFANNOTATION))
