@@ -87,6 +87,7 @@ package
 			class_list.push( MultiColumnPoem );
 			class_list.push( MultiColumnIrregular );
 			class_list.push( FileAttachment1 );
+			class_list.push( RotatePage );
 			
 			total_number = class_list.length;
 		}
