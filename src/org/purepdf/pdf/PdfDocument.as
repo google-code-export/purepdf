@@ -160,7 +160,7 @@ package org.purepdf.pdf
 		protected var nextMarginLeft: Number = 36.0;
 		protected var nextMarginRight: Number = 36.0;
 		protected var nextMarginTop: Number = 36.0;
-		protected var nextPageSize: RectangleElement;
+		protected var _nextPageSize: RectangleElement;
 		protected var _opened: Boolean;
 		protected var pageEmpty: Boolean = true;
 		protected var pageN: int = 0;
@@ -220,6 +220,15 @@ package org.purepdf.pdf
 		{
 			return _writer.getCurrentPage();
 		}
+		
+		/**
+		 * @see PdfWriter#getPageReference()
+		 */
+		public function getPageReference( page: int ): PdfIndirectReference
+		{
+			return _writer.getPageReference( page );
+		}
+	
 
 		/**
 		 * Don't use this directly if you are 100% sure what
@@ -861,7 +870,8 @@ package org.purepdf.pdf
 			if ( _writer != null && _writer.isPaused() )
 				return;
 
-			nextPageSize = RectangleElement.clone( value );
+			//_pageSize = RectangleElement.clone( value );
+			_nextPageSize = RectangleElement.clone( value );
 		}
 
 		public function right( margin: Number=0 ): Number
@@ -1165,7 +1175,7 @@ package org.purepdf.pdf
 
 		protected function setNewPageSizeAndMargins(): void
 		{
-			_pageSize = nextPageSize;
+			_pageSize = _nextPageSize;
 
 			if ( _marginMirroring && ( pageN & 1 ) == 0 )
 			{
