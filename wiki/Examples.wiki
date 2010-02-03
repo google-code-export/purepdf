@@ -66,6 +66,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/PhraseExample.as PhraseExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/RegistrationForm.as RegistrationForm.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Reflection.as Reflection.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/RotatePage.as RotatePage.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/SeparationColors.as SeparationColors.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingPatterns.as ShadingPatterns.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingGradientTransparency.as ShadingGradientTransparency.as]
