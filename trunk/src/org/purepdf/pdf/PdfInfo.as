@@ -90,12 +90,30 @@ package org.purepdf.pdf
 			var date: Date = new Date();
 			var str: String = 'D:';
 			str += date.getFullYear().toString();
-			str += StringUtils.padLeft( date.getMonth().toString(), "0", 2 );
+			str += StringUtils.padLeft( ( date.getMonth() + 1 ).toString(), "0", 2 );
 			str += StringUtils.padLeft( date.getDate().toString(), "0", 2 );
 			str += StringUtils.padLeft( date.getHours().toString(), "0", 2 );
 			str += StringUtils.padLeft( date.getMinutes().toString(), "0", 2 );
 			str += StringUtils.padLeft( date.getSeconds().toString(), "0", 2 );
-			str += "+01'00'";
+			var timezone: int = date.timezoneOffset / 60;
+			if( timezone == 0 )
+			{
+				str += "Z";
+			} else 
+			{
+				if( timezone < 0 )
+				{
+					str += "-";
+					timezone = -timezone;
+				} else
+				{
+					str += "+";
+				}
+				str += StringUtils.padLeft( timezone.toString(), "0", 2 ) + "'";
+				var zone: int = Math.abs((date.timezoneOffset)) - (timezone * 60);
+				//str += "+01'00'";
+				str += StringUtils.padLeft( zone.toString(), "0", 2 ) + "'";
+			}
 			
 			return str;
 		}
