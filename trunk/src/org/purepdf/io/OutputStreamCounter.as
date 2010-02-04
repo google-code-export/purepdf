@@ -53,12 +53,10 @@ package org.purepdf.io
 	{
 		protected var out: ByteArray;
 		protected var counter: int = 0;
-		protected var str: String;
 		
 		public function OutputStreamCounter( $out: ByteArray )
 		{
 			out = $out;
-			str = "";
 		}
 		
 		public function getCounter(): int
@@ -92,15 +90,6 @@ package org.purepdf.io
 			out.writeBytes( value, off, len );
 			
 			value.position = off;
-			while( value.position < (off+len) )
-			{
-				str += String.fromCharCode( uint(value.readByte()) );
-			}
-		}
-		
-		public function toString(): String
-		{
-			return str;
 		}
 		
 		public function toBytes(): Bytes
@@ -119,7 +108,6 @@ package org.purepdf.io
 		{
 			++counter;
 			out[out.position++] = value;
-			str += String.fromCharCode( value );
 		}
 		
 	}
