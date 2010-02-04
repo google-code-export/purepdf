@@ -177,6 +177,8 @@ package org.purepdf.pdf
 		protected var documentLevelJS: HashMap = new HashMap();
 		protected var documentFileAttachment: HashMap = new HashMap();
 		protected var additionalActions: PdfDictionary;
+		protected var thumb: PdfIndirectReference;
+		protected var pageLabels: PdfPageLabels;
 
 		public function PdfDocument( size: RectangleElement )
 		{
@@ -637,6 +639,9 @@ package org.purepdf.pdf
 			viewerPreferences.addToCatalog( catalog );
 
 			// 4 pagelables
+			if( pageLabels != null )
+				catalog.put( PdfName.PAGELABELS, pageLabels.getDictionary( _writer ) );
+			
 			// 5 named objects
 			catalog.addNames( localDestinations, documentLevelJS, documentFileAttachment, _writer );
 			
@@ -657,6 +662,28 @@ package org.purepdf.pdf
 			}
 			
 			return catalog;
+		}
+		
+		/**
+		 * Assign a thumbnail to the current page
+		 * Acrobat/Reader 9 no longer use the embedded thumbnail.
+		 * 
+		 * @param image
+		 * @throws DocumentError
+		 */
+		[Deprecated]
+		public function setThumbnail( image: ImageElement ): void
+		{
+			thumb = writer.getImageReference( writer.addDirectImageSimple( image ) );
+		}
+		
+		/**
+		 * Sets the page labels
+		 * @param pageLabels the page labels
+		 */
+		public function setPageLabels( pageLabels: PdfPageLabels ): void
+		{
+			this.pageLabels = pageLabels;
 		}
 		
 		public function setHeader( value: HeaderFooter ): void
@@ -798,6 +825,13 @@ package org.purepdf.pdf
 				_duration = 0;
 			}
 			
+			// add the thumbs
+			if( thumb != null )
+			{
+				page.put( PdfName.THUMB, thumb );
+				thumb = null;
+			}
+
 			// 5 we check if the userunit is defined
 			if( writer.userunit > 0 )
 				page.put( PdfName.USERUNIT, new PdfNumber( writer.userunit ) );
@@ -1203,7 +1237,7 @@ package org.purepdf.pdf
 
 		internal function addCreationDate(): Boolean
 		{
-			return addElement( new Meta( Element.CREATIONDATE, PdfInfo.getCreationDate() ) );
+			return addElement( new Meta( Element.CREATIONDATE, null ) );
 		}
 
 		internal function addProducer(): Boolean
