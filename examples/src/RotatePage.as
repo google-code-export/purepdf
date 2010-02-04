@@ -21,7 +21,7 @@ package
 			super.execute();
 			
 			var r0: RectangleElement = RectangleElement.clone(PageSize.A4);
-			var r1: RectangleElement = PageSize.A6.rotate(90);
+			var r1: RectangleElement = PageSize.A6.rotate();
 			var r2: RectangleElement = RectangleElement.clone(PageSize.A8);
 			
 			r0.backgroundColor = RGBColor.WHITE;
