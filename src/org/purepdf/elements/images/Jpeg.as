@@ -76,9 +76,9 @@ package org.purepdf.elements.images
 				
 				buffer.position = 0;
 				_rawData = buffer;
-				_rawData.position = 0;
 				_originalData = buffer;
 				processParameters();
+				_rawData.position = 0;
 			} else if( obj is Jpeg )
 			{
 			} else {
@@ -87,12 +87,11 @@ package org.purepdf.elements.images
 		}
 		
 		/**
-		 * Reads a short from the <CODE>InputStream</CODE>.
-		 * @param	is		the <CODE>InputStream</CODE>
+		 * Reads a short from the ByteArray
 		 */
 		private static function getShort( ins: ByteArray ): int
 		{
-			return (ins.readUnsignedByte() << 8) + ins.readUnsignedByte();
+			return ( ins.readUnsignedByte() << 8 ) + ins.readUnsignedByte();
 		}
 		
 		private static function getMarker( marker: int ): int
@@ -118,6 +117,7 @@ package org.purepdf.elements.images
 			return NOT_A_MARKER;
 		}
 		
+		
 		private function processParameters(): void
 		{
 			_type = Element.JPEG;
@@ -125,8 +125,7 @@ package org.purepdf.elements.images
 			var ins: ByteArray;
 			var errorID: String;
 			
-			ins = new ByteArray();
-			ins.writeBytes( _rawData, 0, _rawData.length );
+			ins = _rawData;
 			ins.position = 0;
 			
 			errorID = "Byte Array";
@@ -146,6 +145,7 @@ package org.purepdf.elements.images
 			while( true )
 			{
 				v = ins.readUnsignedByte();
+				
 				if( v < 0 )
 					throw new IOError("Premature end of file");
 				if( v == 0xFF )
@@ -269,7 +269,9 @@ package org.purepdf.elements.images
 						throw new Error("Unsupported jpeg marker: " + markerType.toString() );
 					} else if( markerType != NOPARAM_MARKER )
 					{
-						ins.position += getShort( ins ) - 2;
+						var p: int = getShort( ins );
+						p -= 2;
+						ins.position += p;
 					}
 				}
 			}
