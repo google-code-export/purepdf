@@ -70,6 +70,11 @@ package org.purepdf.io
 		{
 			return count;
 		}
+		
+		public function get position(): int
+		{
+			return pos;
+		}
 
 		public function readBytes( b: ByteArray, off: int, len: int ): int
 		{
