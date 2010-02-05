@@ -579,7 +579,6 @@ package org.purepdf.pdf
 			if ( closed )
 				return;
 			
-			
 			var wasImage: Boolean = imageWait != null;
 			newPage();
 
@@ -903,8 +902,10 @@ package org.purepdf.pdf
 		{
 			if ( _writer != null && _writer.isPaused() )
 				return;
-
-			//_pageSize = RectangleElement.clone( value );
+			
+			if( !opened )
+				_pageSize = RectangleElement.clone( value );
+			
 			_nextPageSize = RectangleElement.clone( value );
 		}
 
