@@ -85,8 +85,8 @@ package org.purepdf.pdf
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const MAIN_VERSION: String = '0';
-		public static const BUILD_NUMBER: String = '19';
-		public static const BUILD_DATE: String = '20100203';
+		public static const BUILD_NUMBER: String = '20';
+		public static const BUILD_DATE: String = '20100205';
 		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
 		
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
@@ -399,10 +399,9 @@ package org.purepdf.pdf
 
 		protected function addSharedObjectsToBody(): void
 		{
-			trace( 'PdfWriter.addSharedObjectsToBody. partially implemented' );
-
 			var it: Iterator;
 			var objs: Vector.<Object>;
+			var entry: Entry;
 
 			// 3 add the fonts
 			it = documentFonts.values().iterator();
@@ -471,13 +470,30 @@ package org.purepdf.pdf
 
 			for ( it; it.hasNext();  )
 			{
-				var entry: Entry = it.next();
+				entry = it.next();
 				var gstate: PdfDictionary = entry.getKey() as PdfDictionary;
 				var obj: Vector.<PdfObject> = Vector.<PdfObject>( entry.getValue() );
 				addToBody1( gstate, PdfIndirectReference( obj[ 1 ] ) );
 			}
 
 			// 11 add the properties
+			it = documentProperties.entrySet().iterator();
+			for( it; it.hasNext();) {
+				entry = it.next();
+				var prop: Object = entry.key;
+				objs = entry.value as Vector.<Object>;
+				
+				if( prop is PdfLayerMembership )
+				{
+					var layerM: PdfLayerMembership = PdfLayerMembership(prop);
+					addToBody1( layerM.pdfObject, layerM.ref );
+				}
+				else if ((prop is PdfDictionary) && !(prop is PdfLayer))
+				{
+					addToBody1( PdfDictionary(prop), PdfIndirectReference(objs[1]) );
+				}
+			}
+			
 			// 13 add the OCG layers
 			it = documentOCG.iterator();
 
@@ -859,6 +875,9 @@ package org.purepdf.pdf
 			}
 		}
 
+		/**
+		 * adding properties (OCG, marked content)
+		 */
 		pdf_core function addSimpleProperty( prop: Object, refi: PdfIndirectReference ): Vector.<PdfObject>
 		{
 			if ( !documentProperties.containsKey( prop ) )

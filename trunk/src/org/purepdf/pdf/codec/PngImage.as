@@ -494,6 +494,7 @@ package org.purepdf.pdf.codec
 
 		private function processPixels( curr: Bytes, xOffset: int, step: int, y: int, width: int ): void
 		{
+			//trace('processPixels', y );
 			var srcX: int;
 			var dstX: int;
 			var out: Vector.<int> = this.getPixel( curr );
@@ -633,6 +634,8 @@ package org.purepdf.pdf.codec
 			while ( true )
 			{
 				var len: int = getInt( ins );
+				
+				//trace( len, ins.position );
 				var marker: String = getString( ins );
 
 				if ( len < 0 || !checkMarker( marker ) )
@@ -807,7 +810,7 @@ package org.purepdf.pdf.codec
 					} while ( ins.readUnsignedByte() != 0 );
 					ins.readUnsignedByte();
 					--len;
-					var icccom: Bytes = new Bytes();
+					var icccom: Bytes = new Bytes( len );
 					var p: int = 0;
 
 					while ( len > 0 )
