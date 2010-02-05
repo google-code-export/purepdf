@@ -56,6 +56,7 @@ package
 			class_list.push( ChunkSkew );
 			class_list.push( ChunkHorizontalScale );
 			class_list.push( GenericTag );
+			class_list.push( LayerMembershipExample );
 			class_list.push( ListExample1 );
 			class_list.push( ListExample2 );
 			class_list.push( ParagraphExample );

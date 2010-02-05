@@ -6,10 +6,13 @@ package
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Paragraph;
+	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfContentByte;
+	import org.purepdf.pdf.PdfViewPreferences;
 	import org.purepdf.pdf.fonts.BaseFont;
-	import org.purepdf.resources.BuiltinFonts;
 	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.resources.BuiltinFonts;
 
 	public class TextRender extends DefaultBasicExample
 	{
@@ -25,7 +28,8 @@ package
 		{
 			super.execute();
 			
-			createDocument();
+			createDocument("Text renderer mode", PageSize.create( 400, 500 ) );
+			document.setViewerPreferences( PdfViewPreferences.PageLayoutTwoPageRight );
 			document.open();
 			
 			var bf: BaseFont = BaseFont.createFont("CarolinaLTStd.otf", BaseFont.CP1252, BaseFont.EMBEDDED );
