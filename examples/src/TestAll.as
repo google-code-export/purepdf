@@ -42,6 +42,7 @@ package
 			class_list.push( HelloWorld3 );
 			class_list.push( HelloWorld4 );
 			class_list.push( HelloWorld5 );
+			class_list.push( HelloWorldFullCompression );
 			class_list.push( HelloWorldAnchor );
 			class_list.push( HelloWorldInternalAnchor );
 			class_list.push( HelloWorldBookmark );
@@ -90,6 +91,7 @@ package
 			class_list.push( FileAttachment1 );
 			class_list.push( RotatePage );
 			class_list.push( PageLabels );
+			class_list.push( TaggedContent );
 			
 			total_number = class_list.length;
 		}
