@@ -3,7 +3,7 @@
 
 = Updates =
 
-This page contains the project updates
+This page contains all the recent project changes and updates
 
 === 02.06.2010 ===
 
