@@ -155,7 +155,7 @@ package org.purepdf.pdf
 		protected var marginMirroringTopBottom: Boolean = false;
 		protected var _marginRight: Number = 36.0;
 		protected var _marginTop: Number = 36.0;
-		protected var markPoint: int;
+		protected var markPoint: int = 0;
 		protected var nextMarginBottom: Number = 36.0;
 		protected var nextMarginLeft: Number = 36.0;
 		protected var nextMarginRight: Number = 36.0;
@@ -186,6 +186,16 @@ package org.purepdf.pdf
 			super();
 			addProducer();
 			addCreationDate();
+		}
+		
+		pdf_core function getMarkPoint(): int
+		{
+			return markPoint;
+		}
+		
+		pdf_core function incMarkPoint(): void
+		{
+			++markPoint;
 		}
 
 		public function get marginMirroring():Boolean
@@ -790,12 +800,18 @@ package org.purepdf.pdf
 			}
 			dispatchEvent( new PageEvent( PageEvent.PAGE_END ) );
 
+			// flush the arraylist with recently written lines
 			flushLines();
 
-			// 1
+			// prepare the elements of the page dictionary
+			
+			// [U1] page size and rotation
 			var rotation: int = _pageSize.rotation;
+			
+			// [C10]
+			// writer.isPdfX(): not yet implemented
 
-			// 2
+			// [M1]
 			pageResources.addDefaultColorDiff( writer.getDefaultColorSpace() );
 
 			if ( writer.isRgbTransparencyBlending() )
@@ -807,11 +823,16 @@ package org.purepdf.pdf
 
 			var resources: PdfDictionary = _pageResources.getResources();
 
-			// 3
+			// create the page dictionary
 			var page: PdfPage = new PdfPage( PdfRectangle.create( _pageSize, rotation ), thisBoxSize, resources, rotation );
 			page.put( PdfName.TABS, _writer.getTabs() );
+			
+			// complete the page dictionary
+			
+			// [C9] if there is XMP data to add: add it
+			// xmpMetadata: not yet implemented
 
-			// 4
+			// [U3] page actions: transition, duration, additional actions
 			if ( _transition != null )
 			{
 				page.put( PdfName.TRANS, _transition.getTransitionDictionary() );
@@ -824,18 +845,18 @@ package org.purepdf.pdf
 				_duration = 0;
 			}
 			
-			// add the thumbs
+			// [U4] we add the thumbs
 			if( thumb != null )
 			{
 				page.put( PdfName.THUMB, thumb );
 				thumb = null;
 			}
 
-			// 5 we check if the userunit is defined
+			// [U8] we check if the userunit is defined
 			if( writer.userunit > 0 )
 				page.put( PdfName.USERUNIT, new PdfNumber( writer.userunit ) );
 
-			// 6
+			// [C5] and [C8] we add the annotations
 			if ( annotationsImp.hasUnusedAnnotations() )
 			{
 				var array: PdfArray = annotationsImp.rotateAnnotations( _writer, _pageSize );
@@ -843,15 +864,16 @@ package org.purepdf.pdf
 				if ( array.size != 0 )
 					page.put( PdfName.ANNOTS, array );
 			}
-
+			
+			// [F12] we add tag info
+			if( _writer.tagged )
+				page.put( PdfName.STRUCTPARENTS, new PdfNumber( _writer.getCurrentPageNumber() - 1 ) );
+			
 			if ( text.size > textEmptySize )
-			{
 				text.endText();
-			}
 			else
-			{
 				text = null;
-			}
+
 			_writer.add( page, new PdfContents( _writer.getDirectContentUnder(), graphics, text, _writer.getDirectContent(), _pageSize ) );
 			// initialize the new page
 			initPage();

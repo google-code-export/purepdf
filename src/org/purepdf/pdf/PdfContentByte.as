@@ -45,6 +45,7 @@
 package org.purepdf.pdf
 {
 	import flash.display.JointStyle;
+	import flash.errors.IllegalOperationError;
 	import flash.geom.Matrix;
 	
 	import it.sephiroth.utils.ObjectHash;
@@ -60,6 +61,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.Element;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
+	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.IllegalPdfSyntaxError;
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.NullPointerError;
@@ -1113,6 +1115,126 @@ package org.purepdf.pdf
 			content.append_bytes( name.getBytes() ).append_int( 32 ).append_number( size ).append_string( " Tf" ).
 							append_separator();
 		}
+		
+		/**
+		 * Begins a marked content sequence. This sequence will be tagged with the structure <CODE>struc</CODE>.
+		 * The same structure can be used several times to connect text that belongs to the same logical segment
+		 * but is in a different location, like the same paragraph crossing to another page, for example.
+		 * @since 0.22
+		 * @throws IllegalOperationError
+		 */
+		public function beginMarkedContentSequence( struc: PdfStructureElement ): void
+		{
+			var obj: PdfObject = struc.getValue( PdfName.K );
+			var mark: int = pdf.getMarkPoint();
+			if( obj != null )
+			{
+				var ar: PdfArray = null;
+				if( obj.isNumber() )
+				{
+					ar = new PdfArray();
+					ar.add( obj );
+					struc.put( PdfName.K, ar );
+				} else if( obj.isArray() ) 
+				{
+					ar = PdfArray( obj );
+					if( !(ar.getPdfObject(0)).isNumber() )
+						throw new IllegalOperationError( "the structure has kids" );
+				} else
+				{
+					throw new IllegalOperationError( "unknown object at k" );
+				}
+				
+				var dic: PdfDictionary = new PdfDictionary( PdfName.MCR );
+				dic.put( PdfName.PG, _writer.getCurrentPage() );
+				dic.put( PdfName.MCID, new PdfNumber( mark ) );
+				ar.add( dic );
+				struc.setPageMark( _writer.pageNumber - 1, -1 );
+			} else 
+			{
+				struc.setPageMark( _writer.pageNumber - 1, mark );
+				struc.put( PdfName.PG, _writer.getCurrentPage() );
+			}
+			pdf.incMarkPoint();
+			mcDepth++;
+			content.append_bytes( struc.getValue( PdfName.S ).getBytes() ).append_string( " <</MCID " ).append_number( mark ).append_string( ">> BDC" ).append_separator();
+		}
+		
+		/**
+		 * Begins a marked content sequence. 
+		 * If property is null the mark will be of the type BMC otherwise it will be BDC.
+		 * 
+		 * @param tag the tag
+		 * @param property the property
+		 * @param inline true to include the property in the content or false
+		 * to include the property in the resource dictionary with the possibility of reusing
+		 */
+		public function beginMarkedContentSequence2( tag: PdfName, property: PdfDictionary, inline: Boolean ): void
+		{
+			if( property == null )
+			{
+				content.append_bytes( tag.getBytes() ).append_string( " BMC" ).append_separator();
+				return;
+			}
+			
+			content.append_bytes( tag.getBytes() ).append_int( 32 );
+			if( inline )
+			{
+				try 
+				{
+					property.toPdf( _writer, content );
+				} catch( e: Error )
+				{
+					throw new ConversionError( e );
+				}
+			} else 
+			{
+				var objs: Vector.<PdfObject>;
+				if( _writer.propertyExists( property ) )
+					objs = writer.addSimpleProperty( property, null );
+				else
+					objs = writer.addSimpleProperty( property, _writer.pdfIndirectReference );
+				var name: PdfName = PdfName( objs[0] );
+				var prs: PageResources = pageResources;
+				name = prs.addProperty( name, PdfIndirectReference( objs[1] ) );
+				content.append_bytes( name.getBytes() );
+			}
+			content.append_string( " BDC" ).append_separator();
+			++mcDepth;
+		}
+		
+		/**
+		 * This is just a shorthand to beginMarkedContentSequence2
+		 * @param tag the tag
+		 */
+		public function beginMarkedContentSequence3( tag: PdfName ): void
+		{
+			beginMarkedContentSequence2( tag, null, false );
+		}
+		
+		/**
+		 * Ends a marked content sequence
+		 */
+		public function endMarkedContentSequence(): void
+		{
+			if( mcDepth == 0 )
+				throw new IllegalPdfSyntaxError( "unbalanced begin end marked content operators" );
+			--mcDepth;
+			content.append_string( "EMC" ).append_separator();
+		}
+		
+		/**
+		 * Sets the text leading parameter.
+		 * The leading parameter is measured in text space units. 
+		 * It specifies the vertical distance between the baselines of adjacent lines of text.
+		 *
+		 * @since 0.22
+		 */
+		public function setLeading( value: Number ): void
+		{
+			state.leading = value;
+			content.append_number( value ).append_string( " TL" ).append_separator();
+		}
 
 		/**
 		 * Apply the graphic state
@@ -1530,6 +1652,17 @@ package org.purepdf.pdf
 		{
 			showText2( text );
 			content.append_string( "Tj" ).append_separator();
+		}
+		
+		/**
+		 * Moves to the next line and shows text
+		 * @param text the text to write
+		 */
+		public function newlineShowText( text: String ): void
+		{
+			state.yTLM -= state.leading;
+			showText2( text );
+			content.append_string( "'" ).append_separator();
 		}
 
 		/**

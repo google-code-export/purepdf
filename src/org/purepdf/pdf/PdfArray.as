@@ -121,6 +121,7 @@ package org.purepdf.pdf
 			return true;
 		}
 
+		[Deprecated]
 		public function getArrayList(): Vector.<PdfObject>
 		{
 			return arrayList;
