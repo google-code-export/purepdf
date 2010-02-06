@@ -44,6 +44,7 @@
 */
 package org.purepdf.pdf
 {
+	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
 	
 	import it.sephiroth.utils.Entry;
@@ -100,7 +101,7 @@ package org.purepdf.pdf
 		protected var body: PdfBody;
 		protected var colorNumber: int = 1;
 		protected var _compressionLevel: int = PdfStream.BEST_COMPRESSION;
-		protected var crypto: PdfEncryption;
+		internal var crypto: PdfEncryption;
 		protected var currentPageNumber: int = 1;
 		protected var defaultColorspace: PdfDictionary = new PdfDictionary();
 		protected var defaultPageSize: PageSize;
@@ -141,7 +142,11 @@ package org.purepdf.pdf
 		protected var tabs: PdfName = null;
 		protected var xmpMetadata: Bytes = null;
 		protected var _userunit: Number = 0;
+		protected var _tagged: Boolean = false;
+		protected var _structureTreeRoot: PdfStructureTreeRoot;
+		
 		private var _spaceCharRatio: Number = SPACE_CHAR_RATIO_DEFAULT;
+		private var _userProperties: Boolean;
 
 		public function PdfWriter( instance: Lock, output: ByteArray, pagesize: RectangleElement )
 		{
@@ -155,6 +160,42 @@ package org.purepdf.pdf
 
 			directContent = new PdfContentByte( this );
 			directContentUnder = new PdfContentByte( this );
+		}
+
+		public function get userProperties(): Boolean
+		{
+			return _userProperties;
+		}
+
+		/**
+		 * Sets the flag indicating the presence of structure elements that contain user properties attributes.
+		 */
+		public function set userProperties( value: Boolean ): void
+		{
+			_userProperties = value;
+		}
+
+		/**
+		 * Gets the structure tree root. 
+		 * If the document is not marked for tagging it will return null.
+		 */
+		public function get structureTreeRoot():PdfStructureTreeRoot
+		{
+			if( _tagged && _structureTreeRoot == null )
+				_structureTreeRoot = new PdfStructureTreeRoot(this);
+			return _structureTreeRoot;
+		}
+
+		public function get tagged():Boolean
+		{
+			return _tagged;
+		}
+
+		public function set tagged(value:Boolean):void
+		{
+			if( opened )
+				throw new IllegalOperationError("tagging must be set before opening a document");
+			_tagged = value;
 		}
 
 		internal function get userunit():Number
@@ -311,6 +352,18 @@ package org.purepdf.pdf
 		public function isFullCompression(): Boolean
 		{
 			return fullCompression;
+		}
+		
+		/**
+		 * Set the document compression to the PDF 1.5 mode
+		 * with object streams ans xref streams.
+		 * Once set it can't be unset anymore.
+		 * 
+		 */
+		public function setFullCompression(): void
+		{
+			fullCompression = true;
+			setAtLeastPdfVersion( PdfVersion.VERSION_1_5 );
 		}
 
 
@@ -596,6 +649,25 @@ package org.purepdf.pdf
 		{
 			var catalog: PdfDictionary = pdf.getCatalog( rootObj );
 
+			if( _tagged ) 
+			{
+				try 
+				{
+					_structureTreeRoot.buildTree();
+				}
+				catch( e: Error )
+				{
+					throw new ConversionError( e );
+				}
+				
+				catalog.put( PdfName.STRUCTTREEROOT, _structureTreeRoot.reference );
+				var mi: PdfDictionary = new PdfDictionary();
+				mi.put( PdfName.MARKED, PdfBoolean.PDF_TRUE );
+				if( _userProperties )
+					mi.put( PdfName.USERPROPERTIES, PdfBoolean.PDF_TRUE );
+				catalog.put( PdfName.MARKINFO, mi );
+			}
+			
 			if ( !documentOCG.isEmpty() )
 			{
 				fillOCProperties( false );
@@ -614,7 +686,7 @@ package org.purepdf.pdf
 			newBookmarks = outlines;
 		}
 
-		protected function propertyExists( prop: Object ): Boolean
+		pdf_core function propertyExists( prop: Object ): Boolean
 		{
 			return documentProperties.containsKey( prop );
 		}

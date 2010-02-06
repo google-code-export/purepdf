@@ -212,7 +212,9 @@ package org.purepdf.pdf
 
 			if ( writer.isFullCompression() )
 			{
-				throw new Error( 'NonImplementationError' );
+				flushObjStm();
+				refNumber = indirectReferenceNumber;
+				xrefs.add( new PdfCrossReference( 1, refNumber, position, 0 ) );
 			}
 			var i: Iterator;
 			var entry: PdfCrossReference = xrefs.first;
@@ -242,7 +244,46 @@ package org.purepdf.pdf
 
 			if ( writer.isFullCompression() )
 			{
-				throw new Error( 'NonImplementationError' );
+				var mid: int = 4;
+				var mask: int = 0xff000000;
+				for( ; mid > 1; --mid )
+				{
+					if(( mask & position ) != 0 )
+						break;
+					mask >>>= 8;
+				}
+				var buf: ByteBuffer = new ByteBuffer();
+				
+				for( i = xrefs.iterator(); i.hasNext(); )
+				{
+					entry = PdfCrossReference( i.next() );
+					entry.midSizeToPdf( mid, buf );
+				}
+				
+				var xr: PdfStream = new PdfStream( buf.toByteArray() );
+				buf = null;
+				xr.flateCompress( writer.compressionLevel );
+				xr.put( PdfName.SIZE, new PdfNumber( size ) );
+				xr.put( PdfName.ROOT, root );
+				if( info != null )
+					xr.put( PdfName.INFO, info );
+				if( encryption != null )
+					xr.put( PdfName.ENCRYPT, encryption );
+				if( fileID != null )
+					xr.put( PdfName.ID, fileID );
+				xr.put( PdfName.W, new PdfArray( Vector.<int>([1, mid, 2]) ) );
+				xr.put( PdfName.TYPE, PdfName.XREF );
+				var idx: PdfArray = new PdfArray();
+				for (k = 0; k < sections.length; ++k )
+					idx.add( new PdfNumber( sections[k] ) );
+				xr.put( PdfName.INDEX, idx );
+				if( prevxref > 0 )
+					xr.put( PdfName.PREV, new PdfNumber( prevxref ) );
+				var enc: PdfEncryption = writer.crypto;
+				writer.crypto = null;
+				var indirect: PdfIndirectObject = new PdfIndirectObject( refNumber, 0, xr, writer );
+				indirect.writeTo( writer.getOs() );
+				writer.crypto = enc;
 			}
 			else
 			{
