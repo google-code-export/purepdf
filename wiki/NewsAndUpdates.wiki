@@ -1,0 +1,11 @@
+#summary Project updates
+#labels Featured,Phase-Implementation,Phase-Support
+
+= Updates =
+
+This page contains the project updates
+
+=== 02.06.2010 ===
+
+  * added *tagged* pdf documents. See [http://code.google.com/p/purepdf/source/browse/examples/src/TaggedContent.as example]
+  * added *full compression*. See [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldFullCompression.as example]
