@@ -7,5 +7,5 @@ This page contains all the recent project changes and updates
 
 === 02.06.2010 ===
 
-  * added *tagged* pdf documents. See [http://code.google.com/p/purepdf/source/browse/examples/src/TaggedContent.as example]
+  * added *tagged* pdf documents. See [http://code.google.com/p/purepdf/source/browse/examples/src/TaggedContent.as example]. Read more about tagged pdf [http://www.planetpdf.com/enterprise/article.asp?ContentID=6067 here]
   * added *full compression*. See [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldFullCompression.as example]
