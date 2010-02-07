@@ -5,6 +5,10 @@
 
 This page contains all the recent project changes and updates
 
+=== 02.07.2010 ===
+
+  * added PushButtonField. For an example see [http://code.google.com/p/purepdf/source/browse/examples/src/TooltipExample.as#92 TooltipExample.as]
+
 === 02.06.2010 ===
 
   * added *tagged* pdf documents. See [http://code.google.com/p/purepdf/source/browse/examples/src/TaggedContent.as example]. Read more about tagged pdf [http://www.planetpdf.com/enterprise/article.asp?ContentID=6067 here]
