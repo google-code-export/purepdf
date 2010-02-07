@@ -83,6 +83,24 @@ package org.purepdf.pdf
 			}
 		}
 		
+		/**
+		 * Associates the specified PdfObject as value to the
+		 * specified PdfName as key in this map.
+		 * 
+		 * If the value is a PdfNull, it is treated just as
+		 * any other PdfObject. If the value is
+		 * null however nothing is done.  
+		 *
+		 * @param key a PdfName
+		 * @param value the PdfObject to be associated to the key
+		 */
+		public function putEx( key: PdfName, value: PdfObject ): void
+		{
+			if( value == null )
+				return;
+			put( key, value );
+		}
+		
 		public function remove( key: PdfName ): void
 		{
 			hashMap.remove( key );
