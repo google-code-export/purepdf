@@ -47,6 +47,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorldTTF.as HelloWorldTTF.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ImageTypes.as ImageTypes.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ImageBitmapData.as ImageBitmapData.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/Kalligraphy.as Kalligraphy.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/LayerMembershipExample.as LayerMembershipExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Layers.as Layers.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/LineStyles.as LineStyles.as]
