@@ -96,6 +96,7 @@ package
 			class_list.push( Kalligraphy );
 			class_list.push( ReadOutLoud );
 			class_list.push( TooltipExample );
+			class_list.push( Annotations );
 			
 			total_number = class_list.length;
 		}
