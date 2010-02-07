@@ -1,0 +1,92 @@
+#summary How to work with fonts in purePDF
+#labels Featured,Phase-Support,Phase-Implementation
+
+= Introduction =
+
+There are different ways you can work with fonts in purePDF.
+
+
+== Example 1 (Basic fonts) ==
+
+Using one of the built-in fonts. First of all you need to link the *purePDFFont.swc* file (if you're not using the source). For the installation please refer to the [Installation] page.
+When working with text you need always to have at least one font defined. If there's no font defined, an error will occur.
+In order to register a font you will use the *!FontsResourceFactory* class.
+
+If you wan to register one of the builtin fonts (Helvetica, Courier, Times, Symbol or !ZapfDingbats) this is the code to use:
+{{{
+FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
+}}}
+That's all. In fact, when you'll add some text in purePDF without specify the font to use, Helvetica will be used as default font. For this reason you need to have at least Helvetica defined when dealing with text.
+
+
+
+and this is the basic example to work with fonts:
+{{{
+package
+{
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.net.FileReference;
+	import flash.utils.ByteArray;
+	
+	import org.purepdf.Font;
+	import org.purepdf.colors.RGBColor;
+	import org.purepdf.elements.Paragraph;
+	import org.purepdf.pdf.PageSize;
+	import org.purepdf.pdf.PdfDocument;
+	import org.purepdf.pdf.PdfWriter;
+	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.pdf.fonts.FontsResourceFactory;
+	import org.purepdf.resources.BuiltinFonts;
+
+	public class FontHowTo extends Sprite
+	{
+		private var writer: PdfWriter;
+		private var document: PdfDocument;
+		private var buffer: ByteArray;
+		
+		public function FontHowTo()
+		{
+			buffer = new ByteArray();
+			writer = PdfWriter.create( buffer, PageSize.A4 );
+			document = writer.pdfDocument;
+
+			// register 'Helvetica' font
+			FontsResourceFactory.getInstance().registerFont( BaseFont.HELVETICA, new BuiltinFonts.HELVETICA() );
+			
+			document.open();
+			
+			// create a simple Paragraph using the default font
+			// remember that the default font, if not specified is 'Helvetica'
+			document.add( new Paragraph("Hello World" ) );
+			
+			// explicit declare the font
+			var font: Font = new Font( Font.HELVETICA, 12, Font.NORMAL, RGBColor.DARK_GRAY, null );
+			document.add( new Paragraph("Hello World", font ) );
+			
+			// create a new font using a BaseFont as source
+			var baseFont: BaseFont = BaseFont.createFont( BaseFont.HELVETICA, BaseFont.WINANSI );
+			font = new Font( Font.UNDEFINED, Font.UNDEFINED, Font.UNDEFINED, RGBColor.LIGHT_GRAY, baseFont );
+			document.add( new Paragraph("Hello World", font ) );
+			
+			document.close();
+			
+			// create a simple button in order to let download
+			// the created pdf file
+			var button: Sprite = new Sprite();
+			button.graphics.beginFill(0);
+			button.graphics.drawRect( 0, 0, 100, 100 );
+			button.addEventListener( MouseEvent.CLICK, onClick );
+			addChild( button );
+		}
+		
+		private function onClick( event: Event ): void
+		{
+			var file: FileReference = new FileReference();
+			file.save( buffer, "font_example.pdf" );
+		}
+		
+	}
+}
+}}}
