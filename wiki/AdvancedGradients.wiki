@@ -4,7 +4,9 @@
 = Introduction =
 
 In this [http://code.google.com/p/purepdf/source/browse/examples/src/ShadingMultipleColors.as example] you can see how to create multiple gradient colors ( with more than 2 colors ). 
+
 But let's say you want to recreate the same gradient ( with a custom matrix and rotation ) applied to a custom sprite with it's own custom matrix.
+
 This is the effect you want to reproduce: 
 
 
@@ -225,4 +227,3 @@ package wiki
 	}
 }
 }}}
-
