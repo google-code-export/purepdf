@@ -433,6 +433,21 @@ package org.purepdf.pdf
 			content.append_bytes( name.getBytes() ).append_string( " Do Q" ).append_separator();
 		}
 
+		public function addTemplateReference( template: PdfIndirectReference, name: PdfName, a: Number, b: Number, c: Number, d: Number, e: Number, f: Number ): void
+		{
+			checkWriter();
+			var prs: PageResources = pageResources;
+			name = prs.addXObject( name, template );
+			content.append_string( "q " );
+			content.append_number( a ).append_int( 32 );
+			content.append_number( b ).append_int( 32 );
+			content.append_number( c ).append_int( 32 );
+			content.append_number( d ).append_int( 32 );
+			content.append_number( e ).append_int( 32 );
+			content.append_number( f ).append_string( " cm " );
+			content.append_bytes( name.getBytes() ).append_string( " Do Q" ).append_separator();
+		}
+
 		/**
 		 * Draws a partial ellipse inscribed within the rectangle x1,y1,x2,y2,
 		 * starting at startAng degrees and covering extent degrees. Angles

@@ -46,11 +46,15 @@ package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
 	
+	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.NonImplementatioError;
 
 	public class PdfReader extends ObjectHash
 	{
 		private var _appendable: Boolean;
+		private var partial: Boolean;
+		private var lastXrefPartial: int = -1;
+		private var xrefObj: Vector.<PdfObject>;
 		
 		static public function getPdfObject( obj: PdfObject ): PdfObject
 		{
@@ -77,6 +81,45 @@ package org.purepdf.pdf
 				return obj;
 			}
 			return getPdfObject( obj );
+		}
+		
+		/** 
+		 * Normalizes a <code>RectangleElement</code> so that llx and lly are smaller than urx and ury.
+		 * @param box the original rectangle
+		 * @return a normalized <code>RectangleElement</code>
+		 */
+		public static function getNormalizedRectangle( box: PdfArray ): RectangleElement
+		{
+			var llx: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(0))).floatValue();
+			var lly: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(1))).floatValue();
+			var urx: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(2))).floatValue();
+			var ury: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(3))).floatValue();
+			return new RectangleElement( Math.min(llx, urx), Math.min(lly, ury), Math.max(llx, urx), Math.max(lly, ury));
+		}
+
+		public static function getPdfObjectRelease( obj: PdfObject ): PdfObject
+		{
+			var obj2: PdfObject = getPdfObject( obj );
+			releaseLastXrefPartial( obj );
+			return obj2;
+		}
+
+		public static function releaseLastXrefPartial( obj: PdfObject ): void
+		{
+			if ( obj == null )
+				return;
+			if ( !obj.isIndirect() )
+				return;
+			if ( !( obj is PRIndirectReference ) )
+				return;
+
+			var ref: PRIndirectReference = PRIndirectReference( obj );
+			var reader: PdfReader = ref.reader;
+			if ( reader.partial && reader.lastXrefPartial != -1 && reader.lastXrefPartial == ref.number )
+			{
+				reader.xrefObj[reader.lastXrefPartial] = null;
+			}
+			reader.lastXrefPartial = -1;
 		}
 		
 		public function get appenbable(): Boolean
