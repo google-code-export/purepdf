@@ -8,6 +8,8 @@ This page contains all the recent project changes and updates
 === 02.07.2010 ===
 
   * added PushButtonField. For an example see [http://code.google.com/p/purepdf/source/browse/examples/src/TooltipExample.as#92 TooltipExample.as]
+  * added movie embedded. See this [http://code.google.com/p/purepdf/source/browse/examples/src/EmbeddedMovie.as example] and this [http://www.sephiroth.it/purepdf/pdfs/EmbeddedMovie.pdf resulting pdf]
+ ( you need to see with standalone reader ).
 
 === 02.06.2010 ===
 
