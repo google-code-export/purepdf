@@ -145,7 +145,43 @@ package org.purepdf.pdf
 		{
 			return PdfObject( arrayList[idx] );
 		}
+		
+		/**
+		 * Returns a <code>PdfObject</code> as a <code>PdfNumber</code>,
+		 * resolving indirect references.
+		 * 
+		 * The object corresponding to the specified index is retrieved and
+		 * resolved to a direct object.
+		 * If it is a <code>PdfNumber</code>, it is cast down and returned as such.
+		 * Otherwise <code>null</code> is returned.
+		 *     
+		 * @param idx The index of the <code>PdfObject</code> to be returned
+		 * @return the corresponding <code>PdfNumber</code> object,
+		 *   or <code>null</code>
+		 */
+		public function getAsNumber( idx: int ): PdfNumber
+		{
+			var number: PdfNumber = null;
+			var orig: PdfObject = getDirectObject( idx );
+			if( orig != null && orig.isNumber() )
+				number = PdfNumber(orig);
+			return number;
+		}
 
+		/**
+		 * Returns the <code>PdfObject</code> with the specified index, resolving
+		 * a possible indirect reference to a direct object.
+		 * 
+		 * Thus this method will never return a <code>PdfIndirectReference</code>
+		 * object.  
+		 * 
+		 * @param idx The index of the <code>PdfObject</code> to be returned
+		 * @return A direct <code>PdfObject</code> or <code>null</code> 
+		 */
+		public function getDirectObject( idx: int ): PdfObject
+		{
+			return PdfReader.getPdfObject( getPdfObject( idx ) );
+		}
 
 		/**
 		 * Writes the PDF representation of this <CODE>PdfArray</CODE> as an array

@@ -144,6 +144,28 @@ package org.purepdf.pdf
 				dict = orig as PdfDictionary;
 			return dict;
 		}
+
+		/**
+		 * Returns a <code>PdfObject</code> as a <code>PdfArray</code>,
+		 * resolving indirect references.
+		 *
+		 * The object associated with the <code>PdfName</code> given is retrieved
+		 * and resolved to a direct object.
+		 * If it is a <code>PdfArray</code>, it is cast down and returned as such.
+		 * Otherwise <code>null</code> is returned.
+		 *
+		 * @param key A <code>PdfName</code>
+		 * @return the associated <code>PdfArray</code> object,
+		 *   or <code>null</code>
+		 */
+		public function getAsArray( key: PdfName ): PdfArray
+		{
+			var array: PdfArray = null;
+			var orig: PdfObject = getDirectObject( key );
+			if ( orig != null && orig.isArray() )
+				array = PdfArray( orig );
+			return array;
+		}
 		
 		/**
 		 * Returns the <CODE>PdfObject</CODE> associated to the specified
