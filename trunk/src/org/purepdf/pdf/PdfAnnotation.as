@@ -53,6 +53,7 @@ package org.purepdf.pdf
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.RuntimeError;
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.pdf_core;
 
 	public class PdfAnnotation extends PdfDictionary
 	{
@@ -291,6 +292,11 @@ package org.purepdf.pdf
 			templates.put( template, null );
 		}
 
+		public function setPage(): void
+		{
+			put( PdfName.P, writer.getCurrentPage() );
+		}
+
 		public function setUsed(): void
 		{
 			used = true;
@@ -381,6 +387,39 @@ package org.purepdf.pdf
 			if ( open )
 				annot.put( PdfName.OPEN, PdfBoolean.PDF_TRUE );
 			return annot;
+		}
+
+		/**
+		 * Creates a screen PdfAnnotation
+		 * @param writer
+		 * @param rect
+		 * @param clipTitle
+		 * @param fs
+		 * @param mimeType
+		 * @param playOnDisplay
+		 * @return a screen PdfAnnotation
+		 * @throws IOError
+		 */
+		public static function createScreen( writer: PdfWriter, rect: RectangleElement, clipTitle: String, fs: PdfFileSpecification, mimeType: String,
+				playOnDisplay: Boolean ): PdfAnnotation
+		{
+			var ann: PdfAnnotation = new PdfAnnotation( writer, rect );
+			ann.put( PdfName.SUBTYPE, PdfName.SCREEN );
+			ann.put( PdfName.F, new PdfNumber( FLAGS_PRINT ) );
+			ann.put( PdfName.TYPE, PdfName.ANNOT );
+			ann.setPage();
+			var ref: PdfIndirectReference = ann.indirectReference;
+			var action: PdfAction = PdfAction.rendition( clipTitle, fs, mimeType, ref );
+			var actionRef: PdfIndirectReference = writer.pdf_core::addToBody( action ).indirectReference;
+
+			if ( playOnDisplay )
+			{
+				var aa: PdfDictionary = new PdfDictionary();
+				aa.put( new PdfName( "PV" ), actionRef );
+				ann.put( PdfName.AA, aa );
+			}
+			ann.put( PdfName.A, actionRef );
+			return ann;
 		}
 
 		/**
