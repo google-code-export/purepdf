@@ -45,7 +45,9 @@
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.HashMap;
+	
 	import org.purepdf.colors.CMYKColor;
 	import org.purepdf.colors.ExtendedColor;
 	import org.purepdf.colors.GrayColor;
@@ -181,6 +183,11 @@ package org.purepdf.pdf
 		public function getUsed(): Boolean
 		{
 			return used;
+		}
+		
+		public function set color( value: RGBColor ): void
+		{
+			put( PdfName.C, PdfColor.create( value ) );
 		}
 
 		/**
@@ -371,6 +378,78 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Adds a line to the document. Move over the line and a tooltip is shown.
+		 * @param writer
+		 * @param rect
+		 * @param contents
+		 * @param x1
+		 * @param y1
+		 * @param x2
+		 * @param y2
+		 * @return A PdfAnnotation
+		 */
+		public static function createLine( writer: PdfWriter, rect: RectangleElement, contents: String, x1: Number, y1: Number, x2: Number, y2: Number ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = new PdfAnnotation( writer, rect );
+			annot.put( PdfName.SUBTYPE, PdfName.LINE );
+			annot.put( PdfName.CONTENTS, new PdfString( contents, PdfObject.TEXT_UNICODE ) );
+			var array: PdfArray = new PdfArray( new PdfNumber( x1 ) );
+			array.add( new PdfNumber( y1 ) );
+			array.add( new PdfNumber( x2 ) );
+			array.add( new PdfNumber( y2 ) );
+			annot.put( PdfName.L, array );
+			return annot;
+		}
+
+		/**
+		 * Creates an Annotation with an Action.
+		 * @param writer
+		 * @param rect
+		 * @param highlight
+		 * @param action
+		 * @return A PdfAnnotation
+		 */
+		public static function createLink( writer: PdfWriter, rect: RectangleElement, highlight: PdfName, action: PdfAction ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = _createLink( writer, rect, highlight );
+			annot.putEx( PdfName.A, action );
+			return annot;
+		}
+
+		/**
+		 * Creates an Annotation with an local destination.
+		 * @param writer
+		 * @param rect
+		 * @param highlight
+		 * @param namedDestination
+		 * @return A PdfAnnotation
+		 */
+		public static function createLink2( writer: PdfWriter, rect: RectangleElement, highlight: PdfName, namedDestination: String ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = _createLink( writer, rect, highlight );
+			annot.put( PdfName.DEST, new PdfString( namedDestination ) );
+			return annot;
+		}
+
+		/**
+		 * Creates an Annotation with a PdfDestination.
+		 * @param writer
+		 * @param rect
+		 * @param highlight
+		 * @param page
+		 * @param dest
+		 * @return A PdfAnnotation
+		 */
+		public static function createLink3( writer: PdfWriter, rect: RectangleElement, highlight: PdfName, page: int, dest: PdfDestination ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = _createLink( writer, rect, highlight );
+			var ref: PdfIndirectReference = writer.getPageReference( page );
+			dest.addPage( ref );
+			annot.put( PdfName.DEST, dest );
+			return annot;
+		}
+
+		/**
 		 * Adds a popup to your document.
 		 * @param writer
 		 * @param rect
@@ -441,9 +520,9 @@ package org.purepdf.pdf
 			return annot;
 		}
 
-		public static function createText( rect: RectangleElement, title: String, contents: String, opened: Boolean, icon: String ): PdfAnnotation
+		public static function createText( writer: PdfWriter, rect: RectangleElement, title: String, contents: String, opened: Boolean, icon: String ): PdfAnnotation
 		{
-			var annot: PdfAnnotation = new PdfAnnotation( null, rect );
+			var annot: PdfAnnotation = new PdfAnnotation( writer, rect );
 			annot.put( PdfName.SUBTYPE, PdfName.TEXT );
 
 			if ( title != null )
@@ -490,6 +569,22 @@ package org.purepdf.pdf
 			return array;
 		}
 
+		/**
+		 * Creates a link.
+		 * @param writer
+		 * @param rect
+		 * @param highlight
+		 * @return A PdfAnnotation
+		 */
+		protected static function _createLink( writer: PdfWriter, rect: RectangleElement, highlight: PdfName ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = new PdfAnnotation( writer, rect );
+			annot.put( PdfName.SUBTYPE, PdfName.LINK );
+			if ( !highlight.equals( HIGHLIGHT_INVERT ) )
+				annot.put( PdfName.H, highlight );
+			return annot;
+		}
+
 		private static function _createFileAttachment( writer: PdfWriter, rect: RectangleElement, contents: String, fs: PdfFileSpecification ): PdfAnnotation
 		{
 			var annot: PdfAnnotation = new PdfAnnotation( writer, rect );
@@ -497,6 +592,23 @@ package org.purepdf.pdf
 			if ( contents != null )
 				annot.put( PdfName.CONTENTS, new PdfString( contents, PdfObject.TEXT_UNICODE ) );
 			annot.put( PdfName.FS, fs.reference );
+			return annot;
+		}
+		
+		/**
+		 * Add some free text to the document.
+		 * @param writer
+		 * @param rect
+		 * @param contents
+		 * @param defaultAppearance
+		 * @return A PdfAnnotation
+		 */
+		public static function createFreeText(writer: PdfWriter, rect: RectangleElement, contents: String, defaultAppearance: PdfContentByte ): PdfAnnotation
+		{
+			var annot: PdfAnnotation = new PdfAnnotation(writer, rect);
+			annot.put(PdfName.SUBTYPE, PdfName.FREETEXT);
+			annot.put(PdfName.CONTENTS, new PdfString(contents, PdfObject.TEXT_UNICODE));
+			annot.defaultAppearanceString = defaultAppearance;
 			return annot;
 		}
 	}
