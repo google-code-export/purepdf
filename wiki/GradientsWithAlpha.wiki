@@ -5,6 +5,8 @@
 
 Here's how to create a linear gradient with different colors. Each color has its own alpha value.
 
+This is an example output: http://www.sephiroth.it/purepdf/pdfs/ShadingGradientTransparency.pdf
+
 
 = Details =
 
