@@ -646,6 +646,14 @@ package org.purepdf.pdf
 			_multipliedLeading = mul;
 		}
 
+		/**
+		 * Simplified method for rectangular columns.
+		 * 
+		 * @param llx
+		 * @param lly
+		 * @param urx
+		 * @param ury
+		 */
 		public function setSimpleColumn( llx: Number, lly: Number, urx: Number, ury: Number ): void
 		{
 			leftX = Math.min( llx, urx );
@@ -658,6 +666,23 @@ package org.purepdf.pdf
 			if ( rectangularWidth < 0 )
 				rectangularWidth = 0;
 			rectangularMode = true;
+		}
+		
+		/**
+		 * Simplified method for rectangular columns.
+		 * 
+		 * @param llx the lower left x corner
+		 * @param lly the lower left y corner
+		 * @param urx the upper right x corner
+		 * @param ury the upper right y corner
+		 * @param leading the leading
+		 * @param alignment the column alignment
+		 */
+		public function setSimpleColumn2( llx: Number, lly: Number, urx: Number, ury: Number, leading: Number, alignment: int ): void
+		{
+			setLeading( leading );
+			this.alignment = alignment;
+			setSimpleColumn( llx, lly, urx, ury );
 		}
 		
 		/**
