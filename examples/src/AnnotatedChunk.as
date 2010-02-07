@@ -29,7 +29,7 @@ package
 			createDocument();
 			document.open();
 			
-			var text: PdfAnnotation = PdfAnnotation.createText( new RectangleElement( 200, 150, 300, 350 ), "Hello Annotation", "Some fake contents inside...", true, "Comment" );
+			var text: PdfAnnotation = PdfAnnotation.createText( writer, new RectangleElement( 200, 150, 300, 350 ), "Hello Annotation", "Some fake contents inside...", true, "Comment" );
 			var javascript: PdfAnnotation = new PdfAnnotation ( writer, new RectangleElement( 200, 550, 300, 650 ), PdfAction.javaScript("app.alert('Wake up dog!');\r", writer ) );
 			var attachment: PdfAnnotation = PdfAnnotation.createFileAttachment( writer, new RectangleElement( 100, 650, 150, 700 ), "Image of the dog and the fox", new file(), "foxdog.jpg" );
 			

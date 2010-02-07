@@ -63,7 +63,7 @@ package
 					break;
 				
 				case 2:
-					annotation = PdfAnnotation.createText( event.rect, "tooltip", event.tag, false, null );
+					annotation = PdfAnnotation.createText( writer, event.rect, "tooltip", event.tag, false, null );
 					var ap: PdfAppearance = document.getDirectContent().createAppearance( event.rect.width, event.rect.height );
 					annotation.setAppearance( PdfAnnotation.APPEARANCE_NORMAL, ap );
 					annotation.put(PdfName.C, new PdfArray(red));
@@ -71,7 +71,7 @@ package
 				
 				case 3:
 					// we create a text annotation with name mytooltip and color red
-					annotation = PdfAnnotation.createText( event.rect, "tooltip", event.tag, false, null );
+					annotation = PdfAnnotation.createText( writer, event.rect, "tooltip", event.tag, false, null );
 					annotation.writer = writer;
 					annotation.put( PdfName.NM, new PdfString("mytooltip") );
 					annotation.put( PdfName.C, new PdfArray(red) );

@@ -25,12 +25,12 @@ package
 			document.open();
 			
 			document.addAnnotation( 
-				PdfAnnotation.createText( new RectangleElement( 300, 700, 300, 700 ), 
+				PdfAnnotation.createText( writer, new RectangleElement( 300, 700, 300, 700 ), 
 				"Note", "This is a Note created with purepdf!\nThis is the default behavior for opened annotations", true, "Note" ) 
 			);
 			
 			document.addAnnotation( 
-				PdfAnnotation.createText( new RectangleElement( 260, 700, 260, 700 ), 
+				PdfAnnotation.createText( writer, new RectangleElement( 260, 700, 260, 700 ), 
 					"Comment", "This is a Comment created with purepdf!\nThis is the default behavior for closed annotations", false, "Comment" ) 
 			);
 			
