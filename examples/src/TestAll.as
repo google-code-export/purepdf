@@ -94,6 +94,7 @@ package
 			class_list.push( TaggedContent );
 			class_list.push( ColumnTextExample );
 			class_list.push( Kalligraphy );
+			class_list.push( ReadOutLoud );
 			
 			total_number = class_list.length;
 		}
