@@ -34,14 +34,14 @@ package
 
 			cb.saveState();
 			cb.setColorFill( RGBColor.RED );
-			cb.circle( 180, PageSize.A4.height / 2 - 60, 100 );
+			cb.circle( 230, PageSize.A4.height / 2 - 60, 100 );
 			cb.fill();
 			cb.resetFill();
 			cb.restoreState();
 
-			var colors: Vector.<RGBColor> = Vector.<RGBColor>( [ RGBColor.BLACK, RGBColor.YELLOW, RGBColor.RED, RGBColor.CYAN ] );
-			var ratios: Vector.<Number> = Vector.<Number>( [ 0, 0.5, 0.7, 1 ] );
-			var alphas: Vector.<Number> = Vector.<Number>( [ 0.2, 1, .7, 0 ] );
+			var colors: Vector.<RGBColor> = Vector.<RGBColor>( [ RGBColor.BLACK, RGBColor.YELLOW, RGBColor.BLUE, RGBColor.RED, RGBColor.CYAN ] );
+			var ratios: Vector.<Number> = Vector.<Number>( [ 0, 0.5, 0.6, 0.8, 1 ] );
+			var alphas: Vector.<Number> = Vector.<Number>( [ 0.2, 1, 0.4, 0.7, 0 ] );
 
 			cb.saveState();
 			ShadingUtils.drawRectangleGradient( cb, 100, 100, 100, PageSize.A4.height - 200, colors, ratios, alphas );
