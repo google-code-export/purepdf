@@ -14,6 +14,7 @@ TestAll.as file include and let you run all the available examples:
 Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/AnimatedGif.as AnimatedGif.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/AnnotatedChunk.as AnnotatedChunk.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/Annotations.as Annotations.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ArabicText.as ArabicText.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/BarCodes.as BarCodes.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Calculator.as Calculator.as]
