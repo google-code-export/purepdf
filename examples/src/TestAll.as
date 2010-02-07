@@ -93,6 +93,7 @@ package
 			class_list.push( PageLabels );
 			class_list.push( TaggedContent );
 			class_list.push( ColumnTextExample );
+			class_list.push( Kalligraphy );
 			
 			total_number = class_list.length;
 		}
