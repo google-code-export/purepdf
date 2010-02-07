@@ -92,6 +92,7 @@ package
 			class_list.push( RotatePage );
 			class_list.push( PageLabels );
 			class_list.push( TaggedContent );
+			class_list.push( ColumnTextExample );
 			
 			total_number = class_list.length;
 		}
