@@ -82,6 +82,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/TableExample2.as TableExample2.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/TaggedContent.as TaggedContent.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/TextRender.as TextRender.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/TooltipExample.as TooltipExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Transparency.as Transparency.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ViewerExample.as ViewerExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Javascript1.as Javascript1.as]
