@@ -241,4 +241,20 @@ package wiki
 }}}
 
 
+== RTL ( Right to left writing ) ==
 
+Some languages requires rtl writing. purepdf supports that.
+In that case you can't directly add the Paragraph/Phrase or Chunk to the pdf document, but you need to use ColumnText.
+example:
+
+{{{
+FontsResourceFactory.getInstance().registerFont( "arialuni.ttf", new cls() );
+var bf: BaseFont = BaseFont.createFont( "arialuni.ttf", BaseFont.IDENTITY_H, true);
+var font: Font = new Font( -1, 24, -1, null, bf );
+var cb: PdfContentByte = writer.getDirectContent();
+			
+var p: Paragraph = new Paragraph("\u0646\u0642\u0644\u0643 \u0632\u0631 \u0636\u0631\u0628\u0629\u062D\u0638", font );
+p.alignment = Element.ALIGN_LEFT;
+			
+ColumnText.showTextAligned( cb, Element.ALIGN_RIGHT, p, document.pageSize.width - 36, document.pageSize.height - 72, 0, PdfWriter.RUN_DIRECTION_RTL, 0);
+}}} 
