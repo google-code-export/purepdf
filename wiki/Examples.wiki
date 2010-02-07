@@ -69,6 +69,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableImages.as PdfPTableImages.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/PdfPTableMemoryFriendly.as PdfPTableMemoryFriendly.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/PhraseExample.as PhraseExample.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/ReadOutLoud.as ReadOutLoud.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/RegistrationForm.as RegistrationForm.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Reflection.as Reflection.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/RotatePage.as RotatePage.as]
