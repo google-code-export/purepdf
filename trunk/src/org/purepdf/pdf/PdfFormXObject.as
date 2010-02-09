@@ -65,7 +65,7 @@ package org.purepdf.pdf
 
 			if ( template.group != null )
 				put( PdfName.GROUP, template.group );
-			var matrix: PdfArray = template.getMatrix();
+			var matrix: PdfArray = template.matrix;
 
 			if ( matrix == null )
 				put( PdfName.MATRIX, MATRIX );

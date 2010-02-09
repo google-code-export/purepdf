@@ -210,13 +210,13 @@ package org.purepdf.pdf.forms
 			var app: PdfAppearance = PdfAppearance.createAppearance( writer, box.width, box.height );
 			switch (rotation) {
 				case 90:
-					app.setMatrix(0, 1, -1, 0, box.height, 0);
+					app.setMatrixValues(0, 1, -1, 0, box.height, 0);
 					break;
 				case 180:
-					app.setMatrix(-1, 0, 0, -1, box.width, box.height);
+					app.setMatrixValues(-1, 0, 0, -1, box.width, box.height);
 					break;
 				case 270:
-					app.setMatrix(0, -1, 1, 0, 0, box.width);
+					app.setMatrixValues(0, -1, 1, 0, 0, box.width);
 					break;
 			}
 			app.saveState();

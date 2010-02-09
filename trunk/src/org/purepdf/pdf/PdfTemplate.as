@@ -44,6 +44,8 @@
 */
 package org.purepdf.pdf
 {
+	import flash.geom.Matrix;
+	
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.pdf_core;
@@ -57,7 +59,7 @@ package org.purepdf.pdf
 		protected var _type: int;
 		protected var bBox: RectangleElement = new RectangleElement( 0, 0, 0, 0 );
 		protected var _group: PdfTransparencyGroup;
-		protected var matrix: PdfArray;
+		protected var _matrix: PdfArray;
 		protected var _pageResources: PageResources;
 		protected var thisReference: PdfIndirectReference;
 		private var _layer: IPdfOCG;
@@ -109,20 +111,31 @@ package org.purepdf.pdf
 			_layer = value;
 		}
 
-		public function setMatrix( a: Number, b: Number, c: Number, d: Number, tx: Number, ty: Number ): void
+		public function setMatrixValues( a: Number, b: Number, c: Number, d: Number, tx: Number, ty: Number ): void
 		{
-			matrix = new PdfArray();
-			matrix.add( new PdfNumber( a ) );
-			matrix.add( new PdfNumber( b ) );
-			matrix.add( new PdfNumber( c ) );
-			matrix.add( new PdfNumber( d ) );
-			matrix.add( new PdfNumber( tx ) );
-			matrix.add( new PdfNumber( ty ) );
+			_matrix = new PdfArray();
+			_matrix.add( new PdfNumber( a ) );
+			_matrix.add( new PdfNumber( b ) );
+			_matrix.add( new PdfNumber( c ) );
+			_matrix.add( new PdfNumber( d ) );
+			_matrix.add( new PdfNumber( tx ) );
+			_matrix.add( new PdfNumber( ty ) );
 		}
 		
-		public function getMatrix(): PdfArray
+		public function setMatrix( value: Matrix ): void
 		{
-			return matrix;
+			_matrix = new PdfArray();
+			_matrix.add( new PdfNumber( value.a ) );
+			_matrix.add( new PdfNumber( value.b ) );
+			_matrix.add( new PdfNumber( value.c ) );
+			_matrix.add( new PdfNumber( value.d ) );
+			_matrix.add( new PdfNumber( value.tx ) );
+			_matrix.add( new PdfNumber( value.ty ) );
+		}
+		
+		public function get matrix(): PdfArray
+		{
+			return _matrix;
 		}
 
 		public function get type(): int
@@ -198,9 +211,9 @@ package org.purepdf.pdf
 			tpl.bBox = RectangleElement.clone( bBox );
 			tpl.group = group;
 			tpl.layer = layer;
-			if (matrix != null) 
+			if (_matrix != null) 
 			{
-				tpl.matrix = new PdfArray(matrix);
+				tpl._matrix = new PdfArray(_matrix);
 			}
 			tpl.separator = separator;
 			return tpl;

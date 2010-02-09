@@ -51,7 +51,7 @@ package org.purepdf.pdf
 		{
 			super();
 			var one: PdfNumber = new PdfNumber( 1 );
-			var matrix: PdfArray = painter.getMatrix();
+			var matrix: PdfArray = painter.matrix;
 
 			if ( matrix != null )
 				put( PdfName.MATRIX, matrix );

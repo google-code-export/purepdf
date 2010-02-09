@@ -134,8 +134,8 @@ package org.purepdf.pdf
 			tpl.bBox = RectangleElement.clone(bBox);
 			tpl.group = group;
 			tpl.layer = layer;
-			if (matrix != null) {
-				tpl.matrix = new PdfArray(matrix);
+			if (_matrix != null) {
+				tpl._matrix = new PdfArray(_matrix);
 			}
 			tpl.separator = separator;
 			return tpl;
