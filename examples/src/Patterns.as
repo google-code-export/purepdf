@@ -46,7 +46,7 @@ package
 			var image: ImageElement = ImageElement.getInstance( new JPGEncoder().encode( ( new cls() as Bitmap ).bitmapData ) );
 			var img_pattern: PdfPatternPainter = cb.createPattern( image.scaledWidth, image.scaledHeight );
 			img_pattern.addImage3( image, image.scaledWidth, 0, 0, image.scaledHeight, 0, 0 );
-			img_pattern.setMatrix( 1, 0, 0, 1, 60, 60 );
+			img_pattern.setMatrixValues( 1, 0, 0, 1, 60, 60 );
 			
 			// create the pattern colors
 			var squares: PatternColor = new PatternColor( square );
