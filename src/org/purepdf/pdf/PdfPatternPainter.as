@@ -131,7 +131,7 @@ package org.purepdf.pdf
 			tpl.bBox = bBox;
 			tpl.xstep = xstep;
 			tpl.ystep = ystep;
-			tpl.matrix = matrix;
+			tpl._matrix = _matrix;
 			tpl._stencil = _stencil;
 			tpl._defaultColor = _defaultColor;
 			return tpl;
