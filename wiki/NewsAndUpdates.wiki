@@ -5,6 +5,11 @@
 
 This page contains all the recent project changes and updates
 
+=== 02.10.2010 ===
+
+  * added [http://code.google.com/p/purepdf/source/browse/examples/src/FormWithTooltip.as FormWithTooltip.as] example. Create forms with tooltips associated to the textfields
+  * created an [http://www.sephiroth.it/weblog/archives/2010/02/flash_gradientmatrix_to_pdf_using_pur.php example] for a conversion between flash gradient color matrix to pdf
+
 === 02.07.2010 ===
 
   * added PushButtonField. For an example see [http://code.google.com/p/purepdf/source/browse/examples/src/TooltipExample.as#92 TooltipExample.as]
