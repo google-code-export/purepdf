@@ -733,6 +733,10 @@ package org.purepdf.pdf
 			return 0;
 		}
 
+		public function setValue( value: String ): void
+		{
+			this.value = value;
+		}
 
 		public static function get keysAttributes(): HashMap
 		{

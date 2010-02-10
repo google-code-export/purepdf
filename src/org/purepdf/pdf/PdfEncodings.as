@@ -53,6 +53,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.encoding.Cp437Conversion;
 	import org.purepdf.pdf.encoding.ExtraEncoding;
 	import org.purepdf.pdf.fonts.BaseFont;
+	import org.purepdf.utils.ByteArrayUtils;
 	import org.purepdf.utils.Bytes;
 
 	public class PdfEncodings extends ObjectHash
@@ -243,7 +244,6 @@ package org.purepdf.pdf
 				
 				for( k = 0; k < len; ++k )
 				{
-					//code = ByteBuffer.intToByte( text.charCodeAt( k ) );
 					code = text.charCodeAt(k);
 					if( code < 128 || ( code > 160 && code <= 255 ) )
 						c = code;
@@ -278,8 +278,9 @@ package org.purepdf.pdf
 			
 			try
 			{
+				trace('convertToBytes with encoding ' + encoding ); 
 				byte = new Bytes();
-				byte.buffer.writeMultiByte( text, "unicodeFFFE" );
+				byte.buffer.writeMultiByte( text, ByteArrayUtils.getEncoding( encoding ) );
 				byte.position = 0;
 				
 				return byte;
