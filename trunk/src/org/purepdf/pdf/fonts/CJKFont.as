@@ -224,14 +224,14 @@ package org.purepdf.pdf.fonts
 				s = cjkFonts[fontName];
 				s = s.substring( 0, s.indexOf( '_' ) );
 				c = allCMaps[s] as Vector.<int>;
-
+				
 				if ( c == null )
 				{
 					c = readCMap( s );
 
 					if ( c == null )
 						throw new DocumentError( "cmap " + s + " does not exists as a resource" );
-					c['\U7fff'] = 10;
+					c['\U7fff'.charCodeAt(0)] = 10;
 					allCMaps[s] = c;
 				}
 				translationMap = c;
@@ -413,10 +413,9 @@ package org.purepdf.pdf.fonts
 
 			if ( vertical )
 			{
-				throw new NonImplementatioError( "vertical not yet supported" );
-					//w = convertToVCIDMetrics(keys, vMetrics, hMetrics);
-					//if (w != null)
-					//	dic.put(PdfName.W2, new PdfLiteral(w));
+				w = convertToVCIDMetrics(keys, vMetrics, hMetrics);
+				if (w != null)
+					dic.put(PdfName.W2, new PdfLiteral(w));
 			} else
 			{
 				dic.put( PdfName.DW, new PdfNumber( 1000 ) );
@@ -620,5 +619,72 @@ package org.purepdf.pdf.fonts
 			}
 			return null;
 		}
+		
+		
+		internal static function convertToVCIDMetrics(keys: Vector.<int>, v: Object, h: Object ): String
+		{
+			if (keys.length == 0)
+				return null;
+			var lastCid: int = 0;
+			var lastValue: int = 0;
+			var lastHValue: int = 0;
+			var start: int;
+			for (start = 0; start < keys.length; ++start) 
+			{
+				lastCid = keys[start];
+				lastValue = v[lastCid];
+				if (lastValue != 0) {
+					++start;
+					break;
+				}
+				else
+					lastHValue = h[lastCid];
+			}
+			if (lastValue == 0)
+				return null;
+			if (lastHValue == 0)
+				lastHValue = 1000;
+			var buf: String = "";
+			buf += '[';
+			buf += lastCid;
+			var state: int = FIRST;
+			var cid: int;
+			var value: int;
+			var hValue: int;
+			for ( var k: int = start; k < keys.length; ++k) 
+			{
+				cid = keys[k];
+				value = v[cid];
+				if (value == 0)
+					continue;
+				hValue = h[lastCid];
+				if (hValue == 0)
+					hValue = 1000;
+				switch (state) {
+					case FIRST: {
+						if (cid == lastCid + 1 && value == lastValue && hValue == lastHValue) {
+							state = SERIAL;
+						}
+						else {
+							buf += ' ' + lastCid + ' ' + -lastValue + ' ' + (lastHValue / 2) + ' ' + V1Y + ' ' + cid;
+						}
+						break;
+					}
+					case SERIAL: {
+						if (cid != lastCid + 1 || value != lastValue || hValue != lastHValue) {
+							buf += ' ' + lastCid + ' ' + (-lastValue) + ' '+ (lastHValue / 2) + ' ' + V1Y + ' ' + cid;
+							state = FIRST;
+						}
+						break;
+					}
+				}
+				lastValue = value;
+				lastCid = cid;
+				lastHValue = hValue;
+			}
+			buf += ' ' + lastCid + ' ' + (-lastValue) + ' ' + (lastHValue / 2) + ' ' + V1Y + " ]";
+			return buf;
+		}
+		
 	}
 }

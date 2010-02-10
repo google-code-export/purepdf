@@ -80,136 +80,33 @@ package org.purepdf.pdf
 	public class PdfContentByte extends ObjectHash
 	{
 		use namespace pdf_core;
-		/**
-		 * 
-		 * @default 
-		 */
+
 		public static const ALIGN_CENTER: int = Element.ALIGN_CENTER;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const ALIGN_LEFT: int = Element.ALIGN_LEFT;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const ALIGN_RIGHT: int = Element.ALIGN_RIGHT;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_CAP_BUTT: int = 0;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_CAP_PROJECTING_SQUARE: int = 2;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_CAP_ROUND: int = 1;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_JOIN_BEVEL: int = 2;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_JOIN_MITER: int = 0;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const LINE_JOIN_ROUND: int = 1;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_CLIP: int = 7;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_FILL: int = 0;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_FILL_CLIP: int = 4;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_FILL_STROKE: int = 2;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_FILL_STROKE_CLIP: int = 6;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_INVISIBLE: int = 3;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_STROKE: int = 1;
-		/**
-		 * 
-		 * @default 
-		 */
 		public static const TEXT_RENDER_MODE_STROKE_CLIP: int = 5;
 		private static const unitRect: Vector.<Number> = Vector.<Number>( [0, 0, 0, 1, 1, 0, 1, 1] );
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var _writer: PdfWriter;
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var content: ByteBuffer = new ByteBuffer();
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var inText: Boolean = false;
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var layerDepth: Vector.<int>;
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var mcDepth: int = 0;
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var pdf: PdfDocument;
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var separator: int = '\n'.charCodeAt( 0 );
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var state: GraphicState = new GraphicState();
-		/**
-		 * 
-		 * @default 
-		 */
 		protected var stateList: Vector.<GraphicState> = new Vector.<GraphicState>();
 
 		/**
@@ -222,6 +119,16 @@ package org.purepdf.pdf
 			pdf = _writer.pdfDocument;
 		}
 
+		/**
+		 * Adds the content of another PdfContent object to this object.
+		 */
+		public function add( other: PdfContentByte ): void
+		{
+			if (other.writer != null && writer != other.writer)
+				throw new RuntimeError("inconsistent writers are you mixing two documents");
+			content.append_bytebuffer( other.content );
+		}
+		
 		/**
 		 * 
 		 * @param annot
@@ -2225,7 +2132,7 @@ package org.purepdf.pdf
 		/**
 		 * Check if the template is a pattern. In that case
 		 * throws an Error
-		 *
+		 *ec
 		 * @throws RuntimeError
 		 */
 		internal function checkNoPattern( t: PdfTemplate ): void
