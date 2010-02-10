@@ -99,6 +99,7 @@ package
 			class_list.push( Annotations );
 			class_list.push( FormWithTooltip );
 			class_list.push( NestingList );
+			class_list.push( VerticalTextExample );
 			
 			total_number = class_list.length;
 		}
