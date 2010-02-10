@@ -241,6 +241,33 @@ package wiki
 }}}
 
 
+== Unicode, vertical text and Cmaps ===
+
+Using the buildints cjk fonts, so without the need to load external fonts, you can use CJK fonts and encoding. The only thing is that this requires additional steps before.
+You won't use the FontsResourceFactory to register a new font, but the [http://code.google.com/p/purepdf/source/browse/trunk/src/org/purepdf/pdf/fonts/cmaps/CJKFontResourceFactory.as CJKFontResourceFactory].
+In addition the required cmaps should be loaded using [http://code.google.com/p/purepdf/source/browse/trunk/src/org/purepdf/pdf/fonts/cmaps/CMapResourceFactory.as CMapResourceFactory].
+For instance:
+{{{
+// load and register a cmap
+var map: ICMap = new CMap( new CMap.UniGB_UCS2_H() );
+CMapResourceFactory.getInstance().registerCMap( BaseFont.UniGB_UCS2_H, map );
+			
+// load and register a property
+var prop: IProperties = new Properties();
+prop.load( new BuiltinCJKFonts.STSong_Light() );
+			
+CJKFontResourceFactory.getInstance().registerProperty( BuiltinCJKFonts.getFontName( BuiltinCJKFonts.STSong_Light ), prop );
+}}} 
+
+now you can write your unicode text in this way:
+{{{
+var bf: BaseFont = BaseFont.createFont( BuiltinCJKFonts.getFontName( BuiltinCJKFonts.STSong_Light ), BaseFont.UniGB_UCS2_H, BaseFont.NOT_EMBEDDED, true );
+var font: Font = new Font( -1. -1, 32, -1, null, bf );
+document.add( new Paragraph("\u5341\u950a\u57cb\u4f0f", font));
+}}}
+
+A couple of examples: [http://code.google.com/p/purepdf/source/browse/examples/src/ChineseKoreanJapanese.as here] and [http://code.google.com/p/purepdf/source/browse/examples/src/VerticalTextExample.as here]
+
 == RTL ( Right to left writing ) ==
 
 Some languages requires rtl writing. purepdf supports that.
