@@ -123,14 +123,7 @@ package org.purepdf.elements
 		public static function fromChunk( chunk: Chunk, leading: Number = Number.NaN ): Paragraph
 		{
 			var p: Paragraph = new Paragraph( null, null );
-			p.leading = leading;
-			if( chunk )
-			{
-				p.push( chunk );
-				p.font = chunk.font;
-			} else {
-				p.font = new Font();
-			}
+			p.initFromChunk( chunk );
 			return p;
 		}
 		
