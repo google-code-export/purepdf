@@ -9,6 +9,7 @@ This page contains all the recent project changes and updates
 
   * added [http://code.google.com/p/purepdf/source/browse/examples/src/FormWithTooltip.as FormWithTooltip.as] example. Create forms with tooltips associated to the textfields
   * created an [http://www.sephiroth.it/weblog/archives/2010/02/flash_gradientmatrix_to_pdf_using_pur.php example] for a conversion between flash gradient color matrix to pdf
+  * added [http://code.google.com/p/purepdf/source/browse/examples/src/NestingList.as NestingList.as] example. Show how to nest lists each other.
 
 === 02.07.2010 ===
 
