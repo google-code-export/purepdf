@@ -106,6 +106,17 @@ package org.purepdf.elements
 			}
 		}
 		
+		public function initFromChunk( chunk: Chunk ): void
+		{
+			this.leading = leading;
+			if( chunk )
+			{
+				this.push( chunk );
+				this.font = chunk.font;
+			} else {
+				this.font = new Font();
+			}
+		}
 		
 		internal function push( o: Object ): Boolean
 		{

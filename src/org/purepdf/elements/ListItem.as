@@ -86,6 +86,13 @@ package org.purepdf.elements
 			return result;
 		}
 		
+		public static function fromChunk( chunk: Chunk ): ListItem
+		{
+			var result: ListItem = new ListItem( null );
+			result.initFromChunk( chunk );
+			return result;
+		}
+		
 		override public function get type() : int
 		{
 			return Element.LISTITEM;
