@@ -98,6 +98,7 @@ package
 			class_list.push( TooltipExample );
 			class_list.push( Annotations );
 			class_list.push( FormWithTooltip );
+			class_list.push( NestingList );
 			
 			total_number = class_list.length;
 		}
