@@ -130,7 +130,7 @@ package org.purepdf.pdf
 			else {
 				var forward: PdfPCellEventForwarder = new PdfPCellEventForwarder();
 				forward.addCellEvent(_cellEvent);
-				forward.addCellEvent(cellEvent);
+				forward.addCellEvent( value );
 				_cellEvent = forward;
 			}
 		}
