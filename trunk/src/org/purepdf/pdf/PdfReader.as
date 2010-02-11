@@ -1,100 +1,162 @@
 /*
-*                             ______ _____  _______ 
-* .-----..--.--..----..-----.|   __ \     \|    ___|
-* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
-* |   __||_____||__|  |_____||___|  |_____/|___|    
-* |__|
-* $Id$
-* $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
-*
-* The contents of this file are subject to  LGPL license 
-* (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
-* provisions of LGPL are applicable instead of those above.  If you wish to
-* allow use of your version of this file only under the terms of the LGPL
-* License and not to allow others to use your version of this file under
-* the MPL, indicate your decision by deleting the provisions above and
-* replace them with the notice and other provisions required by the LGPL.
-* If you do not delete the provisions above, a recipient may use your version
-* of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
-*
-* Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-* for the specific language governing rights and limitations under the License.
-*
-* The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
-* All the Actionscript ported code and all the modifications to the
-* original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
-*
-* This library is free software; you can redistribute it and/or modify it
-* under the terms of the MPL as stated above or under the terms of the GNU
-* Library General Public License as published by the Free Software Foundation;
-* either version 2 of the License, or any later version.
-*
-* This library is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
-* details
-*
-* If you didn't download this code from the following link, you should check if
-* you aren't using an obsolete version:
-* http://code.google.com/p/purepdf
-*
-*/
+ *                             ______ _____  _______
+ * .-----..--.--..----..-----.|   __ \     \|    ___|
+ * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+ * |   __||_____||__|  |_____||___|  |_____/|___|
+ * |__|
+ * $Id$
+ * $Author Alessandro Crugnola $
+ * $Rev$ $LastChangedDate$
+ * $URL$
+ *
+ * The contents of this file are subject to  LGPL license
+ * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
+ * provisions of LGPL are applicable instead of those above.  If you wish to
+ * allow use of your version of this file only under the terms of the LGPL
+ * License and not to allow others to use your version of this file under
+ * the MPL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the LGPL.
+ * If you do not delete the provisions above, a recipient may use your version
+ * of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the License.
+ *
+ * The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
+ * All the Actionscript ported code and all the modifications to the
+ * original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the MPL as stated above or under the terms of the GNU
+ * Library General Public License as published by the Free Software Foundation;
+ * either version 2 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
+ * details
+ *
+ * If you didn't download this code from the following link, you should check if
+ * you aren't using an obsolete version:
+ * http://code.google.com/p/purepdf
+ *
+ */
 package org.purepdf.pdf
 {
+	import flash.utils.ByteArray;
+	
 	import it.sephiroth.utils.ObjectHash;
 	
 	import org.purepdf.elements.RectangleElement;
+	import org.purepdf.errors.InvalidPdfError;
 	import org.purepdf.errors.NonImplementatioError;
 
 	public class PdfReader extends ObjectHash
 	{
+		protected var xref: Vector.<int>;
+		protected var newXrefType: Boolean;
+		protected var pdfVersion: int;
 		private var _appendable: Boolean;
-		private var partial: Boolean;
+		private var fileLength: int;
+		private var hybridXref: Boolean;
 		private var lastXrefPartial: int = -1;
+		private var partial: Boolean;
+		private var tokens: PRTokeniser;
 		private var xrefObj: Vector.<PdfObject>;
-		
-		static public function getPdfObject( obj: PdfObject ): PdfObject
+		protected var lastXref: int;
+		protected var eofPos: int;
+		protected var trailer: PdfDictionary;
+
+		public function PdfReader( input: ByteArray )
 		{
-			if ( obj == null )
-				return null;
-			if( !obj.isIndirect() )
-				return obj;
+			tokens = new PRTokeniser( input );
+		}
+
+		public function get appenbable(): Boolean
+		{
+			return _appendable;
+		}
+
+		public function readPdf(): void
+		{
+			fileLength = tokens.getFile().length;
+			pdfVersion = tokens.checkPdfHeader();
+
+			readXref();
+		}
+		
+		protected function readXrefSection(): PdfDictionary
+		{
+			throw new NonImplementatioError();
+		}
+		
+		protected function readXRefStream( ptr: int ): Boolean
+		{
 			throw new NonImplementatioError();
 		}
 
-		static public function getPdfObjects( obj: PdfObject, parent: PdfObject ): PdfObject
+		protected function readXref(): void
 		{
-			if ( obj == null )
-				return null;
-
-			if ( !obj.isIndirect() )
+			hybridXref = false;
+			newXrefType = false;
+			tokens.seek( tokens.getStartxref() );
+			tokens.nextToken();
+			if ( !tokens.getStringValue() == "startxref" )
+				throw new InvalidPdfError( "startxref not found" );
+			tokens.nextToken();
+			if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
+				throw new InvalidPdfError( "startxref is not followed by a number" );
+			var startxref: int = tokens.intValue();
+			lastXref = startxref;
+			eofPos = tokens.getFilePointer();
+			try
 			{
-				var ref: PRIndirectReference;
-				
-				if( parent != null && ( ref = parent.getIndRef() ) != null && ref.reader.appenbable )
+				if ( readXRefStream( startxref ) )
 				{
-					throw new NonImplementatioError( "Indirect objects not yet implemented" );
+					newXrefType = true;
+					return;
 				}
-				return obj;
+			} catch ( e: Error )
+			{
+				trace(e);
 			}
-			return getPdfObject( obj );
+			xref = null;
+			tokens.seek( startxref );
+			trailer = readXrefSection();
+			var trailer2: PdfDictionary = trailer;
+			var prev: PdfNumber;
+			while ( true )
+			{
+				prev = trailer2.getValue( PdfName.PREV ) as PdfNumber;
+				if ( prev == null )
+					break;
+				tokens.seek( prev.intValue() );
+				trailer2 = readXrefSection();
+			}
 		}
-		
-		/** 
+
+		/**
 		 * Normalizes a <code>RectangleElement</code> so that llx and lly are smaller than urx and ury.
 		 * @param box the original rectangle
 		 * @return a normalized <code>RectangleElement</code>
 		 */
 		public static function getNormalizedRectangle( box: PdfArray ): RectangleElement
 		{
-			var llx: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(0))).floatValue();
-			var lly: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(1))).floatValue();
-			var urx: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(2))).floatValue();
-			var ury: Number = PdfNumber(getPdfObjectRelease(box.getPdfObject(3))).floatValue();
-			return new RectangleElement( Math.min(llx, urx), Math.min(lly, ury), Math.max(llx, urx), Math.max(lly, ury));
+			var llx: Number = PdfNumber( getPdfObjectRelease( box.getPdfObject( 0 ) ) ).floatValue();
+			var lly: Number = PdfNumber( getPdfObjectRelease( box.getPdfObject( 1 ) ) ).floatValue();
+			var urx: Number = PdfNumber( getPdfObjectRelease( box.getPdfObject( 2 ) ) ).floatValue();
+			var ury: Number = PdfNumber( getPdfObjectRelease( box.getPdfObject( 3 ) ) ).floatValue();
+			return new RectangleElement( Math.min( llx, urx ), Math.min( lly, ury ), Math.max( llx, urx ), Math.max( lly, ury ) );
+		}
+
+		public static function getPdfObject( obj: PdfObject ): PdfObject
+		{
+			if ( obj == null )
+				return null;
+			if ( !obj.isIndirect() )
+				return obj;
+			throw new NonImplementatioError();
 		}
 
 		public static function getPdfObjectRelease( obj: PdfObject ): PdfObject
@@ -102,6 +164,24 @@ package org.purepdf.pdf
 			var obj2: PdfObject = getPdfObject( obj );
 			releaseLastXrefPartial( obj );
 			return obj2;
+		}
+
+		public static function getPdfObjects( obj: PdfObject, parent: PdfObject ): PdfObject
+		{
+			if ( obj == null )
+				return null;
+
+			if ( !obj.isIndirect() )
+			{
+				var ref: PRIndirectReference;
+
+				if ( parent != null && ( ref = parent.getIndRef() ) != null && ref.reader.appenbable )
+				{
+					throw new NonImplementatioError( "Indirect objects not yet implemented" );
+				}
+				return obj;
+			}
+			return getPdfObject( obj );
 		}
 
 		public static function releaseLastXrefPartial( obj: PdfObject ): void
@@ -120,11 +200,6 @@ package org.purepdf.pdf
 				reader.xrefObj[reader.lastXrefPartial] = null;
 			}
 			reader.lastXrefPartial = -1;
-		}
-		
-		public function get appenbable(): Boolean
-		{
-			return _appendable;
 		}
 	}
 }
