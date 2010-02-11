@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id: OutputStreamCounter.as 260 2010-02-04 13:36:32Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 260 $ $LastChangedDate: 2010-02-04 14:36:32 +0100 (Thu, 04 Feb 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/io/OutputStreamCounter.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
