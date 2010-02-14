@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id: InvalidPdfError.as 331 2010-02-11 21:46:50Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 331 $ $LastChangedDate: 2010-02-11 22:46:50 +0100 (Thu, 11 Feb 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/errors/InvalidPdfError.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
