@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|
 * |__|
-* $Id: PdfReader.as 330 2010-02-11 21:30:21Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 330 $ $LastChangedDate: 2010-02-11 22:30:21 +0100 (Thu, 11 Feb 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PdfReader.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
