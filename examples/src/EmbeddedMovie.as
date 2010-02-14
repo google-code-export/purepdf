@@ -21,7 +21,7 @@ package
 		[Embed(source="/Users/alessandro/Library/Fonts/CarolinaLTStd.otf", mimeType="application/octet-stream")] 
 		private var cls1: Class;
 		
-		[Embed(source="/Users/alessandro/Desktop/Encoded.mp4", mimeType="application/octet-stream")]
+		[Embed(source="assets/Encoded.mp4", mimeType="application/octet-stream")]
 		private var mpeg: Class;
 		
 		public function EmbeddedMovie(d_list:Array=null)

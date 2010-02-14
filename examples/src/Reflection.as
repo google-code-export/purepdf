@@ -136,7 +136,7 @@ package
 				PdfAppearance, PdfAnnotationsImp, PdfAnnotation, PdfAction, PdfAcroForm, PageSize, PageResources, BarcodePDF417,
 				Indentation, FontSelector, DefaultSplitCharacter, ColumnText, ColorDetails, Cp437Conversion, ExtraEncoding,
 				ByteBuffer, BidiOrder, BidiOrderTypes, BidiLine, ArabicLigaturizer, ImgCCITT, CCITTG4Encoder, TIFFFaxDecoder,
-				PdfIndirectReference, PdfDocument );
+				PdfIndirectReference, PdfDocument, VerticalText, ShadingUtils, FieldText, MarkedSection, CMap, CMapResourceFactory, BuiltinCJKFonts, BuiltinFonts, FontsResourceFactory );
 		}
 		
 		private function push_class( ...rest: Array ): void
@@ -209,7 +209,7 @@ package
 		private function create_first_page(): void
 		{
 			var title: Paragraph = new Paragraph(null, defaultFont);
-			title.add( new Phrase("purePDF API\n", mainFont ));
+			title.add( new Paragraph("purePDF API (v." + PdfWriter.MAIN_VERSION + "." + PdfWriter.BUILD_NUMBER + ")\n", mainFont ));
 			title.add( new Phrase("\n\nThis document has been generated automatically using purepdf (Version " + PdfWriter.RELEASE + ") with actionscript reflection methods\n\n", defaultFont ) );
 			
 			title.add( new Phrase("The contents of this file are subject to  LGPL license " +
