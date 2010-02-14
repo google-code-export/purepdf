@@ -162,6 +162,27 @@ package org.purepdf.pdf
 				dict = orig as PdfDictionary;
 			return dict;
 		}
+		
+		/**
+		 * Returns a PdfObject as a PdfNumber,
+		 * resolving indirect references.
+		 * 
+		 * The object associated with the PdfName given is retrieved
+		 * and resolved to a direct object.
+		 * If it is a PdfNumber, it is cast down and returned as such.
+		 * Otherwise null is returned.
+		 *     
+		 * @param key a PdfName
+		 * @return the associated PdfNumber object, or null
+		 */
+		public function getAsNumber( key: PdfName ): PdfNumber
+		{
+			var number: PdfNumber = null;
+			var orig: PdfObject = getDirectObject( key );
+			if (orig != null && orig.isNumber())
+				number = PdfNumber(orig);
+			return number;
+		}
 
 		/**
 		 * Returns a <code>PdfObject</code> as a <code>PdfArray</code>,

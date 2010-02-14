@@ -44,6 +44,7 @@
 */
 package org.purepdf.pdf
 {
+	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.pdf.interfaces.IOutputStream;
 	import org.purepdf.utils.Bytes;
 
@@ -52,6 +53,9 @@ package org.purepdf.pdf
 		protected var encoding: String = TEXT_PDFDOCENCODING;
 		protected var originalValue: String = null;
 		protected var value: String = NOTHING;
+		protected var objNum: int = 0;
+		protected var objGen: int;
+		protected var hexWriting: Boolean;
 
 		/**
 		 * Create a new PdfString
@@ -72,6 +76,43 @@ package org.purepdf.pdf
 			} else {
 				throw new Error( "only string and bytes supported" );
 			}
+		}
+		
+		/**
+		 * Decrypt an encrypted PdfString
+		 */
+		internal function decrypt( reader: PdfReader ): void
+		{
+			trace('PdfString.decrypt not yet implemented');
+			/*
+			var decrypt: PdfEncryption = reader.decrypt;
+			if (decrypt != null) 
+			{
+				throw new NonImplementatioError();
+				originalValue = value;
+				decrypt.setHashKey(objNum, objGen);
+				bytes = PdfEncodings.convertToBytes(value, null);
+				bytes = decrypt.decryptByteArray(bytes);
+				value = PdfEncodings.convertToString(bytes, null);
+			}
+			*/
+		}
+		
+		internal function setObjNum( objNum: int, objGen: int ): void
+		{
+			this.objNum = objNum;
+			this.objGen = objGen;
+		}
+		
+		public function setHexWriting( hexWriting: Boolean ): PdfString
+		{
+			this.hexWriting = hexWriting;
+			return this;
+		}
+		
+		public function isHexWriting(): Boolean
+		{
+			return hexWriting;
 		}
 
 		override public function getBytes(): Bytes

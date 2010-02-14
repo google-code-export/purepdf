@@ -1,51 +1,54 @@
 /*
-*                             ______ _____  _______ 
-* .-----..--.--..----..-----.|   __ \     \|    ___|
-* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
-* |   __||_____||__|  |_____||___|  |_____/|___|    
-* |__|
-* $Id$
-* $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
-*
-* The contents of this file are subject to  LGPL license 
-* (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
-* provisions of LGPL are applicable instead of those above.  If you wish to
-* allow use of your version of this file only under the terms of the LGPL
-* License and not to allow others to use your version of this file under
-* the MPL, indicate your decision by deleting the provisions above and
-* replace them with the notice and other provisions required by the LGPL.
-* If you do not delete the provisions above, a recipient may use your version
-* of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
-*
-* Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-* for the specific language governing rights and limitations under the License.
-*
-* The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
-* All the Actionscript ported code and all the modifications to the
-* original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
-*
-* This library is free software; you can redistribute it and/or modify it
-* under the terms of the MPL as stated above or under the terms of the GNU
-* Library General Public License as published by the Free Software Foundation;
-* either version 2 of the License, or any later version.
-*
-* This library is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
-* details
-*
-* If you didn't download this code from the following link, you should check if
-* you aren't using an obsolete version:
-* http://code.google.com/p/purepdf
-*
-*/
+ *                             ______ _____  _______
+ * .-----..--.--..----..-----.|   __ \     \|    ___|
+ * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+ * |   __||_____||__|  |_____||___|  |_____/|___|
+ * |__|
+ * $Id$
+ * $Author Alessandro Crugnola $
+ * $Rev$ $LastChangedDate$
+ * $URL$
+ *
+ * The contents of this file are subject to  LGPL license
+ * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
+ * provisions of LGPL are applicable instead of those above.  If you wish to
+ * allow use of your version of this file only under the terms of the LGPL
+ * License and not to allow others to use your version of this file under
+ * the MPL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the LGPL.
+ * If you do not delete the provisions above, a recipient may use your version
+ * of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the License.
+ *
+ * The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
+ * All the Actionscript ported code and all the modifications to the
+ * original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the MPL as stated above or under the terms of the GNU
+ * Library General Public License as published by the Free Software Foundation;
+ * either version 2 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
+ * details
+ *
+ * If you didn't download this code from the following link, you should check if
+ * you aren't using an obsolete version:
+ * http://code.google.com/p/purepdf
+ *
+ */
 package org.purepdf.io
 {
+	import flash.errors.EOFError;
 	import flash.utils.ByteArray;
 	import flash.utils.IDataInput;
+	
+	import org.purepdf.utils.Bytes;
 
 	public class RandomAccessFileOrArray implements IDataInput
 	{
@@ -59,28 +62,6 @@ package org.purepdf.io
 		public function RandomAccessFileOrArray( arrayIn: ByteArray )
 		{
 			this.arrayIn = arrayIn;
-		}
-		
-		/**
-		 * @throws EOFError
-		 */
-		public function seek( pos: int): void
-		{
-			pos += _startOffset;
-			isBack = false;
-			arrayInPtr = pos;
-		}
-		
-		public function getFilePointer(): int
-		{
-			var n: int = isBack ? 1 : 0;
-			return arrayInPtr - n - _startOffset;
-		}
-		
-		public function pushBack( b: int ): void
-		{
-			back = b;
-			isBack = true;
 		}
 
 		public function get bytesAvailable(): uint
@@ -97,6 +78,12 @@ package org.purepdf.io
 		{
 		}
 
+		public function getFilePointer(): int
+		{
+			var n: int = isBack ? 1 : 0;
+			return arrayInPtr - n - _startOffset;
+		}
+
 		public function get length(): int
 		{
 			return arrayIn.length - _startOffset;
@@ -109,6 +96,12 @@ package org.purepdf.io
 
 		public function set objectEncoding( version: uint ): void
 		{
+		}
+
+		public function pushBack( b: int ): void
+		{
+			back = b;
+			isBack = true;
 		}
 
 		public function readBoolean(): Boolean
@@ -133,6 +126,52 @@ package org.purepdf.io
 		public function readFloat(): Number
 		{
 			return 0;
+		}
+
+		/**
+		 * @throws EOFError
+		 */
+		public function readFully( b: Bytes, off: int, len: int ): void
+		{
+			var n: int = 0;
+			do
+			{
+				var count: int = read( b, off + n, len - n );
+				if ( count < 0 )
+					throw new EOFError();
+				n += count;
+			} while ( n < len );
+		}
+		
+		public function read( b: Bytes, off: int, len: int): int
+		{
+			if (len == 0)
+				return 0;
+			var n: int = 0;
+			if (isBack) {
+				isBack = false;
+				if (len == 1) {
+					b[off] = back;
+					return 1;
+				}
+				else {
+					n = 1;
+					b[off++] = back;
+					--len;
+				}
+			}
+
+			if (arrayInPtr >= arrayIn.length)
+				return -1;
+			if (arrayInPtr + len > arrayIn.length)
+				len = arrayIn.length - arrayInPtr;
+			
+			//System.arraycopy(arrayIn, arrayInPtr, b, off, len);
+			b.buffer.position = off;
+			b.buffer.writeBytes( arrayIn, arrayInPtr, len );
+
+			arrayInPtr += len;
+			return len + n;
 		}
 
 		public function readInt(): int
@@ -185,6 +224,16 @@ package org.purepdf.io
 		public function readUnsignedShort(): uint
 		{
 			return 0;
+		}
+
+		/**
+		 * @throws EOFError
+		 */
+		public function seek( pos: int ): void
+		{
+			pos += _startOffset;
+			isBack = false;
+			arrayInPtr = pos;
 		}
 
 		public function get startOffset(): int

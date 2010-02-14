@@ -4,10 +4,10 @@
  * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
  * |   __||_____||__|  |_____||___|  |_____/|___|
  * |__|
- * $Id$
+ * $Id: InvalidPdfError.as 331 2010-02-11 21:46:50Z alessandro.crugnola $
  * $Author Alessandro Crugnola $
- * $Rev$ $LastChangedDate$
- * $URL$
+ * $Rev: 331 $ $LastChangedDate: 2010-02-11 22:46:50 +0100 (Thu, 11 Feb 2010) $
+ * $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/errors/InvalidPdfError.as $
  *
  * The contents of this file are subject to  LGPL license
  * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,33 +42,11 @@
  * http://code.google.com/p/purepdf
  *
  */
-package org.purepdf.pdf
+package org.purepdf.io
 {
 
-	public class PRIndirectReference extends PdfIndirectReference
+	public class LZWDecoder
 	{
-		protected var _reader: PdfReader;
-
-		public function PRIndirectReference( $type: int = 0, $number: int = -1, $generation: int = 0 )
-		{
-			super( PdfObject.INDIRECT, $number, $generation );
-		}
-
-		public function setNumber( number: int, generation: int ): void
-		{
-			_number = number;
-			_generation = generation;
-		}
 		
-		public function get reader(): PdfReader
-		{
-			return _reader;
-		}
-		
-		
-		public function set reader( value: PdfReader ): void
-		{
-			_reader = value;
-		}
 	}
 }
