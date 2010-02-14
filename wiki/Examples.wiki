@@ -92,3 +92,4 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/ViewerExample.as ViewerExample.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Javascript1.as Javascript1.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/Javascript2.as Javascript2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/HelloWorldReader.as HelloWorldReader.as] Extract bookmarks from a pdf file
