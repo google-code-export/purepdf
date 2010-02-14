@@ -5,6 +5,9 @@
 
 This page contains all the recent project changes and updates
 
+=== 02.14.2010 ===
+  * Added reader for read pdf documents. See a first [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/HelloWorldReader.as example] here to extract bookmarks from a pdf document
+
 === 02.10.2010 ===
 
   * added [http://code.google.com/p/purepdf/source/browse/examples/src/FormWithTooltip.as FormWithTooltip.as] example. Create forms with tooltips associated to the textfields
