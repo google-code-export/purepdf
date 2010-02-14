@@ -45,7 +45,9 @@
 package org.purepdf.pdf
 {
 	import it.sephiroth.utils.ObjectHash;
+	
 	import org.purepdf.IComparable;
+	import org.purepdf.errors.IndexOutOfBoundsError;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.assertTrue;
 
@@ -815,6 +817,34 @@ package org.purepdf.pdf
 			var res: PdfName = new PdfName("");
 			res.bytes = bytes;
 			return res;
+		}
+		
+		/**
+		 * Decodes an escaped name given in the form "/AB#20CD" into "AB CD".
+		 *
+		 * @param name the name to decode
+		 * @return the decoded name
+		 */
+		public static function decodeName( name: String ): String
+		{
+			var buf: String = "";
+			try {
+				var len: int = name.length;
+				for (var k: int  = 1; k < len; ++k )
+				{
+					var c: int = name.charCodeAt(k);
+					if (c == 35 ) {
+						var c1: int = name.charCodeAt(k + 1);
+						var c2: int = name.charCodeAt(k + 2);
+						c = ((PRTokeniser.getHex(c1) << 4) + PRTokeniser.getHex(c2));
+						k += 2;
+					}
+					buf += String.fromCharCode(c);
+				}
+			}
+			catch (e: IndexOutOfBoundsError ) {
+			}
+			return buf;
 		}
 	}
 }

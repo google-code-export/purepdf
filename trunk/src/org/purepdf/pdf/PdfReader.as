@@ -82,7 +82,9 @@ package org.purepdf.pdf
 		protected var newXrefType: Boolean;
 		protected var objStmMark: HashMap;
 		protected var objStmToOffset: HashMap;
+		protected var pValue: int;
 		protected var pageRefs: PageRefs;
+		protected var rValue: int;
 		protected var rebuilt: Boolean;
 		protected var sharedStreams: Boolean = true;
 		protected var strings: Vector.<PdfString> = new Vector.<PdfString>();
@@ -178,6 +180,11 @@ package org.purepdf.pdf
 			}
 		}
 
+		public function getCatalog(): PdfDictionary
+		{
+			return catalog;
+		}
+
 		/**
 		 * Getter for property fileLength.
 		 * @return Value of property fileLength.
@@ -198,6 +205,16 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Gets the page reference to this page.
+		 * @param pageNum the page number. 1 is the first
+		 * @return the page reference
+		 */
+		public function getPageOrigRef( pageNum: int ): PRIndirectReference
+		{
+			return pageRefs.getPageOrigRef( pageNum );
+		}
+
+		/**
 		 * Gets the page rotation. This value can be 0, 90, 180 or 270.
 		 * @param index the page number. The first page is 1
 		 * @return the page rotation
@@ -205,6 +222,11 @@ package org.purepdf.pdf
 		public function getPageRotation( index: int ): int
 		{
 			return _getPageRotation( pageRefs.getPageNRelease( index ) );
+		}
+		
+		public function releasePage( pageNum: int ): void
+		{
+			pageRefs.releasePage( pageNum );
 		}
 
 		/**
@@ -1029,7 +1051,7 @@ package org.purepdf.pdf
 				} else
 				{
 					objs = Vector.<Object>( current );
-					if ( objs[0] is Vector.<PdfObject> && !(objs[1] is PdfDictionary) )
+					if ( objs[0] is Vector.<PdfObject> && !( objs[1] is PdfDictionary ) )
 					{
 						ar = objs[0] as Vector.<PdfObject>;
 						idx = objs[1] as int;
