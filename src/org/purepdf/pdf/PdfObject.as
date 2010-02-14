@@ -120,6 +120,14 @@ package org.purepdf.pdf
 			return type == DICTIONARY;
 		}
 		
+		/**
+		 * Checks if this PdfObject is of the type PdfStream
+		 */
+		public function isStream(): Boolean
+		{
+			return type == STREAM;
+		}
+		
 		public function isIndirect(): Boolean
 		{
 			return type == INDIRECT;
@@ -148,6 +156,14 @@ package org.purepdf.pdf
 		public function getIndRef(): PRIndirectReference
 		{
 			return indRef;
+		}
+		
+		/**
+		 * Set the indirect reference
+		 */
+		public function setIndRef( indRef: PRIndirectReference ): void
+		{
+			this.indRef = indRef;
 		}
 		
 		/**

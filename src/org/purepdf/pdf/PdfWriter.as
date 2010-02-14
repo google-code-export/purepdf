@@ -81,6 +81,10 @@ package org.purepdf.pdf
 		public static const RUN_DIRECTION_LTR: int = 2;
 		public static const RUN_DIRECTION_RTL: int = 3;
 		
+		public static const STANDARD_ENCRYPTION_40: int = 0;
+		public static const STANDARD_ENCRYPTION_128: int = 1;
+		public static const ENCRYPTION_AES_128: int = 2;
+		
 		public static const GENERATION_MAX: int = 65535;
 		public static const NAME: String = 'purepdf';
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;

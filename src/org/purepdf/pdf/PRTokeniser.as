@@ -1,52 +1,53 @@
 /*
-*                             ______ _____  _______ 
-* .-----..--.--..----..-----.|   __ \     \|    ___|
-* |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
-* |   __||_____||__|  |_____||___|  |_____/|___|    
-* |__|
-* $Id$
-* $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
-*
-* The contents of this file are subject to  LGPL license 
-* (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
-* provisions of LGPL are applicable instead of those above.  If you wish to
-* allow use of your version of this file only under the terms of the LGPL
-* License and not to allow others to use your version of this file under
-* the MPL, indicate your decision by deleting the provisions above and
-* replace them with the notice and other provisions required by the LGPL.
-* If you do not delete the provisions above, a recipient may use your version
-* of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
-*
-* Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-* for the specific language governing rights and limitations under the License.
-*
-* The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
-* All the Actionscript ported code and all the modifications to the
-* original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
-*
-* This library is free software; you can redistribute it and/or modify it
-* under the terms of the MPL as stated above or under the terms of the GNU
-* Library General Public License as published by the Free Software Foundation;
-* either version 2 of the License, or any later version.
-*
-* This library is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
-* details
-*
-* If you didn't download this code from the following link, you should check if
-* you aren't using an obsolete version:
-* http://code.google.com/p/purepdf
-*
-*/
+ *                             ______ _____  _______
+ * .-----..--.--..----..-----.|   __ \     \|    ___|
+ * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
+ * |   __||_____||__|  |_____||___|  |_____/|___|
+ * |__|
+ * $Id$
+ * $Author Alessandro Crugnola $
+ * $Rev$ $LastChangedDate$
+ * $URL$
+ *
+ * The contents of this file are subject to  LGPL license
+ * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
+ * provisions of LGPL are applicable instead of those above.  If you wish to
+ * allow use of your version of this file only under the terms of the LGPL
+ * License and not to allow others to use your version of this file under
+ * the MPL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the LGPL.
+ * If you do not delete the provisions above, a recipient may use your version
+ * of this file under either the MPL or the GNU LIBRARY GENERAL PUBLIC LICENSE
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the License.
+ *
+ * The Original Code is 'iText, a free JAVA-PDF library' ( version 4.2 ) by Bruno Lowagie.
+ * All the Actionscript ported code and all the modifications to the
+ * original java library are written by Alessandro Crugnola (alessandro@sephiroth.it)
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the MPL as stated above or under the terms of the GNU
+ * Library General Public License as published by the Free Software Foundation;
+ * either version 2 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU LIBRARY GENERAL PUBLIC LICENSE for more
+ * details
+ *
+ * If you didn't download this code from the following link, you should check if
+ * you aren't using an obsolete version:
+ * http://code.google.com/p/purepdf
+ *
+ */
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
 	import org.purepdf.errors.InvalidPdfError;
 	import org.purepdf.io.RandomAccessFileOrArray;
+	import org.purepdf.utils.Bytes;
 
 	public class PRTokeniser
 	{
@@ -155,6 +156,16 @@ package org.purepdf.pdf
 		public function intValue(): int
 		{
 			return parseInt( stringValue );
+		}
+
+		public function isHexString(): Boolean
+		{
+			return this.hexString;
+		}
+
+		public function get length(): int
+		{
+			return file.length;
 		}
 
 		/**
@@ -386,6 +397,142 @@ package org.purepdf.pdf
 			}
 			if ( outBuf != null && outBuf.length > 0 )
 				stringValue = outBuf;
+			return true;
+		}
+
+		public function nextValidToken(): void
+		{
+			var level: int = 0;
+			var n1: String = null;
+			var n2: String = null;
+			var ptr: int = 0;
+			while ( nextToken() )
+			{
+				if ( type == TK_COMMENT )
+					continue;
+				switch ( level )
+				{
+					case 0:
+					{
+						if ( type != TK_NUMBER )
+							return;
+						ptr = file.getFilePointer();
+						n1 = stringValue;
+						++level;
+						break;
+					}
+					case 1:
+					{
+						if ( type != TK_NUMBER )
+						{
+							file.seek( ptr );
+							type = TK_NUMBER;
+							stringValue = n1;
+							return;
+						}
+						n2 = stringValue;
+						++level;
+						break;
+					}
+					default:
+					{
+						if ( type != TK_OTHER || stringValue != "R" )
+						{
+							file.seek( ptr );
+							type = TK_NUMBER;
+							stringValue = n1;
+							return;
+						}
+						type = TK_REF;
+						reference = parseInt( n1 );
+						generation = parseInt( n2 );
+						return;
+					}
+				}
+			}
+			// if we hit here, the file is either corrupt (stream ended unexpectedly),
+			// or the last token ended exactly at the end of a stream.  This last
+			// case can occur inside an Object Stream.
+		}
+
+		public function readInt(): int
+		{
+			return file.readInt();
+		}
+
+		public function readLineSegment( input: Bytes ): Boolean
+		{
+			var c: int = -1;
+			var eol: Boolean = false;
+			var ptr: int = 0;
+			var len: int = input.length;
+			var cur: int;
+			if ( ptr < len )
+			{
+				while ( isWhitespace( ( c = readInt() ) ) ){};
+			}
+			while ( !eol && ptr < len )
+			{
+				switch ( c )
+				{
+					case -1:
+					case 10:
+						eol = true;
+						break;
+					case 13:
+						eol = true;
+						cur = getFilePointer();
+						if ( ( readInt() ) != 10 )
+						{
+							seek( cur );
+						}
+						break;
+					default:
+						input[ptr++] = c;
+						break;
+				}
+
+				// break loop? do it before we read() again
+				if ( eol || len <= ptr )
+				{
+					break;
+				} else
+				{
+					c = readInt();
+				}
+			}
+			if ( ptr >= len )
+			{
+				eol = false;
+				while ( !eol )
+				{
+					switch ( c = readInt() )
+					{
+						case -1:
+						case 10:
+							eol = true;
+							break;
+						case 13:
+							eol = true;
+							cur = getFilePointer();
+							if ( ( readInt() ) != 10 )
+							{
+								seek( cur );
+							}
+							break;
+					}
+				}
+			}
+
+			if ( ( c == -1 ) && ( ptr == 0 ) )
+			{
+				return false;
+			}
+			if ( ptr + 2 <= len )
+			{
+				input[ptr++] = 32;
+				input[ptr] = 88;
+			}
 			return true;
 		}
 

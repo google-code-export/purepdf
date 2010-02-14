@@ -48,8 +48,8 @@ package org.purepdf.pdf
 
 	public class PdfIndirectReference extends PdfObject
 	{
-		private var _number: int;
-		private var _generation: int = 0;
+		protected var _number: int;
+		protected var _generation: int = 0;
 		
 		public function PdfIndirectReference( $type: int = 0, $number: int = -1, $generation: int = 0 )
 		{

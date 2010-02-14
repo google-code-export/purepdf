@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: InvalidPdfError.as 331 2010-02-11 21:46:50Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 331 $ $LastChangedDate: 2010-02-11 22:46:50 +0100 (Thu, 11 Feb 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/errors/InvalidPdfError.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -44,41 +44,89 @@
 */
 package org.purepdf.pdf
 {
-	import org.purepdf.pdf.interfaces.IOutputStream;
-	import org.purepdf.io.OutputStreamCounter;
-
-	public class PdfLiteral extends PdfObject
+	import org.purepdf.utils.Bytes;
+	
+	public class PRStream extends PdfStream
 	{
-		private var _position: int;
+		protected var _reader: PdfReader;
+		protected var _offset: int;
+		protected var _length: int;
+		protected var objNum: int = 0;
+		protected var objGen: int = 0;
 		
-		
-		public function PdfLiteral( text: String = null, type: int = 0 )
+		public function PRStream()
 		{
-			super( type );
-			if( text )
-				bytes = PdfEncodings.convertToBytes( text, null );
+			super();
 		}
 		
-		public function get position():int
+		public static function fromReader( reader: PdfReader, offset: int ): PRStream
 		{
-			return _position;
+			var s: PRStream = new PRStream();
+			s._reader = reader;
+			s._offset = offset;
+			return s;
 		}
-
-		override public function toString(): String
+		
+		public static function fromPRStream( stream: PRStream, newDic: PdfDictionary ): PRStream
 		{
-			var res: String = "";
-			for( var a: int = 0; a < bytes.length; a++ )
-			{
-				res += String.fromCharCode( bytes[a] );
-			}
+			var res: PRStream = new PRStream();
+			res._reader = stream.reader;
+			res._offset = stream.offset;
+			res._length = stream.length;
+			res.compressed = stream.compressed;
+			res.compressionLevel = stream.compressionLevel;
+			res.streamBytes = stream.streamBytes;
+			res.bytes = stream.bytes;
+			res.objNum = stream.objNum;
+			res.objGen = stream.objGen;
+			if (newDic != null)
+				res.putAll(newDic);
+			else
+				res.hashMap.putAll(stream.hashMap);
 			return res;
 		}
 		
-		override public function toPdf(writer:PdfWriter, os:IOutputStream) : void
+		public function getObjGen(): int
 		{
-			if( os is OutputStreamCounter )
-				_position = OutputStreamCounter(os).getCounter();
-			super.toPdf( writer, os );
+			return objGen;
 		}
+		
+		public function getObjNum(): int
+		{
+			return objNum;
+		}
+		
+		public function setObjNum( objNum: int, objGen: int ): void
+		{
+			this.objNum = objNum;
+			this.objGen = objGen;
+		}
+
+		public function set reader(value:PdfReader):void
+		{
+			_reader = value;
+		}
+
+		public function get reader():PdfReader
+		{
+			return _reader;
+		}
+
+		public function get offset():int
+		{
+			return _offset;
+		}
+
+		public function get length():int
+		{
+			return _length;
+		}
+
+		public function set length(value:int):void
+		{
+			_length = value;
+			put( PdfName.LENGTH, new PdfNumber(value));
+		}
+
 	}
 }

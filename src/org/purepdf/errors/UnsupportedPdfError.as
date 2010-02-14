@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: InvalidPdfError.as 331 2010-02-11 21:46:50Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 331 $ $LastChangedDate: 2010-02-11 22:46:50 +0100 (Thu, 11 Feb 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/errors/InvalidPdfError.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,43 +42,13 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.pdf
+package org.purepdf.errors
 {
-	import org.purepdf.pdf.interfaces.IOutputStream;
-	import org.purepdf.io.OutputStreamCounter;
-
-	public class PdfLiteral extends PdfObject
+	public class UnsupportedPdfError extends Error
 	{
-		private var _position: int;
-		
-		
-		public function PdfLiteral( text: String = null, type: int = 0 )
+		public function UnsupportedPdfError(message:*="", id:*=0)
 		{
-			super( type );
-			if( text )
-				bytes = PdfEncodings.convertToBytes( text, null );
-		}
-		
-		public function get position():int
-		{
-			return _position;
-		}
-
-		override public function toString(): String
-		{
-			var res: String = "";
-			for( var a: int = 0; a < bytes.length; a++ )
-			{
-				res += String.fromCharCode( bytes[a] );
-			}
-			return res;
-		}
-		
-		override public function toPdf(writer:PdfWriter, os:IOutputStream) : void
-		{
-			if( os is OutputStreamCounter )
-				_position = OutputStreamCounter(os).getCounter();
-			super.toPdf( writer, os );
+			super(message, id);
 		}
 	}
 }
