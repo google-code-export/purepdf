@@ -12,23 +12,16 @@ package test_reader
 	import org.purepdf.pdf.PdfReader;
 	import org.purepdf.pdf.SimpleBookmark;
 
-	public class HelloWorldReader extends Sprite
+	public class HelloWorldReader extends SimpleReader
 	{
-		private var file: String = "../output/HelloWorldBookmark.pdf";
-
 		public function HelloWorldReader()
 		{
-			super();
-			
-			var loader: URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, onComplete);
-			loader.dataFormat = URLLoaderDataFormat.BINARY;
-			loader.load( new URLRequest( file ) );
+			super("../output/HelloWorldBookmark.pdf");
 		}
 		
-		private function onComplete( event: Event ): void
+		override protected function onComplete( event: Event ): void
 		{
-			var pdf: ByteArray = URLLoader( event.target ).data as ByteArray;
+			super.onComplete( event );
 			
 			var k: int;
 			var reader: PdfReader = new PdfReader( pdf );
@@ -37,7 +30,7 @@ package test_reader
 			trace( "=== Document Information ===" );
 			trace( "PDF Version: " + reader.pdfVersion );
 			trace( "Number of pages: " + reader.getNumberOfPages() );
-			trace( "File length: " + reader.getFileLength() );
+			trace( "File lengeth: " + reader.getFileLength() );
 			trace( "Encrypted? " + reader.isEncrypted() );
 			trace( "Rebuilt? " + reader.isRebuilt() );
 
