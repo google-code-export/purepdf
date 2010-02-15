@@ -25,8 +25,12 @@ package test_reader
 			
 			var k: int;
 			var reader: PdfReader = new PdfReader( pdf );
+			
+			// parse the pdf
 			reader.readPdf();
-
+			// optional. remove unused objects
+			reader.removeUnusedObjects();
+			
 			trace( "=== Document Information ===" );
 			trace( "PDF Version: " + reader.pdfVersion );
 			trace( "Number of pages: " + reader.getNumberOfPages() );
