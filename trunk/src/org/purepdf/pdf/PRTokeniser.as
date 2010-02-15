@@ -128,6 +128,11 @@ package org.purepdf.pdf
 			return reference;
 		}
 
+		public function getSafeFile(): RandomAccessFileOrArray
+		{
+			return RandomAccessFileOrArray.fromFile( file );
+		}
+
 		/**
 		 * @throws EOFError
 		 */
@@ -469,7 +474,10 @@ package org.purepdf.pdf
 			var cur: int;
 			if ( ptr < len )
 			{
-				while ( isWhitespace( ( c = readInt() ) ) ){};
+				while ( isWhitespace( ( c = readInt() ) ) )
+				{
+				}
+				;
 			}
 			while ( !eol && ptr < len )
 			{

@@ -131,7 +131,12 @@ package org.purepdf.utils
 
 		public function toString(): String
 		{
-			return "[" + toVector().toString() + "]";
+			var s: String = "";
+			for( var k: int = 0; k < length; ++k )
+			{
+				s += String.fromCharCode( this[k] );
+			}
+			return s;
 		}
 
 		public function toVector( offset: uint = 0, len: uint = 0 ): Vector.<int>

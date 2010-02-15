@@ -205,6 +205,21 @@ package org.purepdf.pdf
 		}
 
 		/**
+		 * Gets the dictionary that represents a page.
+		 * @param pageNum the page number. 1 is the first
+		 * @return the page dictionary
+		 */
+		public function getPageN( pageNum: int ): PdfDictionary
+		{
+			var dic: PdfDictionary = pageRefs.getPageN( pageNum );
+			if ( dic == null )
+				return null;
+			if ( appendable )
+				dic.setIndRef( pageRefs.getPageOrigRef( pageNum ) );
+			return dic;
+		}
+
+		/**
 		 * Gets the page reference to this page.
 		 * @param pageNum the page number. 1 is the first
 		 * @return the page reference
@@ -222,11 +237,6 @@ package org.purepdf.pdf
 		public function getPageRotation( index: int ): int
 		{
 			return _getPageRotation( pageRefs.getPageNRelease( index ) );
-		}
-		
-		public function releasePage( pageNum: int ): void
-		{
-			pageRefs.releasePage( pageNum );
 		}
 
 		/**
@@ -280,6 +290,25 @@ package org.purepdf.pdf
 			var obj: PdfObject = getPdfObject( idx );
 			releaseLastXrefPartial();
 			return obj;
+		}
+
+		/**
+		 * Gets a new file instance of the original PDF
+		 * document.
+		 * @return a new file instance of the original PDF document
+		 */
+		public function getSafeFile(): RandomAccessFileOrArray
+		{
+			return tokens.getSafeFile();
+		}
+
+		/**
+		 * Gets the number of xref objects.
+		 * @return the number of xref objects
+		 */
+		public function getXrefSize(): int
+		{
+			return xrefObj.length;
 		}
 
 		/**
@@ -361,6 +390,11 @@ package org.purepdf.pdf
 				xrefObj[lastXrefPartial] = null;
 				lastXrefPartial = -1;
 			}
+		}
+
+		public function releasePage( pageNum: int ): void
+		{
+			pageRefs.releasePage( pageNum );
 		}
 
 
@@ -1564,10 +1598,19 @@ package org.purepdf.pdf
 		 */
 		public static function FlateDecode( input: Bytes ): Bytes
 		{
-			var b: Bytes = _FlateDecode( input, true );
-			if ( b == null )
-				return _FlateDecode( input, false );
+			// TODO: maybe it's better to use Inflater class than the
+			// native uncompress method?
+			var b: Bytes = new Bytes();
+			b.writeBytes( input, 0, input.length );
+			b.buffer.uncompress();
 			return b;
+
+		/*
+		   var b: Bytes = _FlateDecode( input, true );
+		   if ( b == null )
+		   return _FlateDecode( input, false );
+		   return b;
+		 */
 		}
 
 		/**
@@ -1896,6 +1939,30 @@ package org.purepdf.pdf
 					throw new UnsupportedPdfError( "the filter " + name + " is not supported" );
 			}
 			return b;
+		}
+
+		/**
+		 * Get the content from a stream applying the required filters.
+		 * @param stream the stream
+		 * @return the stream content
+		 */
+		public static function getStreamBytes2( stream: PRStream ): Bytes
+		{
+			var rf: RandomAccessFileOrArray = stream.reader.getSafeFile();
+			rf.reOpen();
+			return getStreamBytes( stream, rf );
+		}
+		
+		/** 
+		 * Get the content from a stream as it is without applying any filter.
+		 * @param stream the stream
+		 * @return the stream content
+		 */
+		public static function getStreamBytesRaw2( stream: PRStream ): Bytes
+		{
+			var rf: RandomAccessFileOrArray = stream.reader.getSafeFile();
+			rf.reOpen();
+			return getStreamBytesRaw( stream, rf );
 		}
 
 		/**
