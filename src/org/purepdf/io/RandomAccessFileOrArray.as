@@ -63,6 +63,14 @@ package org.purepdf.io
 		{
 			this.arrayIn = arrayIn;
 		}
+		
+		public function reOpen(): void
+		{
+			var n: ByteArray = new ByteArray();
+			n.writeBytes( arrayIn, 0, arrayIn.length );
+			arrayIn = n;
+			seek(0);
+		}
 
 		public function get bytesAvailable(): uint
 		{
@@ -104,6 +112,38 @@ package org.purepdf.io
 			isBack = true;
 		}
 
+		public function read( b: Bytes, off: int, len: int ): int
+		{
+			if ( len == 0 )
+				return 0;
+			var n: int = 0;
+			if ( isBack )
+			{
+				isBack = false;
+				if ( len == 1 )
+				{
+					b[off] = back;
+					return 1;
+				} else
+				{
+					n = 1;
+					b[off++] = back;
+					--len;
+				}
+			}
+
+			if ( arrayInPtr >= arrayIn.length )
+				return -1;
+			if ( arrayInPtr + len > arrayIn.length )
+				len = arrayIn.length - arrayInPtr;
+
+			b.buffer.position = off;
+			b.buffer.writeBytes( arrayIn, arrayInPtr, len );
+
+			arrayInPtr += len;
+			return len + n;
+		}
+
 		public function readBoolean(): Boolean
 		{
 			return false;
@@ -141,37 +181,6 @@ package org.purepdf.io
 					throw new EOFError();
 				n += count;
 			} while ( n < len );
-		}
-		
-		public function read( b: Bytes, off: int, len: int): int
-		{
-			if (len == 0)
-				return 0;
-			var n: int = 0;
-			if (isBack) {
-				isBack = false;
-				if (len == 1) {
-					b[off] = back;
-					return 1;
-				}
-				else {
-					n = 1;
-					b[off++] = back;
-					--len;
-				}
-			}
-
-			if (arrayInPtr >= arrayIn.length)
-				return -1;
-			if (arrayInPtr + len > arrayIn.length)
-				len = arrayIn.length - arrayInPtr;
-			
-			//System.arraycopy(arrayIn, arrayInPtr, b, off, len);
-			b.buffer.position = off;
-			b.buffer.writeBytes( arrayIn, arrayInPtr, len );
-
-			arrayInPtr += len;
-			return len + n;
 		}
 
 		public function readInt(): int
@@ -244,6 +253,13 @@ package org.purepdf.io
 		public function set startOffset( value: int ): void
 		{
 			_startOffset = value;
+		}
+
+		public static function fromFile( file: RandomAccessFileOrArray ): RandomAccessFileOrArray
+		{
+			var result: RandomAccessFileOrArray = new RandomAccessFileOrArray( file.arrayIn );
+			result.startOffset = file.startOffset;
+			return result;
 		}
 	}
 }
