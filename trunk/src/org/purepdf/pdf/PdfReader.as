@@ -380,7 +380,7 @@ package org.purepdf.pdf
 			strings.length = 0;
 			readPages();
 			eliminateSharedStreams();
-			removeUnusedObjects();
+			//removeUnusedObjects();
 		}
 
 		public function releaseLastXrefPartial(): void
