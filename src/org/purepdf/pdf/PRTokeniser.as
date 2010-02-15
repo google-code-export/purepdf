@@ -94,7 +94,9 @@ package org.purepdf.pdf
 		public function backOnePosition( ch: int ): void
 		{
 			if ( ch != -1 )
+			{
 				file.pushBack( ByteBuffer.intToByte( ch ) );
+			}
 		}
 
 		public function checkPdfHeader(): int
