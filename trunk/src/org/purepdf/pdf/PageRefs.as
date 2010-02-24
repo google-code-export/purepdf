@@ -110,7 +110,7 @@ package org.purepdf.pdf
 				if ( pageNum < 0 || pageNum >= size )
 					return null;
 				if ( refsn != null )
-					return refsn[pageNum] as PRIndirectReference;
+					return refsn[pageNum];
 				else
 				{
 					var n: int = refsp.getValue( pageNum ) as int;

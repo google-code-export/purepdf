@@ -79,8 +79,8 @@ package org.purepdf.pdf
 			xref = reader.getxref();
 			tokens = reader.getTokens();
 			k = 2;
-			setTimeout( step, 100 );
 			progress_event = new ProgressEvent( ProgressEvent.PROGRESS, false, false, 0, xref.length );
+			setTimeout( step, 5 );
 		}
 
 		public function dispose(): void
@@ -115,7 +115,7 @@ package org.purepdf.pdf
 							tokens.throwError( "invalid generation number" );
 						reader.setObjGen( tokens.intValue() );
 						tokens.nextValidToken();
-						if ( tokens.getStringValue() != "obj" )
+						if ( tokens.stringValue != "obj" )
 							tokens.throwError( "token obj expected" );
 						var obj: PdfObject;
 						try
@@ -141,7 +141,7 @@ package org.purepdf.pdf
 						return;
 					}
 				}
-				setTimeout( step, 100 );
+				setTimeout( step, 5 );
 			} catch( e: Error )
 			{
 				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, e.message ) );

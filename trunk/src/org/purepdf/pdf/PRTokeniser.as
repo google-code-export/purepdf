@@ -45,6 +45,7 @@
 package org.purepdf.pdf
 {
 	import flash.utils.ByteArray;
+	
 	import org.purepdf.errors.InvalidPdfError;
 	import org.purepdf.io.RandomAccessFileOrArray;
 	import org.purepdf.utils.Bytes;
@@ -83,8 +84,8 @@ package org.purepdf.pdf
 		protected var generation: int;
 		protected var hexString: Boolean;
 		protected var reference: int;
-		protected var stringValue: String;
 		protected var type: int;
+		internal var stringValue: String;
 
 		public function PRTokeniser( pdfIn: ByteArray )
 		{
@@ -150,14 +151,14 @@ package org.purepdf.pdf
 			return pos + idx;
 		}
 
-		public function getStringValue(): String
-		{
-			return stringValue;
-		}
-
 		public function getTokenType(): int
 		{
 			return type;
+		}
+		
+		public function getStringValue(): String
+		{
+			return stringValue;
 		}
 
 		public function intValue(): int

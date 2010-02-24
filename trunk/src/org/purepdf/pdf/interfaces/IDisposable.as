@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: PRStream.as 333 2010-02-14 19:57:51Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 333 $ $LastChangedDate: 2010-02-14 20:57:51 +0100 (Sun, 14 Feb 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PRStream.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,95 +42,10 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.pdf
+package org.purepdf.pdf.interfaces
 {
-	public class PRStream extends PdfStream
+	public interface IDisposable
 	{
-		protected var _reader: PdfReader;
-		protected var _offset: int;
-		protected var _length: int;
-		protected var objNum: int = 0;
-		protected var objGen: int = 0;
-		
-		public function PRStream()
-		{
-			super();
-		}
-		
-		override public function dispose(): void
-		{
-			super.dispose();
-			_reader = null;
-		}
-		
-		public static function fromReader( reader: PdfReader, offset: int ): PRStream
-		{
-			var s: PRStream = new PRStream();
-			s._reader = reader;
-			s._offset = offset;
-			return s;
-		}
-		
-		public static function fromPRStream( stream: PRStream, newDic: PdfDictionary ): PRStream
-		{
-			var res: PRStream = new PRStream();
-			res._reader = stream.reader;
-			res._offset = stream.offset;
-			res._length = stream.length;
-			res.compressed = stream.compressed;
-			res.compressionLevel = stream.compressionLevel;
-			res.streamBytes = stream.streamBytes;
-			res.bytes = stream.bytes;
-			res.objNum = stream.objNum;
-			res.objGen = stream.objGen;
-			if (newDic != null)
-				res.putAll(newDic);
-			else
-				res.hashMap.putAll(stream.hashMap);
-			return res;
-		}
-		
-		public function getObjGen(): int
-		{
-			return objGen;
-		}
-		
-		public function getObjNum(): int
-		{
-			return objNum;
-		}
-		
-		public function setObjNum( objNum: int, objGen: int ): void
-		{
-			this.objNum = objNum;
-			this.objGen = objGen;
-		}
-
-		public function set reader(value:PdfReader):void
-		{
-			_reader = value;
-		}
-
-		public function get reader():PdfReader
-		{
-			return _reader;
-		}
-
-		public function get offset():int
-		{
-			return _offset;
-		}
-
-		public function get length():int
-		{
-			return _length;
-		}
-
-		public function set length(value:int):void
-		{
-			_length = value;
-			put( PdfName.LENGTH, new PdfNumber(value));
-		}
-
+		function dispose(): void;
 	}
 }
