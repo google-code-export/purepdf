@@ -54,12 +54,10 @@ package org.purepdf.pdf
 	import flash.utils.Dictionary;
 	import flash.utils.getTimer;
 	import flash.utils.setTimeout;
-	
 	import it.sephiroth.utils.Entry;
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	import it.sephiroth.utils.collections.iterators.Iterator;
-	
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.ConversionError;
 	import org.purepdf.errors.InvalidPdfError;
@@ -80,12 +78,15 @@ package org.purepdf.pdf
 		private static const endobj: Bytes = PdfEncodings.convertToBytes( "endobj", null );
 		private static const endstream: Bytes = PdfEncodings.convertToBytes( "endstream", null );
 
+		public var currentStep: int = 0;
+
+		public var totalSteps: int = 3;
+
 		protected var _decrypt: PdfEncryption;
 		protected var _pdfVersion: int;
 		protected var encrypted: Boolean = false;
 		protected var eofPos: int;
 		protected var lastXref: int;
-		protected var newXrefType: Boolean;
 		protected var objStmMark: HashMap;
 		protected var objStmToOffset: HashMap;
 		protected var pValue: int;
@@ -94,54 +95,31 @@ package org.purepdf.pdf
 		protected var rebuilt: Boolean;
 		protected var sharedStreams: Boolean = true;
 		protected var strings: Vector.<PdfString> = new Vector.<PdfString>();
-		protected var trailer: PdfDictionary;
-		protected var xref: Vector.<int>;
 		internal var catalog: PdfDictionary;
+		internal var hybridXref: Boolean;
 		internal var lastXrefPartial: int = -1;
+		internal var newXrefType: Boolean;
 		internal var partial: Boolean;
 		internal var rootPages: PdfDictionary;
+		internal var tokens: PRTokeniser;
+		internal var trailer: PdfDictionary;
+		internal var xref: Vector.<int>;
 		private var _appendable: Boolean;
 		private var encryptionError: Boolean;
 		private var fileLength: int;
-		private var hybridXref: Boolean;
 		private var objGen: int;
 		private var objNum: int;
+		private var progressEvent: ProgressEvent = new ProgressEvent( ProgressEvent.PROGRESS, false, false, 0, 0 );
 		private var readDepth: int = 0;
-		private var tokens: PRTokeniser;
-		private var xrefObj: Vector.<PdfObject>;
 		private var removeUnused: Boolean;
+		private var xrefObj: Vector.<PdfObject>;
 
 		public function PdfReader( input: ByteArray )
 		{
-			super(null);
+			super( null );
 			tokens = new PRTokeniser( input );
 		}
-		
-		internal function setObjNum( value: int ): void
-		{
-			objNum = value;
-		}
-		
-		internal function setObjGen( value: int ): void
-		{
-			objGen = value;
-		}
-		
-		internal function getxref(): Vector.<int>
-		{
-			return xref;
-		}
-		
-		internal function getxrefobj(): Vector.<PdfObject>
-		{
-			return xrefObj;
-		}
-		
-		internal function getTokens(): PRTokeniser
-		{
-			return tokens;
-		}
-		
+
 		public function get appendable(): Boolean
 		{
 			return _appendable;
@@ -150,69 +128,6 @@ package org.purepdf.pdf
 		public function get decrypt(): PdfEncryption
 		{
 			return _decrypt;
-		}
-
-		/**
-		 * Eliminates shared streams if they exist.
-		 */
-		public function eliminateSharedStreams(): void
-		{
-			var t: Number = new Date().getTime();
-			if ( !sharedStreams )
-				return;
-			sharedStreams = false;
-			if ( pageRefs.size == 1 )
-				return;
-			var newRefs: Vector.<PRIndirectReference> = new Vector.<PRIndirectReference>();
-			var newStreams: Vector.<PRStream> = new Vector.<PRStream>();
-			var visited: HashMap = new HashMap();
-			var ref: PRIndirectReference;
-			var k: int;
-
-			for ( k = 1; k <= pageRefs.size; ++k )
-			{
-				var page: PdfDictionary = pageRefs.getPageN( k );
-				if ( page == null )
-					continue;
-				var contents: PdfObject = PdfReader.getPdfObject( page.getValue( PdfName.CONTENTS ) );
-				if ( contents == null )
-					continue;
-				if ( contents.isStream() )
-				{
-					ref = PRIndirectReference( page.getValue( PdfName.CONTENTS ) );
-					if ( visited.containsKey( ref.number ) )
-					{
-						newRefs.push( ref );
-						newStreams.push( PRStream.fromPRStream( PRStream( contents ), null ) );
-					} else
-						visited.put( ref.number, 1 );
-				} else if ( contents.isArray() )
-				{
-					var array: PdfArray = PdfArray( contents );
-					for ( var j: int = 0; j < array.size; ++j )
-					{
-						ref = PRIndirectReference( array.getPdfObject( j ) );
-						if ( visited.containsKey( ref.number ) )
-						{
-							// need to duplicate
-							newRefs.push( ref );
-							newStreams.push( PRStream.fromPRStream( PRStream( PdfReader.getPdfObject( ref ) ), null ) );
-						} else
-							visited.put( ref.number, 1 );
-					}
-				}
-			}
-
-			if ( newStreams.length == 0 )
-				return;
-
-			for ( k = 0; k < newStreams.length; ++k )
-			{
-				xrefObj.push( newStreams[k] );
-				ref = PRIndirectReference( newRefs[k] );
-				ref.setNumber( xrefObj.length - 1, 0 );
-			}
-			trace('eliminateSharedStreams: ' + ( new Date().getTime() - t ) );
 		}
 
 		public function getCatalog(): PdfDictionary
@@ -378,34 +293,17 @@ package org.purepdf.pdf
 			return _pdfVersion;
 		}
 
+		/**
+		 * Start the pdf parsing process. If the <code>removeUnused</code> is
+		 * set to <code>true</code> then the reader will remove all the unused objects
+		 * within the pdf document
+		 */
 		public function readPdf( removeUnused: Boolean = false ): void
 		{
 			this.removeUnused = removeUnused;
 			fileLength = tokens.getFile().length;
 			_pdfVersion = tokens.checkPdfHeader();
-
-			try
-			{
-				readXref();
-			} catch ( e: Error )
-			{
-				try
-				{
-					rebuilt = true;
-					rebuildXref();
-					lastXref = -1;
-				} catch ( e: Error )
-				{
-					throw new InvalidPdfError( "rebuild failed" );
-				}
-			}
-			
-			step2();
-		}
-		
-		protected function step2(): void
-		{
-			readDocObj();
+			step1();
 		}
 
 		public function releaseLastXrefPartial(): void
@@ -464,6 +362,69 @@ package org.purepdf.pdf
 			lastXrefPartial = -1;
 		}
 
+		/**
+		 * Eliminates shared streams if they exist.
+		 */
+		protected function eliminateSharedStreams(): void
+		{
+			var t: Number = new Date().getTime();
+			if ( !sharedStreams )
+				return;
+			sharedStreams = false;
+			if ( pageRefs.size == 1 )
+				return;
+			var newRefs: Vector.<PRIndirectReference> = new Vector.<PRIndirectReference>();
+			var newStreams: Vector.<PRStream> = new Vector.<PRStream>();
+			var visited: HashMap = new HashMap();
+			var ref: PRIndirectReference;
+			var k: int;
+
+			for ( k = 1; k <= pageRefs.size; ++k )
+			{
+				var page: PdfDictionary = pageRefs.getPageN( k );
+				if ( page == null )
+					continue;
+				var contents: PdfObject = PdfReader.getPdfObject( page.getValue( PdfName.CONTENTS ) );
+				if ( contents == null )
+					continue;
+				if ( contents.isStream() )
+				{
+					ref = PRIndirectReference( page.getValue( PdfName.CONTENTS ) );
+					if ( visited.containsKey( ref.number ) )
+					{
+						newRefs.push( ref );
+						newStreams.push( PRStream.fromPRStream( PRStream( contents ), null ) );
+					} else
+						visited.put( ref.number, 1 );
+				} else if ( contents.isArray() )
+				{
+					var array: PdfArray = PdfArray( contents );
+					for ( var j: int = 0; j < array.size; ++j )
+					{
+						ref = PRIndirectReference( array.getPdfObject( j ) );
+						if ( visited.containsKey( ref.number ) )
+						{
+							// need to duplicate
+							newRefs.push( ref );
+							newStreams.push( PRStream.fromPRStream( PRStream( PdfReader.getPdfObject( ref ) ), null ) );
+						} else
+							visited.put( ref.number, 1 );
+					}
+				}
+			}
+
+			if ( newStreams.length == 0 )
+				return;
+
+			for ( k = 0; k < newStreams.length; ++k )
+			{
+				xrefObj.push( newStreams[k] );
+				ref = PRIndirectReference( newRefs[k] );
+				ref.setNumber( xrefObj.length - 1, 0 );
+			}
+			trace( 'eliminateSharedStreams: ' + ( new Date().getTime() - t ) );
+		}
+
 		protected function readArray(): PdfArray
 		{
 			var array: PdfArray = new PdfArray();
@@ -492,7 +453,7 @@ package org.purepdf.pdf
 					break;
 				if ( tokens.getTokenType() != PRTokeniser.TK_NAME )
 					tokens.throwError( "dictionary key is not a name" );
-				var name: PdfName = new PdfName( tokens.getStringValue(), false );
+				var name: PdfName = new PdfName( tokens.stringValue, false );
 				var obj: PdfObject = readPRObject();
 				var type: int = obj.getType();
 				if ( -type == PRTokeniser.TK_END_DIC )
@@ -503,72 +464,14 @@ package org.purepdf.pdf
 			}
 			return dic;
 		}
-		
-		private function onDocObjComplete( event: Event ): void
-		{
-			trace('onDocReaderComplete' );
-			
-			var doc: PRDocObjectReader = PRDocObjectReader( event.target );
-			var streams: Vector.<PdfObject> = doc.streams;
-			var k: int;
-			
-			for ( k = 0; k < streams.length; ++k )
-			{
-				checkPRStreamLength( PRStream( streams[k] ) );
-			}
-			step3();
-		}
-		
-		private function step3(): void
-		{
-			readDecryptedDocObj();
-			
-			if ( objStmMark != null )
-			{
-				for ( var i: Iterator = objStmMark.entrySet().iterator(); i.hasNext();  )
-				{
-					var entry: Entry = i.next();
-					var n: * = entry.key;
-					var h: * = entry.value;
-					readObjStm( PRStream( xrefObj[n] ), h );
-					xrefObj[n] = null;
-				}
-				objStmMark = null;
-			}
-			xref = null;
-			
-			strings.length = 0;
-			readPages();
-			eliminateSharedStreams();
-			
-			if( removeUnused )
-				removeUnusedObjects();
-			
-			dispatchEvent( new Event( Event.COMPLETE ) );
-		}
-		
-		private function onDocObjProgress( event: ProgressEvent ): void
-		{
-			dispatchEvent( event.clone() );
-		}
-		
-		private function onDocObjError( event: ErrorEvent ): void
-		{
-			if ( rebuilt || encryptionError )
-				throw new InvalidPdfError( event.text );
-			rebuilt = true;
-			encrypted = false;
-			rebuildXref();
-			lastXref = -1;
-			readDocObj();
-		}
 
 		protected function readDocObj(): void
 		{
+			currentStep++;
 			xrefObj = new Vector.<PdfObject>( xref.length / 2, true );
 			var copies: Vector.<PdfObject> = new Vector.<PdfObject>( xref.length / 2 );
 			xrefObj = xrefObj.concat( copies );
-			
+
 			var docReader: PRDocObjectReader = new PRDocObjectReader( this );
 			docReader.addEventListener( Event.COMPLETE, onDocObjComplete, false, 0, true );
 			docReader.addEventListener( ErrorEvent.ERROR, onDocObjError, false, 0, true );
@@ -626,7 +529,7 @@ package org.purepdf.pdf
 			{
 				tokens = saveTokens;
 			}
-			trace('readObjStm: ' + ( getTimer() - t ) );
+			trace( 'readObjStm: ' + ( getTimer() - t ) );
 		}
 
 		protected function readOneObjStm( stream: PRStream, idx: int ): PdfObject
@@ -669,108 +572,8 @@ package org.purepdf.pdf
 			{
 				tokens = saveTokens;
 			}
-			trace('readOneObjstm: ' + ( getTimer() - t ) );
+			trace( 'readOneObjstm: ' + ( getTimer() - t ) );
 			return null;
-		}
-
-		internal function readPRObject(): PdfObject
-		{
-			tokens.nextValidToken();
-			var type: int = tokens.getTokenType();
-			switch ( type )
-			{
-				case PRTokeniser.TK_START_DIC:
-					++readDepth;
-					var dic: PdfDictionary = readDictionary();
-					--readDepth;
-					var pos: int = tokens.getFilePointer();
-					var hasNext: Boolean;
-					do
-					{
-						hasNext = tokens.nextToken();
-					} while ( hasNext && tokens.getTokenType() == PRTokeniser.TK_COMMENT );
-
-					if ( hasNext && tokens.getStringValue() == "stream" )
-					{
-						var ch: int;
-						do
-						{
-							ch = tokens.readInt();
-						} while ( ch == 32 || ch == 9 || ch == 0 || ch == 12 );
-						if ( ch != 10 )
-							ch = tokens.readInt();
-						if ( ch != 10 )
-							tokens.backOnePosition( ch );
-						var stream: PRStream = PRStream.fromReader( this, tokens.getFilePointer() );
-						stream.putAll( dic );
-						stream.setObjNum( objNum, objGen );
-						return stream;
-					} else
-					{
-						tokens.seek( pos );
-						return dic;
-					}
-
-				case PRTokeniser.TK_START_ARRAY:
-					++readDepth;
-					var arr: PdfArray = readArray();
-					--readDepth;
-					return arr;
-
-				case PRTokeniser.TK_NUMBER:
-					return new PdfNumber( tokens.getStringValue() );
-
-				case PRTokeniser.TK_STRING:
-					var str: PdfString = new PdfString( tokens.getStringValue(), null ).setHexWriting( tokens.isHexString() );
-					str.setObjNum( objNum, objGen );
-					if ( strings != null )
-						strings.push( str );
-					return str;
-
-				case PRTokeniser.TK_NAME:
-					var cachedName: PdfName = PdfName( PdfName[tokens.getStringValue()] );
-					if ( readDepth > 0 && cachedName != null )
-					{
-						return cachedName;
-					} else {
-						return new PdfName( tokens.getStringValue(), false );
-					}
-
-				case PRTokeniser.TK_REF:
-					var num: int = tokens.getReference();
-					var ref: PRIndirectReference = new PRIndirectReference( PdfObject.INDIRECT, num, tokens.getGeneration() );
-					ref.reader = this;
-					return ref;
-
-				case PRTokeniser.TK_ENDOFFILE:
-					throw new EOFError( "unexpected end of file" );
-
-				default:
-					var sv: String = tokens.getStringValue();
-					if ( "null" == sv )
-					{
-						if ( readDepth == 0 )
-						{
-							return new PdfNull();
-						} //else
-						return PdfNull.PDFNULL;
-					} else if ( "true" == sv )
-					{
-						if ( readDepth == 0 )
-						{
-							return new PdfBoolean( true );
-						} //else
-						return PdfBoolean.PDF_TRUE;
-					} else if ( "false" == sv )
-					{
-						if ( readDepth == 0 )
-						{
-							return new PdfBoolean( false );
-						} //else
-						return PdfBoolean.PDF_FALSE;
-					}
-					return new PdfLiteral( tokens.getStringValue(), -type );
-			}
 		}
 
 		protected function readPages(): void
@@ -782,7 +585,7 @@ package org.purepdf.pdf
 
 		protected function readSingleObject( k: int ): PdfObject
 		{
-			strings.length = 0;
+			strings.splice( 0, strings.length );
 			var k2: int = k * 2;
 			var pos: int = xref[k2];
 			if ( pos < 0 )
@@ -801,7 +604,7 @@ package org.purepdf.pdf
 				tokens.throwError( "invalid generation number" );
 			objGen = tokens.intValue();
 			tokens.nextValidToken();
-			if ( !tokens.getStringValue() == "obj" )
+			if ( !tokens.stringValue == "obj" )
 				tokens.throwError( "token obj expected" );
 			var obj: PdfObject;
 			try
@@ -828,132 +631,6 @@ package org.purepdf.pdf
 			return obj;
 		}
 
-		protected function readXRefStream( ptr: int ): Boolean
-		{
-			var t: Number = getTimer();
-			tokens.seek( ptr );
-			var thisStream: int = 0;
-			if ( !tokens.nextToken() )
-				return false;
-			if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-				return false;
-			thisStream = tokens.intValue();
-			if ( !tokens.nextToken() || tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-				return false;
-			if ( !tokens.nextToken() || !tokens.getStringValue() == "obj" )
-				return false;
-			var object: PdfObject = readPRObject();
-			var stm: PRStream = null;
-			if ( object.isStream() )
-			{
-				stm = PRStream( object );
-				if ( !PdfName.XREF.equals( stm.getValue( PdfName.TYPE ) ) )
-					return false;
-			} else
-				return false;
-			if ( trailer == null )
-			{
-				trailer = new PdfDictionary();
-				trailer.putAll( stm );
-			}
-			stm.length = PdfNumber( stm.getValue( PdfName.LENGTH ) ).intValue();
-			var size: int = PdfNumber( stm.getValue( PdfName.SIZE ) ).intValue();
-			var index: PdfArray;
-			var obj: PdfObject = stm.getValue( PdfName.INDEX );
-			if ( obj == null )
-			{
-				index = new PdfArray();
-				index.add( Vector.<int>( [ 0, size ] ) );
-			} else
-			{
-				index = PdfArray( obj );
-			}
-			var w: PdfArray = PdfArray( stm.getValue( PdfName.W ) );
-			var prev: int = -1;
-			obj = stm.getValue( PdfName.PREV );
-			if ( obj != null )
-				prev = PdfNumber( obj ).intValue();
-			// Each xref pair is a position
-			// type 0 -> -1, 0
-			// type 1 -> offset, 0
-			// type 2 -> index, obj num
-			ensureXrefSize( size * 2 );
-			if ( objStmMark == null && !partial )
-				objStmMark = new HashMap();
-			if ( objStmToOffset == null && partial )
-				objStmToOffset = new HashMap();
-			var b: Bytes = getStreamBytes( stm, tokens.getFile() );
-			var bptr: int = 0;
-			var wc: Vector.<int> = new Vector.<int>( 3, true );
-			var k: int;
-			for ( k = 0; k < 3; ++k )
-				wc[k] = w.getAsNumber( k ).intValue();
-			for ( var idx: int = 0; idx < index.size; idx += 2 )
-			{
-				var start: int = index.getAsNumber( idx ).intValue();
-				var length: int = index.getAsNumber( idx + 1 ).intValue();
-				ensureXrefSize( ( start + length ) * 2 );
-				while ( length-- > 0 )
-				{
-					var type: int = 1;
-					if ( wc[0] > 0 )
-					{
-						type = 0;
-						for ( k = 0; k < wc[0]; ++k )
-							type = ( type << 8 ) + ( b[bptr++] & 0xff );
-					}
-					var field2: int = 0;
-					for ( k = 0; k < wc[1]; ++k )
-						field2 = ( field2 << 8 ) + ( b[bptr++] & 0xff );
-					var field3: int = 0;
-					for ( k = 0; k < wc[2]; ++k )
-						field3 = ( field3 << 8 ) + ( b[bptr++] & 0xff );
-					var base: int = start * 2;
-					if ( xref[base] == 0 && xref[base + 1] == 0 )
-					{
-						switch ( type )
-						{
-							case 0:
-								xref[base] = -1;
-								break;
-							case 1:
-								xref[base] = field2;
-								break;
-							case 2:
-								xref[base] = field3;
-								xref[base + 1] = field2;
-								if ( partial )
-								{
-									objStmToOffset.put( field2, 0 );
-								} else
-								{
-									var on: int = field2;
-									var seq: HashMap = objStmMark.getValue( on ) as HashMap;
-									if ( seq == null )
-									{
-										seq = new HashMap();
-										seq.put( field3, 1 );
-										objStmMark.put( on, seq );
-									} else
-										seq.put( field3, 1 );
-								}
-								break;
-						}
-					}
-					++start;
-				}
-			}
-			thisStream *= 2;
-			if ( thisStream < xref.length )
-				xref[thisStream] = -1;
-
-			trace('readXRefStream: ' + ( getTimer() - t ) );
-			
-			if ( prev == -1 )
-				return true;
-			return readXRefStream( prev );
-		}
-
 
 		protected function readXref(): void
 		{
@@ -962,7 +639,7 @@ package org.purepdf.pdf
 			newXrefType = false;
 			tokens.seek( tokens.getStartxref() );
 			tokens.nextToken();
-			if ( !tokens.getStringValue() == "startxref" )
+			if ( !tokens.stringValue == "startxref" )
 				throw new InvalidPdfError( "startxref not found" );
 			tokens.nextToken();
 			if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
@@ -983,25 +660,18 @@ package org.purepdf.pdf
 			}
 			xref = null;
 			tokens.seek( startxref );
-			trailer = readXrefSection();
-			var trailer2: PdfDictionary = trailer;
-			var prev: PdfNumber;
-			while ( true )
-			{
-				prev = trailer2.getValue( PdfName.PREV ) as PdfNumber;
-				if ( prev == null )
-					break;
-				tokens.seek( prev.intValue() );
-				trailer2 = readXrefSection();
-			}
-			trace('readXref: ' + ( getTimer() - t ) );
+
+			var xrefSectionReader: XrefSectionReader = new XrefSectionReader( this );
+			xrefSectionReader.addEventListener( Event.COMPLETE, onXrefSectionComplete, false, 0, true );
+			xrefSectionReader.addEventListener( ErrorEvent.ERROR, onXrefSectionError, false, 0, true );
+			xrefSectionReader.run();
 		}
 
 		protected function readXrefSection(): PdfDictionary
 		{
 			var t: Number = getTimer();
 			tokens.nextValidToken();
-			if ( !tokens.getStringValue() == "xref" )
+			if ( !tokens.stringValue == "xref" )
 				tokens.throwError( "xref subsection not found" );
 			var start: int = 0;
 			var end: int = 0;
@@ -1010,7 +680,7 @@ package org.purepdf.pdf
 			while ( true )
 			{
 				tokens.nextValidToken();
-				if ( tokens.getStringValue() == "trailer" )
+				if ( tokens.stringValue == "trailer" )
 					break;
 				if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
 					tokens.throwError( "object number of the first object in this xref subsection not found" );
@@ -1043,13 +713,13 @@ package org.purepdf.pdf
 					gen = tokens.intValue();
 					tokens.nextValidToken();
 					var p: int = k * 2;
-					if ( tokens.getStringValue() == "n" )
+					if ( tokens.stringValue == "n" )
 					{
 						if ( xref[p] == 0 && xref[p + 1] == 0 )
 						{
 							xref[p] = pos;
 						}
-					} else if ( tokens.getStringValue() == "f" )
+					} else if ( tokens.stringValue == "f" )
 					{
 						if ( xref[p] == 0 && xref[p + 1] == 0 )
 							xref[p] = -1;
@@ -1076,7 +746,7 @@ package org.purepdf.pdf
 					throw e;
 				}
 			}
-			trace('readXrefSection: ' + ( getTimer() - t ) );
+			trace( 'readXrefSection: ' + ( getTimer() - t ) );
 			return trailer;
 		}
 
@@ -1241,6 +911,276 @@ package org.purepdf.pdf
 			return rect;
 		}
 
+		internal function ensureXrefSize( size: int ): void
+		{
+			if ( size == 0 )
+				return;
+			if ( xref == null )
+				xref = new Vector.<int>( size, true );
+			else
+			{
+				var xref2: Vector.<int>;
+				if ( xref.length < size )
+				{
+					xref2 = new Vector.<int>( size, true );
+					xref2 = xref.slice( 0, xref.length );
+					xref = xref2;
+				}
+			}
+		}
+
+		internal function getTokens(): PRTokeniser
+		{
+			return tokens;
+		}
+
+		internal function getxref(): Vector.<int>
+		{
+			return xref;
+		}
+
+		internal function getxrefobj(): Vector.<PdfObject>
+		{
+			return xrefObj;
+		}
+
+		internal function readPRObject(): PdfObject
+		{
+			tokens.nextValidToken();
+			var type: int = tokens.getTokenType();
+			switch ( type )
+			{
+				case PRTokeniser.TK_START_DIC:
+					++readDepth;
+					var dic: PdfDictionary = readDictionary();
+					--readDepth;
+					var pos: int = tokens.getFilePointer();
+					var hasNext: Boolean;
+					do
+					{
+						hasNext = tokens.nextToken();
+					} while ( hasNext && tokens.getTokenType() == PRTokeniser.TK_COMMENT );
+
+					if ( hasNext && tokens.stringValue == "stream" )
+					{
+						var ch: int;
+						do
+						{
+							ch = tokens.readInt();
+						} while ( ch == 32 || ch == 9 || ch == 0 || ch == 12 );
+						if ( ch != 10 )
+							ch = tokens.readInt();
+						if ( ch != 10 )
+							tokens.backOnePosition( ch );
+						var stream: PRStream = PRStream.fromReader( this, tokens.getFilePointer() );
+						stream.putAll( dic );
+						stream.setObjNum( objNum, objGen );
+						return stream;
+					} else
+					{
+						tokens.seek( pos );
+						return dic;
+					}
+
+				case PRTokeniser.TK_START_ARRAY:
+					++readDepth;
+					var arr: PdfArray = readArray();
+					--readDepth;
+					return arr;
+
+				case PRTokeniser.TK_NUMBER:
+					return new PdfNumber( tokens.stringValue );
+
+				case PRTokeniser.TK_STRING:
+					var str: PdfString = new PdfString( tokens.stringValue, null ).setHexWriting( tokens.isHexString() );
+					str.setObjNum( objNum, objGen );
+					if ( strings != null )
+						strings.push( str );
+					return str;
+
+				case PRTokeniser.TK_NAME:
+					var cachedName: PdfName = PdfName( PdfName[tokens.stringValue] );
+					if ( readDepth > 0 && cachedName != null )
+					{
+						return cachedName;
+					} else
+					{
+						return new PdfName( tokens.stringValue, false );
+					}
+
+				case PRTokeniser.TK_REF:
+					var num: int = tokens.getReference();
+					var ref: PRIndirectReference = new PRIndirectReference( PdfObject.INDIRECT, num, tokens.getGeneration() );
+					ref.reader = this;
+					return ref;
+
+				case PRTokeniser.TK_ENDOFFILE:
+					throw new EOFError( "unexpected end of file" );
+
+				default:
+					var sv: String = tokens.stringValue;
+					if ( "null" == sv )
+					{
+						if ( readDepth == 0 )
+						{
+							return new PdfNull();
+						} //else
+						return PdfNull.PDFNULL;
+					} else if ( "true" == sv )
+					{
+						if ( readDepth == 0 )
+						{
+							return new PdfBoolean( true );
+						} //else
+						return PdfBoolean.PDF_TRUE;
+					} else if ( "false" == sv )
+					{
+						if ( readDepth == 0 )
+						{
+							return new PdfBoolean( false );
+						} //else
+						return PdfBoolean.PDF_FALSE;
+					}
+					return new PdfLiteral( tokens.stringValue, -type );
+			}
+		}
+
+		internal function readXRefStream( ptr: int ): Boolean
+		{
+			var t: Number = getTimer();
+			tokens.seek( ptr );
+			var thisStream: int = 0;
+			if ( !tokens.nextToken() )
+				return false;
+			if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
+				return false;
+			thisStream = tokens.intValue();
+			if ( !tokens.nextToken() || tokens.getTokenType() != PRTokeniser.TK_NUMBER )
+				return false;
+			if ( !tokens.nextToken() || !tokens.stringValue == "obj" )
+				return false;
+			var object: PdfObject = readPRObject();
+			var stm: PRStream = null;
+			if ( object.isStream() )
+			{
+				stm = PRStream( object );
+				if ( !PdfName.XREF.equals( stm.getValue( PdfName.TYPE ) ) )
+					return false;
+			} else
+				return false;
+			if ( trailer == null )
+			{
+				trailer = new PdfDictionary();
+				trailer.putAll( stm );
+			}
+			stm.length = PdfNumber( stm.getValue( PdfName.LENGTH ) ).intValue();
+			var size: int = PdfNumber( stm.getValue( PdfName.SIZE ) ).intValue();
+			var index: PdfArray;
+			var obj: PdfObject = stm.getValue( PdfName.INDEX );
+			if ( obj == null )
+			{
+				index = new PdfArray();
+				index.add( Vector.<int>( [ 0, size ] ) );
+			} else
+			{
+				index = PdfArray( obj );
+			}
+			var w: PdfArray = PdfArray( stm.getValue( PdfName.W ) );
+			var prev: int = -1;
+			obj = stm.getValue( PdfName.PREV );
+			if ( obj != null )
+				prev = PdfNumber( obj ).intValue();
+			// Each xref pair is a position
+			// type 0 -> -1, 0
+			// type 1 -> offset, 0
+			// type 2 -> index, obj num
+			ensureXrefSize( size * 2 );
+			if ( objStmMark == null && !partial )
+				objStmMark = new HashMap();
+			if ( objStmToOffset == null && partial )
+				objStmToOffset = new HashMap();
+			var b: Bytes = getStreamBytes( stm, tokens.getFile() );
+			var bptr: int = 0;
+			var wc: Vector.<int> = new Vector.<int>( 3, true );
+			var k: int;
+			for ( k = 0; k < 3; ++k )
+				wc[k] = w.getAsNumber( k ).intValue();
+			for ( var idx: int = 0; idx < index.size; idx += 2 )
+			{
+				var start: int = index.getAsNumber( idx ).intValue();
+				var length: int = index.getAsNumber( idx + 1 ).intValue();
+				ensureXrefSize( ( start + length ) * 2 );
+				while ( length-- > 0 )
+				{
+					var type: int = 1;
+					if ( wc[0] > 0 )
+					{
+						type = 0;
+						for ( k = 0; k < wc[0]; ++k )
+							type = ( type << 8 ) + ( b[bptr++] & 0xff );
+					}
+					var field2: int = 0;
+					for ( k = 0; k < wc[1]; ++k )
+						field2 = ( field2 << 8 ) + ( b[bptr++] & 0xff );
+					var field3: int = 0;
+					for ( k = 0; k < wc[2]; ++k )
+						field3 = ( field3 << 8 ) + ( b[bptr++] & 0xff );
+					var base: int = start * 2;
+					if ( xref[base] == 0 && xref[base + 1] == 0 )
+					{
+						switch ( type )
+						{
+							case 0:
+								xref[base] = -1;
+								break;
+							case 1:
+								xref[base] = field2;
+								break;
+							case 2:
+								xref[base] = field3;
+								xref[base + 1] = field2;
+								if ( partial )
+								{
+									objStmToOffset.put( field2, 0 );
+								} else
+								{
+									var on: int = field2;
+									var seq: HashMap = objStmMark.getValue( on ) as HashMap;
+									if ( seq == null )
+									{
+										seq = new HashMap();
+										seq.put( field3, 1 );
+										objStmMark.put( on, seq );
+									} else
+										seq.put( field3, 1 );
+								}
+								break;
+						}
+					}
+					++start;
+				}
+			}
+			thisStream *= 2;
+			if ( thisStream < xref.length )
+				xref[thisStream] = -1;
+
+			trace( 'readXRefStream: ' + ( getTimer() - t ) );
+
+			if ( prev == -1 )
+				return true;
+			return readXRefStream( prev );
+		}
+
+		internal function setObjGen( value: int ): void
+		{
+			objGen = value;
+		}
+
+		internal function setObjNum( value: int ): void
+		{
+			objNum = value;
+		}
+
 		private function checkPRStreamLength( stream: PRStream ): void
 		{
 			var fileLength: int = tokens.length;
@@ -1295,22 +1235,52 @@ package org.purepdf.pdf
 			stream.length = streamLength;
 		}
 
-		private function ensureXrefSize( size: int ): void
+		private function onDocObjComplete( event: Event ): void
 		{
-			if ( size == 0 )
-				return;
-			if ( xref == null )
-				xref = new Vector.<int>( size, true );
-			else
+			trace( 'onDocReaderComplete' );
+
+			var doc: PRDocObjectReader = PRDocObjectReader( event.target );
+			var streams: Vector.<PdfObject> = doc.streams;
+			var k: int;
+
+			for ( k = 0; k < streams.length; ++k )
 			{
-				var xref2: Vector.<int>;
-				if ( xref.length < size )
-				{
-					xref2 = new Vector.<int>( size, true );
-					xref2 = xref.slice( 0, xref.length );
-					xref = xref2;
-				}
+				checkPRStreamLength( PRStream( streams[k] ) );
 			}
+			step3();
+		}
+
+		private function onDocObjError( event: ErrorEvent ): void
+		{
+			if ( rebuilt || encryptionError )
+				throw new InvalidPdfError( event.text );
+			rebuilt = true;
+			encrypted = false;
+			rebuildXref();
+			lastXref = -1;
+
+			totalSteps++;
+			readDocObj();
+		}
+
+		private function onDocObjProgress( event: ProgressEvent ): void
+		{
+			dispatchEvent( event.clone() );
+		}
+
+		private function onXrefSectionComplete( event: Event ): void
+		{
+			trace( 'onXrefSectionComplete' );
+			var xrefSectionReader: XrefSectionReader = XrefSectionReader( event.target );
+			trailer = xrefSectionReader.trailer;
+			xrefSectionReader.dispose();
+			readXref2( trailer );
+		}
+
+		private function onXrefSectionError( event: ErrorEvent ): void
+		{
+			XrefSectionReader( event.target ).dispose();
+			dispatchEvent( event.clone() );
 		}
 
 		private function readDecryptedDocObj(): void
@@ -1537,6 +1507,107 @@ package org.purepdf.pdf
 		   }
 		   encryptionError = false;
 		 */
+		}
+
+		private function readXref2( trailer2: PdfDictionary ): void
+		{
+			var prev: PdfNumber = trailer2.getValue( PdfName.PREV ) as PdfNumber;
+			if ( prev == null )
+			{
+				step1_complete();
+				return;
+			}
+
+			tokens.seek( prev.intValue() );
+			var xrefSectionReader: XrefSectionReader = new XrefSectionReader( this );
+			xrefSectionReader.addEventListener( Event.COMPLETE, onXrefSectionComplete, false, 0, true );
+			xrefSectionReader.addEventListener( ErrorEvent.ERROR, onXrefSectionError, false, 0, true );
+			xrefSectionReader.run();
+		}
+
+		private function step1(): void
+		{
+			currentStep = 1;
+			step1_init();
+		}
+
+		private function step1_complete(): void
+		{
+			step2();
+		}
+
+		private function step1_init(): void
+		{
+			readXref();
+		}
+
+		private function step2(): void
+		{
+			readDocObj();
+		}
+
+		private function step3(): void
+		{
+			trace( 'step 3' );
+
+			readDecryptedDocObj();
+			step3_init();
+		}
+
+		private function step3_complete(): void
+		{
+			trace( 'step3_complete' );
+			objStmMark = null;
+			xref = null;
+
+			strings.splice( 0, strings.length );
+			readPages();
+			eliminateSharedStreams();
+
+			if ( removeUnused )
+				removeUnusedObjects();
+			xrefObj.splice( 0, xrefObj.length );
+			dispatchEvent( new Event( Event.COMPLETE ) );
+		}
+
+		private function step3_init(): void
+		{
+			currentStep++;
+			if ( objStmMark != null )
+			{
+				var i: Iterator = objStmMark.entrySet().iterator();
+				progressEvent.bytesTotal = objStmMark.size();
+				progressEvent.bytesLoaded = 0;
+				setTimeout( step3_tick, 10, i );
+			} else
+			{
+				step3_complete();
+			}
+		}
+
+		private function step3_tick( i: Iterator ): void
+		{
+			var t: Number = getTimer();
+			while ( getTimer() - t < 300 )
+			{
+				if ( i.hasNext() )
+				{
+					var entry: Entry = i.next();
+					var n: * = entry.key;
+					var h: * = entry.value;
+					readObjStm( PRStream( xrefObj[n] ), h );
+					PRStream( xrefObj[n] ).dispose();
+					xrefObj[n] = null;
+
+					progressEvent.bytesLoaded++;
+					dispatchEvent( progressEvent );
+				} else
+				{
+					step3_complete();
+					return;
+				}
+			}
+			setTimeout( step3_tick, 10, i );
 		}
 
 		/**
@@ -2002,18 +2073,6 @@ package org.purepdf.pdf
 			rf.reOpen();
 			return getStreamBytes( stream, rf );
 		}
-		
-		/** 
-		 * Get the content from a stream as it is without applying any filter.
-		 * @param stream the stream
-		 * @return the stream content
-		 */
-		public static function getStreamBytesRaw2( stream: PRStream ): Bytes
-		{
-			var rf: RandomAccessFileOrArray = stream.reader.getSafeFile();
-			rf.reOpen();
-			return getStreamBytesRaw( stream, rf );
-		}
 
 		/**
 		 * Get the content from a stream as it is without applying any filter.
@@ -2064,6 +2123,18 @@ package org.purepdf.pdf
 				}
 			}
 			return b;
+		}
+
+		/**
+		 * Get the content from a stream as it is without applying any filter.
+		 * @param stream the stream
+		 * @return the stream content
+		 */
+		public static function getStreamBytesRaw2( stream: PRStream ): Bytes
+		{
+			var rf: RandomAccessFileOrArray = stream.reader.getSafeFile();
+			rf.reOpen();
+			return getStreamBytesRaw( stream, rf );
 		}
 
 		public static function releaseLastXrefPartial( obj: PdfObject ): void
