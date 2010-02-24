@@ -54,21 +54,27 @@ package org.purepdf.pdf
 			super( PdfObject.INDIRECT, $number, $generation );
 		}
 
-		public function setNumber( number: int, generation: int ): void
+		override public function dispose(): void
 		{
-			_number = number;
-			_generation = generation;
+			super.dispose();
+			_reader = null;
 		}
-		
+
 		public function get reader(): PdfReader
 		{
 			return _reader;
 		}
-		
-		
+
+
 		public function set reader( value: PdfReader ): void
 		{
 			_reader = value;
+		}
+
+		public function setNumber( number: int, generation: int ): void
+		{
+			_number = number;
+			_generation = generation;
 		}
 	}
 }
