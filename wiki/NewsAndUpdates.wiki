@@ -5,6 +5,9 @@
 
 This page contains all the recent project changes and updates
 
+=== 02.27.2010 ===
+* Completed the PDFReader. Now you can parse existing pdf document, extract strings, images and files from them.
+
 === 02.14.2010 ===
   * Added reader for read pdf documents. See a first [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/HelloWorldReader.as example] here to extract bookmarks from a pdf document
   * Added [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/ExtractStream.as example] on how to extract text from pdf documents
