@@ -19,17 +19,11 @@ package test_reader
 			super("../output/HelloWorldBookmark.pdf");
 		}
 		
-		override protected function onComplete( event: Event ): void
+		override protected function onReadComplete(event:Event):void
 		{
-			super.onComplete( event );
+			super.onReadComplete( event );
 			
 			var k: int;
-			var reader: PdfReader = new PdfReader( pdf );
-			
-			// parse the pdf
-			reader.readPdf();
-			// optional. remove unused objects
-			reader.removeUnusedObjects();
 			
 			trace( "=== Document Information ===" );
 			trace( "PDF Version: " + reader.pdfVersion );

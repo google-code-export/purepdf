@@ -1,13 +1,11 @@
 package test_reader
 {
 	import com.adobe.images.PNGEncoder;
-	
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
-	
 	import org.purepdf.pdf.PRStream;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfObject;
@@ -22,12 +20,9 @@ package test_reader
 			super( "../output/ImageTypes.pdf" );
 		}
 
-		override protected function onComplete( event: Event ): void
+		override protected function onReadComplete( event: Event ): void
 		{
-			super.onComplete( event );
-
-			var reader: PdfReader = new PdfReader( pdf );
-			reader.readPdf();
+			super.onReadComplete( event );
 
 			var obj: PdfObject;
 			var stream: PdfStream;
@@ -44,10 +39,10 @@ package test_reader
 						trace( "height:" + stream.getValue( PdfName.HEIGHT ) );
 						trace( "width:" + stream.getValue( PdfName.WIDTH ) );
 						trace( "bitspercomponent:" + stream.getValue( PdfName.BITSPERCOMPONENT ) );
-						
+
 						var img: Bytes = PdfReader.getStreamBytesRaw2( PRStream( stream ) );
 						var loader: Loader = new Loader();
-						loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onImageIOError );
+						loader.contentLoaderInfo.addEventListener( IOErrorEvent.IO_ERROR, onImageIOError );
 						loader.contentLoaderInfo.addEventListener( Event.COMPLETE, onImageComplete );
 						loader.loadBytes( img.buffer );
 
@@ -56,15 +51,15 @@ package test_reader
 
 			}
 		}
-		
-		private function onImageIOError( event: IOErrorEvent ): void
-		{
-			trace( event.text );
-		}
-		
+
 		private function onImageComplete( event: Event ): void
 		{
 			addChild( ( event.target as LoaderInfo ).content );
+		}
+
+		private function onImageIOError( event: IOErrorEvent ): void
+		{
+			trace( event.text );
 		}
 	}
 }
