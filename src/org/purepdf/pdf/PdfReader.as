@@ -79,7 +79,8 @@ package org.purepdf.pdf
 		internal static const pageInhCandidates: Vector.<PdfName> = Vector.<PdfName>( [ PdfName.MEDIABOX, PdfName.ROTATE, PdfName.RESOURCES, PdfName.CROPBOX ] );
 		private static const endobj: Bytes = PdfEncodings.convertToBytes( "endobj", null );
 		private static const endstream: Bytes = PdfEncodings.convertToBytes( "endstream", null );
-
+		public static const TIMER_STEP: int = 300;
+		
 		public var currentStep: int = 0;
 
 		public var totalSteps: int = 3;
@@ -296,7 +297,10 @@ package org.purepdf.pdf
 		}
 
 		/**
-		 * Start parsing the current pdf document
+		 * Start parsing the current pdf document.
+		 * If the parameter <code>removeUnused</code> is set to
+		 * true then all the unused nodes will be removed one the
+		 * parsing process has ended.
 		 */
 		public function readPdf( removeUnused: Boolean = false ): void
 		{
@@ -468,6 +472,7 @@ package org.purepdf.pdf
 		protected function readDocObj(): void
 		{
 			currentStep++;
+			dispatchEvent( new ProgressEvent( ProgressEvent.PROGRESS ) );
 			xrefObj = new Vector.<PdfObject>( xref.length / 2, true );
 			var copies: Vector.<PdfObject> = new Vector.<PdfObject>( xref.length / 2 );
 			xrefObj = xrefObj.concat( copies );
@@ -481,7 +486,6 @@ package org.purepdf.pdf
 
 		protected function readObjStm( stream: PRStream, map: HashMap ): void
 		{
-			var t: Number = getTimer();
 			var first: int = stream.getAsNumber( PdfName.FIRST ).intValue();
 			var n: int = stream.getAsNumber( PdfName.N ).intValue();
 			var b: Bytes = getStreamBytes( stream, tokens.getFile() );
@@ -529,7 +533,6 @@ package org.purepdf.pdf
 			{
 				tokens = saveTokens;
 			}
-			trace( 'readObjStm: ' + ( getTimer() - t ) );
 		}
 
 		protected function readOneObjStm( stream: PRStream, idx: int ): PdfObject
@@ -634,16 +637,22 @@ package org.purepdf.pdf
 
 		protected function readXref(): void
 		{
-			var t: Number = getTimer();
 			hybridXref = false;
 			newXrefType = false;
 			tokens.seek( tokens.getStartxref() );
 			tokens.nextToken();
 			if ( !tokens.getStringValue() == "startxref" )
-				throw new InvalidPdfError( "startxref not found" );
+			{
+				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "startxref not found" ) );
+				return;
+			}
 			tokens.nextToken();
 			if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-				throw new InvalidPdfError( "startxref is not followed by a number" );
+			{
+				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "startxref is not followed by a number" ) );
+				return;
+			}
+			
 			var startxref: int = tokens.intValue();
 			lastXref = startxref;
 			eofPos = tokens.getFilePointer();
@@ -660,108 +669,60 @@ package org.purepdf.pdf
 			}
 			xref = null;
 			tokens.seek( startxref );
-			trailer = readXrefSection();
-			var trailer2: PdfDictionary = trailer;
-			var prev: PdfNumber;
-			while ( true )
-			{
-				prev = trailer2.getValue( PdfName.PREV ) as PdfNumber;
-				if ( prev == null )
-					break;
-				tokens.seek( prev.intValue() );
-				trailer2 = readXrefSection();
-			}
-			trace( 'readXref: ' + ( getTimer() - t ) );
+			
+			var xf: XrefSectionReader = new XrefSectionReader( this );
+			xf.addEventListener( Event.COMPLETE, onReadSectionComplete, false, 0, true );
+			xf.addEventListener( ErrorEvent.ERROR, onReadSectionError, false, 0, true );
+			xf.run();
+
 		}
-
-		protected function readXrefSection(): PdfDictionary
+		
+		private function onReadSectionComplete( event: Event ): void
 		{
-			var t: Number = getTimer();
-			tokens.nextValidToken();
-			if ( !tokens.getStringValue() == "xref" )
-				tokens.throwError( "xref subsection not found" );
-			var start: int = 0;
-			var end: int = 0;
-			var pos: int = 0;
-			var gen: int = 0;
-			while ( true )
+			var xf: XrefSectionReader = XrefSectionReader( event.target );
+			trailer = xf.trailer;
+			xf.dispose();
+			
+			var trailer2: PdfDictionary = trailer;
+			onReadSectionStep( trailer2 );
+		}
+		
+		private function onReadSectionComplete2( event: Event ): void
+		{
+			var xf: XrefSectionReader = XrefSectionReader( event.target );
+			var t: PdfDictionary = xf.trailer;
+			xf.dispose();
+			
+			onReadSectionStep( t );
+		}
+		
+		private function onReadSectionStep( t: PdfDictionary ): void
+		{
+			var prev: PdfNumber = t.getValue( PdfName.PREV ) as PdfNumber;
+			if( prev == null )
 			{
-				tokens.nextValidToken();
-				if ( tokens.getStringValue() == "trailer" )
-					break;
-				if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-					tokens.throwError( "object number of the first object in this xref subsection not found" );
-				start = tokens.intValue();
-				tokens.nextValidToken();
-				if ( tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-					tokens.throwError( "number of entries in this xref subsection not found" );
-				end = tokens.intValue() + start;
-				if ( start == 1 )
-				{ // fix incorrect start number
-					var back: int = tokens.getFilePointer();
-					tokens.nextValidToken();
-					pos = tokens.intValue();
-					tokens.nextValidToken();
-					gen = tokens.intValue();
-					if ( pos == 0 && gen == PdfWriter.GENERATION_MAX )
-					{
-						--start;
-						--end;
-					}
-					tokens.seek( back );
-				}
-				ensureXrefSize( end * 2 );
-				var k: int;
-				for ( k = start; k < end; ++k )
-				{
-					tokens.nextValidToken();
-					pos = tokens.intValue();
-					tokens.nextValidToken();
-					gen = tokens.intValue();
-					tokens.nextValidToken();
-					var p: int = k * 2;
-					if ( tokens.getStringValue() == "n" )
-					{
-						if ( xref[p] == 0 && xref[p + 1] == 0 )
-						{
-							xref[p] = pos;
-						}
-					} else if ( tokens.getStringValue() == "f" )
-					{
-						if ( xref[p] == 0 && xref[p + 1] == 0 )
-							xref[p] = -1;
-					} else
-						tokens.throwError( "invalid cross reference entry in this xref subsection" );
-				}
+				step1_complete();
+				return;
 			}
+			tokens.seek( prev.intValue() );
 
-			var trailer: PdfDictionary = PdfDictionary( readPRObject() );
-			var xrefSize: PdfNumber = PdfNumber( trailer.getValue( PdfName.SIZE ) );
-			ensureXrefSize( xrefSize.intValue() * 2 );
-			var xrs: PdfObject = trailer.getValue( PdfName.XREFSTM );
-			if ( xrs != null && xrs.isNumber() )
-			{
-				var loc: int = PdfNumber( xrs ).intValue();
-				try
-				{
-					readXRefStream( loc );
-					newXrefType = true;
-					hybridXref = true;
-				} catch ( e: EOFError )
-				{
-					xref = null;
-					throw e;
-				}
-			}
-			trace( 'readXrefSection: ' + ( getTimer() - t ) );
-			return trailer;
+			var xf: XrefSectionReader = new XrefSectionReader( this );
+			xf.addEventListener( Event.COMPLETE, onReadSectionComplete2, false, 0, true );
+			xf.addEventListener( ErrorEvent.ERROR, onReadSectionError, false, 0, true );
+			xf.run();
+		}
+		
+		private function onReadSectionError( event: ErrorEvent ): void
+		{
+			var xf: XrefSectionReader = XrefSectionReader( event.target );
+			xf.dispose();
+			dispatchEvent( event.clone() );
 		}
 
 		protected function rebuildXref(): void
 		{
 			throw new NonImplementatioError();
 		}
-
 
 		protected function removeUnusedNode( obj: PdfObject, hits: Vector.<Boolean> ): void
 		{
@@ -1244,8 +1205,6 @@ package org.purepdf.pdf
 
 		private function onDocObjComplete( event: Event ): void
 		{
-			trace( 'onDocReaderComplete' );
-
 			var doc: PRDocObjectReader = PRDocObjectReader( event.target );
 			var streams: Vector.<PdfObject> = doc.streams;
 			var k: int;
@@ -1503,39 +1462,34 @@ package org.purepdf.pdf
 
 		private function step1(): void
 		{
-			trace('step1');
 			currentStep = 1;
 			step1_init();
 		}
 
 		private function step1_init(): void
 		{
-			try
-			{
-				readXref();
-			} catch( e: Error )
-			{
-				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "rebuild failed" ) );
-			}
+			dispatchEvent( new ProgressEvent( ProgressEvent.PROGRESS ) );
+			readXref();
+		}
+		
+		private function step1_complete(): void
+		{
 			step2();
 		}
 
 		private function step2(): void
 		{
-			trace('step2');
 			readDocObj();
 		}
 
 		private function step3(): void
 		{
-			trace( 'step 3' );
 			readDecryptedDocObj();
 			step3_init();
 		}
 
 		private function step3_complete(): void
 		{
-			trace( 'step3_complete' );
 			objStmMark = null;
 			xref = null;
 
@@ -1545,13 +1499,17 @@ package org.purepdf.pdf
 
 			if ( removeUnused )
 				removeUnusedObjects();
+			
+			// all completed
+			trace('READ COMPLETED');
 			dispatchEvent( new Event( Event.COMPLETE ) );
 		}
 
 		private function step3_init(): void
 		{
-			trace('step3_init');
 			currentStep++;
+			dispatchEvent( new ProgressEvent( ProgressEvent.PROGRESS ) );
+			
 			if ( objStmMark != null )
 			{
 				var i: Iterator = objStmMark.entrySet().iterator();
@@ -1568,7 +1526,7 @@ package org.purepdf.pdf
 		{
 			trace( 'step3_timer' );
 			var t: Number = getTimer();
-			while ( getTimer() - t < 300 )
+			while ( getTimer() - t < TIMER_STEP )
 			{
 				if ( i.hasNext() )
 				{
