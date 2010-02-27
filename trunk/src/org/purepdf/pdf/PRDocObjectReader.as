@@ -95,7 +95,7 @@ package org.purepdf.pdf
 			try
 			{
 				var timer: Number = getTimer();
-				while ( getTimer() - timer < 500 )
+				while ( getTimer() - timer < PdfReader.TIMER_STEP )
 				{
 					if( k < xref.length )
 					{

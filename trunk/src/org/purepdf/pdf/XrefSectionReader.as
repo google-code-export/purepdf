@@ -54,6 +54,8 @@ package org.purepdf.pdf
 	
 	import org.purepdf.pdf.interfaces.IDisposable;
 
+	[Event(name="complete", type="flash.events.Event")]
+	[Event(name="error", type="flash.events.ErrorEvent")]
 	public class XrefSectionReader extends EventDispatcher implements IDisposable
 	{
 		private var end: int = 0;
@@ -92,78 +94,45 @@ package org.purepdf.pdf
 
 		private function execute_while(): void
 		{
-			var t: Number = getTimer();
-
-			while ( getTimer() - t < 500 )
+			reader.tokens.nextValidToken();
+			if ( reader.tokens.stringValue == "trailer" )
 			{
-				reader.tokens.nextValidToken();
-				if ( reader.tokens.stringValue == "trailer" )
-				{
-					complete();
-					return;
-				}
-				
-				if ( reader.tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-				{
-					dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "object number of the first object in this xref subsection not found" ) );
-					return;
-				}
-
-				start = reader.tokens.intValue();
-				reader.tokens.nextValidToken();
-				if ( reader.tokens.getTokenType() != PRTokeniser.TK_NUMBER )
-				{
-					dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "number of entries in this xref subsection not found" ) );
-					return;
-				}
-
-				end = reader.tokens.intValue() + start;
-				if ( start == 1 )
-				{
-					var back: int = reader.tokens.getFilePointer();
-					reader.tokens.nextValidToken();
-					pos = reader.tokens.intValue();
-					reader.tokens.nextValidToken();
-					gen = reader.tokens.intValue();
-					if ( pos == 0 && gen == PdfWriter.GENERATION_MAX )
-					{
-						--start;
-						--end;
-					}
-					reader.tokens.seek( back );
-				}
-				reader.ensureXrefSize( end * 2 );
-				var k: int;
-				//execute_for( start );
-				trace( start, end );
-				for ( k = start; k < end; ++k )
-				{
-					reader.tokens.nextValidToken();
-					pos = reader.tokens.intValue();
-					reader.tokens.nextValidToken();
-					gen = reader.tokens.intValue();
-					reader.tokens.nextValidToken();
-					trace(k, pos, gen);
-					var p: int = k * 2;
-					if ( reader.tokens.stringValue == "n" )
-					{
-						if ( reader.xref[p] == 0 && reader.xref[p + 1] == 0 )
-						{
-							reader.xref[p] = pos;
-						}
-					} else if ( reader.tokens.stringValue == "f" )
-					{
-						if ( reader.xref[p] == 0 && reader.xref[p + 1] == 0 )
-							reader.xref[p] = -1;
-					} else
-					{
-						dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "invalid cross reference entry in this xref subsection" ) );
-						return;
-					}
-				}
+				complete();
+				return;
 			}
 			
-			setTimeout( execute_while, 10 );
+			if ( reader.tokens.getTokenType() != PRTokeniser.TK_NUMBER )
+			{
+				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "object number of the first object in this xref subsection not found" ) );
+				return;
+			}
+
+			start = reader.tokens.intValue();
+			reader.tokens.nextValidToken();
+			if ( reader.tokens.getTokenType() != PRTokeniser.TK_NUMBER )
+			{
+				dispatchEvent( new ErrorEvent( ErrorEvent.ERROR, false, false, "number of entries in this xref subsection not found" ) );
+				return;
+			}
+
+			end = reader.tokens.intValue() + start;
+			if ( start == 1 )
+			{
+				var back: int = reader.tokens.getFilePointer();
+				reader.tokens.nextValidToken();
+				pos = reader.tokens.intValue();
+				reader.tokens.nextValidToken();
+				gen = reader.tokens.intValue();
+				if ( pos == 0 && gen == PdfWriter.GENERATION_MAX )
+				{
+					--start;
+					--end;
+				}
+				reader.tokens.seek( back );
+			}
+			reader.ensureXrefSize( end * 2 );
+			
+			execute_for( start );
 		}
 		
 		protected function execute_for( k: int ): void
@@ -193,9 +162,9 @@ package org.purepdf.pdf
 					return;
 				}
 				
-				if( getTimer() - t > 500 )
+				if( ( getTimer() - t ) > PdfReader.TIMER_STEP && k < end )
 				{
-					setTimeout( execute_for, 10, k );
+					setTimeout( execute_for, 10, ++k );
 					return;
 				}
 			}
