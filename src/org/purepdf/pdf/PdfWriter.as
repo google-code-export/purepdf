@@ -90,8 +90,8 @@ package org.purepdf.pdf
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const MAIN_VERSION: String = '0';
-		public static const BUILD_NUMBER: String = '24';
-		public static const BUILD_DATE: String = '20100215';
+		public static const BUILD_NUMBER: String = '26';
+		public static const BUILD_DATE: String = '20100309';
 		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
 		
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;

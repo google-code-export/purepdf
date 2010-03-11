@@ -60,24 +60,34 @@ package org.purepdf.pdf.fonts
 		private static var _unicode2names: HashMap;
 		private static var _names2unicode: HashMap;
 		
-		private static function init_names2unicode(): void
+		private static function init_names2unicode( b: ByteArray ): void
 		{
-			var byte: ByteArray = new n2u() as ByteArray;
-			byte.uncompress();
-			_names2unicode = byte.readObject();
+			_names2unicode = b.readObject();
 		}
 		
-		private static function init_unicode2names(): void
+		private static function init_unicode2names( b: ByteArray ): void
 		{
-			var byte: ByteArray = new u2n() as ByteArray;
-			byte.uncompress();
-			_unicode2names = byte.readObject();
+			_unicode2names = b.readObject();
+		}
+		
+		public static function setUnicode2Names( value: ByteArray ): void
+		{
+			init_unicode2names( value );
+		}
+		
+		public static function setNames2Unicode( value: ByteArray ): void
+		{
+			init_names2unicode( value );
 		}
 		
 		public static function name2unicode( name: String ): Vector.<int>
 		{
 			if( _names2unicode == null )
-				init_names2unicode();
+			{
+				var byte: ByteArray = new n2u() as ByteArray;
+				byte.uncompress();
+				init_names2unicode( byte );
+			}
 			
 			return Vector.<int>( _names2unicode.getValue( name ) );
 		}
@@ -85,7 +95,11 @@ package org.purepdf.pdf.fonts
 		public static function unicode2name( num: int ): String
 		{
 			if( _unicode2names == null )
-				init_unicode2names();
+			{
+				var byte: ByteArray = new u2n() as ByteArray;
+				byte.uncompress();
+				init_unicode2names( byte );
+			}
 			
 			return _unicode2names.getValue( num ) as String;
 		}
