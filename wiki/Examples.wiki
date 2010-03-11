@@ -31,7 +31,7 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/GenericTag.as GenericTag.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/GraphicState.as GraphicState.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HeaderFooter1.as HeaderFooter1.as]
-  # [http://code.google.com/p/purepdf/source/browse/examples/src/HeaderFooter1.as HeaderFooter2.as]
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/HeaderFooter2.as HeaderFooter2.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloChunk.as HelloChunk.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloSplitCharacter.as HelloSplitCharacter.as]
   # [http://code.google.com/p/purepdf/source/browse/examples/src/HelloWorld.as HelloWorld.as]
