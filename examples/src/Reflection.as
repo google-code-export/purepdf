@@ -122,7 +122,7 @@ package
 				PdfVersion, NumberUtils, Properties, StringTokenizer, StringUtils, Utilities, Markup, FontFactory, GreekAlphabetFactory,
 				PdfTransparencyGroup, PdfCrossReferenceCollection, Barcode, BarcodeEAN, BarcodeEANSUPP, ByteArrayInputStream, DataInputStream, FilterInputStream,
 				PdfTransition, VectorIterator, CJKFontResourceFactory, CMapResourceFactory, InputStream, LineReader, OutputStreamCounter,
-				PdfTrailer, ICMap, CMap, BuiltinCJKFonts, BuiltinFonts, FieldBase, FieldText, PdfFormField, AssertionError, BadElementError,
+				PdfTrailer, ICMap, CMap, BuiltinCJKFonts, BuiltinFonts, FieldBase, FieldText, PdfFormField, AssertPdfError, BadElementError,
 				PdfTextArray, org.purepdf.pdf.GraphicState, GifImage, PngImage, TiffImage, InflaterInputStream, CastTypeError, ConversionError,
 				PdfTemplate, PdfPCellEventForwarder, PdfPTableEventForwarder, ChapterEvent, ChunkEvent, PageEvent, ParagraphEvent, SectionEvent,
 				PdfString, BaseFont, CJKFont, DocumentFont, FontsResourceFactory, GlyphList, StreamFont, DocumentError, IllegalPdfSyntaxError,

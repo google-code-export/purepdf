@@ -14,7 +14,7 @@ package
 	import org.purepdf.pdf.PdfTemplate;
 	import org.purepdf.pdf.PdfTransparencyGroup;
 	import org.purepdf.utils.ShadingUtils;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 
 	public class ShadingGradientTransparency extends DefaultBasicExample
 	{
