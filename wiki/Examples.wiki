@@ -95,4 +95,4 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/HelloWorldReader.as HelloWorldReader.as] Extract bookmarks from a pdf file
   # [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/ExtractStream.as ExtractStream.as] Extract text from a pdf file
   # [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/ExtractImages.as ExtractImages.as] Extract images from a pdf file
-  # [http://code.google.com/p/purepdf/source/browse/examples/src/WMFImage.as] Include a Windows metafile WMF into pdf document
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/WMFImage.as WMFImage.as] Include a Windows metafile WMF into pdf document
