@@ -123,7 +123,8 @@ package org.purepdf.pdf
 		public static const WILL_PRINT: PdfName = PdfName.WP;
 		public static const DID_PRINT: PdfName = PdfName.DP;
 
-
+		public static const wmfFontCorrection: Number = 0.86;
+		
 		protected var _duration: int = -1;
 		protected var _hashCode: int;
 		protected var _pageResources: PageResources;

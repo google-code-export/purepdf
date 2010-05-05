@@ -70,7 +70,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 	import org.purepdf.utils.StringUtils;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 	import org.purepdf.utils.pdf_core;
 
 	/**
@@ -1935,7 +1935,7 @@ package org.purepdf.pdf
 		 */
 		protected function checkWriter(): void
 		{
-			assertTrue( _writer != null, "The writer is null" );
+			assert_true( _writer != null, "The writer is null" );
 		}
 
 		/**

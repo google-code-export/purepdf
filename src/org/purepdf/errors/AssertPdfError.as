@@ -42,13 +42,13 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.utils
+package org.purepdf.errors
 {
-	import org.purepdf.errors.AssertionError;
-
-	public function assertTrue( expression: Boolean, message: String = "Assertion Error" ): void
+	public class AssertPdfError extends Error
 	{
-		if ( !expression )
-			throw new AssertionError( message );
+		public function AssertPdfError(message:*="", id:*=0)
+		{
+			super(message, id);
+		}
 	}
 }

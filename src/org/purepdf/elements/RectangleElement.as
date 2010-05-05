@@ -47,7 +47,7 @@ package org.purepdf.elements
 	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.errors.DocumentError;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 
 	public class RectangleElement implements IElement
 	{
@@ -380,7 +380,7 @@ package org.purepdf.elements
 		 */
 		public function rotate( value: uint = 90 ): RectangleElement
 		{
-			assertTrue( value % 90 == 0 || [0,90,180,270].indexOf(value) < 0, "Allowed rotation parameter must be 0, 90, 180 or 270");
+			assert_true( value % 90 == 0 || [0,90,180,270].indexOf(value) < 0, "Allowed rotation parameter must be 0, 90, 180 or 270");
 			var rect: RectangleElement = new RectangleElement( lly, llx, ury, urx );
 			rect._rotation = _rotation + value;
 			rect._rotation %= 360;

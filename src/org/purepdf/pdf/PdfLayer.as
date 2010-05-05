@@ -45,7 +45,7 @@
 package org.purepdf.pdf
 {
 	import org.purepdf.pdf.interfaces.IPdfOCG;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 
 	public class PdfLayer extends PdfDictionary implements IPdfOCG
 	{

@@ -790,6 +790,11 @@ package org.purepdf.elements.images
 				== 'I'.charCodeAt( 0 ) && c3 == 42 && c4 == 0 ) )
 			{
 			}
+			
+			// WMF
+			if ( c1 == 0xD7 && c2 == 0xCD ) {
+				return new ImageWMF( buffer );
+			}
 
 			throw new Error( "byte array is not a recognized image format" );
 			return null;

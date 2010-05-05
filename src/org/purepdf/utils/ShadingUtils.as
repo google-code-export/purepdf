@@ -81,7 +81,7 @@ package org.purepdf.utils
 		public static function drawRectangleGradient( cb: PdfContentByte, x: Number, y: Number, width: Number, height: Number, colors: Vector.<RGBColor>,
 				ratios: Vector.<Number>, alpha: Vector.<Number>, extendStart: Boolean = true, extendEnd: Boolean = true ): void
 		{
-			assertTrue( colors.length == alpha.length, "Colors and Alpha vectors must be same length" );
+			assert_true( colors.length == alpha.length, "Colors and Alpha vectors must be same length" );
 
 			var shading: PdfShading;
 			var template: PdfTemplate;
@@ -141,7 +141,7 @@ package org.purepdf.utils
 												   colors: Vector.<RGBColor>, ratios: Vector.<Number>, alpha: Vector.<Number>, extendStart: Boolean = true, 
 												   extendEnd: Boolean = true ): void
 		{
-			assertTrue( colors.length == alpha.length, "Colors and Alpha vectors must be same length" );
+			assert_true( colors.length == alpha.length, "Colors and Alpha vectors must be same length" );
 			
 			var shading: PdfShading;
 			var template: PdfTemplate;

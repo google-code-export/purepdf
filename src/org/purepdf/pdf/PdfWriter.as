@@ -69,7 +69,7 @@ package org.purepdf.pdf
 	import org.purepdf.pdf.fonts.FontDetails;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 	import org.purepdf.utils.pdf_core;
 
 	public class PdfWriter extends ObjectHash
@@ -90,8 +90,8 @@ package org.purepdf.pdf
 		public static const NO_SPACE_CHAR_RATIO: Number = 10000000;
 
 		public static const MAIN_VERSION: String = '0';
-		public static const BUILD_NUMBER: String = '26';
-		public static const BUILD_DATE: String = '20100309';
+		public static const BUILD_NUMBER: String = '70';
+		public static const BUILD_DATE: String = '20100505';
 		public static const RELEASE: String = MAIN_VERSION + '.' + BUILD_NUMBER + '.' + BUILD_DATE;
 		
 		public static const SPACE_CHAR_RATIO_DEFAULT: Number = 2.5;
@@ -154,7 +154,7 @@ package org.purepdf.pdf
 
 		public function PdfWriter( instance: Lock, output: ByteArray, pagesize: RectangleElement )
 		{
-			assertTrue( instance != null && instance is Lock, "Use PdfWriter.create to initialize a new instance of purepdf" );
+			assert_true( instance != null && instance is Lock, "Use PdfWriter.create to initialize a new instance of purepdf" );
 
 			os = new OutputStreamCounter( output );
 
@@ -749,8 +749,16 @@ package org.purepdf.pdf
 				if ( image.isImgTemplate )
 				{
 					name = new PdfName("img" + images.size() );
-					if(image is ImageWMF ) {
-						throw new NonImplementatioError("ImageWMF not yet supported");
+					if(image is ImageWMF ) 
+					{
+						try
+						{
+							var wmf: ImageWMF = ImageWMF( image );
+							wmf.readWMF( PdfTemplate.createTemplate( this, 0, 0 ) );
+						} catch( e: Error )
+						{
+							throw new DocumentError(e);
+						}
 					}
 				}
 				else

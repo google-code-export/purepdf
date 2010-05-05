@@ -75,6 +75,11 @@ package org.purepdf.io
 		{
 			return pos;
 		}
+		
+		public function get available(): int
+		{
+			return count - pos;
+		}
 
 		public function readBytes( b: ByteArray, off: int, len: int ): int
 		{

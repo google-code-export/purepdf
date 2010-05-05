@@ -46,7 +46,7 @@ package org.purepdf.colors
 {
 	import it.sephiroth.utils.ObjectHash;
 	
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 
 	public class RGBColor extends ObjectHash
 	{
@@ -132,7 +132,7 @@ package org.purepdf.colors
 
 		public function validate( color: int ): void
 		{
-			assertTrue( color >= 0 && color <= 255, "Color outside range 0 < 255" );
+			assert_true( color >= 0 && color <= 255, "Color outside range 0 < 255" );
 		}
 
 		public static function fromARGB( value: int ): RGBColor

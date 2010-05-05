@@ -67,12 +67,27 @@ package org.purepdf.io
 			return input.size;
 		}
 		
+		public function get position(): int
+		{
+			return input.position;
+		}
+		
+		public function get available(): int
+		{
+			return input.available;
+		}
+		
 		public function readUnsignedByte(): int
 		{
 			return input.readUnsignedByte();
 		}
 		
 		public function readBytes( b: ByteArray, off: int, len: int ): int
+		{
+			throw new NonImplementatioError();
+		}
+		
+		public function skip( n: Number ): Number
 		{
 			throw new NonImplementatioError();
 		}

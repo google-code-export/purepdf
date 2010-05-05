@@ -5,14 +5,20 @@
 	<taskdef resource="flexTasks.tasks" classpath="${flex_sdk_home}/ant/lib/flexTasks.jar" />
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
-	<target name="compile-all" depends="clean,compile-fonts,compile" />
-	
-	<target name="update-version">
+	<target name="compile-all">
+		<buildnumber file="build.number"/>
 		<propertyset id="tdate"></propertyset>
 		<tstamp>
 			<format property="tdate" pattern="yyyyMMdd"/>
 		</tstamp>
-		<buildnumber file="build.number"/>
+		<antcall target="clean"></antcall>
+		<antcall target="update-version"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
+		<antcall target="compile-fonts"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
+		<antcall target="compile"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
+		<antcall target="create-zip"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
+	</target>
+	
+	<target name="update-version">
 		<echo>updating version to current datetime: ${tdate}</echo>
 		<replaceregexp byline="true">
 			<regexp pattern="public static const BUILD_DATE: String = \'([0-9]+)'"/>
@@ -43,7 +49,7 @@
 		</compc>
 	</target>
 	
-	<target name="compile" depends="update-version">
+	<target name="compile">
 		<echo>Compiling ${output_filename}</echo>
 		<mkdir dir="_tmp"/>
 		<move file="src/org/purepdf/resources/BuiltinFonts.as" tofile="_tmp/BuiltinFonts.moved"/>
@@ -94,6 +100,11 @@
 		
 		<zip destfile="${output_dir}/asdoc-output.zip" basedir="asdoc-output"></zip>
 		
+	</target>
+	
+	<target name="create-zip">
+		<zip destfile="${output_dir}/purePDF_0.${build.number}.${tdate}.zip" basedir="${output_dir}" includes="**/*.swc">
+		</zip>
 	</target>
 
 	<target name="clean">
