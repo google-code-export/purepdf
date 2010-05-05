@@ -6,7 +6,7 @@
 This page contains all the recent project changes and updates
 
 === 04.05.2010 ===
-* Partially added WMF Image files support. Now you can add windows wmf images into a pdf document. See [http://code.google.com/p/purepdf/source/browse/examples/src/WMFImage.as WMFImage.as]
+  * Partially added WMF Image files support. Now you can add windows wmf images into a pdf document. See [http://code.google.com/p/purepdf/source/browse/examples/src/WMFImage.as WMFImage.as]
 
 === 02.27.2010 ===
   * Completed the PDFReader. Now you can parse existing pdf document, extract strings, images and files from them.
