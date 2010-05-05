@@ -49,7 +49,7 @@ package org.purepdf.pdf
 	import org.purepdf.IComparable;
 	import org.purepdf.errors.IndexOutOfBoundsError;
 	import org.purepdf.utils.Bytes;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 
 	public class PdfName extends PdfObject implements IComparable
 	{

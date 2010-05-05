@@ -45,7 +45,7 @@
 package org.purepdf.elements
 {
 	import org.purepdf.Font;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 	import org.purepdf.utils.pdf_core;
 
 	public class HeaderFooter extends RectangleElement
@@ -67,7 +67,7 @@ package org.purepdf.elements
 		public function HeaderFooter( before: Phrase, after: Phrase = null, numbered: Boolean = true )
 		{
 			super(0,0,0,0);
-			assertTrue( before != null, "before Phrase can't be null");
+			assert_true( before != null, "before Phrase can't be null");
 			
 			border = TOP | BOTTOM;
 			borderWidth = 1;

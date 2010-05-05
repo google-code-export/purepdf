@@ -48,7 +48,7 @@ package org.purepdf.pdf
 	
 	import org.purepdf.IComparable;
 	import org.purepdf.pdf.interfaces.IOutputStream;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 	import org.purepdf.utils.pdf_core;
 
 	public final class PdfCrossReference extends ObjectHash implements IComparable
@@ -109,7 +109,7 @@ package org.purepdf.pdf
 		 */
 		public function midSizeToPdf( midSize: int, os: IOutputStream ): void
 		{
-			assertTrue( midSize >= 0, "midSize must be greater than 0" );
+			assert_true( midSize >= 0, "midSize must be greater than 0" );
 			os.writeInt( ByteBuffer.intToByte( type ) );
 
 			while ( --midSize >= 0 )

@@ -58,7 +58,7 @@ package org.purepdf.pdf
 	import org.purepdf.errors.NonImplementatioError;
 	import org.purepdf.errors.NullPointerError;
 	import org.purepdf.errors.RuntimeError;
-	import org.purepdf.utils.assertTrue;
+	import org.purepdf.utils.assert_true;
 	import org.purepdf.utils.pdf_core;
 
 	public class ColumnText
@@ -711,7 +711,7 @@ package org.purepdf.pdf
 		 */
 		protected function convertColumn( cLine: Vector.<Number> ): Vector.<Vector.<Number>>
 		{
-			assertTrue( cLine.length >= 4, "parameter cLine must be length >= 4");
+			assert_true( cLine.length >= 4, "parameter cLine must be length >= 4");
 			
 			var cc: Vector.<Vector.<Number>> = new Vector.<Vector.<Number>>();
 			var k: int;
