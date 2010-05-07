@@ -62,6 +62,11 @@ package org.purepdf.io
 			return input;
 		}
 		
+		public function get bytearray(): ByteArray
+		{
+			return input.bytearray;
+		}
+		
 		public function get size(): int
 		{
 			return input.size;

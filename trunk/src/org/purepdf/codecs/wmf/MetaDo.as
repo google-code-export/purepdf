@@ -49,6 +49,7 @@ package org.purepdf.codecs.wmf
 	import flash.geom.Point;
 	import flash.utils.ByteArray;
 	
+	import org.purepdf.codecs.BmpImage;
 	import org.purepdf.codecs.wmf.InputMeta;
 	import org.purepdf.codecs.wmf.MetaState;
 	import org.purepdf.colors.RGBColor;
@@ -669,9 +670,7 @@ package org.purepdf.codecs.wmf
 						try
 						{
 							var inb: ByteArrayInputStream = new ByteArrayInputStream( byte.buffer );
-							var bmp: ImageElement;
-							//var bmp: ImageElement = BmpImage.getImage( inb, true, byte.length );
-							throw new NonImplementatioError("BmpImage not yet implemented");
+							var bmp: ImageElement = BmpImage.getImage3( inb, true, byte.length );
 							
 							cb.saveState();
 							cb.rectangle( xDest, yDest, destWidth, destHeight );
