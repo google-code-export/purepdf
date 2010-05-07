@@ -100,6 +100,8 @@ package
 			class_list.push( FormWithTooltip );
 			class_list.push( NestingList );
 			class_list.push( VerticalTextExample );
+			class_list.push( WMFImage );
+			class_list.push( BitmapImageSample );
 			
 			total_number = class_list.length;
 		}

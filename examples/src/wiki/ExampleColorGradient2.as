@@ -21,18 +21,24 @@ package wiki
 	import flash.text.engine.TextLine;
 	import flash.utils.ByteArray;
 	
+	import org.purepdf.colors.GrayColor;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.pdf.PageSize;
 	import org.purepdf.pdf.PdfContentByte;
+	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfDocument;
+	import org.purepdf.pdf.PdfGState;
+	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfShading;
 	import org.purepdf.pdf.PdfShadingPattern;
+	import org.purepdf.pdf.PdfTemplate;
+	import org.purepdf.pdf.PdfTransparencyGroup;
 	import org.purepdf.pdf.PdfWriter;
 	
-	[SWF(frameRate="60",width="600",height="400")]
-	public class ExampleColorGradient extends Sprite
+	[SWF(frameRate="60",width="400",height="300")]
+	public class ExampleColorGradient2 extends Sprite
 	{
-		public function ExampleColorGradient()
+		public function ExampleColorGradient2()
 		{
 			super();
 			addEventListener( Event.ADDED_TO_STAGE, onAdded );
@@ -40,10 +46,10 @@ package wiki
 		
 		protected const SPRITE_W: Number = 250;
 		protected const SPRITE_H: Number = 150;
-		protected const STAGE_W: uint = 600;
-		protected const STAGE_H: uint = 400;
-		protected const GRADIENT_W: Number = SPRITE_W*2;
-		protected const GRADIENT_H: Number = SPRITE_H*2;
+		protected const STAGE_W: uint = 400;
+		protected const STAGE_H: uint = 300;
+		protected const GRADIENT_W: Number = SPRITE_W;
+		protected const GRADIENT_H: Number = SPRITE_H;
 		
 		protected var sprite: Sprite;
 		protected var frame: int = -1;
@@ -53,6 +59,7 @@ package wiki
 		protected var ratios: Array;
 		protected var gradient_rotation: Number = 0;
 		protected var gradient_rect: Rectangle = new Rectangle( 0, 0, GRADIENT_W, GRADIENT_H );
+		protected var text: TextField;
 		
 		protected var pair_x: Number;
 		protected var pair_y: Number;
@@ -60,10 +67,9 @@ package wiki
 		// pdf properties
 		private var cb_colors: Vector.<RGBColor> = new Vector.<RGBColor>();
 		private var cb_ratios: Vector.<Number> = new Vector.<Number>();
+		private var cb_alphas: Vector.<Number> = new Vector.<Number>();
 		
 		private var test_sprite: Sprite;
-		private var temp_sprite: Sprite;
-		
 		
 		protected function onAdded( event: Event ): void
 		{
@@ -76,19 +82,21 @@ package wiki
 			sprite.graphics.endFill();
 			
 			gradient_matrix = new Matrix();
-			colors = [ 0xFF0000, 0x0000FF, 0x00FF00 ];
-			alphas = [ 1, 1, 1 ];
-			ratios = [ 0, 127, 255 ];
+			colors = [ 0xFF0000, 0xFFFF00, 0x0000FF, 0xFF00FF, 0x00FF00 ];
+			alphas = [ 1, 1, 0, 1, 1 ];
+			ratios = [ 0, 63, 126, 186, 255 ];
 			
 			sprite.buttonMode = true;
 			sprite.addEventListener( MouseEvent.CLICK, onClick );
 			addChild( sprite );
 			
 			// pdf
+			
 			for( var k: int = 0; k < colors.length; ++k )
 			{
 				cb_colors[k] = RGBColor.fromARGB( 0xFFFFFFFF & colors[k] );
 				cb_ratios[k] = ratios[k]/255;
+				cb_alphas[k] = alphas[k];
 			}
 			
 			var msg_format: ElementFormat = new ElementFormat();
@@ -102,17 +110,18 @@ package wiki
 			
 			message_line.x = ( STAGE_W - message_line.width ) / 2;
 			message_line.y = message_line.height;
-			message_line.mouseChildren = false;
-			message_line.mouseEnabled = false;
 			addChild( message_line );
 			
 			test_sprite = new Sprite();
 			test_sprite.mouseEnabled = false;
 			addChild( test_sprite );
 			
-			temp_sprite = new Sprite();
-			temp_sprite.mouseEnabled = false;
-			addChild( temp_sprite );
+			// background
+			graphics.beginFill( 0xDDDDDD, 1 );
+			for( k = 0; k < STAGE_H; k += 20 )
+			{
+				graphics.drawRect( 0, k, STAGE_W, 1 );
+			}
 			
 			onEnterFrame( null );
 		}
@@ -123,7 +132,6 @@ package wiki
 			var matrix: Matrix = new Matrix();
 			matrix.identity();
 			matrix.translate( -SPRITE_W/2, -SPRITE_H/2 );
-			matrix.b = matrix.c = Math.sin( frame/100 );
 			matrix.rotate( radians( -frame/1.5 ) );
 			matrix.translate( (STAGE_W/2) + ( 100 * Math.sin( frame/100 )), (STAGE_H/2) + ( 75 * Math.cos( frame/100 ))  );
 			
@@ -160,56 +168,101 @@ package wiki
 		
 		private function save(): void
 		{
+			var k: int;
 			var buffer: ByteArray = new ByteArray();
 			var writer: PdfWriter = PdfWriter.create( buffer, PageSize.create( STAGE_W, STAGE_H ) );
 			var document: PdfDocument = writer.pdfDocument;
 			document.open();
 			var cb: PdfContentByte = document.getDirectContent();
-			
 			cb.setTransform( new Matrix( 1, 0, 0, -1, 0, STAGE_H ) );
-			cb.saveState();
-			cb.setTransform( sprite.transform.matrix );
 			
+			// background
+			cb.saveState();
+			cb.setFillColor( 0xDDDDDD );
+			for( k = 0; k < STAGE_H; k += 20 )
+			{
+				cb.rectangle( 0, k, STAGE_W, 1 );
+				cb.fill();
+			}
+			cb.resetFill();
+			cb.restoreState();
+
+			// Exract the gradient box for pdf
+			var box: Rectangle = gradient_rect.clone();
 			var matrix: Matrix = new Matrix();
 			matrix.translate( -GRADIENT_W/2, -GRADIENT_H/2 );
 			matrix.translate( -gradient_rect.x, -gradient_rect.y );
 			matrix.scale( pair_x, pair_y );
-			
-			var box: Rectangle = gradient_rect.clone();
 			matrix.concat( gradient_matrix );
 			matrix.concat( sprite.transform.matrix );
 			matrix.concat( new Matrix( 1, 0, 0, -1, 0, STAGE_H ) );
 			
-			var top_left: Point = box.topLeft.clone();
-			var top_right: Point = new Point( box.right, box.top );
-			var bottom_right: Point = box.bottomRight.clone();
-			var bottom_left: Point = new Point( box.left, box.bottom );
+			var top_left: Point 	= box.topLeft.clone();
+			var top_right: Point	= new Point( box.right, box.top );
+			var bottom_right: Point	= box.bottomRight.clone();
+			var bottom_left: Point	= new Point( box.left, box.bottom );
 			
-			//top_left = matrix.transformPoint( top_left );
-			//top_right = matrix.transformPoint( top_right );
-			//bottom_right = matrix.transformPoint( bottom_right );
-			//bottom_left = matrix.transformPoint( bottom_left );
+			/*top_left	= matrix.transformPoint( top_left );
+			top_right	= matrix.transformPoint( top_right );
+			bottom_right= matrix.transformPoint( bottom_right );
+			bottom_left	= matrix.transformPoint( bottom_left );*/
 			
-			draw_point( top_left );
-			draw_point( top_right );
+			cb.saveState();
+			cb.setTransform( sprite.transform.matrix );
 			
-			var shading: PdfShading = PdfShading.complexAxial( writer, top_left.x, top_left.y, top_right.x, top_right.y, cb_colors, cb_ratios, true, true );
-			var pattern: PdfShadingPattern = new PdfShadingPattern( shading );
-			pattern.matrix = matrix;
+			// Create the template first
+			var template: PdfTemplate = cb.createTemplate( GRADIENT_W, GRADIENT_H );
+			var transGroup: PdfTransparencyGroup = new PdfTransparencyGroup();
+			transGroup.put( PdfName.CS, PdfName.DEVICERGB );
+			transGroup.isolated = true;
+			transGroup.knockout = false;
+			template.group = transGroup;
 			
+			var gState: PdfGState = new PdfGState();
+			var maskDict: PdfDictionary = new PdfDictionary();
+			maskDict.put( PdfName.TYPE, PdfName.MASK );
+			maskDict.put( PdfName.S, new PdfName( "Luminosity" ) );
+			maskDict.put( new PdfName( "G" ), template.indirectReference );
+			gState.put( PdfName.SMASK, maskDict );
+			cb.setGState( gState );
+			
+			// ALPHA TEMPLATE
+			var matrix2: Matrix = new Matrix();
+			matrix2.translate( -GRADIENT_W/2, -GRADIENT_H/2 );
+			matrix2.scale( pair_x, pair_y );
+			matrix2.concat( gradient_matrix );
+			
+			var alphas: Vector.<GrayColor> = new Vector.<GrayColor>( cb_alphas.length, true );
+			for ( k = 0; k < cb_alphas.length; ++k )
+				alphas[k] = new GrayColor( cb_alphas[k] );
+			
+			var template_shading: PdfShading = PdfShading.complexAxial( cb.writer, 0, 0, GRADIENT_W, 0, Vector.<RGBColor>( alphas ), cb_ratios );
+			var template_pattern: PdfShadingPattern = new PdfShadingPattern( template_shading );
+			template_pattern.matrix = matrix2;
+			
+			template.rectangle( 0, 0, SPRITE_W, SPRITE_H );
+			template.setShadingFill( template_pattern );
+			template.fill();
+			
+			// CONTENT
+			var cb_shading: PdfShading = PdfShading.complexAxial( writer, top_left.x, top_left.y, top_right.x, top_right.y, cb_colors, cb_ratios, true, true );
+			var cb_pattern: PdfShadingPattern = new PdfShadingPattern( cb_shading );
+			cb_pattern.matrix = matrix;
+			
+			cb.setShadingFill( cb_pattern );
 			cb.roundRectangle( 0, 0, SPRITE_W, SPRITE_H, 5 );
-			cb.setShadingFill( pattern );
 			cb.fill();
-			cb.restoreState();
 			
+			cb.restoreState();
 			document.close();
 			
 			var f: FileReference = new FileReference();
-			f.save( buffer, "ExampleColorGradient.pdf" );			
+			f.save( buffer, "ExampleColorGradient2.pdf" );
 		}
 		
 		private function update(): void
 		{
+			return;
 			test_sprite.graphics.clear();
 			test_sprite.graphics.beginFill( 0, 0.1 );
 			test_sprite.graphics.drawRect( 0, 0, gradient_rect.width, gradient_rect.height );
@@ -217,7 +270,7 @@ package wiki
 			var matrix: Matrix = new Matrix();
 			matrix.translate( -GRADIENT_W/2, -GRADIENT_H/2 );
 			matrix.scale( pair_x, pair_y );
-			
+
 			var box: Rectangle = gradient_rect.clone();
 			
 			matrix.concat( gradient_matrix );
@@ -230,13 +283,6 @@ package wiki
 		public static function radians( degree: Number ): Number
 		{
 			return degree * ( Math.PI / 180 );
-		}
-		
-		public function draw_point( pt: Point ): void
-		{
-			var g: Graphics = temp_sprite.graphics;
-			g.beginFill( 0x000000, 1 );
-			g.drawCircle( pt.x, pt.y, 2 );
 		}
 	}
 }
