@@ -49,6 +49,7 @@ package org.purepdf.elements.images
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
+	import org.purepdf.codecs.BmpImage;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
@@ -794,6 +795,11 @@ package org.purepdf.elements.images
 			// WMF
 			if ( c1 == 0xD7 && c2 == 0xCD ) {
 				return new ImageWMF( buffer );
+			}
+			
+			if( c1 == 'B'.charCodeAt(0) && c2 == 'M'.charCodeAt(0) )
+			{
+				return BmpImage.getImage( buffer );
 			}
 
 			throw new Error( "byte array is not a recognized image format" );

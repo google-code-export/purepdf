@@ -54,5 +54,6 @@ package org.purepdf.io
 		function get position(): int;
 		function get available(): int;
 		function skip( n: Number ): Number;
+		function get bytearray(): ByteArray;
 	}
 }

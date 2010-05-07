@@ -80,6 +80,11 @@ package org.purepdf.io
 		{
 			return count - pos;
 		}
+		
+		public function get bytearray(): ByteArray
+		{
+			return buf;
+		}
 
 		public function readBytes( b: ByteArray, off: int, len: int ): int
 		{
