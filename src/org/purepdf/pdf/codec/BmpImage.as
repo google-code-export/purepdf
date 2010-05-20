@@ -1,4 +1,4 @@
-package org.purepdf.codecs
+package org.purepdf.pdf.codec
 {
 	import flash.errors.IOError;
 	import flash.utils.ByteArray;

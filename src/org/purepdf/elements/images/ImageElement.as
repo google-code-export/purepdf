@@ -49,7 +49,7 @@ package org.purepdf.elements.images
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
-	import org.purepdf.codecs.BmpImage;
+	import org.purepdf.pdf.codec.BmpImage;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
