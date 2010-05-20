@@ -49,7 +49,7 @@ package org.purepdf.codecs.wmf
 	import flash.geom.Point;
 	import flash.utils.ByteArray;
 	
-	import org.purepdf.codecs.BmpImage;
+	import org.purepdf.pdf.codec.BmpImage;
 	import org.purepdf.codecs.wmf.InputMeta;
 	import org.purepdf.codecs.wmf.MetaState;
 	import org.purepdf.colors.RGBColor;
