@@ -8,7 +8,9 @@ package test_reader
 	import flash.utils.ByteArray;
 	
 	import it.sephiroth.utils.HashMap;
+	import it.sephiroth.utils.collections.iterators.Iterator;
 	
+	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfReader;
 	import org.purepdf.pdf.SimpleBookmark;
 
@@ -45,6 +47,22 @@ package test_reader
 			{
 				showBookmark( list[k], 0 );
 			}
+			
+			trace( "=== Document Info ===" );
+			var map: HashMap = reader.getInfo();
+			for( var iterator: Iterator = map.keySet().iterator(); iterator.hasNext(); )
+			{
+				var key: String = iterator.next();
+				trace( key + ": " + map.getValue( key ) );
+			}
+			
+			trace( "=== Document info (no loop) ===");
+			
+			// In order to get the document metadata
+			// informations without a loop
+			trace( "Author: " + map.getValue( "Author" ) );
+			trace( "Creator: " + map.getValue( "Creator" ) );
+			trace( "Title: " + map.getValue( "Title" ) );
 		}
 
 		protected static function showBookmark( bookmark: HashMap, indent: int ): void
