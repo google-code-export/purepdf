@@ -5,6 +5,9 @@
 
 This page contains all the recent project changes and updates
 
+=== 05.27.2010 ===
+  * Added getInfo method to PdfReader. Retrieve pdf metadata informations
+
 === 06.05.2010 ===
   * Added support for BMP files. See [http://code.google.com/p/purepdf/source/browse/examples/src/BitmapImageSample.as BitmapImageSample.as]
 
