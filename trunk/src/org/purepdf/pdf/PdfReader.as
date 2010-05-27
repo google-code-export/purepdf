@@ -365,6 +365,42 @@ package org.purepdf.pdf
 		{
 			lastXrefPartial = -1;
 		}
+		
+		/** 
+		 * Returns the content of the document information dictionary as a HashMap
+		 * of String.
+		 * @return content of the document information dictionary
+		 */
+		public function getInfo(): HashMap
+		{
+			var map: HashMap = new HashMap();
+			var info: PdfDictionary = trailer.getAsDict( PdfName.INFO );
+			if (info == null)
+				return map;
+			
+			var iterator: Iterator = info.getKeys().iterator();
+			while( iterator.hasNext() )
+			{
+				var key: PdfName = PdfName( iterator.next() );
+				var obj: PdfObject = PdfReader.getPdfObject( info.getValue( key ) );
+				if (obj == null)
+					continue;
+				
+				var value: String = obj.toString();
+				switch( obj.getType() )
+				{
+					case PdfObject.STRING:
+						value = PdfString(obj).toUnicodeString();
+						break;
+					
+					case PdfObject.NAME:
+						value = PdfName.decodeName( value );
+						break;
+				}
+				map.put( PdfName.decodeName( key.toString() ), value );
+			}
+			return map;
+		}
 
 		/**
 		 * Eliminates shared streams if they exist.

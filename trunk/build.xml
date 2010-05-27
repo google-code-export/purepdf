@@ -15,6 +15,7 @@
 		<antcall target="update-version"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
 		<antcall target="compile-fonts"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
 		<antcall target="compile"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
+		<antcall target="asdoc"></antcall>
 		<antcall target="create-zip"><param name="build.number" value="${build.number}"/><param name="tdate" value="${tdate}"/></antcall>
 	</target>
 	
@@ -103,14 +104,19 @@
 	</target>
 	
 	<target name="create-zip">
-		<zip destfile="${output_dir}/purePDF_0.${build.number}.${tdate}.zip" basedir="${output_dir}" includes="**/*.swc">
-		</zip>
+		<zip destfile="${output_dir}/purePDF_0.${build.number}.${tdate}.zip" basedir="${output_dir}" includes="**/*.swc" />
+		<zip destfile="${output_dir}/asdoc-output.zip" basedir="asdoc-output" includes="**/*.*" />
 	</target>
 
 	<target name="clean">
 		<delete>
 			<fileset dir="bin">
 				<include name="*.swc" />
+			</fileset>
+		</delete>
+		<delete>
+			<fileset dir="asdoc-output">
+				<include name="*.*" />
 			</fileset>
 		</delete>
 	</target>
