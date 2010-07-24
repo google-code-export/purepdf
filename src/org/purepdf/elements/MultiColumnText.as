@@ -97,9 +97,9 @@ package org.purepdf.elements
 		internal function getColumnBottom(): Number
 		{
 			if( _desiredHeight == AUTOMATIC )
-				return document.bottom();
+				return document.bottom;
 			else
-				return Math.max( top - ( _desiredHeight - totalHeight ), document.bottom() );
+				return Math.max(  - ( _desiredHeight - totalHeight ), document.bottom );
 		}
 		
 		/**
@@ -305,9 +305,9 @@ package org.purepdf.elements
 					var left: Vector.<Number> = currentDef.resolvePositions( RectangleElement.LEFT );
 					var right: Vector.<Number> = currentDef.resolvePositions( RectangleElement.RIGHT );
 					
-					if( document.marginMirroring && document.pageNumber % 2 == 0 )
+					if( document.isMarginMirroring() && document.pageNumber % 2 == 0 )
 					{
-						var delta: Number = document.marginRight - document.left();
+						var delta: Number = document.rightMargin() - document.left;
 						var i: int;
 						left = left.concat();
 						right = right.concat();
