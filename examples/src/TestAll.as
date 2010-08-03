@@ -102,6 +102,8 @@ package
 			class_list.push( VerticalTextExample );
 			class_list.push( WMFImage );
 			class_list.push( BitmapImageSample );
+			class_list.push( KoreanNotEmbed );
+			class_list.push( KoreanEmbed );
 			
 			total_number = class_list.length;
 		}
