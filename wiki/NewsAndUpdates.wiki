@@ -5,6 +5,9 @@
 
 This page contains all the recent project changes and updates
 
+=== 08.03.2010 ===
+  * Added 2 examples for displaying korean chars
+
 === 05.27.2010 ===
   * Added getInfo method to PdfReader. Retrieve pdf metadata informations
 
