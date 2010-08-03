@@ -98,3 +98,5 @@ Here's the complete list of available examples:
   # [http://code.google.com/p/purepdf/source/browse/examples/src/test_reader/ExtractImages.as ExtractImages.as] Extract images from a pdf file
   # [http://code.google.com/p/purepdf/source/browse/examples/src/WMFImage.as WMFImage.as] Include a Windows metafile WMF into pdf document
   # [http://code.google.com/p/purepdf/source/browse/examples/src/BitmapImageSample.as BitmapImageSample.as] Import BMP images
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/KoreanEmbed.as KoreanEmbed.as] Embed a font with Korean chars
+  # [http://code.google.com/p/purepdf/source/browse/examples/src/KoreanNotEmbed.as KoreanNotEmbed.as] Use one of the built-in fonts to display korean chars
