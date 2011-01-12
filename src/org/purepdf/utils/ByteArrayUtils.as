@@ -48,6 +48,7 @@ package org.purepdf.utils
 	import flash.utils.ByteArray;
 	
 	import org.purepdf.pdf.PdfObject;
+	import org.purepdf.pdf.fonts.BaseFont;
 	import org.purepdf.pdf.fonts.CJKFont;
 
 	public class ByteArrayUtils
@@ -55,9 +56,13 @@ package org.purepdf.utils
 		
 		public static function getEncoding( enc: String ): String
 		{
-			if( enc == CJKFont.CJK_ENCODING )
+			switch( enc )
 			{
-				return "unicodeFFFE";
+				case CJKFont.CJK_ENCODING:
+					return "unicodeFFFE";
+					
+				case BaseFont.UniKS_UCS2_H:
+					return "ks_c_5601-1987";
 			}
 			
 			trace('encoding ' + enc + ' not found');

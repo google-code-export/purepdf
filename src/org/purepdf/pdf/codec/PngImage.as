@@ -185,6 +185,7 @@ package org.purepdf.pdf.codec
 			var bb: Bytes = new Bytes();
 			bb.buffer = idat.getBuffer();
 			var bai: ByteArrayInputStream = new ByteArrayInputStream( idat.getBuffer(), 0, idat.getBuffer().length );
+			
 			var infStream: InputStream = new InflaterInputStream( bai );
 			dataStream = new DataInputStream( infStream );
 
@@ -213,6 +214,7 @@ package org.purepdf.pdf.codec
 			var bytesPerRow: int = ( inputBands * passWidth * bitDepth + 7 ) / 8;
 			var curr: Bytes = new Bytes( bytesPerRow );
 			var prior: Bytes = new Bytes( bytesPerRow );
+			
 			var srcY: int, dstY: int;
 
 			for ( srcY = 0, dstY = yOffset; srcY < passHeight; srcY++, dstY += yStep )
@@ -494,7 +496,6 @@ package org.purepdf.pdf.codec
 
 		private function processPixels( curr: Bytes, xOffset: int, step: int, y: int, width: int ): void
 		{
-			//trace('processPixels', y );
 			var srcX: int;
 			var dstX: int;
 			var out: Vector.<int> = this.getPixel( curr );
@@ -503,7 +504,7 @@ package org.purepdf.pdf.codec
 			var k: int;
 			var v: Vector.<int>;
 			var idx: int;
-
+			
 			switch ( colorType )
 			{
 				case 0:
@@ -516,7 +517,7 @@ package org.purepdf.pdf.codec
 					sizes = 3;
 					break;
 			}
-
+			
 			if ( image != null )
 			{
 				dstX = xOffset;
@@ -528,7 +529,7 @@ package org.purepdf.pdf.codec
 					dstX += step;
 				}
 			}
-
+			
 			if ( palShades )
 			{
 				if ( ( colorType & 4 ) != 0 )
@@ -635,7 +636,6 @@ package org.purepdf.pdf.codec
 			{
 				var len: int = getInt( ins );
 				
-				//trace( len, ins.position );
 				var marker: String = getString( ins );
 
 				if ( len < 0 || !checkMarker( marker ) )
@@ -979,6 +979,19 @@ package org.purepdf.pdf.codec
 			{
 				return c;
 			}
+		}
+		
+		private static function bytesToString( b: Bytes, len: int ): String
+		{
+			var s: String = "[";
+			for ( var k: int = 0; k < len; ++k )
+			{
+				s += b[k];
+				if( k < len - 1 )
+					s += ",";
+			}
+			s += "]";
+			return s;
 		}
 	}
 }

@@ -318,6 +318,14 @@ package org.purepdf.pdf
 			else if( encoding == PdfObject.TEXT_PDFDOCENCODING )
 				ch = pdfEncodingByteToChar;
 			
+			var extra: ExtraEncoding = extraEncodings.getValue( encoding.toLowerCase() ) as ExtraEncoding;
+			if (extra != null) 
+			{
+				var text: String = extra.byteToChar( bytes, encoding );
+				if( text != null )
+					return text;
+			}
+			
 			if( ch != null ){
 				var len: int = bytes.length;
 				c = "";
