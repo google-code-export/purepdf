@@ -59,6 +59,10 @@ package org.purepdf.io.zip
 
 	public class InflaterInputStream extends FilterInputStream
 	{
+		// track the current input index
+		// this fixed the bug with transparent PNG images
+		private var next_index: int;
+		
 		protected var buf: Bytes;
 		protected var c_stream: ZStream;
 		protected var len: int;
@@ -81,6 +85,7 @@ package org.purepdf.io.zip
 			else if ( size <= 0 )
 				throw new IllegalOperationError( "buffer size <= 0" );
 			
+			next_index = 0;
 			buf = new Bytes( size );
 			stream.readBytes( buf.buffer, 0, size );
 			
@@ -105,10 +110,12 @@ package org.purepdf.io.zip
 			
 			c_stream.avail_in = buf.length;
 			c_stream.avail_out = len;
-			c_stream.next_in_index = 0;
+			c_stream.next_in_index = next_index;
 			c_stream.next_out_index = 0;
 			c_stream.next_out = b;
+			
 			var err: int = c_stream.inflate( FZlib.Z_NO_FLUSH );
+			next_index = c_stream.next_in_index;
 			CHECK_ERR( c_stream, err, c_stream.msg );
 			
 			return c_stream.total_out;
@@ -120,11 +127,12 @@ package org.purepdf.io.zip
 			
 			c_stream.avail_in = buf.length;
 			c_stream.avail_out = 1;
-			c_stream.next_in_index = 0;
+			c_stream.next_in_index = next_index;
 			c_stream.next_out_index = 0;
 			c_stream.next_out = singleByteBuf;
 			var err: int = c_stream.inflate( FZlib.Z_NO_FLUSH );
 			CHECK_ERR( c_stream, err, c_stream.msg );
+			next_index = c_stream.next_in_index;
 			
 			return c_stream.total_out == 0 ? -1 : singleByteBuf[ 0 ] & 0xFF;
 		}

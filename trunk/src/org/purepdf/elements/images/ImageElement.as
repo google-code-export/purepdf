@@ -44,12 +44,13 @@
 */
 package org.purepdf.elements.images
 {
+	import com.adobe.images.PNGEncoder;
+	
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	
-	import org.purepdf.pdf.codec.BmpImage;
 	import org.purepdf.codecs.TIFFEncoder;
 	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.Element;
@@ -61,6 +62,7 @@ package org.purepdf.elements.images
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfStream;
 	import org.purepdf.pdf.PdfTemplate;
+	import org.purepdf.pdf.codec.BmpImage;
 	import org.purepdf.pdf.codec.GifImage;
 	import org.purepdf.pdf.codec.PngImage;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
@@ -695,14 +697,28 @@ package org.purepdf.elements.images
 		 * The image will be encoded using a TIFF encoder and compressed
 		 * into a raw bytearray
 		 */
-		public static function getBitmapDataInstance( data: BitmapData ): ImageElement
+		public static function getBitmapDataInstance( data: BitmapData, has_alpha: Boolean = true ): ImageElement
 		{
-			var tiff: ByteArray = TIFFEncoder.encode( data );
-			var bytes: ByteArray = new ByteArray();
-			bytes.writeBytes( tiff, TIFFEncoder.DATA_OFFSET, tiff.length - TIFFEncoder.DATA_OFFSET );
-			bytes.compress();
-			var img: ImageElement = ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
-			img.deflated = true;
+			var bytes: ByteArray;
+			var img: ImageElement;
+			
+			if( has_alpha ){
+				bytes = PNGEncoder.encode( data );
+				
+				bytes.position = 0;
+				
+				img = ImageElement.getInstance( bytes );
+				
+			} else {
+				var tiff: ByteArray = TIFFEncoder.encode( data );
+				bytes = new ByteArray();
+				bytes.writeBytes( tiff, TIFFEncoder.DATA_OFFSET, tiff.length - TIFFEncoder.DATA_OFFSET );
+				bytes.compress();
+				
+				img = ImageElement.getRawInstance( data.width, data.height, 3, 8, bytes );
+				img.deflated = true;
+			}
+			
 			return img;
 		}
 		

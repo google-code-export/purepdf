@@ -60,5 +60,10 @@ package org.purepdf.pdf.encoding
 			b.writeMultiByte( text, "IBM437" );
 			return new Bytes( b );
 		}
+		
+		public function byteToChar( b: Bytes, encoding: String ): String
+		{
+			return b.buffer.readMultiByte( b.buffer.length, "IBM437" );
+		}
 	}
 }

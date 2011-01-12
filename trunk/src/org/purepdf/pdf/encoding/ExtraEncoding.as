@@ -49,5 +49,6 @@ package org.purepdf.pdf.encoding
 	public interface ExtraEncoding
 	{
 		function charToByte( text: String, encoding: String ): Bytes;
+		function byteToChar( b: Bytes, encoding: String ): String;
 	}
 }
