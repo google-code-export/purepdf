@@ -6,7 +6,7 @@
 This page contains all the recent project changes and updates
 
 === 01.12.2011 ===
-* Fixed png transparency
+  * Fixed png transparency
 
 === 08.03.2010 ===
   * Added 2 examples for displaying korean chars
