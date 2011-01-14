@@ -726,7 +726,7 @@ package org.purepdf.pdf.codec
 
 						while ( ( len-- ) > 0 )
 						{
-							colortable.pdf_core::append_i( ins.readUnsignedByte() );
+							colortable.pdf_core::append_int( ins.readUnsignedByte() );
 						}
 						colorspace.add( new PdfString( colorTable = colortable.toByteArray() ) );
 						additional.put( PdfName.COLORSPACE, colorspace );
