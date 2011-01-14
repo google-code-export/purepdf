@@ -285,7 +285,7 @@ package org.purepdf.pdf
 
 			if ( an == null )
 				return;
-			throw new NonImplementatioError();
+			addAnnotation( an );
 		}
 
 		/**

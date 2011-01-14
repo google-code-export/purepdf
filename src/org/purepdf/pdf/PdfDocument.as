@@ -57,6 +57,7 @@ package org.purepdf.pdf
 	import org.purepdf.Font;
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Anchor;
+	import org.purepdf.elements.Annotation;
 	import org.purepdf.elements.ChapterAutoNumber;
 	import org.purepdf.elements.Chunk;
 	import org.purepdf.elements.Element;
@@ -328,6 +329,24 @@ package org.purepdf.pdf
 					indentation.indentRight -= paragraph.indentationRight;
 					carriageReturn();
 					leadingCount--;
+					break;
+				
+				case Element.ANNOTATION:
+					if( line == null ) 
+						carriageReturn();
+					
+					var annot: Annotation = element as Annotation;
+					var rect: RectangleElement = new RectangleElement( 0, 0, 0, 0 );
+					if (line != null)
+						rect = new RectangleElement( 
+							annot.getLlx( indentRight - line.widthLeft ), 
+							annot.getUry(indentTop - currentHeight - 20), 
+							annot.getUrx(indentRight - line.widthLeft + 20), 
+							annot.getLly(indentTop - currentHeight));
+					
+					var an: PdfAnnotation = PdfAnnotationsImp.convertAnnotation( writer, annot, rect );
+					annotationsImp.addPlainAnnotation( an );
+					pageEmpty = false;
 					break;
 
 				case Element.PHRASE:
