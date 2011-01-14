@@ -73,6 +73,15 @@ package org.purepdf.pdf
 			action.put( PdfName.D, destination );
 			return action;
 		}
+		
+		public static function fromFileDestination( filename: String, name: String ): PdfAction
+		{
+			var action: PdfAction = new PdfAction();
+			action.put( PdfName.S, PdfName.GOTOR );
+			action.put( PdfName.F, new PdfString( filename ) );
+			action.put( PdfName.D, new PdfString( name ) );
+			return action;
+		}
 
 		/**
 		 * Creates a new PDfAction from a named action

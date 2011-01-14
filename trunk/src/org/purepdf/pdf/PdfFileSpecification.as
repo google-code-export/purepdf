@@ -90,10 +90,31 @@ package org.purepdf.pdf
 		{
 			put( PdfName.UF, new PdfString( filename, unicode ? PdfObject.TEXT_UNICODE : PdfObject.TEXT_PDFDOCENCODING ) );
 		}
+		
+		
+		/**
+		 * Creates a file specification for an external file.
+		 * @param writer the <CODE>PdfWriter</CODE>
+		 * @param filePath the file path
+		 * @return the file specification
+		 */
+		public static function fileExtern( writer: PdfWriter, filePath: String ): PdfFileSpecification
+		{
+			var fs: PdfFileSpecification = new PdfFileSpecification();
+			fs.writer = writer;
+			fs.put( PdfName.F, new PdfString( filePath ) );
+			fs.setUnicodeFileName( filePath, false );
+			return fs;
+		}
 
 		public static function fileEmbedded( writer: PdfWriter, fileDisplay: String, fileStore: ByteArray, compress: Boolean, mimeType: String = null, fileParameter: PdfDictionary = null ): PdfFileSpecification
 		{
 			return _fileEmbedded( writer, fileDisplay, fileStore, mimeType, fileParameter, compress ? PdfStream.BEST_COMPRESSION : PdfStream.NO_COMPRESSION );
+		}
+		
+		public static function fileEmbedded2( writer: PdfWriter, filePath: String, fileStore: ByteArray ): PdfFileSpecification
+		{
+			return fileEmbedded( writer, filePath, fileStore, true );
 		}
 
 		private static function _fileEmbedded( writer: PdfWriter, fileDisplay: String, fileStore: ByteArray, mimeType: String, fileParameter: PdfDictionary, compressionLevel: int ): PdfFileSpecification

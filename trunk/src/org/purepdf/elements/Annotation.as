@@ -81,37 +81,23 @@ package org.purepdf.elements
 		protected var _lly: Number = NaN;
 		protected var _urx: Number = NaN;
 		protected var _ury: Number = NaN;
-
-		public function Annotation( ... rest: Array )
+		
+		public function Annotation( annot: Annotation = null )
 		{
-			super();
-
-			if ( rest && rest.length > 0 )
+			if( annot != null )
 			{
-				if ( rest[ 0 ] is Annotation )
-				{
-					var an: Annotation = Annotation( rest[ 0 ] );
-					_annotationtype = an._annotationtype;
-					_annotationAttributes = an._annotationAttributes;
-					_llx = an.llx;
-					_lly = an.lly;
-					_urx = an.urx;
-					_ury = an.ury;
-				}
-				else if ( rest[ 0 ] is Number )
-				{
-					_llx = rest[ 0 ];
-					_lly = rest[ 1 ];
-					_urx = rest[ 2 ];
-					_ury = rest[ 3 ];
-				}
-				else if ( rest[ 0 ] is String )
-				{
-					_annotationtype = TEXT;
-					_annotationAttributes.put( PdfName.TITLE, rest[ 0 ] );
-					_annotationAttributes.put( PdfName.CONTENT, rest[ 1 ] );
-				}
+				_annotationtype = annot._annotationtype;
+				_annotationAttributes = annot._annotationAttributes;
+				init( annot.llx, annot.llx, annot.urx, annot.ury );
 			}
+		}
+		
+		protected function init( lx: Number, ly: Number, ux: Number, uy: Number ): void
+		{
+			_llx = lx;
+			_lly = ly;
+			_urx = ux;
+			_ury = uy;
 		}
 		
 		public function process( listener: IElementListener ): Boolean
@@ -169,6 +155,34 @@ package org.purepdf.elements
 		{
 			return _lly;
 		}
+		
+		public function getLlx( def: Number ): Number
+		{
+			if( isNaN( _llx ) )
+				return def;
+			return _llx;
+		}
+		
+		public function getLly( def: Number ): Number
+		{
+			if( isNaN( _lly ) )
+				return def;
+			return _lly;
+		}
+		
+		public function getUrx( def: Number ): Number
+		{
+			if( isNaN( _urx ) )
+				return def;
+			return _urx;
+		}
+		
+		public function getUry( def: Number ): Number
+		{
+			if( isNaN( _ury ) )
+				return def;
+			return _ury;
+		}
 
 		public function setDimensions( $llx: Number, $lly: Number, $urx: Number, $ury: Number ): void
 		{
@@ -186,6 +200,30 @@ package org.purepdf.elements
 		public function get ury(): Number
 		{
 			return _ury;
+		}
+		
+		/**
+		 * Returns the title of this <CODE>Annotation</CODE>.
+		 * @return a name
+		 */
+		public function get title(): String
+		{
+			var s: Object = _annotationAttributes.getValue( TITLE );
+			if( s == null )
+				return "";
+			return s.toString();
+		}
+		
+		/**
+		 * Gets the content of this <CODE>Annotation</CODE>.
+		 * @return a reference
+		 */
+		public function get content(): String
+		{
+			var s: Object = _annotationAttributes.getValue( CONTENT );
+			if( s == null )
+				return "";
+			return s.toString();
 		}
 	}
 }

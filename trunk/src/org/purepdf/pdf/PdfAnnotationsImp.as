@@ -44,6 +44,8 @@
 */
 package org.purepdf.pdf
 {
+	import flash.geom.Rectangle;
+	
 	import it.sephiroth.utils.HashMap;
 	import it.sephiroth.utils.ObjectHash;
 	
@@ -114,7 +116,40 @@ package org.purepdf.pdf
 		
 		internal static function convertAnnotation( writer: PdfWriter, annot: Annotation, defaultRect: RectangleElement ): PdfAnnotation
 		{
-			throw new NonImplementatioError();
+			var rect: RectangleElement;
+			
+			switch( annot.annotationtype ) {
+				case Annotation.URL_AS_STRING:
+					rect = new RectangleElement( annot.llx, annot.lly, annot.urx, annot.ury );
+					return new PdfAnnotation(writer, rect, PdfAction.fromURL( annot.attributes.getValue( Annotation.FILE ).toString(), false ) );
+				
+				case Annotation.FILE_DEST:
+					rect = new RectangleElement( annot.llx, annot.lly, annot.urx, annot.ury );
+					return PdfAnnotation.createAction( writer, rect, PdfAction.fromFileDestination( annot.attributes.getValue( Annotation.FILE ).toString(), annot.attributes.getValue( Annotation.DESTINATION ).toString() ) );					
+					
+				case Annotation.NAMED_DEST:
+					rect = new RectangleElement( annot.llx, annot.lly, annot.urx, annot.ury );
+					return new PdfAnnotation( writer, rect, PdfAction.fromNamed( int(annot.attributes.getValue( Annotation.NAMED ) ) ) );
+					
+				case Annotation.SCREEN:
+					var sparams: Vector.<Boolean> = Vector.<Boolean>( annot.attributes.getValue( Annotation.PARAMETERS ) );
+					var fname: String = annot.attributes.getValue( Annotation.FILE ).toString();
+					var mimetype: String = annot.attributes.getValue( Annotation.MIMETYPE ).toString();
+					
+					var fs: PdfFileSpecification;
+					
+					if( sparams[0] )
+						fs = PdfFileSpecification.fileEmbedded2( writer, fname, null );
+					else
+						fs = PdfFileSpecification.fileExtern(writer, fname);
+					
+					rect = new RectangleElement( annot.llx, annot.lly, annot.urx, annot.ury );
+					var ann: PdfAnnotation = PdfAnnotation.createScreen( writer, rect, fname, fs, mimetype, sparams[1] );
+					return ann;
+					
+				default:
+					return PdfAnnotation.createText( writer, new RectangleElement( defaultRect.getLeft(), defaultRect.getBottom(), defaultRect.getRight(), defaultRect.getTop() ), annot.title, annot.content, false, null );
+			}
 		}
 		
 		public function hasValidAcroForm(): Boolean
