@@ -35,6 +35,8 @@ package
 			class_list.push( ShadingMultipleColors );
 			class_list.push( ShadingGradientTransparency );
 			class_list.push( SimpleAnnotation );
+			class_list.push( SimpleAnnotation2 );
+			class_list.push( ImageAnnotation );
 			class_list.push( SlideShow );
 			class_list.push( ViewerExample );
 			class_list.push( HelloWorld );
