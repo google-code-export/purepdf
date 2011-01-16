@@ -5,7 +5,6 @@ package
 	
 	import org.purepdf.colors.RGBColor;
 	import org.purepdf.elements.Annotation;
-	import org.purepdf.elements.AnnotationUrl;
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.elements.images.ImageElement;
 
@@ -28,7 +27,7 @@ package
 			document.open();
 			
 			var image: ImageElement = ImageElement.getInstance( new cls1() as ByteArray );
-			var annot: AnnotationUrl = new AnnotationUrl( "http://blog.sephiroth.it" );
+			var annot: Annotation = Annotation.createUrl( "http://blog.sephiroth.it" );
 			annot.setDimensions( 0, 0, 100, 100 );
 			
 			image.annotation = annot;

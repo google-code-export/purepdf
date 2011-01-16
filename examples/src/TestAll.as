@@ -20,13 +20,14 @@ package
 		public function TestAll()
 		{
 			super();
-
+			
 			class_list.push( AnimatedGif );
 			class_list.push( ClippingPath );
 			class_list.push( DrawingPaths );
 			class_list.push( GraphicState );
 			class_list.push( ImageTypes );
 			class_list.push( Transparency );
+			class_list.push( BitmapDataTransparency );
 			class_list.push( Layers );
 			class_list.push( LineStyles );
 			class_list.push( Patterns );
