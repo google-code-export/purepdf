@@ -7,6 +7,7 @@ This page contains all the recent project changes and updates
 
 === 01.12.2011 ===
   * Fixed png transparency
+  * Added [http://code.google.com/p/purepdf/source/browse/examples/src/BitmapDataTransparency.as BitmapDataTransparency.as] example to shows how to embed a BitmapData with transparency into a pdf document
 
 === 08.03.2010 ===
   * Added 2 examples for displaying korean chars
