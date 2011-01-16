@@ -88,16 +88,8 @@ package org.purepdf.elements
 			{
 				_annotationtype = annot._annotationtype;
 				_annotationAttributes = annot._annotationAttributes;
-				init( annot.llx, annot.llx, annot.urx, annot.ury );
+				setDimensions( annot.llx, annot.llx, annot.urx, annot.ury );
 			}
-		}
-		
-		protected function init( lx: Number, ly: Number, ux: Number, uy: Number ): void
-		{
-			_llx = lx;
-			_lly = ly;
-			_urx = ux;
-			_ury = uy;
 		}
 		
 		public function process( listener: IElementListener ): Boolean
@@ -225,5 +217,77 @@ package org.purepdf.elements
 				return "";
 			return s.toString();
 		}
+		
+		
+		// 
+		// STATIC Initializers
+		//
+		
+		/**
+		 * Creates a Screen annotation to embed media clips
+		 * 
+		 * @param moviePath
+		 *            path to the media clip file
+		 * @param mimeType
+		 *            mime type of the media
+		 * @param showOnDisplay
+		 *            if true play on display of the page
+		 */
+		public static function createScreen( moviePath: String, mimeType: String, showOnDisplay: Boolean ): Annotation
+		{
+			var annot: Annotation = new Annotation( null );
+			annot._annotationtype = SCREEN;
+			annot._annotationAttributes.put( FILE, moviePath );
+			annot._annotationAttributes.put( MIMETYPE, mimeType );
+			annot._annotationAttributes.put( PARAMETERS, Vector.<Boolean>( [ false /* embedded */, showOnDisplay ] ) );
+			return annot;
+		}
+		
+		/**
+		 * Constructs an <CODE>Annotation</CODE>.
+		 * 
+		 * @param named
+		 *            a named destination in this file
+		 */
+		public static function createNamed( named: int ): Annotation
+		{
+			var annot: Annotation = new Annotation( null );
+			annot._annotationtype = NAMED_DEST;
+			annot._annotationAttributes.put( NAMED, named );
+			return annot;
+		}
+		
+		/**
+		 * Constructs an <CODE>Annotation</CODE> with a certain title and some
+		 * text.
+		 * 
+		 * @param title
+		 *            the title of the annotation
+		 * @param text
+		 *            the content of the annotation
+		 */
+		public static function createString( title: String, content: String ): Annotation
+		{
+			var annot: Annotation = new Annotation(null);
+			annot._annotationtype = TEXT;
+			annot._annotationAttributes.put( TITLE, title );
+			annot._annotationAttributes.put( CONTENT, content );
+			return annot;
+		}
+		
+		/**
+		 * Constructs an <CODE>Annotation</CODE>.
+		 * 
+		 * @param url
+		 *            the external reference
+		 */
+		public static function createUrl( url: String ): Annotation
+		{
+			var annot: Annotation = new Annotation(null);
+			annot._annotationtype = URL_AS_STRING;
+			annot._annotationAttributes.put( FILE, url );
+			return annot;
+		}
+		
 	}
 }
