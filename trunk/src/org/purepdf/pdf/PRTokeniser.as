@@ -116,7 +116,7 @@ package org.purepdf.pdf
 			return file;
 		}
 
-		public function getFilePointer(): int
+		public function getFilePointer(): uint
 		{
 			return file.getFilePointer();
 		}
@@ -413,7 +413,7 @@ package org.purepdf.pdf
 			var level: int = 0;
 			var n1: String = null;
 			var n2: String = null;
-			var ptr: int = 0;
+			var ptr: uint = 0;
 			while ( nextToken() )
 			{
 				if ( type == TK_COMMENT )
@@ -472,9 +472,9 @@ package org.purepdf.pdf
 		{
 			var c: int = -1;
 			var eol: Boolean = false;
-			var ptr: int = 0;
-			var len: int = input.length;
-			var cur: int;
+			var ptr: uint = 0;
+			var len: uint = input.length;
+			var cur: uint;
 			if ( ptr < len )
 			{
 				while ( isWhitespace( ( c = readInt() ) ) )

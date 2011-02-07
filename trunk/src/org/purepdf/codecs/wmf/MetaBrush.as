@@ -4,10 +4,10 @@
  * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
  * |   __||_____||__|  |_____||___|  |_____/|___|
  * |__|
- * $Id: ImageElement.as 251 2010-02-02 19:31:26Z alessandro.crugnola $
+ * $Id$
  * $Author Alessandro Crugnola $
- * $Rev: 251 $ $LastChangedDate: 2010-02-02 20:31:26 +0100 (Tue, 02 Feb 2010) $
- * $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/elements/images/ImageElement.as $
+ * $Rev$ $LastChangedDate$
+ * $URL$
  *
  * The contents of this file are subject to  LGPL license
  * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the

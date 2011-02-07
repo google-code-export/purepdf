@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: TIFFEncoder.as 251 2010-02-02 19:31:26Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 251 $ $LastChangedDate: 2010-02-02 20:31:26 +0100 (Tue, 02 Feb 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/codecs/TIFFEncoder.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -42,31 +42,14 @@
 * http://code.google.com/p/purepdf
 *
 */
-package org.purepdf.utils
+package org.purepdf.errors
 {
-	public class FloatUtils
-	{
-		private static const EXP_BIT_MASK: int = 2139095040;
-		private static const SIGNIF_BIT_MASK: int = 8388607;
-		
-		/**
-		 * Returns a representation of the specified floating-point value
-		 * according to the IEEE 754 floating-point "single format" bit
-		 * layout.
-	 	 */
-		public static function floatToIntBits( value: Number ): int
-		{
-			var result: int = AlchemyUtils.getLib().floatToRawIntBits( value );
 
-			if ( ( ( result & EXP_BIT_MASK ) == EXP_BIT_MASK ) && ( result & SIGNIF_BIT_MASK ) != 0 )
-				result = 0x7fc00000;
-			return result;
-		}
-		
-		public static function intBitsToFloat( value: int ): Number
+	public class IllegalArgumentError extends Error
+	{
+		public function IllegalArgumentError(message:* = "", id:* = 0)
 		{
-			var result: Number = AlchemyUtils.getLib().intBitsToFloat( value );
-			return result;
+			super(message, id);
 		}
 	}
 }

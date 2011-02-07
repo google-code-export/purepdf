@@ -58,6 +58,7 @@ package org.purepdf.elements.images
 	import org.purepdf.elements.RectangleElement;
 	import org.purepdf.errors.BadElementError;
 	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.io.RandomAccessFileOrArray;
 	import org.purepdf.pdf.PdfDictionary;
 	import org.purepdf.pdf.PdfIndirectReference;
 	import org.purepdf.pdf.PdfStream;
@@ -65,6 +66,7 @@ package org.purepdf.elements.images
 	import org.purepdf.pdf.codec.BmpImage;
 	import org.purepdf.pdf.codec.GifImage;
 	import org.purepdf.pdf.codec.PngImage;
+	import org.purepdf.pdf.codec.TiffImage;
 	import org.purepdf.pdf.interfaces.IPdfOCG;
 	import org.purepdf.utils.Bytes;
 
@@ -133,7 +135,7 @@ package org.purepdf.elements.images
 		protected var alt: String;
 		protected var dpiX: int = 0;
 		protected var dpiY: int = 0;
-		protected var initialRotation: Number = 0;
+		protected var _initialRotation: Number = 0;
 		protected var plainHeight: Number;
 		protected var plainWidth: Number;
 		protected var rotationRadians: Number;
@@ -196,7 +198,7 @@ package org.purepdf.elements.images
 			alt = other.alt;
 			dpiX = other.dpiX;
 			dpiY = other.dpiY;
-			initialRotation = other.initialRotation;
+			_initialRotation = other._initialRotation;
 			plainHeight = other.plainHeight;
 			plainWidth = other.plainWidth;
 			rotationRadians = other.rotationRadians;
@@ -221,6 +223,18 @@ package org.purepdf.elements.images
 			} else {
 				initFromImageElement( ImageElement( obj ) );
 			}
+		}
+		
+		public function set initialRotation( value: Number ): void
+		{
+			var old_rot: Number = rotationRadians - this._initialRotation;
+			this._initialRotation = value;
+			setRotation( old_rot );
+		}
+		
+		public function get initialRotation(): Number
+		{
+			return this._initialRotation;
 		}
 
 		public function get spacingBefore():Number
@@ -355,7 +369,7 @@ package org.purepdf.elements.images
 		public function get imageRotation(): Number
 		{
 			var d: Number = Math.PI * 2;
-			var rot: Number = ( rotationRadians - initialRotation ) % d;
+			var rot: Number = ( rotationRadians - _initialRotation ) % d;
 
 			if ( rot < 0 )
 				rot += d;
@@ -387,12 +401,12 @@ package org.purepdf.elements.images
 			return _interpolation;
 		}
 
-		public function get isInverted(): Boolean
+		public function get inverted(): Boolean
 		{
 			return _invert;
 		}
 
-		public function set isInverted( value: Boolean ): void
+		public function set inverted( value: Boolean ): void
 		{
 			_invert = value;
 		}
@@ -605,7 +619,7 @@ package org.purepdf.elements.images
 		public function setRotation( r: Number ): void
 		{
 			var d: Number = 2 * Math.PI;
-			rotationRadians = ( r + initialRotation ) % d;
+			rotationRadians = ( r + _initialRotation ) % d;
 
 			if ( rotationRadians < 0 )
 				rotationRadians += d;
@@ -760,7 +774,7 @@ package org.purepdf.elements.images
 		 * @param transparency
 		 * @throws BadElementError
 		 */
-		public static function getCCITTInstance( width: int, height: int, reverseBits: Boolean,	typeCCITT: int, parameters: int, data: Bytes, transparency: Vector.<int> ): ImageElement
+		public static function getCCITTInstance( width: int, height: int, reverseBits: Boolean,	typeCCITT: int, parameters: int, data: Bytes, transparency: Vector.<int> = null ): ImageElement
 		{
 			if( transparency != null && transparency.length != 2 )
 				throw new BadElementError("transparency length must be = 2 with");
@@ -803,9 +817,20 @@ package org.purepdf.elements.images
 			}
 
 			// TIFF
-			if ( ( c1 == 'M'.charCodeAt( 0 ) && c2 == 'M'.charCodeAt( 0 ) && c3 == 0 && c4 == 42 ) || ( c1 == 'I'.charCodeAt( 0 ) && c2
-				== 'I'.charCodeAt( 0 ) && c3 == 42 && c4 == 0 ) )
+			if ( ( c1 == 'M'.charCodeAt( 0 ) && c2 == 'M'.charCodeAt( 0 ) && c3 == 0 && c4 == 42 ) || ( c1 == 'I'.charCodeAt( 0 ) && c2 == 'I'.charCodeAt( 0 ) && c3 == 42 && c4 == 0 ) )
 			{
+				var ra: RandomAccessFileOrArray = null;
+				try
+				{
+					ra = new RandomAccessFileOrArray( buffer );
+					var img: ImageElement = TiffImage.getTiffImage( ra, 1 );
+					if( img.originalData == null )
+						img.originalData = buffer;
+					return img;
+				} finally {
+					if( ra != null )
+						ra.close();
+				}
 			}
 			
 			// WMF
