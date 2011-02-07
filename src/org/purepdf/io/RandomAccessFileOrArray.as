@@ -45,10 +45,16 @@
 package org.purepdf.io
 {
 	import flash.errors.EOFError;
+	import flash.system.System;
 	import flash.utils.ByteArray;
 	import flash.utils.IDataInput;
 	
+	import org.purepdf.errors.NonImplementatioError;
+	import org.purepdf.pdf.ByteBuffer;
+	import org.purepdf.utils.ByteArrayUtils;
 	import org.purepdf.utils.Bytes;
+	import org.purepdf.utils.DoubleUtils;
+	import org.purepdf.utils.FloatUtils;
 
 	public class RandomAccessFileOrArray implements IDataInput
 	{
@@ -58,10 +64,16 @@ package org.purepdf.io
 		private var arrayInPtr: int = 0;
 		private var back: int;
 		private var isBack: Boolean = false;
+		private var plainRandomAccess: Boolean = false;
 
 		public function RandomAccessFileOrArray( arrayIn: ByteArray )
 		{
 			this.arrayIn = arrayIn;
+		}
+		
+		public function close(): void
+		{
+			isBack = false;
 		}
 		
 		public function reOpen(): void
@@ -86,7 +98,7 @@ package org.purepdf.io
 		{
 		}
 
-		public function getFilePointer(): int
+		public function getFilePointer(): uint
 		{
 			var n: int = isBack ? 1 : 0;
 			return arrayInPtr - n - _startOffset;
@@ -112,60 +124,93 @@ package org.purepdf.io
 			isBack = true;
 		}
 
-		public function read( b: Bytes, off: int, len: int ): int
+		public function read(): int
+		{
+			if(isBack) {
+				isBack = false;
+				return back & 0xff;
+			}
+			if (arrayInPtr >= arrayIn.length)
+				return -1;
+			return arrayIn[arrayInPtr++] & 0xff;
+		}
+
+		public function readBoolean(): Boolean
+		{
+			const ch: int = this.read();
+			if (ch < 0)
+				throw new EOFError();
+			return (ch != 0);
+		}
+
+		public function readByte(): int
+		{
+			const ch: int = this.read();
+			if (ch < 0)
+				throw new EOFError();
+			return ByteBuffer.intToByte( ch );
+		}
+
+		public function readBytes( bytes: ByteArray, offset: uint = 0, length: uint = 0 ): void
+		{
+			throw new NonImplementatioError();
+		}
+
+		public function readDouble(): Number
+		{
+			return DoubleUtils.longBitsToDouble(readLong());
+		}
+		
+		public function readDoubleLE(): Number
+		{
+			return DoubleUtils.longBitsToDouble(readLong());
+		}
+		
+		public function readLong(): uint
+		{
+			return (readInt() << 32) + ( readInt() & 0xFFFFFFFF );
+		}
+
+		public function readFloat(): Number
+		{
+			return FloatUtils.intBitsToFloat(readInt());
+		}
+		
+		public function readFloatLE(): Number
+		{
+			return FloatUtils.intBitsToFloat(readIntLE());
+		}
+		
+		public function read1( b: ByteArray, off: uint = 0, len: uint = 0 ): int
 		{
 			if ( len == 0 )
 				return 0;
+			
 			var n: int = 0;
-			if ( isBack )
-			{
+			if (isBack) {
 				isBack = false;
-				if ( len == 1 )
-				{
+				if (len == 1) {
 					b[off] = back;
 					return 1;
-				} else
-				{
+				}
+				else {
 					n = 1;
 					b[off++] = back;
 					--len;
 				}
 			}
-
-			if ( arrayInPtr >= arrayIn.length )
+			if (arrayInPtr >= arrayIn.length)
 				return -1;
-			if ( arrayInPtr + len > arrayIn.length )
+			
+			if (arrayInPtr + len > arrayIn.length)
 				len = arrayIn.length - arrayInPtr;
-
-			b.buffer.position = off;
-			b.buffer.writeBytes( arrayIn, arrayInPtr, len );
-
+			
+			// System.arraycopy( arrayIn, arrayInPtr, b, off, len );
+			b.position = off;
+			b.writeBytes( arrayIn, arrayInPtr, len );
+			
 			arrayInPtr += len;
 			return len + n;
-		}
-
-		public function readBoolean(): Boolean
-		{
-			return false;
-		}
-
-		public function readByte(): int
-		{
-			return 0;
-		}
-
-		public function readBytes( bytes: ByteArray, offset: uint = 0, length: uint = 0 ): void
-		{
-		}
-
-		public function readDouble(): Number
-		{
-			return 0;
-		}
-
-		public function readFloat(): Number
-		{
-			return 0;
 		}
 
 		/**
@@ -176,7 +221,7 @@ package org.purepdf.io
 			var n: int = 0;
 			do
 			{
-				var count: int = read( b, off + n, len - n );
+				var count: int = read1( b.buffer, off + n, len - n );
 				if ( count < 0 )
 					throw new EOFError();
 				n += count;
@@ -185,14 +230,24 @@ package org.purepdf.io
 
 		public function readInt(): int
 		{
-			if ( isBack )
-			{
-				isBack = false;
-				return back & 0xff;
-			}
-			if ( arrayInPtr >= arrayIn.length )
-				return -1;
-			return arrayIn[arrayInPtr++] & 0xff;
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			const ch3: int = this.read();
+			const ch4: int = this.read();
+			if ((ch1 | ch2 | ch3 | ch4) < 0)
+				throw new EOFError();
+			return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + ch4);
+		}
+		
+		public function readIntLE(): int
+		{
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			const ch3: int = this.read();
+			const ch4: int = this.read();
+			if ((ch1 | ch2 | ch3 | ch4) < 0)
+				throw new EOFError();
+			return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + (ch1 << 0));
 		}
 
 		public function readMultiByte( length: uint, charSet: String ): String
@@ -207,7 +262,20 @@ package org.purepdf.io
 
 		public function readShort(): int
 		{
-			return 0;
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			if ((ch1 | ch2) < 0)
+				throw new EOFError();
+			return ((ch1 << 8) + ch2);
+		}
+		
+		public function readShortLE(): int
+		{
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			if ((ch1 | ch2) < 0)
+				throw new EOFError();
+			return ((ch2 << 8) + (ch1 << 0));
 		}
 
 		public function readUTF(): String
@@ -222,20 +290,91 @@ package org.purepdf.io
 
 		public function readUnsignedByte(): uint
 		{
-			return 0;
+			const ch: int = this.read();
+			if (ch < 0)
+				throw new EOFError();
+			return ch;
 		}
 
+		/**
+		 * Reads an unsigned 32-bit integer from this stream. 
+		 * This method reads 4 bytes from the stream, starting at the current stream pointer.
+		 * If the bytes read, in order, are <code>b1</code>,
+		 * <code>b2</code>, <code>b3</code>, and <code>b4</code>, where
+		 * <code>0&nbsp;&lt;=&nbsp;b1, b2, b3, b4&nbsp;&lt;=&nbsp;255</code>,
+		 * then the result is equal to:
+		 * <blockquote><pre>
+		 *     (b1 &lt;&lt; 24) | (b2 &lt;&lt; 16) + (b3 &lt;&lt; 8) + b4
+		 * </pre></blockquote>
+		 * <p>
+		 * This method blocks until the four bytes are read, the end of the
+		 * stream is detected, or an exception is thrown.
+		 *
+		 * @return     the next four bytes of this stream, interpreted as a
+		 *             <code>long</code>.
+		 * @throws	EOFError
+		 */
 		public function readUnsignedInt(): uint
 		{
-			return 0;
+			const ch1: uint = this.read();
+			const ch2: uint = this.read();
+			const ch3: uint = this.read();
+			const ch4: uint = this.read();
+			if ((ch1 | ch2 | ch3 | ch4) < 0)
+				throw new EOFError();
+			return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
+		}
+		
+		public function readUnsignedIntLE(): uint
+		{
+			const ch1: uint = this.read();
+			const ch2: uint = this.read();
+			const ch3: uint = this.read();
+			const ch4: uint = this.read();
+			if ((ch1 | ch2 | ch3 | ch4) < 0)
+				throw new EOFError();
+			return ((ch4 << 24) + (ch3 << 16) + (ch2 << 8) + (ch1 << 0));
 		}
 
 		public function readUnsignedShort(): uint
 		{
-			return 0;
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			if ((ch1 | ch2) < 0)
+				throw new EOFError();
+			return (ch1 << 8) + ch2;
+		}
+		
+		/**
+		 * Reads an unsigned 16-bit number from this stream in little-endian order.
+		 * This method reads
+		 * two bytes from the stream, starting at the current stream pointer.
+		 * If the bytes read, in order, are
+		 * <code>b1</code> and <code>b2</code>, where
+		 * <code>0&nbsp;&lt;=&nbsp;b1, b2&nbsp;&lt;=&nbsp;255</code>,
+		 * then the result is equal to:
+		 * <blockquote><pre>
+		 *     (b2 &lt;&lt; 8) | b1
+		 * </pre></blockquote>
+		 * <p>
+		 * This method blocks until the two bytes are read, the end of the
+		 * stream is detected, or an exception is thrown.
+		 *
+		 * @return     the next two bytes of this stream, interpreted as an
+		 *             unsigned 16-bit integer.
+		 * @thorws EOFError
+		 */
+		public function readUnsignedShortLE(): int
+		{
+			const ch1: int = this.read();
+			const ch2: int = this.read();
+			if ((ch1 | ch2) < 0)
+				throw new EOFError();
+			return (ch2 << 8) + (ch1 << 0);
 		}
 
 		/**
+		 * 
 		 * @throws EOFError
 		 */
 		public function seek( pos: int ): void
@@ -253,6 +392,45 @@ package org.purepdf.io
 		public function set startOffset( value: int ): void
 		{
 			_startOffset = value;
+		}
+		
+		public function skip( n: uint ): uint
+		{
+			return skipBytes( n );
+		}
+		
+		public function skipBytes( n: int ): int
+		{
+			if (n <= 0) 
+			{
+				return 0;
+			}
+			
+			var adj: int = 0;
+			if( isBack )
+			{
+				isBack = false;
+				if (n == 1) {
+					return 1;
+				} else {
+					--n;
+					adj = 1;
+				}
+			}
+			
+			var pos: int;
+			var len: int;
+			var newpos: int;
+			
+			pos = getFilePointer();
+			len = length;
+			newpos = pos + n;
+			
+			if (newpos > len) {
+				newpos = len;
+			}
+			seek( newpos );
+			return newpos - pos + adj;
 		}
 
 		public static function fromFile( file: RandomAccessFileOrArray ): RandomAccessFileOrArray

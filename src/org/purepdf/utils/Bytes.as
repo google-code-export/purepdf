@@ -47,6 +47,8 @@ package org.purepdf.utils
 	import flash.utils.ByteArray;
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
+	
+	import org.purepdf.pdf.ByteBuffer;
 
 	/**
 	 * Implementation of a byte[] buffer
@@ -126,6 +128,7 @@ package org.purepdf.utils
 			{
 				str += String.fromCharCode( this[ k + offset ] );
 			}
+			trace( "readAsString:", str );
 			return str;
 		}
 
@@ -182,6 +185,11 @@ package org.purepdf.utils
 		flash_proxy override function setProperty( name: *, value: * ): void
 		{
 			buf[ uint( name ) ] = value;
+		}
+		
+		public static function intToByte( value: int ): int
+		{
+			return ByteBuffer.intToByte( value );
 		}
 	}
 }

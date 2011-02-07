@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id$
+* $Id: FloatUtils.as 238 2010-01-31 10:49:33Z alessandro.crugnola $
 * $Author Alessandro Crugnola $
-* $Rev$ $LastChangedDate$
-* $URL$
+* $Rev: 238 $ $LastChangedDate: 2010-01-31 11:49:33 +0100 (Sun, 31 Jan 2010) $
+* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/utils/FloatUtils.as $
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
@@ -44,28 +44,11 @@
 */
 package org.purepdf.utils
 {
-	public class FloatUtils
+	public class DoubleUtils
 	{
-		private static const EXP_BIT_MASK: int = 2139095040;
-		private static const SIGNIF_BIT_MASK: int = 8388607;
-		
-		/**
-		 * Returns a representation of the specified floating-point value
-		 * according to the IEEE 754 floating-point "single format" bit
-		 * layout.
-	 	 */
-		public static function floatToIntBits( value: Number ): int
+		public static function longBitsToDouble( value: Number ): Number
 		{
-			var result: int = AlchemyUtils.getLib().floatToRawIntBits( value );
-
-			if ( ( ( result & EXP_BIT_MASK ) == EXP_BIT_MASK ) && ( result & SIGNIF_BIT_MASK ) != 0 )
-				result = 0x7fc00000;
-			return result;
-		}
-		
-		public static function intBitsToFloat( value: int ): Number
-		{
-			var result: Number = AlchemyUtils.getLib().intBitsToFloat( value );
+			var result: Number = AlchemyUtils.getLib().longBitsToDouble( value );
 			return result;
 		}
 	}

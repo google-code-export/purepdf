@@ -92,7 +92,7 @@ package org.purepdf.pdf
 					put( PdfName.MASK, maskRef );
 			}
 
-			if ( image.isMask && image.isInverted )
+			if ( image.isMask && image.inverted )
 				put( PdfName.DECODE, new PdfLiteral( "[1 0]" ));
 
 			if ( image.isInterpolated )
@@ -153,20 +153,20 @@ package org.purepdf.pdf
 					{
 						case 1:
 							put( PdfName.COLORSPACE, PdfName.DEVICEGRAY );
-							if ( image.isInverted )
+							if ( image.inverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0]" ));
 							break;
 						
 						case 3:
 							put( PdfName.COLORSPACE, PdfName.DEVICERGB );
-							if ( image.isInverted )
+							if ( image.inverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0]" ));
 							break;
 						
 						case 4:
 						default:
 							put( PdfName.COLORSPACE, PdfName.DEVICECMYK );
-							if ( image.isInverted )
+							if ( image.inverted )
 								put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0 1 0]" ));
 					}
 					var additional: PdfDictionary = image.additional;
@@ -217,7 +217,7 @@ package org.purepdf.pdf
 						break;
 					default:
 						put( PdfName.COLORSPACE, PdfName.DEVICECMYK );
-						if ( image.isInverted )
+						if ( image.inverted )
 						{
 							put( PdfName.DECODE, new PdfLiteral( "[1 0 1 0 1 0 1 0]" ));
 						}

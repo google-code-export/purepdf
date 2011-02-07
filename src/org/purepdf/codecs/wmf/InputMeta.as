@@ -4,10 +4,10 @@
  * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
  * |   __||_____||__|  |_____||___|  |_____/|___|
  * |__|
- * $Id: ImageRaw.as 238 2010-01-31 10:49:33Z alessandro.crugnola $
+ * $Id$
  * $Author Alessandro Crugnola $
- * $Rev: 238 $ $LastChangedDate: 2010-01-31 11:49:33 +0100 (Sun, 31 Jan 2010) $
- * $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/elements/images/ImageRaw.as $
+ * $Rev$ $LastChangedDate$
+ * $URL$
  *
  * The contents of this file are subject to  LGPL license
  * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the

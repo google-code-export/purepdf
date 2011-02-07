@@ -56,29 +56,44 @@ AS3_Val intBitsToFloat(void* self, AS3_Val args)
         float f;
     } u;
     u.i = (long)value;
-
-
     return AS3_Number(u.f);
+}
+
+AS3_Val longBitsToDouble(void* self, AS3_Val args)
+{
+    union {
+        long l;
+        double d;
+    } u;
+    
+	long value = AS3_NumberValue(args);
+	AS3_Release(args);
+    u.l = value;
+    return AS3_Number(u.d);
 }
 
 int main()
 {
-	AS3_Val getrtypesMethod 	= AS3_Function( NULL, getrtypes );
-	AS3_Val byteMethod 		= AS3_Function( NULL, byte );
+	AS3_Val getrtypesMethod 		= AS3_Function( NULL, getrtypes );
+	AS3_Val byteMethod 				= AS3_Function( NULL, byte );
 	AS3_Val floatToRawIntBitsMethod	= AS3_Function( NULL, floatToRawIntBits );
 	AS3_Val intBitsToFloatMethod	= AS3_Function( NULL, intBitsToFloat );
+	AS3_Val longBitsToDouble		= AS3_Function( NULL, longBitsToDouble );
 
-	AS3_Val result = AS3_Object( "getrtypes: AS3ValType, byte: AS3ValType, floatToRawIntBits: AS3ValType, intBitsToFloat: AS3ValType", 
+	AS3_Val result = AS3_Object( 
+		"getrtypes: AS3ValType, byte: AS3ValType, floatToRawIntBits: AS3ValType, intBitsToFloat: AS3ValType, longBitsToDouble: AS3ValType", 
 		getrtypesMethod,
 		byteMethod, 
 		floatToRawIntBitsMethod, 
-		intBitsToFloatMethod
+		intBitsToFloatMethod,
+		longBitsToDouble
 	);
 
 	AS3_Release( getrtypesMethod );
 	AS3_Release( byteMethod );
 	AS3_Release( floatToRawIntBitsMethod );
 	AS3_Release( intBitsToFloatMethod );
+	AS3_Release( longBitsToDouble );
 
 	AS3_LibInit( result );
 	return 0;

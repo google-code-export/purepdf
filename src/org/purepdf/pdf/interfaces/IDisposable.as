@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|    
 * |__|
-* $Id: PRStream.as 333 2010-02-14 19:57:51Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 333 $ $LastChangedDate: 2010-02-14 20:57:51 +0100 (Sun, 14 Feb 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PRStream.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license 
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the

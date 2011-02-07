@@ -4,10 +4,10 @@
 * |  _  ||  |  ||   _||  -__||    __/  --  |    ___|
 * |   __||_____||__|  |_____||___|  |_____/|___|
 * |__|
-* $Id: PRDocObjectReader.as 348 2010-02-24 14:43:58Z alessandro.crugnola $
+* $Id$
 * $Author Alessandro Crugnola $
-* $Rev: 348 $ $LastChangedDate: 2010-02-24 15:43:58 +0100 (Wed, 24 Feb 2010) $
-* $URL: https://purepdf.googlecode.com/svn/trunk/src/org/purepdf/pdf/PRDocObjectReader.as $
+* $Rev$ $LastChangedDate$
+* $URL$
 *
 * The contents of this file are subject to  LGPL license
 * (the "GNU LIBRARY GENERAL PUBLIC LICENSE"), in which case the
