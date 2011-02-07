@@ -107,6 +107,7 @@ package
 			class_list.push( BitmapImageSample );
 			class_list.push( KoreanNotEmbed );
 			class_list.push( KoreanEmbed );
+			class_list.push( MultiPageTiff );
 			
 			total_number = class_list.length;
 		}
