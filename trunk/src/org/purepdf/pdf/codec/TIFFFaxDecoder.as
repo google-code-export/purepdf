@@ -318,8 +318,8 @@ package org.purepdf.pdf.codec
             this.h = h;
             this.bitPointer = 0;
             this.bytePointer = 0;
-            this.prevChangingElems = new int[w];
-            this.currChangingElems = new int[w];
+            this.prevChangingElems = new Vector.<int>(w, true);
+            this.currChangingElems = new Vector.<int>(w, true);
         }
 
         public function decode1D( buffer: Bytes, compData: Bytes, startX: int, height: int ): void
