@@ -217,8 +217,10 @@ package org.purepdf.pdf.codec
 						break;
 				}
 				
+				var im: Bytes;
+				
 				if (direct && rowsStrip == h) { //single strip, direct
-					var im: Bytes = new Bytes( int( size[0] ) );
+					im = new Bytes( int( size[0] ) );
 					s.seek( offset[0] );
 					s.readFully( im, 0, im.length );
 					img = ImageElement.getCCITTInstance( w, h, false, imagecomp, params, im );
@@ -230,7 +232,7 @@ package org.purepdf.pdf.codec
 					
 					for( var k: int = 0; k < offset.length; ++k )
 					{
-						var im: Bytes = new Bytes( int( size[k] ) );
+						im = new Bytes( int( size[k] ) );
 						s.seek( offset[k] );
 						s.readFully( im, 0, im.length );
 						var height: int = Math.min( rowsStrip, rowsLeft );
@@ -270,8 +272,7 @@ package org.purepdf.pdf.codec
 								break;
 							
 							case TIFFConstants.COMPRESSION_CCITTFAX4:
-								throw new NonImplementatioError("TIFFFaxDecoder decodeT6 non yet implemented");
-								//decoder.decodeT6( outBuf, im, 0, height, tiffT6Options );
+								decoder.decodeT6( outBuf, im, 0, height, tiffT6Options );
 								g4.fax4Encode2( outBuf, height );
 								break;
 						}
@@ -361,6 +362,7 @@ package org.purepdf.pdf.codec
             const compression: int = dir.getFieldAsLong( TIFFConstants.TIFFTAG_COMPRESSION );
             var predictor: int = 1;
             var lzwDecoder: TIFFLZWDecoder = null;
+			var k: int;
 
             switch ( compression )
             {
@@ -492,6 +494,9 @@ package org.purepdf.pdf.codec
                 if ( compression != TIFFConstants.COMPRESSION_OJPEG && compression != TIFFConstants.COMPRESSION_JPEG )
                     zip = new ByteArray();
             }
+			
+			var jpeg: Bytes;
+			var im: Bytes;
 
             if ( compression == TIFFConstants.COMPRESSION_OJPEG )
             {
@@ -506,7 +511,7 @@ package org.purepdf.pdf.codec
                 {
                     jpegLength = dir.getFieldAsLong( TIFFConstants.TIFFTAG_JPEGIFBYTECOUNT ) + int( size[0] );
                 }
-                var jpeg: Bytes = new Bytes( Math.min( jpegLength, s.length - jpegOffset ) );
+                jpeg = new Bytes( Math.min( jpegLength, s.length - jpegOffset ) );
                 var posFilePointer: int = s.getFilePointer();
                 posFilePointer += jpegOffset;
                 s.seek( posFilePointer );
@@ -516,15 +521,15 @@ package org.purepdf.pdf.codec
             {
                 if ( size.length > 1 )
                     throw new IOError( "compression jpeg is only supported with a single strip this image has " + size.length + "strips" );
-                var jpeg: Bytes = new Bytes( int( size[0] ) );
+                jpeg = new Bytes( int( size[0] ) );
                 s.seek( offset[0] );
                 s.readFully( jpeg, 0, jpeg.length );
                 img = new Jpeg( jpeg.buffer );
             } else
             {
-                for ( var k: int = 0; k < offset.length; ++k )
+                for ( k = 0; k < offset.length; ++k )
                 {
-                    var im: Bytes = new Bytes( int( size[k] ) );
+                    im = new Bytes( int( size[k] ) );
                     s.seek( offset[k] );
                     s.readFully( im, 0, im.length );
                     var height: int = Math.min( rowsStrip, rowsLeft );
@@ -576,7 +581,9 @@ package org.purepdf.pdf.codec
                     img.deflated = true;
                 }
             }
+			
             img.setDpi( dpiX, dpiY );
+			var fd: TIFFField;
 
             if ( compression != TIFFConstants.COMPRESSION_OJPEG && compression != TIFFConstants.COMPRESSION_JPEG )
             {
@@ -584,7 +591,7 @@ package org.purepdf.pdf.codec
                 {
                     try
                     {
-                        var fd: TIFFField = dir.getField( TIFFConstants.TIFFTAG_ICCPROFILE );
+                        fd = dir.getField( TIFFConstants.TIFFTAG_ICCPROFILE );
                             //ICC_Profile icc_prof = ICC_Profile.getInstance(fd.getAsBytes());
                             //if (samplePerPixel == icc_prof.getNumComponents())
                             //	img.tagICC(icc_prof);
@@ -596,13 +603,13 @@ package org.purepdf.pdf.codec
 
                 if ( dir.isTagPresent( TIFFConstants.TIFFTAG_COLORMAP ) )
                 {
-                    var fd: TIFFField = dir.getField( TIFFConstants.TIFFTAG_COLORMAP );
+                    fd = dir.getField( TIFFConstants.TIFFTAG_COLORMAP );
                     var rgb: Vector.<uint> = fd.getAsChars();
                     var palette: Bytes = new Bytes( rgb.length );
                     var gColor: int = rgb.length / 3;
                     var bColor: int = gColor * 2;
 
-                    for ( var k: int = 0; k < gColor; ++k )
+                    for ( k = 0; k < gColor; ++k )
                     {
                         palette[k * 3] = ByteBuffer.intToByte( rgb[k] >>> 8 );
                         palette[k * 3 + 1] = ByteBuffer.intToByte( rgb[k + gColor] >>> 8 );
@@ -634,6 +641,7 @@ package org.purepdf.pdf.codec
             var dstCount: int = 0;
             var repeat: int;
             var b: int;
+			var i: int;
 
             try
             {
@@ -643,7 +651,7 @@ package org.purepdf.pdf.codec
 
                     if ( b >= 0 && b <= 127 )
                     {
-                        for ( var i: int = 0; i < ( b + 1 ); i++ )
+                        for ( i = 0; i < ( b + 1 ); i++ )
                         {
                             dst[dstCount++] = data[srcCount++];
                         }
@@ -651,7 +659,7 @@ package org.purepdf.pdf.codec
                     {
                         repeat = data[srcCount++];
 
-                        for ( var i: int = 0; i < ( -b + 1 ); i++ )
+                        for ( i = 0; i < ( -b + 1 ); i++ )
                         {
                             dst[dstCount++] = repeat;
                         }

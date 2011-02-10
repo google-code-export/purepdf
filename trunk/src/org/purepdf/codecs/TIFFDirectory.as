@@ -220,7 +220,6 @@ package org.purepdf.codecs
                                 var index: int = 0;
                                 var prevIndex: int = 0;
                                 var v: Array = new Array();
-                                trace( "count: " + count );
                                 trace( "bvalues" + bvalues.toVector() );
 
                                 while ( index < count )
