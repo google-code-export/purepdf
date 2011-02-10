@@ -276,7 +276,7 @@ package org.purepdf.pdf.codec
                 390, 390, 390, 390, 390, 390, 390, 390,  // 504 - 511
                 390, 390, 390, 390, 390, 390, 390, 390, ] );
 		
-		static const table1: Vector.<int> = Vector.<int>([
+		internal static const table1: Vector.<int> = Vector.<int>([
 			0x00, // 0 bits are left in first byte - SHOULD NOT HAPPEN
 			0x01, // 1 bits are left in first byte
 			0x03, // 2 bits are left in first byte
@@ -288,7 +288,7 @@ package org.purepdf.pdf.codec
 			0xff  // 8 bits are left in first byte
 		]);
 		
-		static const table2: Vector.<int> = Vector.<int>([
+		internal static const table2: Vector.<int> = Vector.<int>([
 			0x00, // 0
 			0x80, // 1
 			0xc0, // 2
@@ -299,6 +299,24 @@ package org.purepdf.pdf.codec
 			0xfe, // 7
 			0xff  // 8
 		]);
+
+        internal static const twoDCodes: Vector.<int> = Vector.<int>( [  // 0 - 7
+                80, 88, 23, 71, 30, 30, 62, 62,  // 8 - 15
+                4, 4, 4, 4, 4, 4, 4, 4,  // 16 - 23
+                11, 11, 11, 11, 11, 11, 11, 11,  // 24 - 31
+                11, 11, 11, 11, 11, 11, 11, 11,  // 32 - 39
+                35, 35, 35, 35, 35, 35, 35, 35,  // 40 - 47
+                35, 35, 35, 35, 35, 35, 35, 35,  // 48 - 55
+                51, 51, 51, 51, 51, 51, 51, 51,  // 56 - 63
+                51, 51, 51, 51, 51, 51, 51, 51,  // 64 - 71
+                41, 41, 41, 41, 41, 41, 41, 41,  // 72 - 79
+                41, 41, 41, 41, 41, 41, 41, 41,  // 80 - 87
+                41, 41, 41, 41, 41, 41, 41, 41,  // 88 - 95
+                41, 41, 41, 41, 41, 41, 41, 41,  // 96 - 103
+                41, 41, 41, 41, 41, 41, 41, 41,  // 104 - 111
+                41, 41, 41, 41, 41, 41, 41, 41,  // 112 - 119
+                41, 41, 41, 41, 41, 41, 41, 41,  // 120 - 127
+                41, 41, 41, 41, 41, 41, 41, 41, ] );
 		
 		public static function reverseBits( b: Bytes ): void
 		{
@@ -324,6 +342,7 @@ package org.purepdf.pdf.codec
 
         public function decode1D( buffer: Bytes, compData: Bytes, startX: int, height: int ): void
         {
+			trace("TIFFFaxDecoder::decode1D");
             this.data = compData;
             var lineOffset: int = 0;
             var scanlineStride: int = ( w + 7 ) / 8;
@@ -333,6 +352,173 @@ package org.purepdf.pdf.codec
             for ( var i: int = 0; i < height; i++ )
             {
                 decodeNextScanline( buffer, lineOffset, startX );
+                lineOffset += scanlineStride;
+            }
+        }
+
+        public function decodeT6( buffer: Bytes, compData: Bytes, startX: int, height: int, tiffT6Options: Number ): void
+        {
+            this.data = compData;
+            compression = 4;
+            bitPointer = 0;
+            bytePointer = 0;
+            var scanlineStride: int = ( w + 7 ) / 8;
+            var a0: int, a1: int, b1: int, b2: int;
+            var entry: int, code: int, bits: int;
+            var isWhite: Boolean;
+            var currIndex: int;
+            var temp: Vector.<int>;
+            var b: Vector.<int> = new Vector.<int>( 2, true );
+            uncompressedMode = ( ( tiffT6Options & 0x02 ) >> 1 );
+            var cce: Vector.<int> = currChangingElems;
+            changingElemSize = 0;
+            cce[changingElemSize++] = w;
+            cce[changingElemSize++] = w;
+            var lineOffset: int = 0;
+            var bitOffset: int;
+
+            for ( var lines: int = 0; lines < height; lines++ )
+            {
+                a0 = -1;
+                isWhite = true;
+                temp = prevChangingElems;
+                prevChangingElems = currChangingElems;
+                cce = currChangingElems = temp;
+                currIndex = 0;
+                bitOffset = startX;
+                lastChangingElement = 0;
+
+                while ( bitOffset < w )
+                {
+                    getNextChangingElement( a0, isWhite, b );
+                    b1 = b[0];
+                    b2 = b[1];
+                    entry = nextLesserThan8Bits( 7 );
+                    entry = twoDCodes[entry] & 0xff;
+                    code = ( entry & 0x78 ) >>> 3;
+                    bits = entry & 0x07;
+
+                    if ( code == 0 )
+                    { // Pass
+                        if ( !isWhite )
+                        {
+                            setToBlack( buffer, lineOffset, bitOffset, b2 - bitOffset );
+                        }
+                        bitOffset = a0 = b2;
+                        updatePointer( 7 - bits );
+                    } else if ( code == 1 )
+                    { // Horizontal
+                        updatePointer( 7 - bits );
+                        var number: int;
+
+                        if ( isWhite )
+                        {
+                            number = decodeWhiteCodeWord();
+                            bitOffset += number;
+                            cce[currIndex++] = bitOffset;
+                            number = decodeBlackCodeWord();
+                            setToBlack( buffer, lineOffset, bitOffset, number );
+                            bitOffset += number;
+                            cce[currIndex++] = bitOffset;
+                        } else
+                        {
+                            number = decodeBlackCodeWord();
+                            setToBlack( buffer, lineOffset, bitOffset, number );
+                            bitOffset += number;
+                            cce[currIndex++] = bitOffset;
+                            number = decodeWhiteCodeWord();
+                            bitOffset += number;
+                            cce[currIndex++] = bitOffset;
+                        }
+                        a0 = bitOffset;
+                    } else if ( code <= 8 )
+                    { // Vertical
+                        a1 = b1 + ( code - 5 );
+                        cce[currIndex++] = a1;
+
+                        if ( !isWhite )
+                        {
+                            setToBlack( buffer, lineOffset, bitOffset, a1 - bitOffset );
+                        }
+                        bitOffset = a0 = a1;
+                        isWhite = !isWhite;
+                        updatePointer( 7 - bits );
+                    } else if ( code == 11 )
+                    {
+                        if ( nextLesserThan8Bits( 3 ) != 7 )
+                        {
+                            throw new RuntimeError( "invalid code encountered while decoding 2d group 4 compressed data" );
+                        }
+                        var zeros: int = 0;
+                        var exit: Boolean = false;
+
+                        while ( !exit )
+                        {
+                            while ( nextLesserThan8Bits( 1 ) != 1 )
+                            {
+                                zeros++;
+                            }
+
+                            if ( zeros > 5 )
+                            {
+                                zeros = zeros - 6;
+
+                                if ( !isWhite && ( zeros > 0 ) )
+                                {
+                                    cce[currIndex++] = bitOffset;
+                                }
+                                bitOffset += zeros;
+
+                                if ( zeros > 0 )
+                                {
+                                    isWhite = true;
+                                }
+
+                                if ( nextLesserThan8Bits( 1 ) == 0 )
+                                {
+                                    if ( !isWhite )
+                                    {
+                                        cce[currIndex++] = bitOffset;
+                                    }
+                                    isWhite = true;
+                                } else
+                                {
+                                    if ( isWhite )
+                                    {
+                                        cce[currIndex++] = bitOffset;
+                                    }
+                                    isWhite = false;
+                                }
+                                exit = true;
+                            }
+
+                            if ( zeros == 5 )
+                            {
+                                if ( !isWhite )
+                                {
+                                    cce[currIndex++] = bitOffset;
+                                }
+                                bitOffset += zeros;
+                                isWhite = true;
+                            } else
+                            {
+                                bitOffset += zeros;
+                                cce[currIndex++] = bitOffset;
+                                setToBlack( buffer, lineOffset, bitOffset, 1 );
+                                ++bitOffset;
+                                isWhite = false;
+                            }
+                        }
+                    } else
+                    {
+                        bitOffset = w;
+                        updatePointer( 7 - bits );
+                    }
+                }
+
+                if ( currIndex < cce.length )
+                    cce[currIndex++] = bitOffset;
+                changingElemSize = currIndex;
                 lineOffset += scanlineStride;
             }
         }
@@ -676,6 +862,149 @@ package org.purepdf.pdf.codec
                 buffer[byteNum] |= 1 << ( 7 - ( bitNum & 0x7 ) );
                 ++bitNum;
             }
+        }
+
+        private function getNextChangingElement( a0: int, isWhite: Boolean, ret: Vector.<int> ): void
+        {
+            var pce: Vector.<int> = this.prevChangingElems;
+            var ces: int = this.changingElemSize;
+            var start: int = lastChangingElement > 0 ? lastChangingElement - 1 : 0;
+
+            if ( isWhite )
+            {
+                start &= ~0x1; // Search even numbered elements
+            } else
+            {
+                start |= 0x1; // Search odd numbered elements
+            }
+            var i: int = start;
+
+            for ( ; i < ces; i += 2 )
+            {
+                var temp: int = pce[i];
+
+                if ( temp > a0 )
+                {
+                    lastChangingElement = i;
+                    ret[0] = temp;
+                    break;
+                }
+            }
+
+            if ( i + 1 < ces )
+            {
+                ret[1] = pce[i + 1];
+            }
+        }
+
+        private function decodeWhiteCodeWord(): int
+        {
+            var current: int, entry: int, bits: int, isT: int, twoBits: int;
+            var code: int = -1;
+            var runLength: int = 0;
+            var isWhite: Boolean = true;
+
+            while ( isWhite )
+            {
+                current = nextNBits( 10 );
+                entry = white[current];
+                isT = entry & 0x0001;
+                bits = ( entry >>> 1 ) & 0x0f;
+
+                if ( bits == 12 )
+                { // Additional Make up code
+                    twoBits = nextLesserThan8Bits( 2 );
+                    current = ( ( current << 2 ) & 0x000c ) | twoBits;
+                    entry = additionalMakeup[current];
+                    bits = ( entry >>> 1 ) & 0x07; // 3 bits 0000 0111
+                    code = ( entry >>> 4 ) & 0x0fff; // 12 bits
+                    runLength += code;
+                    updatePointer( 4 - bits );
+                } else if ( bits == 0 )
+                { // ERROR
+                    throw new RuntimeError( "invalid code encountered" );
+                } else if ( bits == 15 )
+                { // EOL
+                    throw new RuntimeError( "EOL code word encountered in white run" );
+                } else
+                {
+                    code = ( entry >>> 5 ) & 0x07ff;
+                    runLength += code;
+                    updatePointer( 10 - bits );
+
+                    if ( isT == 0 )
+                    {
+                        isWhite = false;
+                    }
+                }
+            }
+            return runLength;
+        }
+
+        private function decodeBlackCodeWord(): int
+        {
+            var current: int, entry: int, bits: int, isT: int;
+            var code: int = -1;
+            var runLength: int = 0;
+            var isWhite: Boolean = false;
+
+            while ( !isWhite )
+            {
+                current = nextLesserThan8Bits( 4 );
+                entry = initBlack[current];
+                isT = entry & 0x0001;
+                bits = ( entry >>> 1 ) & 0x000f;
+                code = ( entry >>> 5 ) & 0x07ff;
+
+                if ( code == 100 )
+                {
+                    current = nextNBits( 9 );
+                    entry = black[current];
+                    isT = entry & 0x0001;
+                    bits = ( entry >>> 1 ) & 0x000f;
+                    code = ( entry >>> 5 ) & 0x07ff;
+
+                    if ( bits == 12 )
+                    {
+                        updatePointer( 5 );
+                        current = nextLesserThan8Bits( 4 );
+                        entry = additionalMakeup[current];
+                        bits = ( entry >>> 1 ) & 0x07; // 3 bits 0000 0111
+                        code = ( entry >>> 4 ) & 0x0fff; // 12 bits
+                        runLength += code;
+                        updatePointer( 4 - bits );
+                    } else if ( bits == 15 )
+                    {
+                        // EOL code
+                        throw new RuntimeError( "EOL code word encountered in black run" );
+                    } else
+                    {
+                        runLength += code;
+                        updatePointer( 9 - bits );
+
+                        if ( isT == 0 )
+                        {
+                            isWhite = true;
+                        }
+                    }
+                } else if ( code == 200 )
+                {
+                    current = nextLesserThan8Bits( 2 );
+                    entry = twoBitBlack[current];
+                    code = ( entry >>> 5 ) & 0x07ff;
+                    runLength += code;
+                    bits = ( entry >>> 1 ) & 0x0f;
+                    updatePointer( 2 - bits );
+                    isWhite = true;
+                } else
+                {
+                    // Is a Terminating code
+                    runLength += code;
+                    updatePointer( 4 - bits );
+                    isWhite = true;
+                }
+            }
+            return runLength;
         }
 	}
 }
