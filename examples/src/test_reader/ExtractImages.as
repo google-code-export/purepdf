@@ -1,11 +1,13 @@
 package test_reader
 {
 	import com.adobe.images.PNGEncoder;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	
 	import org.purepdf.pdf.PRStream;
 	import org.purepdf.pdf.PdfName;
 	import org.purepdf.pdf.PdfObject;
@@ -17,7 +19,7 @@ package test_reader
 	{
 		public function ExtractImages()
 		{
-			super( "../output/ImageTypes.pdf" );
+			super( "../output/MultiPageTiff.pdf" );
 		}
 
 		override protected function onReadComplete( event: Event ): void

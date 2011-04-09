@@ -82,6 +82,7 @@ package
 			class_list.push( RegistrationForm );
 			class_list.push( HeaderFooter1 );
 			class_list.push( HeaderFooter2 );
+			class_list.push( HeaderFooter3 );
 			class_list.push( SimpleTextField );
 			class_list.push( HelloUnicode );
 			class_list.push( ChineseKoreanJapanese );

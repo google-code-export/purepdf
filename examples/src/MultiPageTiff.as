@@ -2,9 +2,11 @@ package
 {
     import flash.events.Event;
     import flash.utils.ByteArray;
+    
     import org.purepdf.elements.Paragraph;
     import org.purepdf.elements.images.ImageElement;
     import org.purepdf.io.RandomAccessFileOrArray;
+    import org.purepdf.pdf.PdfDocument;
     import org.purepdf.pdf.codec.TiffImage;
 
     public class MultiPageTiff extends DefaultBasicExample
@@ -22,6 +24,7 @@ package
         override protected function execute( event: Event = null ): void
         {
             super.execute( event );
+			PdfDocument.compress = false;
             var byte: ByteArray = new cls1();
             var ra: RandomAccessFileOrArray = new RandomAccessFileOrArray( byte );
             createDocument( "Multi page TIFF Image Example" );
